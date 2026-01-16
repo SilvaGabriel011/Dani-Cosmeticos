@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { format, subDays, startOfMonth } from "date-fns"
 import { PageHeader } from "@/components/layout/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,8 +10,11 @@ import { ChartContainer } from "@/components/ui/chart-container"
 import { PieChart } from "@/components/charts/pie-chart"
 import { BarChart } from "@/components/charts/bar-chart"
 import { FilterBar } from "@/components/ui/filter-bar"
+import { Button } from "@/components/ui/button"
+import { SaleForm } from "@/components/sales/sale-form"
 import { useFilters } from "@/hooks/use-filters"
-import { DollarSign, Package, Users, TrendingUp, AlertTriangle } from "lucide-react"
+import { DollarSign, Package, Users, TrendingUp, AlertTriangle, Plus } from "lucide-react"
+import { ReceivablesCard } from "@/components/dashboard/receivables-card"
 import { useDashboard } from "@/hooks/use-dashboard"
 import { useReportByProduct, useReportByPayment } from "@/hooks/use-reports"
 import { formatCurrency, formatDate } from "@/lib/utils"
@@ -49,6 +52,8 @@ export default function DashboardPage() {
   const { filters, setFilter } = useFilters({
     initialValues: { period: "month" },
   })
+
+  const [saleFormOpen, setSaleFormOpen] = useState(false)
 
   const dateRange = getDateRange(filters.period)
 
@@ -90,13 +95,19 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Visão geral do seu negócio">
-        <FilterBar
-          filters={[
-            { type: "toggle", name: "period", toggleOptions: periodOptions },
-          ]}
-          values={filters}
-          onChange={(name, value) => setFilter(name as keyof typeof filters, value)}
-        />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Button onClick={() => setSaleFormOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Venda
+          </Button>
+          <FilterBar
+            filters={[
+              { type: "toggle", name: "period", toggleOptions: periodOptions },
+            ]}
+            values={filters}
+            onChange={(name, value) => setFilter(name as keyof typeof filters, value)}
+          />
+        </div>
       </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -165,7 +176,7 @@ export default function DashboardPage() {
         </ChartContainer>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>Últimas Vendas</CardTitle>
@@ -200,6 +211,11 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
+        <ReceivablesCard
+          startDate={dateRange.startDate}
+          endDate={dateRange.endDate}
+        />
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -228,6 +244,8 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <SaleForm open={saleFormOpen} onOpenChange={setSaleFormOpen} />
     </div>
   )
 }

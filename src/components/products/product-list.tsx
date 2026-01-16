@@ -17,6 +17,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { FilterBar, FilterConfig } from "@/components/ui/filter-bar"
 import { useProducts, useDeleteProduct } from "@/hooks/use-products"
 import { useCategories } from "@/hooks/use-categories"
+import { useBrands } from "@/hooks/use-brands"
 import { useFilters } from "@/hooks/use-filters"
 import { ProductForm } from "./product-form"
 import { Product } from "@/types"
@@ -37,26 +38,35 @@ export function ProductList() {
     initialValues: {
       search: "",
       categoryId: "",
+      brandId: "",
       stockStatus: "all",
     },
   })
 
   const { data: categoriesData } = useCategories()
+  const { data: brandsData } = useBrands()
 
   const categoryOptions = useMemo(
     () => categoriesData?.map((c) => ({ value: c.id, label: c.name })) || [],
     [categoriesData]
   )
 
+  const brandOptions = useMemo(
+    () => brandsData?.map((b) => ({ value: b.id, label: b.name })) || [],
+    [brandsData]
+  )
+
   const filterConfigs: FilterConfig[] = [
     { type: "search", name: "search", placeholder: "Buscar produto..." },
     { type: "select", name: "categoryId", label: "Categoria", options: categoryOptions },
+    { type: "select", name: "brandId", label: "Marca", options: brandOptions },
     { type: "select", name: "stockStatus", label: "Estoque", options: stockStatusOptions },
   ]
 
   const { data, isLoading, error } = useProducts({
     search: filters.search || undefined,
     categoryId: filters.categoryId || undefined,
+    brandId: filters.brandId || undefined,
     lowStock: filters.stockStatus === "low" ? true : undefined,
   })
 
@@ -142,6 +152,7 @@ export function ProductList() {
             <TableHead>Código</TableHead>
             <TableHead>Nome</TableHead>
             <TableHead>Categoria</TableHead>
+            <TableHead>Marca</TableHead>
             <TableHead className="text-right">Custo</TableHead>
             <TableHead className="text-right">Venda</TableHead>
             <TableHead className="text-center">Estoque</TableHead>
@@ -159,6 +170,11 @@ export function ProductList() {
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>
                   {product.category?.name || (
+                    <span className="text-muted-foreground">-</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {product.brand?.name || (
                     <span className="text-muted-foreground">-</span>
                   )}
                 </TableCell>

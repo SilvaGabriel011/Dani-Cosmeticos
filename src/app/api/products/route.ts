@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20")
     const search = searchParams.get("search") || ""
     const categoryId = searchParams.get("categoryId")
+    const brandId = searchParams.get("brandId")
     const lowStock = searchParams.get("lowStock") === "true"
 
     const where = {
@@ -21,6 +22,7 @@ export async function GET(request: NextRequest) {
         ],
       }),
       ...(categoryId && { categoryId }),
+      ...(brandId && { brandId }),
       ...(lowStock && {
         stock: { lte: prisma.product.fields.minStock },
       }),
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
-        include: { category: true },
+        include: { category: true, brand: true },
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { name: "asc" },
@@ -83,7 +85,7 @@ export async function POST(request: NextRequest) {
         profitMargin,
         salePrice,
       },
-      include: { category: true },
+      include: { category: true, brand: true },
     })
 
     return NextResponse.json(product, { status: 201 })

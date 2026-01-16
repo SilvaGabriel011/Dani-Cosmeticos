@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Plus, Minus, Trash2, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -46,9 +46,10 @@ interface Payment {
 interface SaleFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  defaultClientId?: string | null
 }
 
-export function SaleForm({ open, onOpenChange }: SaleFormProps) {
+export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps) {
   const { toast } = useToast()
   const { data: productsData } = useProducts({ limit: 100 })
   const { data: clientsData } = useClients({ limit: 100 })
@@ -57,12 +58,21 @@ export function SaleForm({ open, onOpenChange }: SaleFormProps) {
 
   const [items, setItems] = useState<SaleItem[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
-  const [clientId, setClientId] = useState<string>("")
+  const [clientId, setClientId] = useState<string>(defaultClientId || "")
   const [discountPercent, setDiscountPercent] = useState(0)
   const [productSearch, setProductSearch] = useState("")
+  const [isInstallment, setIsInstallment] = useState(false)
+  const [dueDate, setDueDate] = useState<string>("")
+  const [installmentPlan, setInstallmentPlan] = useState(1)
 
   const products = productsData?.data || []
   const clients = clientsData?.data || []
+
+  useEffect(() => {
+    if (open && defaultClientId) {
+      setClientId(defaultClientId)
+    }
+  }, [open, defaultClientId])
 
   const filteredProducts = products.filter(
     (p) =>
@@ -167,20 +177,28 @@ export function SaleForm({ open, onOpenChange }: SaleFormProps) {
     setPayments(payments.filter((_, i) => i !== index))
   }
 
+  const isFiado = remaining > 0.01
+
   const handleSubmit = async () => {
     if (items.length === 0) {
       toast({ title: "Adicione pelo menos um produto", variant: "destructive" })
       return
     }
 
-    if (payments.length === 0) {
-      toast({ title: "Adicione pelo menos um pagamento", variant: "destructive" })
+    // For fiado sales (partial or no payment), require a client
+    if (isFiado && !clientId) {
+      toast({ 
+        title: "Cliente obrigatório para fiado", 
+        description: "Selecione um cliente para vendas sem pagamento completo",
+        variant: "destructive" 
+      })
       return
     }
 
-    if (Math.abs(remaining) > 0.01) {
+    // Don't allow overpayment
+    if (remaining < -0.01) {
       toast({
-        title: "O valor dos pagamentos não confere com o total",
+        title: "Pagamento excede o total",
         variant: "destructive",
       })
       return
@@ -201,13 +219,21 @@ export function SaleForm({ open, onOpenChange }: SaleFormProps) {
           installments: p.installments,
         })),
         discountPercent: effectiveDiscount,
+        dueDate: isInstallment && dueDate ? new Date(dueDate).toISOString() : null,
+        installmentPlan: isInstallment ? installmentPlan : 1,
       })
 
-      toast({ title: "Venda realizada com sucesso!" })
+      toast({ 
+        title: isFiado ? "Venda fiado registrada!" : "Venda realizada com sucesso!",
+        description: isFiado ? `Saldo pendente: ${formatCurrency(remaining)}` : undefined
+      })
       setItems([])
       setPayments([])
       setClientId("")
       setDiscountPercent(0)
+      setIsInstallment(false)
+      setDueDate("")
+      setInstallmentPlan(1)
       onOpenChange(false)
     } catch (error: any) {
       toast({
@@ -320,7 +346,7 @@ export function SaleForm({ open, onOpenChange }: SaleFormProps) {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
-                  <Label>Cliente (opcional)</Label>
+                  <Label>Cliente {isFiado && <span className="text-destructive">*</span>}</Label>
                   <Select value={clientId} onValueChange={setClientId}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um cliente" />
@@ -343,6 +369,56 @@ export function SaleForm({ open, onOpenChange }: SaleFormProps) {
                     value={discountPercent}
                     onChange={(e) => setDiscountPercent(Number(e.target.value))}
                   />
+                </div>
+                <Separator className="my-3" />
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="installment-toggle"
+                      checked={isInstallment}
+                      onChange={(e) => setIsInstallment(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <Label htmlFor="installment-toggle" className="cursor-pointer">
+                      Venda parcelada / a prazo
+                    </Label>
+                  </div>
+                  {isInstallment && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Vencimento</Label>
+                        <Input
+                          type="date"
+                          value={dueDate}
+                          onChange={(e) => setDueDate(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Parcelas</Label>
+                        <Select
+                          value={String(installmentPlan)}
+                          onValueChange={(v) => setInstallmentPlan(Number(v))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[1, 2, 3, 4, 5, 6, 12].map((n) => (
+                              <SelectItem key={n} value={String(n)}>
+                                {n}x
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {installmentPlan > 1 && total > 0 && (
+                        <p className="col-span-2 text-sm text-muted-foreground">
+                          {installmentPlan}x de {formatCurrency(total / installmentPlan)}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -440,10 +516,16 @@ export function SaleForm({ open, onOpenChange }: SaleFormProps) {
                   <span>Total:</span>
                   <span>{formatCurrency(total)}</span>
                 </div>
-                {remaining !== 0 && (
+                {remaining > 0 && (
                   <div className="flex justify-between text-sm text-amber-600">
-                    <span>Restante:</span>
+                    <span>Restante (Fiado):</span>
                     <span>{formatCurrency(remaining)}</span>
+                  </div>
+                )}
+                {remaining < 0 && (
+                  <div className="flex justify-between text-sm text-destructive">
+                    <span>Excedente:</span>
+                    <span>{formatCurrency(Math.abs(remaining))}</span>
                   </div>
                 )}
               </CardContent>
@@ -458,8 +540,9 @@ export function SaleForm({ open, onOpenChange }: SaleFormProps) {
           <Button
             onClick={handleSubmit}
             disabled={createSale.isPending || items.length === 0}
+            variant={isFiado ? "secondary" : "default"}
           >
-            {createSale.isPending ? "Finalizando..." : "Finalizar Venda"}
+            {createSale.isPending ? "Finalizando..." : isFiado ? "Registrar Fiado" : "Finalizar Venda"}
           </Button>
         </DialogFooter>
       </DialogContent>

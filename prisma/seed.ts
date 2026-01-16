@@ -44,6 +44,32 @@ async function main() {
   ])
 
   console.log(`✅ ${categories.length} categories created`)
+
+  // Create default brands
+  const brands = await Promise.all([
+    prisma.brand.upsert({
+      where: { name: "Eudora" },
+      update: {},
+      create: { name: "Eudora" },
+    }),
+    prisma.brand.upsert({
+      where: { name: "Natura" },
+      update: {},
+      create: { name: "Natura" },
+    }),
+    prisma.brand.upsert({
+      where: { name: "Boticário" },
+      update: {},
+      create: { name: "Boticário" },
+    }),
+    prisma.brand.upsert({
+      where: { name: "Romanel" },
+      update: {},
+      create: { name: "Romanel" },
+    }),
+  ])
+
+  console.log(`✅ ${brands.length} brands created`)
 }
 
 main()

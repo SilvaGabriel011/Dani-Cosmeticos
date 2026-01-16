@@ -21,10 +21,25 @@ enum FeeAbsorber {
 
 enum SaleStatus {
   COMPLETED
+  PENDING
   CANCELLED
 }
 
+enum ReceivableStatus {
+  PENDING
+  PARTIAL
+  PAID
+  OVERDUE
+}
+
 model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  products  Product[]
+}
+
+model Brand {
   id        String    @id @default(uuid())
   name      String    @unique
   createdAt DateTime  @default(now())
@@ -37,6 +52,8 @@ model Product {
   name         String
   categoryId   String?
   category     Category?  @relation(fields: [categoryId], references: [id])
+  brandId      String?
+  brand        Brand?     @relation(fields: [brandId], references: [id])
   costPrice    Decimal    @db.Decimal(10, 2)
   profitMargin Decimal    @db.Decimal(5, 2)
   salePrice    Decimal    @db.Decimal(10, 2)
@@ -49,6 +66,7 @@ model Product {
   saleItems    SaleItem[]
 
   @@index([categoryId])
+  @@index([brandId])
   @@index([isActive])
   @@index([deletedAt])
 }
@@ -77,15 +95,20 @@ model Sale {
   totalFees       Decimal    @default(0) @db.Decimal(10, 2)
   total           Decimal    @db.Decimal(10, 2)
   netTotal        Decimal    @db.Decimal(10, 2)
+  paidAmount      Decimal    @default(0) @db.Decimal(10, 2)
   status          SaleStatus @default(COMPLETED)
   notes           String?
+  dueDate         DateTime?
+  installmentPlan Int        @default(1)
   createdAt       DateTime   @default(now())
   items           SaleItem[]
   payments        Payment[]
+  receivables     Receivable[]
 
   @@index([clientId])
   @@index([status])
   @@index([createdAt])
+  @@index([dueDate])
 }
 
 model SaleItem {
@@ -113,9 +136,11 @@ model Payment {
   feeAmount    Decimal       @default(0) @db.Decimal(10, 2)
   feeAbsorber  FeeAbsorber   @default(SELLER)
   installments Int           @default(1)
+  paidAt       DateTime      @default(now())
 
   @@index([saleId])
   @@index([method])
+  @@index([paidAt])
 }
 
 model Settings {
@@ -126,4 +151,21 @@ model Settings {
   defaultFeeAbsorber   FeeAbsorber @default(SELLER)
   lowStockAlertEnabled Boolean     @default(true)
   updatedAt            DateTime    @updatedAt
+}
+
+model Receivable {
+  id          String           @id @default(uuid())
+  saleId      String
+  sale        Sale             @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  installment Int
+  amount      Decimal          @db.Decimal(10, 2)
+  dueDate     DateTime
+  paidAmount  Decimal          @default(0) @db.Decimal(10, 2)
+  paidAt      DateTime?
+  status      ReceivableStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+
+  @@index([saleId])
+  @@index([dueDate])
+  @@index([status])
 }

@@ -21,7 +21,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { useCategories } from "@/hooks/use-categories"
+import { useCategories, useCreateCategory } from "@/hooks/use-categories"
+import { useBrands, useCreateBrand } from "@/hooks/use-brands"
+import { Plus, X } from "lucide-react"
 import { useCreateProduct, useUpdateProduct } from "@/hooks/use-products"
 import { createProductSchema, CreateProductInput } from "@/schemas/product"
 import { Product } from "@/types"
@@ -38,7 +40,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const { data: categories } = useCategories()
   const createProduct = useCreateProduct()
   const updateProduct = useUpdateProduct()
+  const createCategory = useCreateCategory()
+  const { data: brands } = useBrands()
+  const createBrand = useCreateBrand()
   const isEditing = !!product
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState("")
+  const [isCreatingBrand, setIsCreatingBrand] = useState(false)
+  const [newBrandName, setNewBrandName] = useState("")
 
   const {
     register,
@@ -54,6 +63,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           code: product.code || "",
           name: product.name,
           categoryId: product.categoryId,
+          brandId: product.brandId,
           costPrice: Number(product.costPrice),
           profitMargin: Number(product.profitMargin),
           stock: product.stock,
@@ -63,6 +73,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           code: "",
           name: "",
           categoryId: null,
+          brandId: null,
           costPrice: 0,
           profitMargin: 100,
           stock: 0,
@@ -127,28 +138,159 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="category">Categoria</Label>
-            <Select
-              value={watch("categoryId") || ""}
-              onValueChange={(value) =>
-                setValue("categoryId", value || null)
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories?.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {isCreatingCategory ? (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Nome da nova categoria"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!newCategoryName.trim() || createCategory.isPending}
+                  onClick={async () => {
+                    try {
+                      const category = await createCategory.mutateAsync(newCategoryName.trim())
+                      setValue("categoryId", category.id)
+                      setNewCategoryName("")
+                      setIsCreatingCategory(false)
+                      toast({ title: "Categoria criada!" })
+                    } catch (error: any) {
+                      toast({
+                        title: "Erro ao criar categoria",
+                        description: error.message,
+                        variant: "destructive",
+                      })
+                    }
+                  }}
+                >
+                  {createCategory.isPending ? "..." : "Salvar"}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setIsCreatingCategory(false)
+                    setNewCategoryName("")
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Select
+                  value={watch("categoryId") || ""}
+                  onValueChange={(value) =>
+                    setValue("categoryId", value || null)
+                  }
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Selecione uma categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories?.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  onClick={() => setIsCreatingCategory(true)}
+                  title="Criar nova categoria"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="brand">Marca</Label>
+            {isCreatingBrand ? (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Nome da nova marca"
+                  value={newBrandName}
+                  onChange={(e) => setNewBrandName(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={!newBrandName.trim() || createBrand.isPending}
+                  onClick={async () => {
+                    try {
+                      const brand = await createBrand.mutateAsync(newBrandName.trim())
+                      setValue("brandId", brand.id)
+                      setNewBrandName("")
+                      setIsCreatingBrand(false)
+                      toast({ title: "Marca criada!" })
+                    } catch (error: any) {
+                      toast({
+                        title: "Erro ao criar marca",
+                        description: error.message,
+                        variant: "destructive",
+                      })
+                    }
+                  }}
+                >
+                  {createBrand.isPending ? "..." : "Salvar"}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setIsCreatingBrand(false)
+                    setNewBrandName("")
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Select
+                  value={watch("brandId") || ""}
+                  onValueChange={(value) =>
+                    setValue("brandId", value || null)
+                  }
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Selecione uma marca" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {brands?.map((brand) => (
+                      <SelectItem key={brand.id} value={brand.id}>
+                        {brand.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  onClick={() => setIsCreatingBrand(true)}
+                  title="Criar nova marca"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="costPrice">Preço de Custo *</Label>
+              <Label htmlFor="costPrice">Valor Produto *</Label>
               <Input
                 id="costPrice"
                 type="number"

@@ -10,7 +10,7 @@ export async function GET(
   try {
     const product = await prisma.product.findFirst({
       where: { id: params.id, deletedAt: null },
-      include: { category: true },
+      include: { category: true, brand: true },
     })
 
     if (!product) {
@@ -75,7 +75,7 @@ export async function PATCH(
         ...(profitMargin !== undefined && { profitMargin }),
         salePrice,
       },
-      include: { category: true },
+      include: { category: true, brand: true },
     })
 
     return NextResponse.json(product)

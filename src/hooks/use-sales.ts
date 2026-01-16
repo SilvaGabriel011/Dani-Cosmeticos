@@ -2,12 +2,12 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Sale, PaginatedResult } from "@/types"
-import { CreateSaleInput } from "@/schemas/sale"
+import { CreateSaleInput, AddPaymentInput } from "@/schemas/sale"
 
 interface SaleFilters {
   page?: number
   limit?: number
-  status?: "COMPLETED" | "CANCELLED" | ""
+  status?: "COMPLETED" | "PENDING" | "CANCELLED" | ""
   clientId?: string
   startDate?: string
   endDate?: string
@@ -61,6 +61,19 @@ async function cancelSale(id: string): Promise<Sale> {
   return res.json()
 }
 
+async function addPayment({ saleId, data }: { saleId: string; data: AddPaymentInput }): Promise<Sale> {
+  const res = await fetch(`/api/sales/${saleId}/payments`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error?.message || "Erro ao adicionar pagamento")
+  }
+  return res.json()
+}
+
 export function useSales(filters: SaleFilters = {}) {
   return useQuery({
     queryKey: ["sales", filters],
@@ -95,6 +108,18 @@ export function useCancelSale() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["sales"] })
       queryClient.invalidateQueries({ queryKey: ["products"] })
+      queryClient.setQueryData(["sale", data.id], data)
+    },
+  })
+}
+
+export function useAddPayment() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: addPayment,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["sales"] })
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
       queryClient.setQueryData(["sale", data.id], data)
     },
   })

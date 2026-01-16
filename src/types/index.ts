@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client"
 
 export type Product = Prisma.ProductGetPayload<{
-  include: { category: true }
+  include: { category: true; brand: true }
 }>
 
 export type Client = Prisma.ClientGetPayload<{}>
@@ -21,6 +21,8 @@ export type SaleItem = Prisma.SaleItemGetPayload<{
 export type Payment = Prisma.PaymentGetPayload<{}>
 
 export type Category = Prisma.CategoryGetPayload<{}>
+
+export type Brand = Prisma.BrandGetPayload<{}>
 
 export type Settings = Prisma.SettingsGetPayload<{}>
 

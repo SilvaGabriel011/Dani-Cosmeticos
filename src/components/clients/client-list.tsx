@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Pencil, Trash2 } from "lucide-react"
+import { Pencil, Trash2, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -27,7 +27,11 @@ const discountOptions = [
   { value: "without", label: "Sem Desconto" },
 ]
 
-export function ClientList() {
+interface ClientListProps {
+  onNewSale?: (client: Client) => void
+}
+
+export function ClientList({ onNewSale }: ClientListProps) {
   const { toast } = useToast()
   const [editingClient, setEditingClient] = useState<Client | null>(null)
 
@@ -152,6 +156,16 @@ export function ClientList() {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
+                  {onNewSale && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onNewSale(client)}
+                      title="Nova venda"
+                    >
+                      <ShoppingCart className="h-4 w-4 text-primary" />
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"

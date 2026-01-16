@@ -12,6 +12,7 @@ export const FEE_ABSORBER_LABELS = {
 
 export const SALE_STATUS_LABELS = {
   COMPLETED: "Concluída",
+  PENDING: "Fiado",
   CANCELLED: "Cancelada",
 } as const
 

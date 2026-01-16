@@ -1,7 +1,7 @@
 "use client"
 
-import { useMemo } from "react"
-import { XCircle } from "lucide-react"
+import { useMemo, useState } from "react"
+import { XCircle, Banknote } from "lucide-react"
 import { format, subDays, startOfMonth } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -17,6 +17,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/components/ui/use-toast"
 import { FilterBar, FilterConfig } from "@/components/ui/filter-bar"
 import { useSales, useCancelSale } from "@/hooks/use-sales"
+import { ReceivePaymentDialog } from "@/components/sales/receive-payment-dialog"
+import { Sale } from "@/types"
 import { useCategories } from "@/hooks/use-categories"
 import { useProducts } from "@/hooks/use-products"
 import { useFilters } from "@/hooks/use-filters"
@@ -32,6 +34,7 @@ const periodOptions = [
 
 const statusOptions = [
   { value: "COMPLETED", label: "Concluída" },
+  { value: "PENDING", label: "Fiado" },
   { value: "CANCELLED", label: "Cancelada" },
 ]
 
@@ -67,6 +70,7 @@ function getDateRange(period: string) {
 
 export function SaleList() {
   const { toast } = useToast()
+  const [paymentSale, setPaymentSale] = useState<Sale | null>(null)
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
@@ -104,7 +108,7 @@ export function SaleList() {
   ]
 
   const { data, isLoading, error } = useSales({
-    status: filters.status as "COMPLETED" | "CANCELLED" | "" | undefined,
+    status: filters.status as "COMPLETED" | "PENDING" | "CANCELLED" | "" | undefined,
     categoryId: filters.categoryId || undefined,
     productId: filters.productId || undefined,
     paymentMethod: filters.paymentMethod || undefined,
@@ -215,27 +219,52 @@ export function SaleList() {
             </TableCell>
             <TableCell className="text-center">
               <Badge
-                variant={sale.status === "COMPLETED" ? "default" : "destructive"}
+                variant={
+                  sale.status === "COMPLETED" 
+                    ? "default" 
+                    : sale.status === "PENDING" 
+                      ? "secondary" 
+                      : "destructive"
+                }
               >
                 {SALE_STATUS_LABELS[sale.status as keyof typeof SALE_STATUS_LABELS]}
               </Badge>
             </TableCell>
             <TableCell className="text-right">
-              {sale.status === "COMPLETED" && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleCancel(sale.id)}
-                  disabled={cancelSale.isPending}
-                >
-                  <XCircle className="h-4 w-4 text-destructive" />
-                </Button>
-              )}
+              <div className="flex justify-end gap-1">
+                {sale.status === "PENDING" && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setPaymentSale(sale)}
+                    title="Receber pagamento"
+                  >
+                    <Banknote className="h-4 w-4 text-green-600" />
+                  </Button>
+                )}
+                {(sale.status === "COMPLETED" || sale.status === "PENDING") && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleCancel(sale.id)}
+                    disabled={cancelSale.isPending}
+                    title="Cancelar venda"
+                  >
+                    <XCircle className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
+              </div>
             </TableCell>
           </TableRow>
         ))}
       </TableBody>
       </Table>
+
+      <ReceivePaymentDialog
+        open={!!paymentSale}
+        onOpenChange={(open) => !open && setPaymentSale(null)}
+        sale={paymentSale}
+      />
     </div>
   )
 }

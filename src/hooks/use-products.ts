@@ -9,6 +9,7 @@ interface ProductFilters {
   limit?: number
   search?: string
   categoryId?: string
+  brandId?: string
   lowStock?: boolean
 }
 
@@ -18,6 +19,7 @@ async function fetchProducts(filters: ProductFilters): Promise<PaginatedResult<P
   if (filters.limit) params.set("limit", filters.limit.toString())
   if (filters.search) params.set("search", filters.search)
   if (filters.categoryId) params.set("categoryId", filters.categoryId)
+  if (filters.brandId) params.set("brandId", filters.brandId)
   if (filters.lowStock) params.set("lowStock", "true")
 
   const res = await fetch(`/api/products?${params}`)

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const where: any = {}
 
     if (status) {
-      where.status = status as "COMPLETED" | "CANCELLED"
+      where.status = status as "COMPLETED" | "PENDING" | "CANCELLED"
     }
 
     if (clientId) {
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { items, payments, clientId, discountPercent, notes } = validation.data
+    const { items, payments, clientId, discountPercent, notes, dueDate, installmentPlan } = validation.data
 
     // Fetch products and validate stock
     const productIds = items.map((item) => item.productId)
@@ -170,13 +170,15 @@ export async function POST(request: NextRequest) {
     const discountAmount = subtotal * (finalDiscountPercent / 100)
     const subtotalAfterDiscount = subtotal - discountAmount
 
-    // Calculate fees
+    // Calculate fees and paid amount
     let totalFees = 0
+    let paidAmount = 0
     const salePayments = payments.map((payment) => {
       const feeAmount = payment.amount * (payment.feePercent / 100)
       if (payment.feeAbsorber === "SELLER") {
         totalFees += feeAmount
       }
+      paidAmount += payment.amount
       return {
         method: payment.method,
         amount: new Decimal(payment.amount),
@@ -190,6 +192,18 @@ export async function POST(request: NextRequest) {
     const total = subtotalAfterDiscount
     const netTotal = total - totalFees
 
+    // Determine sale status based on payment
+    const isPaid = paidAmount >= total - 0.01
+    const saleStatus = (isPaid ? "COMPLETED" : "PENDING") as "COMPLETED" | "PENDING"
+
+    // Fiado sales require a client
+    if (!isPaid && !clientId) {
+      return NextResponse.json(
+        { error: { code: "CLIENT_REQUIRED", message: "Vendas fiado precisam de um cliente vinculado" } },
+        { status: 400 }
+      )
+    }
+
     // Create sale in transaction
     const sale = await prisma.$transaction(async (tx) => {
       // Create sale
@@ -202,9 +216,13 @@ export async function POST(request: NextRequest) {
           totalFees: new Decimal(totalFees),
           total: new Decimal(total),
           netTotal: new Decimal(netTotal),
+          paidAmount: new Decimal(paidAmount),
+          status: saleStatus,
           notes,
+          dueDate: dueDate ? new Date(dueDate) : null,
+          installmentPlan: installmentPlan || 1,
           items: { create: saleItems },
-          payments: { create: salePayments },
+          payments: { create: salePayments.length > 0 ? salePayments : undefined },
         },
         include: {
           client: true,
@@ -219,6 +237,26 @@ export async function POST(request: NextRequest) {
           where: { id: item.productId },
           data: { stock: { decrement: item.quantity } },
         })
+      }
+
+      // Create receivables for installment sales
+      if (dueDate && installmentPlan && installmentPlan >= 1 && !isPaid) {
+        const installmentAmount = total / installmentPlan
+        const baseDate = new Date(dueDate)
+
+        const receivables = Array.from({ length: installmentPlan }, (_, i) => {
+          const installmentDueDate = new Date(baseDate)
+          installmentDueDate.setMonth(installmentDueDate.getMonth() + i)
+
+          return {
+            saleId: newSale.id,
+            installment: i + 1,
+            amount: new Decimal(installmentAmount),
+            dueDate: installmentDueDate,
+          }
+        })
+
+        await tx.receivable.createMany({ data: receivables })
       }
 
       return newSale
