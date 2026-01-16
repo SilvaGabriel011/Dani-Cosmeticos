@@ -13,6 +13,11 @@ export const paymentSchema = z.object({
   installments: z.number().int().min(1).max(12).default(1),
 })
 
+export const installmentDueDateSchema = z.object({
+  installment: z.number().int().min(1),
+  dueDate: z.string().datetime(),
+})
+
 export const createSaleSchema = z.object({
   clientId: z.string().uuid().optional().nullable(),
   items: z.array(saleItemSchema).min(1, "Pelo menos um item é obrigatório"),
@@ -21,6 +26,7 @@ export const createSaleSchema = z.object({
   notes: z.string().optional(),
   dueDate: z.string().datetime().optional().nullable(),
   installmentPlan: z.number().int().min(1).max(12).default(1),
+  installmentDueDates: z.array(installmentDueDateSchema).optional(),
 })
 
 export const addPaymentSchema = z.object({
