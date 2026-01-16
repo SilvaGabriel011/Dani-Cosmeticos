@@ -19,27 +19,27 @@ async function main() {
 
   console.log("✅ Settings created")
 
-  // Create some sample categories
+  // Create default categories
   const categories = await Promise.all([
-    prisma.category.upsert({
-      where: { name: "Maquiagem" },
-      update: {},
-      create: { name: "Maquiagem" },
-    }),
     prisma.category.upsert({
       where: { name: "Skincare" },
       update: {},
       create: { name: "Skincare" },
     }),
     prisma.category.upsert({
-      where: { name: "Cabelos" },
+      where: { name: "Cremes" },
       update: {},
-      create: { name: "Cabelos" },
+      create: { name: "Cremes" },
     }),
     prisma.category.upsert({
       where: { name: "Perfumaria" },
       update: {},
       create: { name: "Perfumaria" },
+    }),
+    prisma.category.upsert({
+      where: { name: "Bijuteria" },
+      update: {},
+      create: { name: "Bijuteria" },
     }),
   ])
 

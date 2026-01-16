@@ -309,7 +309,14 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           <div className="space-y-4">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Produtos</CardTitle>
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span>Produtos</span>
+                  {products.length > 0 && (
+                    <span className="text-xs font-normal text-muted-foreground">
+                      {products.filter(p => p.stock > 0).length} disponíveis
+                    </span>
+                  )}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="relative">
@@ -322,20 +329,26 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                   />
                 </div>
 
-                {productSearch && (
+                {(productSearch || filteredProducts.length > 0) && (
                   <div className="max-h-40 overflow-y-auto border rounded-md">
-                    {filteredProducts.slice(0, 10).map((product) => (
-                      <button
-                        key={product.id}
-                        className="w-full px-3 py-2 text-left hover:bg-muted flex justify-between items-center text-sm"
-                        onClick={() => addItem(product)}
-                      >
-                        <span>{product.name}</span>
-                        <span className="text-muted-foreground">
-                          {formatCurrency(Number(product.salePrice))}
-                        </span>
-                      </button>
-                    ))}
+                    {filteredProducts.length === 0 ? (
+                      <p className="px-3 py-2 text-sm text-muted-foreground">
+                        Nenhum produto encontrado
+                      </p>
+                    ) : (
+                      filteredProducts.slice(0, 10).map((product) => (
+                        <button
+                          key={product.id}
+                          className="w-full px-3 py-2 text-left hover:bg-muted flex justify-between items-center text-sm"
+                          onClick={() => addItem(product)}
+                        >
+                          <span>{product.name}</span>
+                          <span className="text-muted-foreground">
+                            {formatCurrency(Number(product.salePrice))}
+                          </span>
+                        </button>
+                      ))
+                    )}
                   </div>
                 )}
 
@@ -395,14 +408,21 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           <div className="space-y-4">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Cliente e Desconto</CardTitle>
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span>Cliente e Desconto</span>
+                  {clients.length > 0 && (
+                    <span className="text-xs font-normal text-muted-foreground">
+                      {clients.length} clientes
+                    </span>
+                  )}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Label>Cliente {isFiado && <span className="text-destructive">*</span>}</Label>
                   <Select value={clientId} onValueChange={setClientId}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um cliente" />
+                      <SelectValue placeholder={clients.length > 0 ? "Selecione um cliente" : "Nenhum cliente cadastrado"} />
                     </SelectTrigger>
                     <SelectContent>
                       {clients.map((client) => (
