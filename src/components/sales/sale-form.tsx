@@ -62,9 +62,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [discountPercent, setDiscountPercent] = useState(0)
   const [productSearch, setProductSearch] = useState("")
   const [isInstallment, setIsInstallment] = useState(false)
-  const [dueDate, setDueDate] = useState<string>("")
+  const [paymentDay, setPaymentDay] = useState<number>(10) // Day of month (1-31)
   const [installmentPlan, setInstallmentPlan] = useState(1)
-  const [installmentDueDates, setInstallmentDueDates] = useState<string[]>([])
 
   const products = productsData?.data || []
   const clients = clientsData?.data || []
@@ -75,44 +74,24 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     }
   }, [open, defaultClientId])
 
-  // Generate default installment dates when installment plan changes
-  const generateInstallmentDates = (numInstallments: number, baseDate?: string) => {
-    const dates: string[] = []
-    const startDate = baseDate ? new Date(baseDate) : new Date()
+  // Generate preview of payment dates based on day of month
+  const getPaymentDatesPreview = () => {
+    const dates: Date[] = []
+    const now = new Date()
     
-    // If no base date, start 30 days from now
-    if (!baseDate) {
-      startDate.setDate(startDate.getDate() + 30)
-    }
-    
-    for (let i = 0; i < numInstallments; i++) {
-      const installmentDate = new Date(startDate)
-      installmentDate.setMonth(installmentDate.getMonth() + i)
-      dates.push(installmentDate.toISOString().split('T')[0])
+    for (let i = 0; i < installmentPlan; i++) {
+      const date = new Date(now.getFullYear(), now.getMonth() + i, paymentDay)
+      // If the day is in the past for the first month, start from next month
+      if (i === 0 && date <= now) {
+        date.setMonth(date.getMonth() + 1)
+      }
+      // Adjust for months with fewer days (e.g., Feb 30 -> Feb 28)
+      if (date.getDate() !== paymentDay) {
+        date.setDate(0) // Last day of previous month
+      }
+      dates.push(date)
     }
     return dates
-  }
-
-  const handleInstallmentPlanChange = (value: number) => {
-    setInstallmentPlan(value)
-    if (value > 1) {
-      setInstallmentDueDates(generateInstallmentDates(value, dueDate))
-    } else {
-      setInstallmentDueDates([])
-    }
-  }
-
-  const handleDueDateChange = (value: string) => {
-    setDueDate(value)
-    if (installmentPlan > 1 && value) {
-      setInstallmentDueDates(generateInstallmentDates(installmentPlan, value))
-    }
-  }
-
-  const updateInstallmentDueDate = (index: number, value: string) => {
-    const newDates = [...installmentDueDates]
-    newDates[index] = value
-    setInstallmentDueDates(newDates)
   }
 
   const filteredProducts = products.filter(
@@ -247,14 +226,6 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     }
 
     try {
-      // Build installmentDueDates array if we have multiple installments with custom dates
-      const customDueDates = isInstallment && installmentPlan > 1 && installmentDueDates.length === installmentPlan
-        ? installmentDueDates.map((date, index) => ({
-            installment: index + 1,
-            dueDate: new Date(date).toISOString(),
-          }))
-        : undefined
-
       await createSale.mutateAsync({
         clientId: clientId || null,
         items: items.map((i) => ({
@@ -269,9 +240,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           installments: p.installments,
         })),
         discountPercent: effectiveDiscount,
-        dueDate: isInstallment && dueDate ? new Date(dueDate).toISOString() : null,
+        paymentDay: isInstallment ? paymentDay : null,
         installmentPlan: isInstallment ? installmentPlan : 1,
-        installmentDueDates: customDueDates,
       })
 
       toast({ 
@@ -284,9 +254,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setDiscountPercent(0)
       setHasManualDiscount(false)
       setIsInstallment(false)
-      setDueDate("")
+      setPaymentDay(10)
       setInstallmentPlan(1)
-      setInstallmentDueDates([])
       onOpenChange(false)
     } catch (error: any) {
       toast({
@@ -464,18 +433,28 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <Label className="text-xs">Primeiro Vencimento</Label>
-                          <Input
-                            type="date"
-                            value={dueDate}
-                            onChange={(e) => handleDueDateChange(e.target.value)}
-                          />
+                          <Label className="text-xs">Dia do Pagamento</Label>
+                          <Select
+                            value={String(paymentDay)}
+                            onValueChange={(v) => setPaymentDay(Number(v))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Dia" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
+                                <SelectItem key={day} value={String(day)}>
+                                  Dia {day}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs">Parcelas</Label>
                           <Select
                             value={String(installmentPlan)}
-                            onValueChange={(v) => handleInstallmentPlanChange(Number(v))}
+                            onValueChange={(v) => setInstallmentPlan(Number(v))}
                           >
                             <SelectTrigger>
                               <SelectValue />
@@ -490,25 +469,17 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           </Select>
                         </div>
                       </div>
-                      {installmentPlan > 1 && total > 0 && (
+                      {total > 0 && (
                         <div className="space-y-2">
                           <p className="text-sm text-muted-foreground">
-                            {installmentPlan}x de {formatCurrency(total / installmentPlan)}
+                            {installmentPlan}x de {formatCurrency(total / installmentPlan)} - todo dia {paymentDay}
                           </p>
-                          <div className="border rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
-                            <Label className="text-xs font-medium">Datas de Vencimento</Label>
-                            {installmentDueDates.map((date, index) => (
-                              <div key={index} className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground w-16">
-                                  {index + 1}a parcela:
-                                </span>
-                                <Input
-                                  type="date"
-                                  value={date}
-                                  onChange={(e) => updateInstallmentDueDate(index, e.target.value)}
-                                  className="flex-1 h-8 text-sm"
-                                />
-                              </div>
+                          <div className="border rounded-md p-2 space-y-1 text-xs text-muted-foreground">
+                            <p className="font-medium">Previsao de pagamentos:</p>
+                            {getPaymentDatesPreview().map((date, index) => (
+                              <p key={index}>
+                                {index + 1}a parcela: {date.toLocaleDateString('pt-BR')}
+                              </p>
                             ))}
                           </div>
                         </div>

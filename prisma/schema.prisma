@@ -99,6 +99,7 @@ model Sale {
   status          SaleStatus @default(COMPLETED)
   notes           String?
   dueDate         DateTime?
+  paymentDay      Int?       // Day of month (1-31) for recurring payments
   installmentPlan Int        @default(1)
   createdAt       DateTime   @default(now())
   items           SaleItem[]
