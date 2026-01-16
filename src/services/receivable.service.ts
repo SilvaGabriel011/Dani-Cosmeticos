@@ -108,8 +108,16 @@ export const receivableService = {
     })
   },
 
-  async registerPayment(id: string, amount: number, paidAt?: Date) {
-    const receivable = await prisma.receivable.findUnique({ where: { id } })
+  async registerPayment(
+    id: string, 
+    amount: number, 
+    paymentMethod: "CASH" | "PIX" | "DEBIT" | "CREDIT" = "CASH",
+    paidAt?: Date
+  ) {
+    const receivable = await prisma.receivable.findUnique({ 
+      where: { id },
+      include: { sale: true }
+    })
     if (!receivable) throw new Error("Parcela não encontrada")
 
     const newPaidAmount = Number(receivable.paidAmount) + amount
@@ -122,21 +130,74 @@ export const receivableService = {
       newStatus = "PARTIAL"
     }
 
-    const updated = await prisma.receivable.update({
-      where: { id },
-      data: {
-        paidAmount: newPaidAmount,
-        paidAt: newStatus === "PAID" ? (paidAt || new Date()) : null,
-        status: newStatus,
-      },
-      include: {
-        sale: {
-          include: { client: true },
+    // Use transaction to ensure atomicity
+    const updated = await prisma.$transaction(async (tx) => {
+      // Update receivable
+      const updatedReceivable = await tx.receivable.update({
+        where: { id },
+        data: {
+          paidAmount: newPaidAmount,
+          paidAt: newStatus === "PAID" ? (paidAt || new Date()) : null,
+          status: newStatus,
         },
-      },
-    })
+        include: {
+          sale: {
+            include: { client: true },
+          },
+        },
+      })
 
-    await this.updateSalePaidAmount(receivable.saleId)
+      // Create Payment record for audit trail
+      await tx.payment.create({
+        data: {
+          saleId: receivable.saleId,
+          method: paymentMethod,
+          amount: amount,
+          feePercent: 0,
+          feeAmount: 0,
+          feeAbsorber: "SELLER",
+          installments: 1,
+        },
+      })
+
+      // Update sale paidAmount
+      const allReceivables = await tx.receivable.findMany({
+        where: { saleId: receivable.saleId },
+      })
+
+      const totalPaidFromReceivables = allReceivables.reduce(
+        (sum, r) => sum + Number(r.paidAmount),
+        0
+      )
+
+      // Get existing payments that were made at sale creation time
+      const existingPayments = await tx.payment.findMany({
+        where: { saleId: receivable.saleId },
+      })
+
+      // Calculate total paid (initial payments + receivable payments)
+      // Note: We need to be careful not to double count - the payment we just created
+      // is for the receivable, so we use totalPaidFromReceivables as the source of truth
+      const sale = await tx.sale.findUnique({ where: { id: receivable.saleId } })
+      const saleTotal = Number(sale?.total || 0)
+
+      // Check if sale is fully paid
+      const isFullyPaid = totalPaidFromReceivables >= saleTotal - 0.01
+      const allReceivablesPaid = allReceivables.every(r => 
+        r.id === id ? newStatus === "PAID" : r.status === "PAID"
+      )
+
+      await tx.sale.update({
+        where: { id: receivable.saleId },
+        data: { 
+          paidAmount: totalPaidFromReceivables,
+          // Update status to COMPLETED if all receivables are paid
+          ...(allReceivablesPaid && { status: "COMPLETED" }),
+        },
+      })
+
+      return updatedReceivable
+    })
 
     return updated
   },
