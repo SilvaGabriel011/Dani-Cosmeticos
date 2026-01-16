@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react"
 import { XCircle, Banknote } from "lucide-react"
-import { format, subDays, startOfMonth } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -22,7 +21,7 @@ import { Sale } from "@/types"
 import { useCategories } from "@/hooks/use-categories"
 import { useProducts } from "@/hooks/use-products"
 import { useFilters } from "@/hooks/use-filters"
-import { formatCurrency, formatDate } from "@/lib/utils"
+import { formatCurrency, formatDate, getDateRange } from "@/lib/utils"
 import { SALE_STATUS_LABELS, PAYMENT_METHOD_LABELS } from "@/lib/constants"
 
 const periodOptions = [
@@ -39,34 +38,11 @@ const statusOptions = [
 ]
 
 const paymentOptions = [
-  { value: "MONEY", label: "Dinheiro" },
+  { value: "CASH", label: "Dinheiro" },
   { value: "PIX", label: "PIX" },
-  { value: "CREDIT_CARD", label: "Cartão Crédito" },
-  { value: "DEBIT_CARD", label: "Cartão Débito" },
+  { value: "CREDIT", label: "Cartão Crédito" },
+  { value: "DEBIT", label: "Cartão Débito" },
 ]
-
-function getDateRange(period: string) {
-  const today = new Date()
-  switch (period) {
-    case "today":
-      return {
-        startDate: format(today, "yyyy-MM-dd"),
-        endDate: format(today, "yyyy-MM-dd"),
-      }
-    case "week":
-      return {
-        startDate: format(subDays(today, 7), "yyyy-MM-dd"),
-        endDate: format(today, "yyyy-MM-dd"),
-      }
-    case "month":
-      return {
-        startDate: format(startOfMonth(today), "yyyy-MM-dd"),
-        endDate: format(today, "yyyy-MM-dd"),
-      }
-    default:
-      return { startDate: "", endDate: "" }
-  }
-}
 
 export function SaleList() {
   const { toast } = useToast()

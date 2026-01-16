@@ -80,11 +80,16 @@ export function usePayReceivable() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, amount, paidAt }: { id: string; amount: number; paidAt?: string }) => {
+    mutationFn: async ({ id, amount, paymentMethod, paidAt }: { 
+      id: string
+      amount: number
+      paymentMethod?: "CASH" | "PIX" | "DEBIT" | "CREDIT"
+      paidAt?: string 
+    }) => {
       const res = await fetch(`/api/receivables/${id}/pay`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, paidAt }),
+        body: JSON.stringify({ amount, paymentMethod, paidAt }),
       })
       if (!res.ok) {
         const error = await res.json()
