@@ -83,6 +83,7 @@ export function useCreateProduct() {
     mutationFn: createProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] })
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
     },
   })
 }
@@ -93,6 +94,7 @@ export function useUpdateProduct() {
     mutationFn: updateProduct,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["products"] })
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
       queryClient.setQueryData(["product", data.id], data)
     },
   })
@@ -104,6 +106,7 @@ export function useDeleteProduct() {
     mutationFn: deleteProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] })
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
     },
   })
 }

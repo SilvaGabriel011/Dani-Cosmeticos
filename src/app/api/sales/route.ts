@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { items, payments, clientId, discountPercent, notes, dueDate, installmentPlan, installmentDueDates } = validation.data
+    const { items, payments, clientId, discountPercent, notes, paymentDay, installmentPlan } = validation.data
 
     // Fetch products and validate stock
     const productIds = items.map((item) => item.productId)
@@ -219,7 +219,7 @@ export async function POST(request: NextRequest) {
           paidAmount: new Decimal(paidAmount),
           status: saleStatus,
           notes,
-          dueDate: dueDate ? new Date(dueDate) : null,
+          paymentDay: paymentDay || null,
           installmentPlan: installmentPlan || 1,
           items: { create: saleItems },
           payments: { create: salePayments.length > 0 ? salePayments : undefined },
@@ -245,39 +245,43 @@ export async function POST(request: NextRequest) {
         const numInstallments = installmentPlan && installmentPlan >= 1 ? installmentPlan : 1
         const installmentAmount = remainingAmount / numInstallments
         
-        // Use custom due dates if provided, otherwise auto-calculate
-        if (installmentDueDates && installmentDueDates.length === numInstallments) {
-          // Use custom due dates provided by the user
-          const receivables = installmentDueDates.map((item) => ({
-            saleId: newSale.id,
-            installment: item.installment,
-            amount: new Decimal(installmentAmount),
-            dueDate: new Date(item.dueDate),
-          }))
-          await tx.receivable.createMany({ data: receivables })
-        } else {
-          // Auto-calculate due dates (monthly intervals)
-          const baseDate = dueDate ? new Date(dueDate) : new Date()
+        // Calculate due dates based on paymentDay (day of month)
+        const now = new Date()
+        const day = paymentDay || 10 // Default to day 10 if not specified
+        
+        const receivables = Array.from({ length: numInstallments }, (_, i) => {
+          // Start from current month, but if the day has passed, start from next month
+          let targetMonth = now.getMonth() + i
+          let targetYear = now.getFullYear()
           
-          // If no due date specified, set default to 30 days from now
-          if (!dueDate) {
-            baseDate.setDate(baseDate.getDate() + 30)
+          // If first installment and the day has already passed this month, start next month
+          if (i === 0 && now.getDate() >= day) {
+            targetMonth += 1
+          }
+          
+          // Handle year overflow
+          while (targetMonth > 11) {
+            targetMonth -= 12
+            targetYear += 1
+          }
+          
+          // Create date, handling months with fewer days
+          const dueDate = new Date(targetYear, targetMonth, day)
+          // If the day doesn't exist in that month (e.g., Feb 30), it will roll over
+          // So we need to check and adjust to last day of month if needed
+          if (dueDate.getDate() !== day) {
+            dueDate.setDate(0) // Last day of previous month
           }
 
-          const receivables = Array.from({ length: numInstallments }, (_, i) => {
-            const installmentDueDate = new Date(baseDate)
-            installmentDueDate.setMonth(installmentDueDate.getMonth() + i)
+          return {
+            saleId: newSale.id,
+            installment: i + 1,
+            amount: new Decimal(installmentAmount),
+            dueDate,
+          }
+        })
 
-            return {
-              saleId: newSale.id,
-              installment: i + 1,
-              amount: new Decimal(installmentAmount),
-              dueDate: installmentDueDate,
-            }
-          })
-
-          await tx.receivable.createMany({ data: receivables })
-        }
+        await tx.receivable.createMany({ data: receivables })
       }
 
       return newSale
