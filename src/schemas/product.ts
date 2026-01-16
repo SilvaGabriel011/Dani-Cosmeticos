@@ -7,8 +7,8 @@ export const createProductSchema = z.object({
   brandId: z.string().uuid().optional().nullable(),
   costPrice: z.number().positive("Custo deve ser positivo"),
   profitMargin: z.number().min(0, "Margem não pode ser negativa"),
-  stock: z.number().int().min(0, "Estoque não pode ser negativo").default(0),
-  minStock: z.number().int().min(0, "Estoque mínimo não pode ser negativo").default(5),
+  stock: z.number().int().min(0, "Estoque não pode ser negativo"),
+  minStock: z.number().int().min(0, "Estoque mínimo não pode ser negativo"),
 })
 
 export const updateProductSchema = createProductSchema.partial()
