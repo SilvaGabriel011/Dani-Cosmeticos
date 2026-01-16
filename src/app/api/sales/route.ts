@@ -62,9 +62,9 @@ export async function GET(request: NextRequest) {
       prisma.sale.findMany({
         where,
         include: {
-          client: true,
-          items: { include: { product: true } },
-          payments: true,
+          client: { select: { id: true, name: true } },
+          items: { select: { id: true, quantity: true, unitPrice: true, total: true } },
+          payments: { select: { method: true, amount: true } },
         },
         skip: (page - 1) * limit,
         take: limit,

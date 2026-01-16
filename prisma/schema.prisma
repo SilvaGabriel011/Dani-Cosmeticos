@@ -109,6 +109,7 @@ model Sale {
   @@index([status])
   @@index([createdAt])
   @@index([dueDate])
+  @@index([status, createdAt])
 }
 
 model SaleItem {
@@ -168,4 +169,5 @@ model Receivable {
   @@index([saleId])
   @@index([dueDate])
   @@index([status])
+  @@index([status, dueDate])
 }

@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { startOfDay, endOfDay, parseISO } from "date-fns"
 
+interface SaleSummary {
+  totalSales: bigint
+  totalRevenue: number | null
+  totalFees: number | null
+}
+
+interface CostSummary {
+  totalCost: number | null
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -15,33 +25,33 @@ export async function GET(request: NextRequest) {
       ? endOfDay(parseISO(endDateParam))
       : endOfDay(new Date())
 
-    const sales = await prisma.sale.findMany({
-      where: {
-        status: "COMPLETED",
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-      include: {
-        items: true,
-      },
-    })
+    // Usar agregacoes SQL nativas para melhor performance
+    const [saleSummary] = await prisma.$queryRaw<SaleSummary[]>`
+      SELECT 
+        COUNT(*) as "totalSales",
+        COALESCE(SUM(total), 0) as "totalRevenue",
+        COALESCE(SUM("totalFees"), 0) as "totalFees"
+      FROM "Sale"
+      WHERE status = 'COMPLETED'
+        AND "createdAt" >= ${startDate}
+        AND "createdAt" <= ${endDate}
+    `
 
-    const totalSales = sales.length
-    const totalRevenue = sales.reduce((sum, sale) => sum + Number(sale.total), 0)
-    const totalCost = sales.reduce(
-      (sum, sale) =>
-        sum +
-        sale.items.reduce(
-          (itemSum, item) => itemSum + Number(item.costPrice) * item.quantity,
-          0
-        ),
-      0
-    )
+    const [costSummary] = await prisma.$queryRaw<CostSummary[]>`
+      SELECT COALESCE(SUM(si."costPrice" * si.quantity), 0) as "totalCost"
+      FROM "SaleItem" si
+      JOIN "Sale" s ON s.id = si."saleId"
+      WHERE s.status = 'COMPLETED'
+        AND s."createdAt" >= ${startDate}
+        AND s."createdAt" <= ${endDate}
+    `
+
+    const totalSales = Number(saleSummary.totalSales)
+    const totalRevenue = Number(saleSummary.totalRevenue || 0)
+    const totalFees = Number(saleSummary.totalFees || 0)
+    const totalCost = Number(costSummary.totalCost || 0)
     const totalProfit = totalRevenue - totalCost
     const averageTicket = totalSales > 0 ? totalRevenue / totalSales : 0
-    const totalFees = sales.reduce((sum, sale) => sum + Number(sale.totalFees), 0)
     const netProfit = totalProfit - totalFees
 
     return NextResponse.json({

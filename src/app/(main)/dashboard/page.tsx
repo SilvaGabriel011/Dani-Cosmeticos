@@ -35,8 +35,16 @@ export default function DashboardPage() {
   const dateRange = getDateRange(filters.period)
 
   const { data, isLoading } = useDashboard()
-  const { data: productReport } = useReportByProduct({ ...dateRange, limit: 5 })
-  const { data: paymentReport } = useReportByPayment(dateRange)
+  // Carregar reports apenas depois do dashboard para evitar sobrecarga
+  const { data: productReport } = useReportByProduct({ 
+    ...dateRange, 
+    limit: 5,
+    enabled: !isLoading 
+  })
+  const { data: paymentReport } = useReportByPayment({
+    ...dateRange,
+    enabled: !isLoading
+  })
 
   const topProductsData = useMemo(
     () =>

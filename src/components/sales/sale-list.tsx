@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useCallback, memo } from "react"
 import { XCircle, Banknote } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -44,7 +44,7 @@ const paymentOptions = [
   { value: "DEBIT", label: "Cartão Débito" },
 ]
 
-export function SaleList() {
+export const SaleList = memo(function SaleList() {
   const { toast } = useToast()
   const [paymentSale, setPaymentSale] = useState<Sale | null>(null)
 
@@ -61,7 +61,7 @@ export function SaleList() {
   const dateRange = getDateRange(filters.period)
 
   const { data: categoriesData } = useCategories()
-  const { data: productsData } = useProducts({ limit: 100 })
+  const { data: productsData } = useProducts({ limit: 20 })
 
   const categoryOptions = useMemo(
     () =>
@@ -108,11 +108,18 @@ export function SaleList() {
     }
   }
 
+  const handleFilterChange = useCallback(
+    (name: string, value: string) => {
+      setFilter(name as keyof typeof filters, value)
+    },
+    [setFilter]
+  )
+
   const filtersBar = (
     <FilterBar
       filters={filterConfigs}
       values={filters}
-      onChange={(name, value) => setFilter(name as keyof typeof filters, value)}
+      onChange={handleFilterChange}
       onReset={resetFilters}
     />
   )
@@ -243,4 +250,4 @@ export function SaleList() {
       />
     </div>
   )
-}
+})

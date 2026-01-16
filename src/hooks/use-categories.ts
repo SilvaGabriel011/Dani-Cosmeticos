@@ -26,6 +26,8 @@ export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
+    staleTime: 5 * 60 * 1000, // 5 minutos - categorias raramente mudam
+    gcTime: 10 * 60 * 1000,   // 10 minutos no cache
   })
 }
 
