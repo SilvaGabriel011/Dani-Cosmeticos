@@ -14,6 +14,7 @@ import { SaleForm } from "@/components/sales/sale-form"
 import { useFilters } from "@/hooks/use-filters"
 import { DollarSign, Package, Users, TrendingUp, AlertTriangle, Plus } from "lucide-react"
 import { ReceivablesCard } from "@/components/dashboard/receivables-card"
+import { FiadoTable } from "@/components/dashboard/fiado-table"
 import { useDashboard } from "@/hooks/use-dashboard"
 import { useReportByProduct, useReportByPayment } from "@/hooks/use-reports"
 import { formatCurrency, formatDate, getDateRange } from "@/lib/utils"
@@ -229,6 +230,8 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <FiadoTable />
 
       <SaleForm open={saleFormOpen} onOpenChange={setSaleFormOpen} />
     </div>

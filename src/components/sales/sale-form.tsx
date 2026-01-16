@@ -64,6 +64,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [isInstallment, setIsInstallment] = useState(false)
   const [dueDate, setDueDate] = useState<string>("")
   const [installmentPlan, setInstallmentPlan] = useState(1)
+  const [installmentDueDates, setInstallmentDueDates] = useState<string[]>([])
 
   const products = productsData?.data || []
   const clients = clientsData?.data || []
@@ -73,6 +74,46 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setClientId(defaultClientId)
     }
   }, [open, defaultClientId])
+
+  // Generate default installment dates when installment plan changes
+  const generateInstallmentDates = (numInstallments: number, baseDate?: string) => {
+    const dates: string[] = []
+    const startDate = baseDate ? new Date(baseDate) : new Date()
+    
+    // If no base date, start 30 days from now
+    if (!baseDate) {
+      startDate.setDate(startDate.getDate() + 30)
+    }
+    
+    for (let i = 0; i < numInstallments; i++) {
+      const installmentDate = new Date(startDate)
+      installmentDate.setMonth(installmentDate.getMonth() + i)
+      dates.push(installmentDate.toISOString().split('T')[0])
+    }
+    return dates
+  }
+
+  const handleInstallmentPlanChange = (value: number) => {
+    setInstallmentPlan(value)
+    if (value > 1) {
+      setInstallmentDueDates(generateInstallmentDates(value, dueDate))
+    } else {
+      setInstallmentDueDates([])
+    }
+  }
+
+  const handleDueDateChange = (value: string) => {
+    setDueDate(value)
+    if (installmentPlan > 1 && value) {
+      setInstallmentDueDates(generateInstallmentDates(installmentPlan, value))
+    }
+  }
+
+  const updateInstallmentDueDate = (index: number, value: string) => {
+    const newDates = [...installmentDueDates]
+    newDates[index] = value
+    setInstallmentDueDates(newDates)
+  }
 
   const filteredProducts = products.filter(
     (p) =>
@@ -206,6 +247,14 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     }
 
     try {
+      // Build installmentDueDates array if we have multiple installments with custom dates
+      const customDueDates = isInstallment && installmentPlan > 1 && installmentDueDates.length === installmentPlan
+        ? installmentDueDates.map((date, index) => ({
+            installment: index + 1,
+            dueDate: new Date(date).toISOString(),
+          }))
+        : undefined
+
       await createSale.mutateAsync({
         clientId: clientId || null,
         items: items.map((i) => ({
@@ -222,6 +271,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         discountPercent: effectiveDiscount,
         dueDate: isInstallment && dueDate ? new Date(dueDate).toISOString() : null,
         installmentPlan: isInstallment ? installmentPlan : 1,
+        installmentDueDates: customDueDates,
       })
 
       toast({ 
@@ -236,6 +286,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setIsInstallment(false)
       setDueDate("")
       setInstallmentPlan(1)
+      setInstallmentDueDates([])
       onOpenChange(false)
     } catch (error: any) {
       toast({
@@ -390,37 +441,57 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     </Label>
                   </div>
                   {isInstallment && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <Label className="text-xs">Vencimento</Label>
-                        <Input
-                          type="date"
-                          value={dueDate}
-                          onChange={(e) => setDueDate(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Parcelas</Label>
-                        <Select
-                          value={String(installmentPlan)}
-                          onValueChange={(v) => setInstallmentPlan(Number(v))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[1, 2, 3, 4, 5, 6, 12].map((n) => (
-                              <SelectItem key={n} value={String(n)}>
-                                {n}x
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Primeiro Vencimento</Label>
+                          <Input
+                            type="date"
+                            value={dueDate}
+                            onChange={(e) => handleDueDateChange(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Parcelas</Label>
+                          <Select
+                            value={String(installmentPlan)}
+                            onValueChange={(v) => handleInstallmentPlanChange(Number(v))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[1, 2, 3, 4, 5, 6, 12].map((n) => (
+                                <SelectItem key={n} value={String(n)}>
+                                  {n}x
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                       {installmentPlan > 1 && total > 0 && (
-                        <p className="col-span-2 text-sm text-muted-foreground">
-                          {installmentPlan}x de {formatCurrency(total / installmentPlan)}
-                        </p>
+                        <div className="space-y-2">
+                          <p className="text-sm text-muted-foreground">
+                            {installmentPlan}x de {formatCurrency(total / installmentPlan)}
+                          </p>
+                          <div className="border rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
+                            <Label className="text-xs font-medium">Datas de Vencimento</Label>
+                            {installmentDueDates.map((date, index) => (
+                              <div key={index} className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground w-16">
+                                  {index + 1}a parcela:
+                                </span>
+                                <Input
+                                  type="date"
+                                  value={date}
+                                  onChange={(e) => updateInstallmentDueDate(index, e.target.value)}
+                                  className="flex-1 h-8 text-sm"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       )}
                     </div>
                   )}
