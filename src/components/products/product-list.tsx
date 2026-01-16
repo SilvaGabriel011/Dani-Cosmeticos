@@ -63,25 +63,26 @@ export function ProductList() {
     { type: "select", name: "stockStatus", label: "Estoque", options: stockStatusOptions },
   ]
 
-  const { data, isLoading, error } = useProducts({
-    search: filters.search || undefined,
-    categoryId: filters.categoryId || undefined,
-    brandId: filters.brandId || undefined,
-    lowStock: filters.stockStatus === "low" ? true : undefined,
-  })
+    const { data, isLoading, error } = useProducts({
+      search: filters.search || undefined,
+      categoryId: filters.categoryId || undefined,
+      brandId: filters.brandId || undefined,
+    })
 
-  const filteredProducts = useMemo(() => {
-    if (!data?.data) return []
-    let products = data.data
+    const filteredProducts = useMemo(() => {
+      if (!data?.data) return []
+      let products = data.data
 
-    if (filters.stockStatus === "out") {
-      products = products.filter((p) => p.stock === 0)
-    } else if (filters.stockStatus === "ok") {
-      products = products.filter((p) => p.stock > p.minStock)
-    }
+      if (filters.stockStatus === "low") {
+        products = products.filter((p) => p.stock <= p.minStock && p.stock > 0)
+      } else if (filters.stockStatus === "out") {
+        products = products.filter((p) => p.stock === 0)
+      } else if (filters.stockStatus === "ok") {
+        products = products.filter((p) => p.stock > p.minStock)
+      }
 
-    return products
-  }, [data, filters.stockStatus])
+      return products
+    }, [data, filters.stockStatus])
 
   const deleteProduct = useDeleteProduct()
 

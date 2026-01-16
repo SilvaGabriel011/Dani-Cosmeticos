@@ -11,7 +11,6 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || ""
     const categoryId = searchParams.get("categoryId")
     const brandId = searchParams.get("brandId")
-    const lowStock = searchParams.get("lowStock") === "true"
 
     const where = {
       deletedAt: null,
@@ -23,9 +22,6 @@ export async function GET(request: NextRequest) {
       }),
       ...(categoryId && { categoryId }),
       ...(brandId && { brandId }),
-      ...(lowStock && {
-        stock: { lte: prisma.product.fields.minStock },
-      }),
     }
 
     const [products, total] = await Promise.all([
