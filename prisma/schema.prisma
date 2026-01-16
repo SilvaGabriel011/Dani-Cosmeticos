@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentMethod {
+  CASH
+  PIX
+  DEBIT
+  CREDIT
+}
+
+enum FeeAbsorber {
+  SELLER
+  CLIENT
+}
+
+enum SaleStatus {
+  COMPLETED
+  CANCELLED
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  products  Product[]
+}
+
+model Product {
+  id           String     @id @default(uuid())
+  code         String?    @unique
+  name         String
+  categoryId   String?
+  category     Category?  @relation(fields: [categoryId], references: [id])
+  costPrice    Decimal    @db.Decimal(10, 2)
+  profitMargin Decimal    @db.Decimal(5, 2)
+  salePrice    Decimal    @db.Decimal(10, 2)
+  stock        Int        @default(0)
+  minStock     Int        @default(5)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+  saleItems    SaleItem[]
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([deletedAt])
+}
+
+model Client {
+  id        String    @id @default(uuid())
+  name      String
+  phone     String
+  address   String
+  discount  Decimal   @default(0) @db.Decimal(5, 2)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  sales     Sale[]
+
+  @@index([deletedAt])
+}
+
+model Sale {
+  id              String     @id @default(uuid())
+  clientId        String?
+  client          Client?    @relation(fields: [clientId], references: [id])
+  subtotal        Decimal    @db.Decimal(10, 2)
+  discountPercent Decimal    @default(0) @db.Decimal(5, 2)
+  discountAmount  Decimal    @default(0) @db.Decimal(10, 2)
+  totalFees       Decimal    @default(0) @db.Decimal(10, 2)
+  total           Decimal    @db.Decimal(10, 2)
+  netTotal        Decimal    @db.Decimal(10, 2)
+  status          SaleStatus @default(COMPLETED)
+  notes           String?
+  createdAt       DateTime   @default(now())
+  items           SaleItem[]
+  payments        Payment[]
+
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SaleItem {
+  id        String  @id @default(uuid())
+  saleId    String
+  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  costPrice Decimal @db.Decimal(10, 2)
+  total     Decimal @db.Decimal(10, 2)
+
+  @@index([saleId])
+  @@index([productId])
+}
+
+model Payment {
+  id           String        @id @default(uuid())
+  saleId       String
+  sale         Sale          @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  method       PaymentMethod
+  amount       Decimal       @db.Decimal(10, 2)
+  feePercent   Decimal       @default(0) @db.Decimal(5, 2)
+  feeAmount    Decimal       @default(0) @db.Decimal(10, 2)
+  feeAbsorber  FeeAbsorber   @default(SELLER)
+  installments Int           @default(1)
+
+  @@index([saleId])
+  @@index([method])
+}
+
+model Settings {
+  id                   String      @id @default("default")
+  debitFeePercent      Decimal     @default(1.5) @db.Decimal(5, 2)
+  creditFeePercent     Decimal     @default(3.0) @db.Decimal(5, 2)
+  creditInstallmentFee Decimal     @default(4.0) @db.Decimal(5, 2)
+  defaultFeeAbsorber   FeeAbsorber @default(SELLER)
+  lowStockAlertEnabled Boolean     @default(true)
+  updatedAt            DateTime    @updatedAt
+}
