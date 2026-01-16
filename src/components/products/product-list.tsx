@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback, memo } from "react"
 import { Pencil, Trash2, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -30,7 +30,7 @@ const stockStatusOptions = [
   { value: "ok", label: "Estoque OK" },
 ]
 
-export function ProductList() {
+export const ProductList = memo(function ProductList() {
   const { toast } = useToast()
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 
@@ -100,11 +100,18 @@ export function ProductList() {
     }
   }
 
+  const handleFilterChange = useCallback(
+    (name: string, value: string) => {
+      setFilter(name as keyof typeof filters, value)
+    },
+    [setFilter]
+  )
+
   const filtersBar = (
     <FilterBar
       filters={filterConfigs}
       values={filters}
-      onChange={(name, value) => setFilter(name as keyof typeof filters, value)}
+      onChange={handleFilterChange}
       onReset={resetFilters}
     />
   )
@@ -226,4 +233,4 @@ export function ProductList() {
       />
     </div>
   )
-}
+})

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback, memo } from "react"
 import { Pencil, Trash2, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -31,7 +31,7 @@ interface ClientListProps {
   onNewSale?: (client: Client) => void
 }
 
-export function ClientList({ onNewSale }: ClientListProps) {
+export const ClientList = memo(function ClientList({ onNewSale }: ClientListProps) {
   const { toast } = useToast()
   const [editingClient, setEditingClient] = useState<Client | null>(null)
 
@@ -80,11 +80,18 @@ export function ClientList({ onNewSale }: ClientListProps) {
     }
   }
 
+  const handleFilterChange = useCallback(
+    (name: string, value: string) => {
+      setFilter(name as keyof typeof filters, value)
+    },
+    [setFilter]
+  )
+
   const filtersBar = (
     <FilterBar
       filters={filterConfigs}
       values={filters}
-      onChange={(name, value) => setFilter(name as keyof typeof filters, value)}
+      onChange={handleFilterChange}
       onReset={resetFilters}
     />
   )
@@ -194,4 +201,4 @@ export function ClientList({ onNewSale }: ClientListProps) {
       />
     </div>
   )
-}
+})

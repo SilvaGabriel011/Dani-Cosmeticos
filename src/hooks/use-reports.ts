@@ -62,33 +62,37 @@ export function useReportSummary(filters: ReportFilters = {}) {
   })
 }
 
-export function useReportByProduct(filters: ReportFilters & { limit?: number } = {}) {
+export function useReportByProduct(filters: ReportFilters & { limit?: number; enabled?: boolean } = {}) {
+  const { enabled = true, ...restFilters } = filters
   const params = new URLSearchParams()
-  if (filters.startDate) params.append("startDate", filters.startDate)
-  if (filters.endDate) params.append("endDate", filters.endDate)
-  if (filters.limit) params.append("limit", filters.limit.toString())
+  if (restFilters.startDate) params.append("startDate", restFilters.startDate)
+  if (restFilters.endDate) params.append("endDate", restFilters.endDate)
+  if (restFilters.limit) params.append("limit", restFilters.limit.toString())
 
   return useQuery<ProductsReportResponse>({
-    queryKey: ["reports", "by-product", filters],
+    queryKey: ["reports", "by-product", restFilters],
     queryFn: async () => {
       const res = await fetch(`/api/reports/by-product?${params}`)
       if (!res.ok) throw new Error("Erro ao carregar relatório por produto")
       return res.json()
     },
+    enabled,
   })
 }
 
-export function useReportByPayment(filters: ReportFilters = {}) {
+export function useReportByPayment(filters: ReportFilters & { enabled?: boolean } = {}) {
+  const { enabled = true, ...restFilters } = filters
   const params = new URLSearchParams()
-  if (filters.startDate) params.append("startDate", filters.startDate)
-  if (filters.endDate) params.append("endDate", filters.endDate)
+  if (restFilters.startDate) params.append("startDate", restFilters.startDate)
+  if (restFilters.endDate) params.append("endDate", restFilters.endDate)
 
   return useQuery<PaymentsReportResponse>({
-    queryKey: ["reports", "by-payment", filters],
+    queryKey: ["reports", "by-payment", restFilters],
     queryFn: async () => {
       const res = await fetch(`/api/reports/by-payment?${params}`)
       if (!res.ok) throw new Error("Erro ao carregar relatório por pagamento")
       return res.json()
     },
+    enabled,
   })
 }

@@ -26,6 +26,8 @@ export function useBrands() {
   return useQuery({
     queryKey: ["brands"],
     queryFn: fetchBrands,
+    staleTime: 5 * 60 * 1000, // 5 minutos - marcas raramente mudam
+    gcTime: 10 * 60 * 1000,   // 10 minutos no cache
   })
 }
 

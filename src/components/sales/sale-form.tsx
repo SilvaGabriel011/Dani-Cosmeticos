@@ -51,8 +51,8 @@ interface SaleFormProps {
 
 export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps) {
   const { toast } = useToast()
-  const { data: productsData } = useProducts({ limit: 100 })
-  const { data: clientsData } = useClients({ limit: 100 })
+  const { data: productsData } = useProducts({ limit: 20 })
+  const { data: clientsData } = useClients({ limit: 20 })
   const { data: settings } = useSettings()
   const createSale = useCreateSale()
 

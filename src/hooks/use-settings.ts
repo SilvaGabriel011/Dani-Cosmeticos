@@ -27,6 +27,7 @@ export function useSettings() {
   return useQuery({
     queryKey: ["settings"],
     queryFn: fetchSettings,
+    staleTime: 10 * 60 * 1000, // 10 minutos - configuracoes mudam muito raramente
   })
 }
 
