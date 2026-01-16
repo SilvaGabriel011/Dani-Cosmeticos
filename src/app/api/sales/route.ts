@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
       // Create sale
       const newSale = await tx.sale.create({
         data: {
-          clientId,
+          ...(clientId && { client: { connect: { id: clientId } } }),
           subtotal: new Decimal(subtotal),
           discountPercent: new Decimal(finalDiscountPercent),
           discountAmount: new Decimal(discountAmount),
