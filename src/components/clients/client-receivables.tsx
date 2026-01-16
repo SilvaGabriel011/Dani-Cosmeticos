@@ -15,6 +15,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Table,
   TableBody,
   TableCell,
@@ -25,7 +32,13 @@ import {
 import { useToast } from "@/components/ui/use-toast"
 import { useReceivablesByClient, usePayReceivable } from "@/hooks/use-receivables"
 import { formatCurrency, formatDate } from "@/lib/utils"
+import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
 import { DollarSign } from "lucide-react"
+import { Receivable, Sale, Client } from "@prisma/client"
+
+type ReceivableWithSale = Receivable & {
+  sale: Sale & { client: Client | null }
+}
 
 interface ClientReceivablesProps {
   clientId: string
@@ -52,13 +65,15 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
 
   const [paymentDialog, setPaymentDialog] = useState<{
     open: boolean
-    receivable: any | null
+    receivable: ReceivableWithSale | null
   }>({ open: false, receivable: null })
   const [paymentAmount, setPaymentAmount] = useState("")
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "PIX" | "DEBIT" | "CREDIT">("CASH")
 
-  const handleOpenPayment = (receivable: any) => {
+  const handleOpenPayment = (receivable: ReceivableWithSale) => {
     const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
     setPaymentAmount(String(remaining))
+    setPaymentMethod("CASH")
     setPaymentDialog({ open: true, receivable })
   }
 
@@ -69,14 +84,17 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
       await payReceivable.mutateAsync({
         id: paymentDialog.receivable.id,
         amount: Number(paymentAmount),
+        paymentMethod,
       })
       toast({ title: "Pagamento registrado com sucesso!" })
       setPaymentDialog({ open: false, receivable: null })
       setPaymentAmount("")
-    } catch (error: any) {
+      setPaymentMethod("CASH")
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
       toast({
         title: "Erro ao registrar pagamento",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       })
     }
@@ -95,12 +113,12 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
     )
   }
 
-  const pendingReceivables = receivables?.filter(
-    (r: any) => r.status !== "PAID"
+  const pendingReceivables = (receivables as ReceivableWithSale[] | undefined)?.filter(
+    (r: ReceivableWithSale) => r.status !== "PAID"
   ) || []
 
   const totalPending = pendingReceivables.reduce(
-    (sum: number, r: any) => sum + Number(r.amount) - Number(r.paidAmount),
+    (sum: number, r: ReceivableWithSale) => sum + Number(r.amount) - Number(r.paidAmount),
     0
   )
 
@@ -136,7 +154,7 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {receivables.map((receivable: any) => {
+                {(receivables as ReceivableWithSale[]).map((receivable: ReceivableWithSale) => {
                   const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
                   const isOverdue = new Date(receivable.dueDate) < new Date() && receivable.status !== "PAID"
                   const displayStatus = isOverdue && receivable.status !== "PAID" ? "OVERDUE" : receivable.status
@@ -216,6 +234,21 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
                 </p>
               </div>
             )}
+            <div className="space-y-2">
+              <Label>Forma de pagamento</Label>
+              <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as typeof paymentMethod)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(PAYMENT_METHOD_LABELS).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label>Valor do pagamento</Label>
               <Input

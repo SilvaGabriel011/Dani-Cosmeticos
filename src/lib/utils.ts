@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { format, subDays, startOfMonth } from "date-fns"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -44,4 +45,27 @@ export function calculateSalePrice(costPrice: number, profitMargin: number): num
 
 export function calculateFeeAmount(amount: number, feePercent: number): number {
   return amount * (feePercent / 100)
+}
+
+export function getDateRange(period: string): { startDate: string; endDate: string } {
+  const today = new Date()
+  switch (period) {
+    case "today":
+      return {
+        startDate: format(today, "yyyy-MM-dd"),
+        endDate: format(today, "yyyy-MM-dd"),
+      }
+    case "week":
+      return {
+        startDate: format(subDays(today, 7), "yyyy-MM-dd"),
+        endDate: format(today, "yyyy-MM-dd"),
+      }
+    case "month":
+      return {
+        startDate: format(startOfMonth(today), "yyyy-MM-dd"),
+        endDate: format(today, "yyyy-MM-dd"),
+      }
+    default:
+      return { startDate: "", endDate: "" }
+  }
 }

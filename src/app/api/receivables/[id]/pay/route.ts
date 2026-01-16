@@ -8,11 +8,12 @@ export async function POST(
 ) {
   try {
     const body = await request.json()
-    const { amount, paidAt } = payReceivableSchema.parse(body)
+    const { amount, paymentMethod, paidAt } = payReceivableSchema.parse(body)
 
     const data = await receivableService.registerPayment(
       params.id,
       amount,
+      paymentMethod,
       paidAt ? new Date(paidAt) : undefined
     )
 

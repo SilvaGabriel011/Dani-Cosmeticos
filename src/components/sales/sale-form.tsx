@@ -82,7 +82,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   )
 
   const selectedClient = clients.find((c) => c.id === clientId)
-  const effectiveDiscount = discountPercent || Number(selectedClient?.discount || 0)
+  const [hasManualDiscount, setHasManualDiscount] = useState(false)
+  const effectiveDiscount = hasManualDiscount ? discountPercent : Number(selectedClient?.discount || 0)
 
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + Number(item.product.salePrice) * item.quantity, 0),
@@ -231,6 +232,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setPayments([])
       setClientId("")
       setDiscountPercent(0)
+      setHasManualDiscount(false)
       setIsInstallment(false)
       setDueDate("")
       setInstallmentPlan(1)
@@ -367,7 +369,10 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     min="0"
                     max="100"
                     value={discountPercent}
-                    onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                    onChange={(e) => {
+                      setDiscountPercent(Number(e.target.value))
+                      setHasManualDiscount(true)
+                    }}
                   />
                 </div>
                 <Separator className="my-3" />

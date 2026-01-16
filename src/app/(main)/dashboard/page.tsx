@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { format, subDays, startOfMonth } from "date-fns"
 import { PageHeader } from "@/components/layout/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,7 +16,7 @@ import { DollarSign, Package, Users, TrendingUp, AlertTriangle, Plus } from "luc
 import { ReceivablesCard } from "@/components/dashboard/receivables-card"
 import { useDashboard } from "@/hooks/use-dashboard"
 import { useReportByProduct, useReportByPayment } from "@/hooks/use-reports"
-import { formatCurrency, formatDate } from "@/lib/utils"
+import { formatCurrency, formatDate, getDateRange } from "@/lib/utils"
 import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
 
 const periodOptions = [
@@ -25,28 +24,6 @@ const periodOptions = [
   { value: "week", label: "7 dias" },
   { value: "month", label: "Mês" },
 ]
-
-function getDateRange(period: string) {
-  const today = new Date()
-  switch (period) {
-    case "today":
-      return {
-        startDate: format(today, "yyyy-MM-dd"),
-        endDate: format(today, "yyyy-MM-dd"),
-      }
-    case "week":
-      return {
-        startDate: format(subDays(today, 7), "yyyy-MM-dd"),
-        endDate: format(today, "yyyy-MM-dd"),
-      }
-    case "month":
-    default:
-      return {
-        startDate: format(startOfMonth(today), "yyyy-MM-dd"),
-        endDate: format(today, "yyyy-MM-dd"),
-      }
-  }
-}
 
 export default function DashboardPage() {
   const { filters, setFilter } = useFilters({

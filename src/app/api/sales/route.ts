@@ -239,12 +239,19 @@ export async function POST(request: NextRequest) {
         })
       }
 
-      // Create receivables for installment sales
-      if (dueDate && installmentPlan && installmentPlan >= 1 && !isPaid) {
-        const installmentAmount = total / installmentPlan
-        const baseDate = new Date(dueDate)
+      // Create receivables for fiado sales (always, even without installments)
+      if (!isPaid) {
+        const remainingAmount = total - paidAmount
+        const numInstallments = installmentPlan && installmentPlan >= 1 ? installmentPlan : 1
+        const installmentAmount = remainingAmount / numInstallments
+        const baseDate = dueDate ? new Date(dueDate) : new Date()
+        
+        // If no due date specified, set default to 30 days from now
+        if (!dueDate) {
+          baseDate.setDate(baseDate.getDate() + 30)
+        }
 
-        const receivables = Array.from({ length: installmentPlan }, (_, i) => {
+        const receivables = Array.from({ length: numInstallments }, (_, i) => {
           const installmentDueDate = new Date(baseDate)
           installmentDueDate.setMonth(installmentDueDate.getMonth() + i)
 

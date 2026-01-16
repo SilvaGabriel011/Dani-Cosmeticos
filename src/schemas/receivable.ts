@@ -9,6 +9,7 @@ export const createReceivableSchema = z.object({
 
 export const payReceivableSchema = z.object({
   amount: z.number().positive(),
+  paymentMethod: z.enum(["CASH", "PIX", "DEBIT", "CREDIT"]).default("CASH"),
   paidAt: z.string().datetime().optional(),
 })
 

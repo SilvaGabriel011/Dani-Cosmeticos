@@ -6,6 +6,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useReceivablesDashboard } from "@/hooks/use-receivables"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { AlertCircle } from "lucide-react"
+import { Receivable, Sale, Client } from "@prisma/client"
+
+type ReceivableWithSale = Receivable & {
+  sale: Sale & { client: Client | null }
+}
 
 interface ReceivablesCardProps {
   startDate: string
@@ -62,7 +67,7 @@ export function ReceivablesCard({ startDate, endDate }: ReceivablesCardProps) {
           </p>
         ) : (
           <div className="space-y-3 max-h-[200px] overflow-y-auto">
-            {receivables.slice(0, 5).map((receivable: any) => {
+            {(receivables as ReceivableWithSale[]).slice(0, 5).map((receivable) => {
               const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
               const isOverdue = new Date(receivable.dueDate) < new Date() && receivable.status !== "PAID"
 
