@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 
+export const dynamic = 'force-dynamic'
+
 const createCategorySchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
 })

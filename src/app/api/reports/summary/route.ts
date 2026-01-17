@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { startOfDay, endOfDay, parseISO } from "date-fns"
 
+export const dynamic = 'force-dynamic'
+
 interface SaleSummary {
   totalSales: bigint
   totalRevenue: number | null

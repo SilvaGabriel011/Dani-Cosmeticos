@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { receivableService } from "@/services/receivable.service"
 import { payReceivableSchema } from "@/schemas/receivable"
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }

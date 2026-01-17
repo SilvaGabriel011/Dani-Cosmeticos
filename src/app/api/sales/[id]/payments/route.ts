@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma"
 import { addPaymentSchema } from "@/schemas/sale"
 import { Decimal } from "@prisma/client/runtime/library"
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
