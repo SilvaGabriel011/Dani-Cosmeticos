@@ -21,13 +21,13 @@ import { useBrands } from "@/hooks/use-brands"
 import { useFilters } from "@/hooks/use-filters"
 import { ProductForm } from "./product-form"
 import { Product } from "@/types"
-import { formatCurrency } from "@/lib/utils"
+import { formatCurrency, getStockStatus } from "@/lib/utils"
 
 const stockStatusOptions = [
   { value: "all", label: "Todos" },
-  { value: "low", label: "Estoque Baixo" },
-  { value: "out", label: "Sem Estoque" },
-  { value: "ok", label: "Estoque OK" },
+  { value: "baixo", label: "Estoque Baixo" },
+  { value: "medio", label: "Estoque Médio" },
+  { value: "bom", label: "Estoque Bom" },
 ]
 
 export const ProductList = memo(function ProductList() {
@@ -73,12 +73,12 @@ export const ProductList = memo(function ProductList() {
       if (!data?.data) return []
       let products = data.data
 
-      if (filters.stockStatus === "low") {
-        products = products.filter((p) => p.stock <= p.minStock && p.stock > 0)
-      } else if (filters.stockStatus === "out") {
-        products = products.filter((p) => p.stock === 0)
-      } else if (filters.stockStatus === "ok") {
-        products = products.filter((p) => p.stock > p.minStock)
+      if (filters.stockStatus === "baixo") {
+        products = products.filter((p) => p.stock <= p.minStock)
+      } else if (filters.stockStatus === "medio") {
+        products = products.filter((p) => p.stock > p.minStock && p.stock <= p.minStock * 2)
+      } else if (filters.stockStatus === "bom") {
+        products = products.filter((p) => p.stock > p.minStock * 2)
       }
 
       return products
@@ -164,12 +164,13 @@ export const ProductList = memo(function ProductList() {
             <TableHead className="text-right">Custo</TableHead>
             <TableHead className="text-right">Venda</TableHead>
             <TableHead className="text-center">Estoque</TableHead>
+            <TableHead className="text-center">Status</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredProducts.map((product) => {
-            const isLowStock = product.stock <= product.minStock
+            const stockStatus = getStockStatus(product.stock, product.minStock)
             return (
               <TableRow key={product.id}>
                 <TableCell className="font-mono text-sm">
@@ -194,13 +195,18 @@ export const ProductList = memo(function ProductList() {
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex items-center justify-center gap-2">
-                    {isLowStock && (
-                      <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    {stockStatus.status === "baixo" && (
+                      <AlertTriangle className="h-4 w-4 text-red-500" />
                     )}
-                    <Badge variant={isLowStock ? "destructive" : "secondary"}>
+                    <Badge variant={stockStatus.color}>
                       {product.stock}
                     </Badge>
                   </div>
+                </TableCell>
+                <TableCell className="text-center">
+                  <Badge variant={stockStatus.color}>
+                    {stockStatus.label}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
