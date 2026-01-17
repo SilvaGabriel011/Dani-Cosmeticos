@@ -92,6 +92,7 @@ export function useSales(filters: SaleFilters = {}) {
   return useQuery({
     queryKey: ["sales", filters],
     queryFn: () => fetchSales(filters),
+    staleTime: 30 * 1000, // 30 segundos
   })
 }
 
@@ -100,6 +101,7 @@ export function useSale(id: string) {
     queryKey: ["sale", id],
     queryFn: () => fetchSale(id),
     enabled: !!id,
+    staleTime: 30 * 1000, // 30 segundos
   })
 }
 
@@ -151,6 +153,7 @@ export function useClientPendingSales(clientId: string | null) {
     queryKey: ["client-pending-sales", clientId],
     queryFn: () => fetchClientPendingSales(clientId!),
     enabled: !!clientId,
+    staleTime: 30 * 1000, // 30 segundos
   })
 }
 

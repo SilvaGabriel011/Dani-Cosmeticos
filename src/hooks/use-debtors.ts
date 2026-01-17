@@ -70,5 +70,6 @@ export function useDebtors(filters: DebtorFilters = {}) {
   return useQuery({
     queryKey: ["debtors", filters],
     queryFn: () => fetchDebtors(filters),
+    staleTime: 60 * 1000, // 1 minuto
   })
 }

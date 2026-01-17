@@ -59,6 +59,7 @@ export function useReportSummary(filters: ReportFilters = {}) {
       if (!res.ok) throw new Error("Erro ao carregar resumo")
       return res.json()
     },
+    staleTime: 60 * 1000, // 1 minuto - relatórios podem ser cacheados
   })
 }
 
@@ -77,6 +78,7 @@ export function useReportByProduct(filters: ReportFilters & { limit?: number; en
       return res.json()
     },
     enabled,
+    staleTime: 60 * 1000, // 1 minuto
   })
 }
 
@@ -94,5 +96,6 @@ export function useReportByPayment(filters: ReportFilters & { enabled?: boolean 
       return res.json()
     },
     enabled,
+    staleTime: 60 * 1000, // 1 minuto
   })
 }

@@ -66,6 +66,7 @@ export function useProducts(filters: ProductFilters = {}) {
   return useQuery({
     queryKey: ["products", filters],
     queryFn: () => fetchProducts(filters),
+    staleTime: 30 * 1000, // 30 segundos - produtos mudam com vendas
   })
 }
 
@@ -74,6 +75,7 @@ export function useProduct(id: string) {
     queryKey: ["product", id],
     queryFn: () => fetchProduct(id),
     enabled: !!id,
+    staleTime: 30 * 1000, // 30 segundos
   })
 }
 
