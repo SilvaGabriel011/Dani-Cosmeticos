@@ -69,3 +69,35 @@ export function getDateRange(period: string): { startDate: string; endDate: stri
       return { startDate: "", endDate: "" }
   }
 }
+
+export type StockStatus = "baixo" | "medio" | "bom"
+
+export interface StockStatusInfo {
+  status: StockStatus
+  label: string
+  color: "destructive" | "warning" | "info"
+}
+
+export function getStockStatus(stock: number, minStock: number): StockStatusInfo {
+  if (stock <= minStock) {
+    return {
+      status: "baixo",
+      label: "Baixo",
+      color: "destructive",
+    }
+  }
+  
+  if (stock <= minStock * 2) {
+    return {
+      status: "medio",
+      label: "Médio",
+      color: "warning",
+    }
+  }
+  
+  return {
+    status: "bom",
+    label: "Bom",
+    color: "info",
+  }
+}
