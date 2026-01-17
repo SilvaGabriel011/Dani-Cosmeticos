@@ -16,9 +16,8 @@ import { DollarSign, Package, Users, TrendingUp, AlertTriangle, Plus } from "luc
 import { ReceivablesCard } from "@/components/dashboard/receivables-card"
 import { FiadoTable } from "@/components/dashboard/fiado-table"
 import { useDashboard } from "@/hooks/use-dashboard"
-import { useReportByProduct, useReportByPayment } from "@/hooks/use-reports"
+import { useReportByProduct, useTopClientes } from "@/hooks/use-reports"
 import { formatCurrency, formatDate, getDateRange } from "@/lib/utils"
-import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
 
 const periodOptions = [
   { value: "today", label: "Hoje" },
@@ -42,8 +41,9 @@ export default function DashboardPage() {
     limit: 5,
     enabled: !isLoading 
   })
-  const { data: paymentReport } = useReportByPayment({
+  const { data: topClientes } = useTopClientes({
     ...dateRange,
+    limit: 5,
     enabled: !isLoading
   })
 
@@ -56,13 +56,13 @@ export default function DashboardPage() {
     [productReport]
   )
 
-  const paymentMethodsData = useMemo(
+  const topClientesData = useMemo(
     () =>
-      paymentReport?.methods.map((m) => ({
-        name: PAYMENT_METHOD_LABELS[m.method as keyof typeof PAYMENT_METHOD_LABELS] || m.method,
-        value: m.totalAmount,
+      topClientes?.map((c) => ({
+        name: c.nome.length > 15 ? c.nome.slice(0, 15) + "..." : c.nome,
+        value: c.totalCompras,
       })) || [],
-    [paymentReport]
+    [topClientes]
   )
 
   if (isLoading) {
@@ -157,8 +157,8 @@ export default function DashboardPage() {
           <BarChart data={topProductsData} horizontal height={250} />
         </ChartContainer>
 
-        <ChartContainer title="Formas de Pagamento">
-          <PieChart data={paymentMethodsData} donut height={250} />
+        <ChartContainer title="Top 5 Clientes">
+          <BarChart data={topClientesData} horizontal height={250} />
         </ChartContainer>
       </div>
 
