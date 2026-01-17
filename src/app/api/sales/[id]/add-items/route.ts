@@ -2,15 +2,24 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { addItemsToSaleSchema } from "@/schemas/sale"
 import { Decimal } from "@prisma/client/runtime/library"
+import { cache, CACHE_KEYS } from "@/lib/cache"
+import { Sale, Receivable, SaleItem } from "@prisma/client"
+
+type SaleWithRelations = Omit<Sale, 'fixedInstallmentAmount' | 'paymentDay'> & {
+  receivables: Receivable[]
+  items: SaleItem[]
+  fixedInstallmentAmount: number | null
+  paymentDay: number | null
+}
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params
+    const { id } = params
     const body = await request.json()
     const validation = addItemsToSaleSchema.safeParse(body)
 
@@ -29,14 +38,14 @@ export async function POST(
 
     const { items } = validation.data
 
-    // Find the sale
+    // Find the sale with all necessary fields
     const sale = await prisma.sale.findUnique({
       where: { id },
       include: {
         receivables: { orderBy: { installment: "desc" }, take: 1 },
         items: true,
       },
-    })
+    }) as SaleWithRelations | null
 
     if (!sale) {
       return NextResponse.json(
@@ -190,6 +199,10 @@ export async function POST(
 
       return updated
     })
+
+    // Invalidate dashboard cache after adding items
+    cache.invalidate(CACHE_KEYS.DASHBOARD)
+    cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
 
     return NextResponse.json({
       sale: updatedSale,

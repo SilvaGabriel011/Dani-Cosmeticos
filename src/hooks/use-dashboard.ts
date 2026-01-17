@@ -29,6 +29,8 @@ export function useDashboard() {
   return useQuery({
     queryKey: ["dashboard"],
     queryFn: fetchDashboard,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    staleTime: 2 * 60 * 1000, // 2 minutos - dados do dashboard mudam com menos frequência
+    refetchInterval: 5 * 60 * 1000, // Refetch a cada 5 minutos (não 30s)
+    refetchOnWindowFocus: false, // Evita refetch ao trocar de aba
   })
 }

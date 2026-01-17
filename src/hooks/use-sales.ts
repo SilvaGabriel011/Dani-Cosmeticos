@@ -92,7 +92,8 @@ export function useSales(filters: SaleFilters = {}) {
   return useQuery({
     queryKey: ["sales", filters],
     queryFn: () => fetchSales(filters),
-    staleTime: 30 * 1000, // 30 segundos
+    staleTime: 2 * 60 * 1000, // 2 minutos
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -101,7 +102,7 @@ export function useSale(id: string) {
     queryKey: ["sale", id],
     queryFn: () => fetchSale(id),
     enabled: !!id,
-    staleTime: 30 * 1000, // 30 segundos
+    staleTime: 2 * 60 * 1000, // 2 minutos
   })
 }
 
@@ -109,10 +110,13 @@ export function useCreateSale() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: createSale,
-    onSuccess: () => {
+    onSuccess: (newSale) => {
+      // Update otimista
+      queryClient.setQueryData(["sale", newSale.id], newSale)
+      // Invalida apenas vendas e produtos (estoque mudou)
       queryClient.invalidateQueries({ queryKey: ["sales"] })
       queryClient.invalidateQueries({ queryKey: ["products"] })
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+      // Dashboard será atualizado no próximo ciclo automático
     },
   })
 }
@@ -134,9 +138,9 @@ export function useAddPayment() {
   return useMutation({
     mutationFn: addPayment,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["sales"] })
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+      // Update otimista
       queryClient.setQueryData(["sale", data.id], data)
+      queryClient.invalidateQueries({ queryKey: ["sales"] })
     },
   })
 }
@@ -153,7 +157,7 @@ export function useClientPendingSales(clientId: string | null) {
     queryKey: ["client-pending-sales", clientId],
     queryFn: () => fetchClientPendingSales(clientId!),
     enabled: !!clientId,
-    staleTime: 30 * 1000, // 30 segundos
+    staleTime: 2 * 60 * 1000, // 2 minutos
   })
 }
 
@@ -177,11 +181,12 @@ export function useAddItemsToSale() {
   return useMutation({
     mutationFn: addItemsToSale,
     onSuccess: (data) => {
+      // Update otimista da venda específica
+      queryClient.setQueryData(["sale", data.id], data)
+      // Invalida apenas o necessário
       queryClient.invalidateQueries({ queryKey: ["sales"] })
       queryClient.invalidateQueries({ queryKey: ["products"] })
       queryClient.invalidateQueries({ queryKey: ["client-pending-sales"] })
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
-      queryClient.setQueryData(["sale", data.id], data)
     },
   })
 }

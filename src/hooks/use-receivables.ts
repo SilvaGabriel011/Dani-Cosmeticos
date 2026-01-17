@@ -25,6 +25,8 @@ export function useReceivables(filters: ReceivableFilters = {}) {
       if (!res.ok) throw new Error("Erro ao carregar contas a receber")
       return res.json()
     },
+    staleTime: 2 * 60 * 1000, // 2 minutos
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -42,6 +44,7 @@ export function useReceivablesByClient(clientId: string, filters?: { startDate?:
       return res.json()
     },
     enabled: !!clientId,
+    staleTime: 2 * 60 * 1000, // 2 minutos
   })
 }
 
@@ -58,6 +61,8 @@ export function useReceivablesDue(filters?: { startDate?: string; endDate?: stri
       if (!res.ok) throw new Error("Erro ao carregar contas a receber")
       return res.json()
     },
+    staleTime: 2 * 60 * 1000, // 2 minutos
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -73,6 +78,8 @@ export function useReceivablesDashboard(filters?: { startDate?: string; endDate?
       if (!res.ok) throw new Error("Erro ao carregar resumo")
       return res.json()
     },
+    staleTime: 2 * 60 * 1000, // 2 minutos
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -98,11 +105,10 @@ export function usePayReceivable() {
       return res.json()
     },
     onSuccess: () => {
+      // Invalida apenas receivables e sales - outros serão atualizados no ciclo
       queryClient.invalidateQueries({ queryKey: ["receivables"] })
       queryClient.invalidateQueries({ queryKey: ["sales"] })
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
-      queryClient.invalidateQueries({ queryKey: ["debtors"] })
-      queryClient.invalidateQueries({ queryKey: ["clients"] })
+      queryClient.invalidateQueries({ queryKey: ["salesWithReceivables"] })
     },
   })
 }
@@ -129,9 +135,9 @@ export function usePaySaleReceivables() {
       return res.json()
     },
     onSuccess: () => {
+      // Invalida apenas o necessário
       queryClient.invalidateQueries({ queryKey: ["receivables"] })
       queryClient.invalidateQueries({ queryKey: ["sales"] })
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
       queryClient.invalidateQueries({ queryKey: ["salesWithReceivables"] })
     },
   })
@@ -149,5 +155,7 @@ export function useSalesWithPendingReceivables(limit?: number) {
       if (!res.ok) throw new Error("Erro ao carregar vendas fiado")
       return res.json()
     },
+    staleTime: 2 * 60 * 1000, // 2 minutos
+    refetchOnWindowFocus: false,
   })
 }

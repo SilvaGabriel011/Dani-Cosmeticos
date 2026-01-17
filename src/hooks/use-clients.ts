@@ -62,7 +62,8 @@ export function useClients(filters: ClientFilters = {}) {
   return useQuery({
     queryKey: ["clients", filters],
     queryFn: () => fetchClients(filters),
-    staleTime: 60 * 1000, // 1 minuto - clientes mudam menos frequentemente
+    staleTime: 5 * 60 * 1000, // 5 minutos - clientes raramente mudam
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -71,7 +72,7 @@ export function useClient(id: string) {
     queryKey: ["client", id],
     queryFn: () => fetchClient(id),
     enabled: !!id,
-    staleTime: 60 * 1000, // 1 minuto
+    staleTime: 5 * 60 * 1000, // 5 minutos
   })
 }
 
@@ -79,7 +80,9 @@ export function useCreateClient() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: createClient,
-    onSuccess: () => {
+    onSuccess: (newClient) => {
+      // Update otimista - adiciona o novo cliente ao cache
+      queryClient.setQueryData(["client", newClient.id], newClient)
       queryClient.invalidateQueries({ queryKey: ["clients"] })
     },
   })

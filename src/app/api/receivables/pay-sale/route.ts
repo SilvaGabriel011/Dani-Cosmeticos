@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { receivableService } from "@/services/receivable.service"
+import { cache, CACHE_KEYS } from "@/lib/cache"
 import { z } from "zod"
 
 export const dynamic = 'force-dynamic'
@@ -23,11 +24,16 @@ export async function POST(request: NextRequest) {
       paidAt ? new Date(paidAt) : undefined
     )
 
+    // Invalidate dashboard cache after payment
+    cache.invalidate(CACHE_KEYS.DASHBOARD)
+    cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+
     return NextResponse.json(data)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error registering payment:", error)
+    const message = error instanceof Error ? error.message : "Erro ao registrar pagamento"
     return NextResponse.json(
-      { error: error.message || "Erro ao registrar pagamento" },
+      { error: message },
       { status: 400 }
     )
   }

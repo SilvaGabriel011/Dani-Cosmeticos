@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { createSaleSchema } from "@/schemas/sale"
 import { Decimal } from "@prisma/client/runtime/library"
 import { handleApiError, AppError, ErrorCodes } from "@/lib/errors"
+import { cache, CACHE_KEYS } from "@/lib/cache"
 
 export const dynamic = 'force-dynamic'
 
@@ -304,6 +305,10 @@ export async function POST(request: NextRequest) {
 
       return newSale
     })
+
+    // Invalidate dashboard cache after sale creation
+    cache.invalidate(CACHE_KEYS.DASHBOARD)
+    cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
 
     return NextResponse.json(sale, { status: 201 })
   } catch (error) {

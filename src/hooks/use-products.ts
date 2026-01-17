@@ -66,7 +66,8 @@ export function useProducts(filters: ProductFilters = {}) {
   return useQuery({
     queryKey: ["products", filters],
     queryFn: () => fetchProducts(filters),
-    staleTime: 30 * 1000, // 30 segundos - produtos mudam com vendas
+    staleTime: 2 * 60 * 1000, // 2 minutos - produtos não mudam tão frequentemente
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -75,7 +76,7 @@ export function useProduct(id: string) {
     queryKey: ["product", id],
     queryFn: () => fetchProduct(id),
     enabled: !!id,
-    staleTime: 30 * 1000, // 30 segundos
+    staleTime: 2 * 60 * 1000, // 2 minutos
   })
 }
 
@@ -84,8 +85,8 @@ export function useCreateProduct() {
   return useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
+      // Invalida apenas produtos - dashboard será atualizado no próximo ciclo
       queryClient.invalidateQueries({ queryKey: ["products"] })
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
     },
   })
 }
@@ -95,9 +96,10 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: updateProduct,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["products"] })
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+      // Update otimista do produto específico
       queryClient.setQueryData(["product", data.id], data)
+      // Invalida lista apenas se necessário
+      queryClient.invalidateQueries({ queryKey: ["products"], exact: false })
     },
   })
 }
@@ -108,7 +110,6 @@ export function useDeleteProduct() {
     mutationFn: deleteProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] })
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
     },
   })
 }

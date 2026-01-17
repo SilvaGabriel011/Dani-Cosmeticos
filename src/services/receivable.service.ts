@@ -298,7 +298,7 @@ export const receivableService = {
         
         if (pendingReceivables.length > 0) {
           // Get the sale to check for paymentDay configuration
-          const sale = await tx.sale.findUnique({ where: { id: saleId } })
+          const sale = await tx.sale.findUnique({ where: { id: saleId } }) as { paymentDay?: number | null } | null
           
           // Calculate new due date: 30 days from now, or use paymentDay if configured
           const now = new Date()
@@ -399,46 +399,57 @@ export const receivableService = {
   },
 
   async getDashboardSummary(startDate?: Date, endDate?: Date) {
-    const now = new Date()
-    
+    // Use SQL aggregation for better performance - single query for all totals
+    const summaryResult = await prisma.$queryRaw<{
+      totalDue: string | null
+      totalOverdue: string | null
+      pendingCount: string
+      overdueCount: string
+    }[]>`
+      SELECT 
+        COALESCE(SUM(r."amount" - r."paidAmount"), 0)::text as "totalDue",
+        COALESCE(SUM(CASE WHEN r."dueDate" < NOW() THEN r."amount" - r."paidAmount" ELSE 0 END), 0)::text as "totalOverdue",
+        COUNT(*)::text as "pendingCount",
+        COUNT(CASE WHEN r."dueDate" < NOW() THEN 1 END)::text as "overdueCount"
+      FROM "Receivable" r
+      WHERE r."status" IN ('PENDING', 'PARTIAL')
+    `
+
+    // Fetch only top 10 receivables for display (lightweight query with select)
     const receivables = await prisma.receivable.findMany({
       where: {
         status: { in: ["PENDING", "PARTIAL"] },
         ...(startDate && endDate && {
-          dueDate: {
-            gte: startDate,
-            lte: endDate,
-          },
+          dueDate: { gte: startDate, lte: endDate },
         }),
       },
-      include: {
+      select: {
+        id: true,
+        installment: true,
+        amount: true,
+        paidAmount: true,
+        dueDate: true,
+        status: true,
         sale: {
-          include: { client: true },
+          select: {
+            id: true,
+            total: true,
+            client: { select: { id: true, name: true } },
+          },
         },
       },
       orderBy: { dueDate: "asc" },
+      take: 10,
     })
 
-    const totalDue = receivables.reduce(
-      (sum, r) => sum + Number(r.amount) - Number(r.paidAmount),
-      0
-    )
-
-    const overdueReceivables = receivables.filter(
-      (r) => new Date(r.dueDate) < now
-    )
-
-    const totalOverdue = overdueReceivables.reduce(
-      (sum, r) => sum + Number(r.amount) - Number(r.paidAmount),
-      0
-    )
+    const summary = summaryResult[0] || { totalDue: '0', totalOverdue: '0', pendingCount: '0', overdueCount: '0' }
 
     return {
-      totalDue,
-      totalOverdue,
-      pendingCount: receivables.length,
-      overdueCount: overdueReceivables.length,
-      receivables: receivables.slice(0, 10),
+      totalDue: Number(summary.totalDue || 0),
+      totalOverdue: Number(summary.totalOverdue || 0),
+      pendingCount: Number(summary.pendingCount || 0),
+      overdueCount: Number(summary.overdueCount || 0),
+      receivables,
     }
   },
 

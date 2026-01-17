@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { cache, CACHE_TTL } from "@/lib/cache"
 
 export const dynamic = 'force-dynamic'
+
+interface DebtorSummary {
+  clientId: string
+  clientName: string
+  clientPhone: string | null
+  clientAddress: string | null
+  clientDiscount: string
+  totalDebt: string
+  overdueAmount: string
+  salesCount: string
+  oldestDueDate: Date | null
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,120 +22,129 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || ""
     const sortBy = searchParams.get("sortBy") || "totalDebt"
 
-    const debtors = await prisma.client.findMany({
+    // Build cache key
+    const cacheKey = `debtors:${search}:${sortBy}`
+    const cached = cache.get(cacheKey)
+    if (cached && !search) { // Only use cache for non-search queries
+      return NextResponse.json(cached)
+    }
+
+    // Use SQL aggregation to calculate totals in database
+    const searchFilter = search 
+      ? `AND (c."name" ILIKE '%${search.replace(/'/g, "''")}%' OR c."phone" ILIKE '%${search.replace(/'/g, "''")}%')`
+      : ''
+
+    const orderByClause = {
+      totalDebt: 'ORDER BY "totalDebt" DESC',
+      overdueAmount: 'ORDER BY "overdueAmount" DESC',
+      oldestDueDate: 'ORDER BY "oldestDueDate" ASC NULLS LAST',
+      name: 'ORDER BY "clientName" ASC',
+    }[sortBy] || 'ORDER BY "totalDebt" DESC'
+
+    // Single optimized query with aggregations
+    const debtorsSummary = await prisma.$queryRawUnsafe<DebtorSummary[]>(`
+      SELECT 
+        c."id" as "clientId",
+        c."name" as "clientName",
+        c."phone" as "clientPhone",
+        c."address" as "clientAddress",
+        c."discount"::text as "clientDiscount",
+        COALESCE(SUM(r."amount" - r."paidAmount"), 0)::text as "totalDebt",
+        COALESCE(SUM(CASE WHEN r."dueDate" < NOW() THEN r."amount" - r."paidAmount" ELSE 0 END), 0)::text as "overdueAmount",
+        COUNT(DISTINCT s."id")::text as "salesCount",
+        MIN(r."dueDate") as "oldestDueDate"
+      FROM "Client" c
+      INNER JOIN "Sale" s ON s."clientId" = c."id" AND s."status" = 'PENDING'
+      INNER JOIN "Receivable" r ON r."saleId" = s."id" AND r."status" IN ('PENDING', 'PARTIAL', 'OVERDUE')
+      WHERE c."deletedAt" IS NULL
+      ${searchFilter}
+      GROUP BY c."id", c."name", c."phone", c."address", c."discount"
+      HAVING SUM(r."amount" - r."paidAmount") > 0
+      ${orderByClause}
+      LIMIT 100
+    `)
+
+    // Get client IDs for detailed data fetch
+    const clientIds = debtorsSummary.map(d => d.clientId)
+
+    // Fetch sales details only for clients in the summary (batch query)
+    const salesDetails = clientIds.length > 0 ? await prisma.sale.findMany({
       where: {
-        deletedAt: null,
-        sales: {
-          some: {
-            status: "PENDING",
-            receivables: {
-              some: {
-                status: { in: ["PENDING", "PARTIAL", "OVERDUE"] }
-              }
-            }
-          }
-        },
-        ...(search && {
-          OR: [
-            { name: { contains: search, mode: "insensitive" as const } },
-            { phone: { contains: search, mode: "insensitive" as const } },
-          ],
-        }),
+        clientId: { in: clientIds },
+        status: "PENDING",
       },
-      include: {
-        sales: {
-          where: { status: "PENDING" },
-          include: {
-            items: {
-              include: { product: true }
-            },
-            receivables: {
-              where: { status: { in: ["PENDING", "PARTIAL", "OVERDUE"] } },
-              orderBy: { dueDate: "asc" }
-            }
-          },
-          orderBy: { createdAt: "desc" }
-        }
-      }
-    })
-
-    const now = new Date()
-
-    const result = debtors.map(client => {
-      let totalDebt = 0
-      let overdueAmount = 0
-      let oldestDueDate: Date | null = null
-
-      client.sales.forEach(sale => {
-        sale.receivables.forEach(receivable => {
-          const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
-          totalDebt += remaining
-
-          const dueDate = new Date(receivable.dueDate)
-          if (dueDate < now) {
-            overdueAmount += remaining
+      select: {
+        id: true,
+        clientId: true,
+        createdAt: true,
+        total: true,
+        items: {
+          select: {
+            id: true,
+            quantity: true,
+            unitPrice: true,
+            total: true,
+            product: { select: { id: true, name: true, code: true } }
           }
-
-          if (!oldestDueDate || dueDate < oldestDueDate) {
-            oldestDueDate = dueDate
-          }
-        })
-      })
-
-      return {
-        client: {
-          id: client.id,
-          name: client.name,
-          phone: client.phone,
-          address: client.address,
-          discount: client.discount,
         },
-        sales: client.sales.map(sale => ({
-          id: sale.id,
-          createdAt: sale.createdAt,
-          total: sale.total,
-          items: sale.items.map(item => ({
-            id: item.id,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            total: item.total,
-            product: {
-              id: item.product.id,
-              name: item.product.name,
-              code: item.product.code,
-            }
-          })),
-          receivables: sale.receivables.map(r => ({
-            id: r.id,
-            installment: r.installment,
-            amount: r.amount,
-            paidAmount: r.paidAmount,
-            dueDate: r.dueDate,
-            status: r.status,
-          }))
-        })),
-        totalDebt,
-        overdueAmount,
-        salesCount: client.sales.length,
-        oldestDueDate,
-        isOverdue: overdueAmount > 0,
+        receivables: {
+          where: { status: { in: ["PENDING", "PARTIAL", "OVERDUE"] } },
+          select: {
+            id: true,
+            installment: true,
+            amount: true,
+            paidAmount: true,
+            dueDate: true,
+            status: true,
+          },
+          orderBy: { dueDate: "asc" }
+        }
+      },
+      orderBy: { createdAt: "desc" }
+    }) : []
+
+    // Group sales by client
+    const salesByClient = new Map<string, typeof salesDetails>()
+    salesDetails.forEach(sale => {
+      const clientId = sale.clientId!
+      if (!salesByClient.has(clientId)) {
+        salesByClient.set(clientId, [])
       }
+      salesByClient.get(clientId)!.push(sale)
     })
 
-    if (sortBy === "totalDebt") {
-      result.sort((a, b) => b.totalDebt - a.totalDebt)
-    } else if (sortBy === "overdueAmount") {
-      result.sort((a, b) => b.overdueAmount - a.overdueAmount)
-    } else if (sortBy === "oldestDueDate") {
-      result.sort((a, b) => {
-        const aDate = a.oldestDueDate as Date | null
-        const bDate = b.oldestDueDate as Date | null
-        if (!aDate) return 1
-        if (!bDate) return -1
-        return aDate.getTime() - bDate.getTime()
-      })
-    } else if (sortBy === "name") {
-      result.sort((a, b) => a.client.name.localeCompare(b.client.name))
+    // Build final result
+    const result = debtorsSummary.map(debtor => ({
+      client: {
+        id: debtor.clientId,
+        name: debtor.clientName,
+        phone: debtor.clientPhone,
+        address: debtor.clientAddress,
+        discount: debtor.clientDiscount,
+      },
+      sales: (salesByClient.get(debtor.clientId) || []).map(sale => ({
+        id: sale.id,
+        createdAt: sale.createdAt,
+        total: sale.total,
+        items: sale.items.map(item => ({
+          id: item.id,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          total: item.total,
+          product: item.product,
+        })),
+        receivables: sale.receivables,
+      })),
+      totalDebt: Number(debtor.totalDebt),
+      overdueAmount: Number(debtor.overdueAmount),
+      salesCount: Number(debtor.salesCount),
+      oldestDueDate: debtor.oldestDueDate,
+      isOverdue: Number(debtor.overdueAmount) > 0,
+    }))
+
+    // Cache the result (only for non-search queries)
+    if (!search) {
+      cache.set(cacheKey, result, CACHE_TTL.DASHBOARD)
     }
 
     return NextResponse.json(result)
