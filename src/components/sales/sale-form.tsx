@@ -821,7 +821,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     )}
                     <Input
                       type="number"
-                      value={total}
+                      value={manualTotal !== null ? manualTotal : calculatedTotal}
                       onChange={(e) => {
                         const value = Number(e.target.value)
                         if (value >= 0) {
@@ -831,6 +831,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       className="w-32 text-right font-semibold"
                       step="0.01"
                       min="0"
+                      placeholder={formatCurrency(calculatedTotal)}
                     />
                   </div>
                 </div>
