@@ -62,7 +62,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [discountPercent, setDiscountPercent] = useState(0)
   const [productSearch, setProductSearch] = useState("")
   const [isInstallment, setIsInstallment] = useState(false)
-  const [paymentDay, setPaymentDay] = useState<number>(10) // Day of month (1-31)
+  const [paymentDay, setPaymentDay] = useState<number>(new Date().getDate()) // Default to current day of month
   const [installmentPlan, setInstallmentPlan] = useState(1)
 
   const products = productsData?.data || []
@@ -226,13 +226,16 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     }
 
     try {
+      // Filter out payments with 0 or negative amounts (they would fail validation)
+      const validPayments = payments.filter((p) => p.amount > 0)
+      
       await createSale.mutateAsync({
         clientId: clientId || null,
         items: items.map((i) => ({
           productId: i.product.id,
           quantity: i.quantity,
         })),
-        payments: payments.map((p) => ({
+        payments: validPayments.map((p) => ({
           method: p.method,
           amount: p.amount,
           feePercent: p.feePercent,
@@ -254,7 +257,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setDiscountPercent(0)
       setHasManualDiscount(false)
       setIsInstallment(false)
-      setPaymentDay(10)
+      setPaymentDay(new Date().getDate())
       setInstallmentPlan(1)
       onOpenChange(false)
     } catch (error: any) {
