@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -50,6 +51,24 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
           discount: 0,
         },
   })
+
+  useEffect(() => {
+    if (client) {
+      reset({
+        name: client.name,
+        phone: client.phone,
+        address: client.address,
+        discount: Number(client.discount),
+      })
+    } else {
+      reset({
+        name: "",
+        phone: "",
+        address: "",
+        discount: 0,
+      })
+    }
+  }, [client, reset])
 
   const onSubmit = async (data: CreateClientInput) => {
     try {
