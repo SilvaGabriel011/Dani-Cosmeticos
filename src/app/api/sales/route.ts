@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { createSaleSchema } from "@/schemas/sale"
 import { Decimal } from "@prisma/client/runtime/library"
+import { handleApiError, AppError, ErrorCodes } from "@/lib/errors"
 
 export async function GET(request: NextRequest) {
   try {
@@ -83,10 +84,10 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error("Error fetching sales:", error)
+    const { message, code, status } = handleApiError(error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao buscar vendas" } },
-      { status: 500 }
+      { error: { code, message } },
+      { status }
     )
   }
 }
@@ -289,10 +290,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(sale, { status: 201 })
   } catch (error) {
-    console.error("Error creating sale:", error)
+    const { message, code, status } = handleApiError(error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao criar venda" } },
-      { status: 500 }
+      { error: { code, message } },
+      { status }
     )
   }
 }

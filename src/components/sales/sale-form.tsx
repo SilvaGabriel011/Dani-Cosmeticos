@@ -64,6 +64,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [isInstallment, setIsInstallment] = useState(false)
   const [paymentDay, setPaymentDay] = useState<number>(new Date().getDate()) // Default to current day of month
   const [installmentPlan, setInstallmentPlan] = useState(1)
+  const [isFiadoMode, setIsFiadoMode] = useState(false) // Toggle between fiado and normal payment modes
 
   const products = productsData?.data || []
   const clients = clientsData?.data || []
@@ -198,7 +199,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setPayments(payments.filter((_, i) => i !== index))
   }
 
-  const isFiado = remaining > 0.01
+  const isFiado = isFiadoMode || remaining > 0.01
 
   const handleSubmit = async () => {
     if (items.length === 0) {
@@ -206,12 +207,22 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       return
     }
 
-    // For fiado sales (partial or no payment), require a client
+    // For fiado sales (fiado mode or partial payment), require a client
     if (isFiado && !clientId) {
       toast({ 
         title: "Cliente obrigatório para fiado", 
-        description: "Selecione um cliente para vendas sem pagamento completo",
+        description: "Selecione um cliente para vendas fiado",
         variant: "destructive" 
+      })
+      return
+    }
+
+    // For normal mode (not fiado), require at least one payment that covers the total
+    if (!isFiadoMode && payments.length === 0 && total > 0) {
+      toast({
+        title: "Adicione pelo menos um pagamento",
+        description: "Ou ative o modo fiado para venda a prazo",
+        variant: "destructive",
       })
       return
     }
@@ -227,7 +238,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
     try {
       // Filter out payments with 0 or negative amounts (they would fail validation)
-      const validPayments = payments.filter((p) => p.amount > 0)
+      // In fiado mode, we may have no payments at all
+      const validPayments = isFiadoMode ? [] : payments.filter((p) => p.amount > 0)
       
       await createSale.mutateAsync({
         clientId: clientId || null,
@@ -259,6 +271,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setIsInstallment(false)
       setPaymentDay(new Date().getDate())
       setInstallmentPlan(1)
+      setIsFiadoMode(false)
       onOpenChange(false)
     } catch (error: any) {
       toast({
@@ -494,78 +507,126 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
             </Card>
 
             <Card>
-              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <CardHeader className="pb-3">
                 <CardTitle className="text-base">Pagamentos</CardTitle>
-                <Button variant="outline" size="sm" onClick={addPayment}>
-                  <Plus className="h-4 w-4 mr-1" />
-                  Adicionar
-                </Button>
               </CardHeader>
               <CardContent className="space-y-3">
-                {payments.map((payment, index) => (
-                  <div key={index} className="space-y-2 p-3 border rounded-md">
-                    <div className="flex gap-2">
-                      <Select
-                        value={payment.method}
-                        onValueChange={(v) =>
-                          updatePayment(index, { method: v as Payment["method"] })
+                <div className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="fiado-toggle"
+                      checked={isFiadoMode}
+                      onChange={(e) => {
+                        setIsFiadoMode(e.target.checked)
+                        if (e.target.checked) {
+                          setPayments([]) // Clear payments when switching to fiado mode
                         }
-                      >
-                        <SelectTrigger className="flex-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(PAYMENT_METHOD_LABELS).map(([key, label]) => (
-                            <SelectItem key={key} value={key}>
-                              {label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={payment.amount}
-                        onChange={(e) =>
-                          updatePayment(index, { amount: Number(e.target.value) })
-                        }
-                        className="w-28"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removePayment(index)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                    {payment.method === "CREDIT" && (
-                      <Select
-                        value={payment.installments.toString()}
-                        onValueChange={(v) =>
-                          updatePayment(index, { installments: Number(v) })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
-                            <SelectItem key={n} value={n.toString()}>
-                              {n}x {n === 1 ? "à vista" : ""}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                    {payment.feePercent > 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        Taxa: {payment.feePercent}%
+                      }}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <Label htmlFor="fiado-toggle" className="cursor-pointer font-medium">
+                      Venda Fiado (a prazo)
+                    </Label>
+                  </div>
+                  {isFiadoMode && (
+                    <span className="text-xs text-amber-600 font-medium">
+                      Sem pagamento agora
+                    </span>
+                  )}
+                </div>
+
+                {isFiadoMode ? (
+                  <div className="p-3 border rounded-md border-amber-200 bg-amber-50 text-amber-800">
+                    <p className="text-sm">
+                      O valor total de <strong>{formatCurrency(total)}</strong> sera registrado como fiado.
+                    </p>
+                    {isInstallment && installmentPlan > 1 && (
+                      <p className="text-xs mt-1 text-amber-600">
+                        Parcelado em {installmentPlan}x de {formatCurrency(total / installmentPlan)}
                       </p>
                     )}
                   </div>
-                ))}
+                ) : (
+                  <>
+                    <div className="flex justify-end">
+                      <Button variant="outline" size="sm" onClick={addPayment}>
+                        <Plus className="h-4 w-4 mr-1" />
+                        Adicionar Pagamento
+                      </Button>
+                    </div>
+                    {payments.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-2">
+                        Nenhum pagamento adicionado
+                      </p>
+                    ) : (
+                      payments.map((payment, index) => (
+                        <div key={index} className="space-y-2 p-3 border rounded-md">
+                          <div className="flex gap-2">
+                            <Select
+                              value={payment.method}
+                              onValueChange={(v) =>
+                                updatePayment(index, { method: v as Payment["method"] })
+                              }
+                            >
+                              <SelectTrigger className="flex-1">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(PAYMENT_METHOD_LABELS).map(([key, label]) => (
+                                  <SelectItem key={key} value={key}>
+                                    {label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={payment.amount}
+                              onChange={(e) =>
+                                updatePayment(index, { amount: Number(e.target.value) })
+                              }
+                              className="w-28"
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removePayment(index)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                          {payment.method === "CREDIT" && (
+                            <Select
+                              value={payment.installments.toString()}
+                              onValueChange={(v) =>
+                                updatePayment(index, { installments: Number(v) })
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
+                                  <SelectItem key={n} value={n.toString()}>
+                                    {n}x {n === 1 ? "à vista" : ""}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                          {payment.feePercent > 0 && (
+                            <p className="text-xs text-muted-foreground">
+                              Taxa: {payment.feePercent}%
+                            </p>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -586,10 +647,10 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                   <span>Total:</span>
                   <span>{formatCurrency(total)}</span>
                 </div>
-                {remaining > 0 && (
+                {(isFiadoMode || remaining > 0) && (
                   <div className="flex justify-between text-sm text-amber-600">
                     <span>Restante (Fiado):</span>
-                    <span>{formatCurrency(remaining)}</span>
+                    <span>{formatCurrency(isFiadoMode ? total : remaining)}</span>
                   </div>
                 )}
                 {remaining < 0 && (
