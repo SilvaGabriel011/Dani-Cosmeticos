@@ -179,7 +179,7 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh]">
+      <DialogContent className="max-w-[95vw] md:max-w-5xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Importar Produtos via CSV</DialogTitle>
         </DialogHeader>

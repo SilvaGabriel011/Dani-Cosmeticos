@@ -97,7 +97,7 @@ export function ReceivablePaymentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="max-w-[95vw] md:max-w-lg max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Adicionar Pagamento</DialogTitle>
         </DialogHeader>

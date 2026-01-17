@@ -168,7 +168,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-[95vw] md:max-w-xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Editar Produto" : "Novo Produto"}

@@ -139,7 +139,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[95vw] md:max-w-lg max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Receber Pagamento</DialogTitle>
         </DialogHeader>

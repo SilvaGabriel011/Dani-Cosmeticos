@@ -92,7 +92,7 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="max-w-[95vw] md:max-w-xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Editar Cliente" : "Novo Cliente"}

@@ -166,7 +166,7 @@ export function ClientCSVImport({ open, onOpenChange }: ClientCSVImportProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
+      <DialogContent className="max-w-[95vw] md:max-w-4xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Importar Clientes via CSV</DialogTitle>
         </DialogHeader>
