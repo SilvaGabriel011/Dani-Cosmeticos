@@ -46,15 +46,19 @@ export function ReceivablePaymentModal({
   const [paidAt, setPaidAt] = useState("")
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "PIX" | "DEBIT" | "CREDIT">("PIX")
 
-  // Pre-fill with today's date and remaining amount when modal opens
-  useEffect(() => {
-    if (open && receivable) {
-      const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
-      setAmount(remaining)
-      setPaidAt(new Date().toISOString().split('T')[0])
-      setPaymentMethod("PIX")
-    }
-  }, [open, receivable])
+    // Pre-fill with today's date and fixed installment amount (or remaining) when modal opens
+    useEffect(() => {
+      if (open && receivable) {
+        const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
+        // Use fixedInstallmentAmount if set, but cap at remaining amount
+        const fixedAmount = receivable.sale?.fixedInstallmentAmount 
+          ? Math.min(Number(receivable.sale.fixedInstallmentAmount), remaining)
+          : remaining
+        setAmount(fixedAmount)
+        setPaidAt(new Date().toISOString().split('T')[0])
+        setPaymentMethod("PIX")
+      }
+    }, [open, receivable])
 
   if (!receivable) return null
 

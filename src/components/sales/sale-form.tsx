@@ -61,10 +61,11 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [clientId, setClientId] = useState<string>(defaultClientId || "")
   const [discountPercent, setDiscountPercent] = useState(0)
   const [productSearch, setProductSearch] = useState("")
-  const [isInstallment, setIsInstallment] = useState(false)
-  const [paymentDay, setPaymentDay] = useState<number>(new Date().getDate()) // Default to current day of month
-  const [installmentPlan, setInstallmentPlan] = useState(1)
-  const [isFiadoMode, setIsFiadoMode] = useState(false) // Toggle between fiado and normal payment modes
+    const [isInstallment, setIsInstallment] = useState(false)
+    const [paymentDay, setPaymentDay] = useState<number>(new Date().getDate()) // Default to current day of month
+    const [installmentPlan, setInstallmentPlan] = useState(1)
+    const [isFiadoMode, setIsFiadoMode] = useState(false) // Toggle between fiado and normal payment modes
+    const [fixedInstallmentAmount, setFixedInstallmentAmount] = useState<number | null>(null) // Fixed amount for each payment
 
   const products = productsData?.data || []
   const clients = clientsData?.data || []
@@ -241,38 +242,40 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       // In fiado mode, we may have no payments at all
       const validPayments = isFiadoMode ? [] : payments.filter((p) => p.amount > 0)
       
-      await createSale.mutateAsync({
-        clientId: clientId || null,
-        items: items.map((i) => ({
-          productId: i.product.id,
-          quantity: i.quantity,
-        })),
-        payments: validPayments.map((p) => ({
-          method: p.method,
-          amount: p.amount,
-          feePercent: p.feePercent,
-          feeAbsorber: p.feeAbsorber,
-          installments: p.installments,
-        })),
-        discountPercent: effectiveDiscount,
-        paymentDay: isInstallment ? paymentDay : null,
-        installmentPlan: isInstallment ? installmentPlan : 1,
-      })
+            await createSale.mutateAsync({
+              clientId: clientId || null,
+              items: items.map((i) => ({
+                productId: i.product.id,
+                quantity: i.quantity,
+              })),
+              payments: validPayments.map((p) => ({
+                method: p.method,
+                amount: p.amount,
+                feePercent: p.feePercent,
+                feeAbsorber: p.feeAbsorber,
+                installments: p.installments,
+              })),
+              discountPercent: effectiveDiscount,
+              paymentDay: isInstallment ? paymentDay : null,
+              installmentPlan: isInstallment ? installmentPlan : 1,
+              fixedInstallmentAmount: isFiadoMode && fixedInstallmentAmount ? fixedInstallmentAmount : null,
+            })
 
       toast({ 
         title: isFiado ? "Venda fiado registrada!" : "Venda realizada com sucesso!",
         description: isFiado ? `Saldo pendente: ${formatCurrency(remaining)}` : undefined
       })
-      setItems([])
-      setPayments([])
-      setClientId("")
-      setDiscountPercent(0)
-      setHasManualDiscount(false)
-      setIsInstallment(false)
-      setPaymentDay(new Date().getDate())
-      setInstallmentPlan(1)
-      setIsFiadoMode(false)
-      onOpenChange(false)
+            setItems([])
+            setPayments([])
+            setClientId("")
+            setDiscountPercent(0)
+            setHasManualDiscount(false)
+            setIsInstallment(false)
+            setPaymentDay(new Date().getDate())
+            setInstallmentPlan(1)
+            setIsFiadoMode(false)
+            setFixedInstallmentAmount(null)
+            onOpenChange(false)
     } catch (error: any) {
       toast({
         title: "Erro ao realizar venda",
@@ -536,18 +539,34 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                   )}
                 </div>
 
-                {isFiadoMode ? (
-                  <div className="p-3 border rounded-md border-amber-200 bg-amber-50 text-amber-800">
-                    <p className="text-sm">
-                      O valor total de <strong>{formatCurrency(total)}</strong> sera registrado como fiado.
-                    </p>
-                    {isInstallment && installmentPlan > 1 && (
-                      <p className="text-xs mt-1 text-amber-600">
-                        Parcelado em {installmentPlan}x de {formatCurrency(total / installmentPlan)}
-                      </p>
-                    )}
-                  </div>
-                ) : (
+                                {isFiadoMode ? (
+                                  <div className="space-y-3">
+                                    <div className="p-3 border rounded-md border-amber-200 bg-amber-50 text-amber-800">
+                                      <p className="text-sm">
+                                        O valor total de <strong>{formatCurrency(total)}</strong> sera registrado como fiado.
+                                      </p>
+                                      {isInstallment && installmentPlan > 1 && (
+                                        <p className="text-xs mt-1 text-amber-600">
+                                          Parcelado em {installmentPlan}x de {formatCurrency(total / installmentPlan)}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>Valor fixo da parcela (opcional)</Label>
+                                      <Input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder={total > 0 && installmentPlan > 0 ? formatCurrency(total / installmentPlan) : "Ex: 50.00"}
+                                        value={fixedInstallmentAmount || ""}
+                                        onChange={(e) => setFixedInstallmentAmount(e.target.value ? Number(e.target.value) : null)}
+                                      />
+                                      <p className="text-xs text-muted-foreground">
+                                        Este valor sera sugerido ao registrar pagamentos
+                                      </p>
+                                    </div>
+                                  </div>
+                                ): (
                   <>
                     <div className="flex justify-end">
                       <Button variant="outline" size="sm" onClick={addPayment}>

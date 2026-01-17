@@ -112,7 +112,7 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Telefone *</Label>
+            <Label htmlFor="phone">Telefone</Label>
             <Input
               id="phone"
               placeholder="(00) 00000-0000"
@@ -124,7 +124,7 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address">Endereço *</Label>
+            <Label htmlFor="address">Endereço</Label>
             <Input
               id="address"
               placeholder="Rua, número, bairro"
