@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils"
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Início", icon: LayoutDashboard },
   { href: "/estoque", label: "Estoque", icon: Package },
   { href: "/vendas", label: "Vendas", icon: ShoppingCart },
   { href: "/clientes", label: "Clientes", icon: Users },
@@ -29,7 +29,7 @@ export function Sidebar() {
     <aside className="flex w-64 flex-col border-r bg-card">
       <div className="flex h-16 items-center gap-2 border-b px-6">
         <Sparkles className="h-6 w-6 text-primary" />
-        <span className="text-lg font-semibold">Cosméticos</span>
+        <span className="text-lg font-semibold">Dani Cosméticos</span>
       </div>
       <nav className="flex-1 space-y-1 p-4">
         {navItems.map((item) => {
