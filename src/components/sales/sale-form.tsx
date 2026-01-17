@@ -25,10 +25,11 @@ import { useToast } from "@/components/ui/use-toast"
 import { useProducts } from "@/hooks/use-products"
 import { useClients } from "@/hooks/use-clients"
 import { useSettings } from "@/hooks/use-settings"
-import { useCreateSale } from "@/hooks/use-sales"
+import { useCreateSale, useClientPendingSales, useAddItemsToSale } from "@/hooks/use-sales"
 import { Product } from "@/types"
 import { formatCurrency } from "@/lib/utils"
 import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 interface SaleItem {
   product: Product
@@ -55,17 +56,26 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const { data: clientsData } = useClients({ limit: 20 })
   const { data: settings } = useSettings()
   const createSale = useCreateSale()
+  const addItemsToSale = useAddItemsToSale()
 
   const [items, setItems] = useState<SaleItem[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
   const [clientId, setClientId] = useState<string>(defaultClientId || "")
   const [discountPercent, setDiscountPercent] = useState(0)
   const [productSearch, setProductSearch] = useState("")
-    const [isInstallment, setIsInstallment] = useState(false)
-    const [paymentDay, setPaymentDay] = useState<number>(new Date().getDate()) // Default to current day of month
-    const [installmentPlan, setInstallmentPlan] = useState(1)
-    const [isFiadoMode, setIsFiadoMode] = useState(false) // Toggle between fiado and normal payment modes
-    const [fixedInstallmentAmount, setFixedInstallmentAmount] = useState<number | null>(null) // Fixed amount for each payment
+  const [isInstallment, setIsInstallment] = useState(false)
+  const [paymentDay, setPaymentDay] = useState<number>(new Date().getDate()) // Default to current day of month
+  const [installmentPlan, setInstallmentPlan] = useState(1)
+  const [isFiadoMode, setIsFiadoMode] = useState(false) // Toggle between fiado and normal payment modes
+  const [fixedInstallmentAmount, setFixedInstallmentAmount] = useState<number | null>(null) // Fixed amount for each payment
+  
+  // Multiple purchases feature - add to existing account
+  const [saleMode, setSaleMode] = useState<"new" | "existing">("new")
+  const [selectedPendingSaleId, setSelectedPendingSaleId] = useState<string>("")
+  
+  // Fetch pending sales for the selected client
+  const { data: pendingSalesData } = useClientPendingSales(clientId || null)
+  const pendingSales = pendingSalesData?.pendingSales || []
 
   const products = productsData?.data || []
   const clients = clientsData?.data || []
@@ -75,6 +85,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setClientId(defaultClientId)
     }
   }, [open, defaultClientId])
+  
+  // Reset sale mode when client changes
+  useEffect(() => {
+    setSaleMode("new")
+    setSelectedPendingSaleId("")
+  }, [clientId])
 
   // Generate preview of payment dates based on day of month
   const getPaymentDatesPreview = () => {
@@ -208,6 +224,38 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       return
     }
 
+    // Adding to existing sale
+    if (saleMode === "existing" && selectedPendingSaleId) {
+      try {
+        await addItemsToSale.mutateAsync({
+          saleId: selectedPendingSaleId,
+          data: {
+            items: items.map((i) => ({
+              productId: i.product.id,
+              quantity: i.quantity,
+            })),
+          },
+        })
+
+        const selectedSale = pendingSales.find(s => s.id === selectedPendingSaleId)
+        toast({ 
+          title: "Itens adicionados à conta!",
+          description: `Valor adicionado: ${formatCurrency(total)}. Total da conta: ${formatCurrency((selectedSale?.total || 0) + total)}`
+        })
+        resetForm()
+        onOpenChange(false)
+        return
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Erro ao adicionar itens"
+        toast({
+          title: "Erro ao adicionar itens",
+          description: errorMessage,
+          variant: "destructive",
+        })
+        return
+      }
+    }
+
     // For fiado sales (fiado mode or partial payment), require a client
     if (isFiado && !clientId) {
       toast({ 
@@ -242,47 +290,54 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       // In fiado mode, we may have no payments at all
       const validPayments = isFiadoMode ? [] : payments.filter((p) => p.amount > 0)
       
-            await createSale.mutateAsync({
-              clientId: clientId || null,
-              items: items.map((i) => ({
-                productId: i.product.id,
-                quantity: i.quantity,
-              })),
-              payments: validPayments.map((p) => ({
-                method: p.method,
-                amount: p.amount,
-                feePercent: p.feePercent,
-                feeAbsorber: p.feeAbsorber,
-                installments: p.installments,
-              })),
-              discountPercent: effectiveDiscount,
-              paymentDay: isInstallment ? paymentDay : null,
-              installmentPlan: isInstallment ? installmentPlan : 1,
-              fixedInstallmentAmount: isFiadoMode && fixedInstallmentAmount ? fixedInstallmentAmount : null,
-            })
+      await createSale.mutateAsync({
+        clientId: clientId || null,
+        items: items.map((i) => ({
+          productId: i.product.id,
+          quantity: i.quantity,
+        })),
+        payments: validPayments.map((p) => ({
+          method: p.method,
+          amount: p.amount,
+          feePercent: p.feePercent,
+          feeAbsorber: p.feeAbsorber,
+          installments: p.installments,
+        })),
+        discountPercent: effectiveDiscount,
+        paymentDay: isInstallment ? paymentDay : null,
+        installmentPlan: isInstallment ? installmentPlan : 1,
+        fixedInstallmentAmount: isFiadoMode && fixedInstallmentAmount ? fixedInstallmentAmount : null,
+      })
 
       toast({ 
         title: isFiado ? "Venda fiado registrada!" : "Venda realizada com sucesso!",
         description: isFiado ? `Saldo pendente: ${formatCurrency(remaining)}` : undefined
       })
-            setItems([])
-            setPayments([])
-            setClientId("")
-            setDiscountPercent(0)
-            setHasManualDiscount(false)
-            setIsInstallment(false)
-            setPaymentDay(new Date().getDate())
-            setInstallmentPlan(1)
-            setIsFiadoMode(false)
-            setFixedInstallmentAmount(null)
-            onOpenChange(false)
-    } catch (error: any) {
+      resetForm()
+      onOpenChange(false)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Erro ao realizar venda"
       toast({
         title: "Erro ao realizar venda",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       })
     }
+  }
+  
+  const resetForm = () => {
+    setItems([])
+    setPayments([])
+    setClientId("")
+    setDiscountPercent(0)
+    setHasManualDiscount(false)
+    setIsInstallment(false)
+    setPaymentDay(new Date().getDate())
+    setInstallmentPlan(1)
+    setIsFiadoMode(false)
+    setFixedInstallmentAmount(null)
+    setSaleMode("new")
+    setSelectedPendingSaleId("")
   }
 
   return (
@@ -421,6 +476,62 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     </SelectContent>
                   </Select>
                 </div>
+                
+                {/* Multiple purchases feature - add to existing account */}
+                {clientId && pendingSales.length > 0 && (
+                  <div className="space-y-3 p-3 border rounded-md border-blue-200 bg-blue-50">
+                    <p className="text-sm font-medium text-blue-800">
+                      Este cliente tem {pendingSales.length} conta(s) em aberto
+                    </p>
+                    <RadioGroup
+                      value={saleMode}
+                      onValueChange={(v) => {
+                        setSaleMode(v as "new" | "existing")
+                        if (v === "new") {
+                          setSelectedPendingSaleId("")
+                        }
+                      }}
+                      className="space-y-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="new" id="sale-mode-new" />
+                        <Label htmlFor="sale-mode-new" className="cursor-pointer text-sm">
+                          Criar nova conta/fatura
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="existing" id="sale-mode-existing" />
+                        <Label htmlFor="sale-mode-existing" className="cursor-pointer text-sm">
+                          Adicionar na conta existente
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                    
+                    {saleMode === "existing" && (
+                      <div className="space-y-2">
+                        <Label className="text-xs">Selecione a conta</Label>
+                        <Select value={selectedPendingSaleId} onValueChange={setSelectedPendingSaleId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma conta" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {pendingSales.map((sale) => (
+                              <SelectItem key={sale.id} value={sale.id}>
+                                {formatCurrency(sale.total)} - {sale.installmentPlan}x de {formatCurrency(sale.fixedInstallmentAmount || sale.total / sale.installmentPlan)} - {sale.pendingReceivablesCount} parcelas restantes
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {selectedPendingSaleId && (
+                          <p className="text-xs text-blue-600">
+                            Os itens serao adicionados a esta conta e novas parcelas serao criadas automaticamente.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 <div className="space-y-2">
                   <Label>Desconto (%)</Label>
                   <Input
@@ -689,10 +800,16 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={createSale.isPending || items.length === 0}
-            variant={isFiado ? "secondary" : "default"}
+            disabled={createSale.isPending || addItemsToSale.isPending || items.length === 0 || (saleMode === "existing" && !selectedPendingSaleId)}
+            variant={saleMode === "existing" ? "default" : isFiado ? "secondary" : "default"}
           >
-            {createSale.isPending ? "Finalizando..." : isFiado ? "Registrar Fiado" : "Finalizar Venda"}
+            {createSale.isPending || addItemsToSale.isPending 
+              ? "Finalizando..." 
+              : saleMode === "existing" 
+                ? "Adicionar na Conta" 
+                : isFiado 
+                  ? "Registrar Fiado" 
+                  : "Finalizar Venda"}
           </Button>
         </DialogFooter>
       </DialogContent>

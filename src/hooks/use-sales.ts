@@ -2,7 +2,21 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Sale, PaginatedResult } from "@/types"
-import { CreateSaleInput, AddPaymentInput } from "@/schemas/sale"
+import { CreateSaleInput, AddPaymentInput, AddItemsToSaleInput, RescheduleSaleInput } from "@/schemas/sale"
+
+interface PendingSale {
+  id: string
+  total: number
+  remaining: number
+  paidAmount: number
+  installmentPlan: number
+  fixedInstallmentAmount: number | null
+  paymentDay: number | null
+  createdAt: string
+  itemsCount: number
+  pendingReceivablesCount: number
+  nextDueDate: string | null
+}
 
 interface SaleFilters {
   page?: number
@@ -121,6 +135,102 @@ export function useAddPayment() {
       queryClient.invalidateQueries({ queryKey: ["sales"] })
       queryClient.invalidateQueries({ queryKey: ["dashboard"] })
       queryClient.setQueryData(["sale", data.id], data)
+    },
+  })
+}
+
+// Fetch pending sales for a client (for multiple purchases feature)
+async function fetchClientPendingSales(clientId: string): Promise<{ pendingSales: PendingSale[] }> {
+  const res = await fetch(`/api/clients/${clientId}/pending-sales`)
+  if (!res.ok) throw new Error("Erro ao buscar vendas pendentes")
+  return res.json()
+}
+
+export function useClientPendingSales(clientId: string | null) {
+  return useQuery({
+    queryKey: ["client-pending-sales", clientId],
+    queryFn: () => fetchClientPendingSales(clientId!),
+    enabled: !!clientId,
+  })
+}
+
+// Add items to an existing sale
+async function addItemsToSale({ saleId, data }: { saleId: string; data: AddItemsToSaleInput }): Promise<Sale> {
+  const res = await fetch(`/api/sales/${saleId}/add-items`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error?.message || "Erro ao adicionar itens à venda")
+  }
+  const result = await res.json()
+  return result.sale
+}
+
+export function useAddItemsToSale() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: addItemsToSale,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["sales"] })
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+      queryClient.invalidateQueries({ queryKey: ["client-pending-sales"] })
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+      queryClient.setQueryData(["sale", data.id], data)
+    },
+  })
+}
+
+// Reschedule sale receivables
+async function rescheduleSale({ saleId, data }: { saleId: string; data: RescheduleSaleInput }): Promise<Sale> {
+  const res = await fetch(`/api/sales/${saleId}/reschedule`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error?.message || "Erro ao reagendar parcelas")
+  }
+  const result = await res.json()
+  return result.sale
+}
+
+export function useRescheduleSale() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: rescheduleSale,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["sales"] })
+      queryClient.invalidateQueries({ queryKey: ["receivables"] })
+      queryClient.setQueryData(["sale", data.id], data)
+    },
+  })
+}
+
+// Update a single receivable's due date
+async function updateReceivable({ id, dueDate }: { id: string; dueDate: string }): Promise<unknown> {
+  const res = await fetch(`/api/receivables/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ dueDate }),
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error?.message || "Erro ao atualizar parcela")
+  }
+  return res.json()
+}
+
+export function useUpdateReceivable() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: updateReceivable,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sales"] })
+      queryClient.invalidateQueries({ queryKey: ["receivables"] })
     },
   })
 }

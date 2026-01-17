@@ -32,7 +32,29 @@ export const addPaymentSchema = z.object({
   installments: z.number().int().min(1).max(12).default(1),
 })
 
+// Schema for adding items to an existing sale (multiple purchases feature)
+export const addItemsToSaleSchema = z.object({
+  items: z.array(saleItemSchema).min(1, "Pelo menos um item é obrigatório"),
+})
+
+// Schema for rescheduling sale receivables
+export const rescheduleSaleSchema = z.object({
+  newPaymentDay: z.number().int().min(1).max(31).optional(),
+  newStartDate: z.string().datetime().optional(),
+}).refine(
+  data => data.newPaymentDay !== undefined || data.newStartDate !== undefined,
+  { message: "Informe newPaymentDay ou newStartDate" }
+)
+
+// Schema for updating a single receivable
+export const updateReceivableSchema = z.object({
+  dueDate: z.string().datetime(),
+})
+
 export type SaleItemInput = z.infer<typeof saleItemSchema>
 export type PaymentInput = z.infer<typeof paymentSchema>
 export type CreateSaleInput = z.infer<typeof createSaleSchema>
 export type AddPaymentInput = z.infer<typeof addPaymentSchema>
+export type AddItemsToSaleInput = z.infer<typeof addItemsToSaleSchema>
+export type RescheduleSaleInput = z.infer<typeof rescheduleSaleSchema>
+export type UpdateReceivableInput = z.infer<typeof updateReceivableSchema>

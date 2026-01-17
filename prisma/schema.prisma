@@ -124,18 +124,20 @@ model Sale {
 }
 
 model SaleItem {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   saleId    String
-  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
   productId String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
   quantity  Int
-  unitPrice Decimal @db.Decimal(10, 2)
-  costPrice Decimal @db.Decimal(10, 2)
-  total     Decimal @db.Decimal(10, 2)
+  unitPrice Decimal  @db.Decimal(10, 2)
+  costPrice Decimal  @db.Decimal(10, 2)
+  total     Decimal  @db.Decimal(10, 2)
+  addedAt   DateTime @default(now()) // Date when item was added (for purchase history tracking)
 
   @@index([saleId])
   @@index([productId])
+  @@index([addedAt])
 }
 
 model Payment {
