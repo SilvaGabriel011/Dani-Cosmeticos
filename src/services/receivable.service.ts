@@ -289,6 +289,38 @@ export const receivableService = {
 
       const allReceivablesPaid = allReceivables.every(r => r.status === "PAID")
 
+      // Update dueDate of remaining pending receivables to push client to end of queue
+      // Only update if there are still pending receivables (not fully paid)
+      if (!allReceivablesPaid) {
+        const pendingReceivables = allReceivables.filter(
+          r => r.status === "PENDING" || r.status === "PARTIAL"
+        )
+        
+        if (pendingReceivables.length > 0) {
+          // Get the sale to check for paymentDay configuration
+          const sale = await tx.sale.findUnique({ where: { id: saleId } })
+          
+          // Calculate new due date: 30 days from now, or use paymentDay if configured
+          const now = new Date()
+          let newDueDate = new Date(now)
+          newDueDate.setDate(newDueDate.getDate() + 30)
+          
+          // If sale has a specific payment day configured, use it
+          if (sale?.paymentDay) {
+            newDueDate = new Date(now)
+            newDueDate.setMonth(newDueDate.getMonth() + 1)
+            newDueDate.setDate(sale.paymentDay)
+          }
+          
+          // Update the next pending receivable's due date
+          const nextPending = pendingReceivables.sort((a, b) => a.installment - b.installment)[0]
+          await tx.receivable.update({
+            where: { id: nextPending.id },
+            data: { dueDate: newDueDate },
+          })
+        }
+      }
+
       await tx.sale.update({
         where: { id: saleId },
         data: {
@@ -408,5 +440,28 @@ export const receivableService = {
       overdueCount: overdueReceivables.length,
       receivables: receivables.slice(0, 10),
     }
+  },
+
+  async listSalesWithPendingReceivables(limit?: number) {
+    const sales = await prisma.sale.findMany({
+      where: {
+        status: "PENDING",
+        receivables: {
+          some: {
+            status: { in: ["PENDING", "PARTIAL"] },
+          },
+        },
+      },
+      include: {
+        client: true,
+        receivables: {
+          orderBy: { installment: "asc" },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit || 100,
+    })
+
+    return sales
   },
 }

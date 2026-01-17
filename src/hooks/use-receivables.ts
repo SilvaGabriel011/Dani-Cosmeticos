@@ -132,6 +132,22 @@ export function usePaySaleReceivables() {
       queryClient.invalidateQueries({ queryKey: ["receivables"] })
       queryClient.invalidateQueries({ queryKey: ["sales"] })
       queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+      queryClient.invalidateQueries({ queryKey: ["salesWithReceivables"] })
+    },
+  })
+}
+
+export function useSalesWithPendingReceivables(limit?: number) {
+  const params = new URLSearchParams()
+  params.set("groupBySale", "true")
+  if (limit) params.set("limit", String(limit))
+
+  return useQuery({
+    queryKey: ["salesWithReceivables", limit],
+    queryFn: async () => {
+      const res = await fetch(`/api/receivables?${params}`)
+      if (!res.ok) throw new Error("Erro ao carregar vendas fiado")
+      return res.json()
     },
   })
 }

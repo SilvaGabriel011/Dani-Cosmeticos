@@ -8,6 +8,15 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     
+    // New parameter to get sales with all their receivables (for fiado table)
+    const groupBySale = searchParams.get("groupBySale") === "true"
+    
+    if (groupBySale) {
+      const limit = searchParams.get("limit") ? Number(searchParams.get("limit")) : 100
+      const data = await receivableService.listSalesWithPendingReceivables(limit)
+      return NextResponse.json(data)
+    }
+    
     const rawStatus = searchParams.get("status") || undefined
     
     const filters = listReceivablesSchema.parse({

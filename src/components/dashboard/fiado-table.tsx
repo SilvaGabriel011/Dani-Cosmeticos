@@ -13,11 +13,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useReceivables } from "@/hooks/use-receivables"
+import { useSalesWithPendingReceivables } from "@/hooks/use-receivables"
 import { ReceivablePaymentModal } from "./receivable-payment-modal"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { CreditCard, Plus } from "lucide-react"
 import { Receivable, Sale, Client } from "@prisma/client"
+
+type SaleWithReceivables = Sale & {
+  client: Client | null
+  receivables: Receivable[]
+}
 
 type ReceivableWithSale = Receivable & {
   sale: Sale & { client: Client | null }
@@ -36,66 +41,59 @@ interface SaleReceivableSummary {
 }
 
 export function FiadoTable() {
-  const { data: receivablesData, isLoading } = useReceivables({ 
-    status: "PENDING,PARTIAL",
-    limit: 100 
-  })
+  const { data: salesData, isLoading } = useSalesWithPendingReceivables(100)
   
   const [selectedReceivable, setSelectedReceivable] = useState<ReceivableWithSale | null>(null)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
 
-  // Group receivables by sale and calculate summary
+  // Process sales data to create summaries with correct installment counts
   const saleSummaries = useMemo(() => {
-    if (!receivablesData) return []
+    if (!salesData) return []
 
-    const receivables = receivablesData as ReceivableWithSale[]
-    const salesMap = new Map<string, SaleReceivableSummary>()
+    const sales = salesData as SaleWithReceivables[]
     const now = new Date()
 
-    receivables.forEach((receivable) => {
-      const saleId = receivable.saleId
-      const existing = salesMap.get(saleId)
+    return sales.map((sale) => {
+      const receivables = sale.receivables
+      const totalInstallments = receivables.length
+      const paidInstallments = receivables.filter(r => r.status === "PAID").length
+      const totalAmount = receivables.reduce((sum, r) => sum + Number(r.amount), 0)
+      const paidAmount = receivables.reduce((sum, r) => sum + Number(r.paidAmount), 0)
+      
+      // Find next unpaid receivable (earliest due date among pending/partial)
+      const pendingReceivables = receivables
+        .filter(r => r.status === "PENDING" || r.status === "PARTIAL")
+        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+      
+      const nextReceivable = pendingReceivables[0] || null
+      const nextDueDate = nextReceivable ? new Date(nextReceivable.dueDate) : null
+      const isOverdue = nextDueDate ? nextDueDate < now : false
 
-      if (!existing) {
-        // Get all receivables for this sale to calculate totals
-        const saleReceivables = receivables.filter(r => r.saleId === saleId)
-        const totalInstallments = Math.max(...saleReceivables.map(r => r.installment), 0)
-        const paidInstallments = saleReceivables.filter(r => r.status === "PAID").length
-        const totalAmount = saleReceivables.reduce((sum, r) => sum + Number(r.amount), 0)
-        const paidAmount = saleReceivables.reduce((sum, r) => sum + Number(r.paidAmount), 0)
-        
-        // Find next unpaid receivable (earliest due date among pending/partial)
-        const pendingReceivables = saleReceivables
-          .filter(r => r.status === "PENDING" || r.status === "PARTIAL")
-          .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-        
-        const nextReceivable = pendingReceivables[0] || null
-        const nextDueDate = nextReceivable ? new Date(nextReceivable.dueDate) : null
-        const isOverdue = nextDueDate ? nextDueDate < now : false
+      // Create a receivable with sale reference for the modal
+      const nextReceivableWithSale: ReceivableWithSale | null = nextReceivable 
+        ? { ...nextReceivable, sale: { ...sale, client: sale.client } }
+        : null
 
-        salesMap.set(saleId, {
-          saleId,
-          clientName: receivable.sale?.client?.name || "Cliente nao informado",
-          totalInstallments,
-          paidInstallments,
-          totalAmount,
-          paidAmount,
-          nextDueDate,
-          nextReceivable,
-          isOverdue,
-        })
+      return {
+        saleId: sale.id,
+        clientName: sale.client?.name || "Cliente nao informado",
+        totalInstallments,
+        paidInstallments,
+        totalAmount,
+        paidAmount,
+        nextDueDate,
+        nextReceivable: nextReceivableWithSale,
+        isOverdue,
       }
-    })
-
-    // Sort by next due date (overdue first, then by date)
-    return Array.from(salesMap.values()).sort((a, b) => {
+    }).sort((a, b) => {
+      // Sort by next due date (overdue first, then by date)
       if (a.isOverdue && !b.isOverdue) return -1
       if (!a.isOverdue && b.isOverdue) return 1
       if (!a.nextDueDate) return 1
       if (!b.nextDueDate) return -1
       return a.nextDueDate.getTime() - b.nextDueDate.getTime()
     })
-  }, [receivablesData])
+  }, [salesData])
 
   const handleAddPayment = (summary: SaleReceivableSummary) => {
     if (summary.nextReceivable) {
