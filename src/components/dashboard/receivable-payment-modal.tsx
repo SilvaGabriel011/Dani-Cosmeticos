@@ -22,7 +22,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { usePaySaleReceivables } from "@/hooks/use-receivables"
 import { formatCurrency } from "@/lib/utils"
 import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
-import { Receivable, Sale, Client, Decimal } from "@prisma/client"
+import { Receivable, Sale, Client } from "@prisma/client"
+import { Decimal } from "@prisma/client/runtime/library"
 
 type ReceivableWithSale = Receivable & {
   sale: Sale & { 
