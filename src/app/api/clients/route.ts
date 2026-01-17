@@ -21,18 +21,53 @@ export async function GET(request: NextRequest) {
       }),
     }
 
-    const [clients, total] = await Promise.all([
-      prisma.client.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { name: "asc" },
-      }),
-      prisma.client.count({ where }),
-    ])
+        const [clients, total] = await Promise.all([
+          prisma.client.findMany({
+            where,
+            skip: (page - 1) * limit,
+            take: limit,
+            orderBy: { name: "asc" },
+            include: {
+              sales: {
+                where: {
+                  status: { in: ["PENDING", "COMPLETED"] },
+                },
+                include: {
+                  receivables: {
+                    where: {
+                      status: { not: "PAID" },
+                    },
+                    select: {
+                      amount: true,
+                      paidAmount: true,
+                    },
+                  },
+                },
+              },
+            },
+          }),
+          prisma.client.count({ where }),
+        ])
 
-    return NextResponse.json({
-      data: clients,
+        // Calculate total debt for each client
+        const clientsWithDebt = clients.map((client) => {
+          const totalDebt = client.sales.reduce((saleSum, sale) => {
+            const saleDebt = sale.receivables.reduce((recSum, rec) => {
+              return recSum + (Number(rec.amount) - Number(rec.paidAmount))
+            }, 0)
+            return saleSum + saleDebt
+          }, 0)
+      
+          // Remove the nested sales data to keep response clean
+          const { sales, ...clientData } = client
+          return {
+            ...clientData,
+            totalDebt,
+          }
+        })
+
+        return NextResponse.json({
+          data: clientsWithDebt,
       pagination: {
         page,
         limit,
