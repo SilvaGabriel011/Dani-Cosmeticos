@@ -4,6 +4,8 @@ import { createSaleSchema } from "@/schemas/sale"
 import { Decimal } from "@prisma/client/runtime/library"
 import { handleApiError, AppError, ErrorCodes } from "@/lib/errors"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)

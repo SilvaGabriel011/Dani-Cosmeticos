@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { updateSettingsSchema } from "@/schemas/settings"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     let settings = await prisma.settings.findUnique({

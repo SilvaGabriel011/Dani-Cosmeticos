@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma"
 import { createProductSchema } from "@/schemas/product"
 import { calculateSalePrice } from "@/lib/utils"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
