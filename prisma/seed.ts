@@ -41,6 +41,11 @@ async function main() {
       update: {},
       create: { name: "Bijuteria" },
     }),
+    prisma.category.upsert({
+      where: { name: "Maquiagem" },
+      update: {},
+      create: { name: "Maquiagem" },
+    }),
   ])
 
   console.log(`✅ ${categories.length} categories created`)
@@ -67,9 +72,16 @@ async function main() {
       update: {},
       create: { name: "Romanel" },
     }),
+    prisma.brand.upsert({
+      where: { name: "Avon" },
+      update: {},
+      create: { name: "Avon" },
+    }),
   ])
 
   console.log(`✅ ${brands.length} brands created`)
+
+  console.log("\n🎉 Seed completed successfully!")
 }
 
 main()

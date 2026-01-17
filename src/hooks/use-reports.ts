@@ -102,3 +102,32 @@ export function useReportByPayment(filters: ReportFilters & { enabled?: boolean 
     refetchOnWindowFocus: false,
   })
 }
+
+interface TopClientReport {
+  id: string
+  nome: string
+  totalCompras: number
+  quantidadeVendas: number
+  ticketMedio: number
+  ultimaCompra: string
+}
+
+export function useTopClientes(filters: ReportFilters & { limit?: number; enabled?: boolean } = {}) {
+  const { enabled = true, limit = 10, ...restFilters } = filters
+  const params = new URLSearchParams()
+  if (restFilters.startDate) params.append("startDate", restFilters.startDate)
+  if (restFilters.endDate) params.append("endDate", restFilters.endDate)
+  if (limit) params.append("limit", limit.toString())
+
+  return useQuery<TopClientReport[]>({
+    queryKey: ["reports", "top-clientes", { ...restFilters, limit }],
+    queryFn: async () => {
+      const res = await fetch(`/api/reports/top-clientes?${params}`)
+      if (!res.ok) throw new Error("Erro ao carregar top clientes")
+      return res.json()
+    },
+    enabled,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+}

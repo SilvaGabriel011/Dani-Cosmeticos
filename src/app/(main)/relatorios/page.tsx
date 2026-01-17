@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ChartContainer } from "@/components/ui/chart-container"
-import { PieChart } from "@/components/charts/pie-chart"
 import { BarChart } from "@/components/charts/bar-chart"
 import { FilterBar } from "@/components/ui/filter-bar"
 import { useFilters } from "@/hooks/use-filters"
@@ -21,10 +20,9 @@ import {
 import {
   useReportSummary,
   useReportByProduct,
-  useReportByPayment,
+  useTopClientes,
 } from "@/hooks/use-reports"
-import { formatCurrency, formatPercent, getDateRange } from "@/lib/utils"
-import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
+import { formatCurrency, formatPercent, formatDate, getDateRange } from "@/lib/utils"
 
 const periodOptions = [
   { value: "today", label: "Hoje" },
@@ -44,7 +42,10 @@ export default function RelatoriosPage() {
     ...dateFilters,
     limit: 10,
   })
-  const { data: paymentReport, isLoading: loadingPayments } = useReportByPayment(dateFilters)
+  const { data: topClientes, isLoading: loadingClientes } = useTopClientes({
+    ...dateFilters,
+    limit: 10,
+  })
 
   const topProductsData = useMemo(
     () =>
@@ -55,13 +56,13 @@ export default function RelatoriosPage() {
     [productReport]
   )
 
-  const paymentMethodsData = useMemo(
+  const topClientesData = useMemo(
     () =>
-      paymentReport?.methods.map((m) => ({
-        name: PAYMENT_METHOD_LABELS[m.method as keyof typeof PAYMENT_METHOD_LABELS] || m.method,
-        value: m.totalAmount,
+      topClientes?.map((c) => ({
+        name: c.nome.length > 15 ? c.nome.slice(0, 15) + "..." : c.nome,
+        value: c.totalCompras,
       })) || [],
-    [paymentReport]
+    [topClientes]
   )
 
   return (
@@ -160,11 +161,11 @@ export default function RelatoriosPage() {
           )}
         </ChartContainer>
 
-        <ChartContainer title="Formas de Pagamento">
-          {loadingPayments ? (
+        <ChartContainer title="Top Clientes">
+          {loadingClientes ? (
             <Skeleton className="h-[250px]" />
           ) : (
-            <PieChart data={paymentMethodsData} donut height={250} />
+            <BarChart data={topClientesData} horizontal height={250} />
           )}
         </ChartContainer>
       </div>
@@ -220,48 +221,47 @@ export default function RelatoriosPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Formas de Pagamento (Detalhes)</CardTitle>
+            <CardTitle>Top Clientes (Detalhes)</CardTitle>
           </CardHeader>
           <CardContent>
-            {loadingPayments ? (
+            {loadingClientes ? (
               <div className="space-y-2">
-                {[...Array(4)].map((_, i) => (
+                {[...Array(5)].map((_, i) => (
                   <Skeleton key={i} className="h-8" />
                 ))}
               </div>
-            ) : !paymentReport?.methods?.length ? (
+            ) : !topClientes?.length ? (
               <p className="text-sm text-muted-foreground text-center py-4">
                 Nenhuma venda no período.
               </p>
             ) : (
-              <div className="space-y-4">
-                {paymentReport.methods.map((m) => (
-                  <div key={m.method} className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">
-                        {PAYMENT_METHOD_LABELS[m.method as keyof typeof PAYMENT_METHOD_LABELS] || m.method}
-                      </span>
-                      <span>{formatCurrency(m.totalAmount)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full"
-                          style={{ width: `${m.percentage}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-muted-foreground w-12 text-right">
-                        {m.percentage.toFixed(1)}%
-                      </span>
-                    </div>
-                    {m.totalFees > 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        Taxas: -{formatCurrency(m.totalFees)} ({m.count} transações)
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead className="text-right">Compras</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {topClientes.map((c, i) => (
+                    <TableRow key={c.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="w-6 h-6 p-0 justify-center">
+                            {i + 1}
+                          </Badge>
+                          <span className="truncate max-w-[150px]">{c.nome}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">{c.quantidadeVendas}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatCurrency(c.totalCompras)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
         </Card>
