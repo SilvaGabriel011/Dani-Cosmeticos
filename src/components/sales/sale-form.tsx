@@ -31,9 +31,11 @@ import { formatCurrency } from "@/lib/utils"
 import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
-interface SaleItem {
+interface CartItem {
   product: Product
   quantity: number
+  unitPrice: number
+  totalPrice: number
 }
 
 interface Payment {
@@ -58,7 +60,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const createSale = useCreateSale()
   const addItemsToSale = useAddItemsToSale()
 
-  const [items, setItems] = useState<SaleItem[]>([])
+  const [items, setItems] = useState<CartItem[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
   const [clientId, setClientId] = useState<string>(defaultClientId || "")
   const [discountPercent, setDiscountPercent] = useState(0)
@@ -68,6 +70,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [installmentPlan, setInstallmentPlan] = useState(1)
   const [isFiadoMode, setIsFiadoMode] = useState(false) // Toggle between fiado and normal payment modes
   const [fixedInstallmentAmount, setFixedInstallmentAmount] = useState<number | null>(null) // Fixed amount for each payment
+  const [manualTotal, setManualTotal] = useState<number | null>(null)
   
   // Multiple purchases feature - add to existing account
   const [saleMode, setSaleMode] = useState<"new" | "existing">("new")
@@ -124,28 +127,44 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const effectiveDiscount = hasManualDiscount ? discountPercent : Number(selectedClient?.discount || 0)
 
   const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + Number(item.product.salePrice) * item.quantity, 0),
+    () => items.reduce((sum, item) => sum + item.totalPrice, 0),
     [items]
   )
 
   const discountAmount = subtotal * (effectiveDiscount / 100)
-  const total = subtotal - discountAmount
+  const calculatedTotal = subtotal - discountAmount
+  const total = manualTotal !== null ? manualTotal : calculatedTotal
 
   const totalPayments = payments.reduce((sum, p) => sum + p.amount, 0)
   const remaining = total - totalPayments
 
   const addItem = (product: Product) => {
     const existing = items.find((i) => i.product.id === product.id)
+    const unitPrice = Number(product.salePrice)
+    
     if (existing) {
       if (existing.quantity < product.stock) {
         setItems(
-          items.map((i) =>
-            i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i
-          )
+          items.map((i) => {
+            if (i.product.id === product.id) {
+              const newQuantity = i.quantity + 1
+              return {
+                ...i,
+                quantity: newQuantity,
+                totalPrice: unitPrice * newQuantity
+              }
+            }
+            return i
+          })
         )
       }
     } else {
-      setItems([...items, { product, quantity: 1 }])
+      setItems([...items, {
+        product,
+        quantity: 1,
+        unitPrice,
+        totalPrice: unitPrice
+      }])
     }
     setProductSearch("")
   }
@@ -158,9 +177,13 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           const newQty = item.quantity + delta
           if (newQty <= 0) return null
           if (newQty > item.product.stock) return item
-          return { ...item, quantity: newQty }
+          return {
+            ...item,
+            quantity: newQty,
+            totalPrice: item.unitPrice * newQty
+          }
         })
-        .filter(Boolean) as SaleItem[]
+        .filter(Boolean) as CartItem[]
     )
   }
 
@@ -336,6 +359,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setInstallmentPlan(1)
     setIsFiadoMode(false)
     setFixedInstallmentAmount(null)
+    setManualTotal(null)
     setSaleMode("new")
     setSelectedPendingSaleId("")
   }
@@ -344,7 +368,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] md:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Nova Venda</DialogTitle>
+          <DialogTitle>Nova Venda - Carrinho</DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -354,11 +378,18 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>Produtos</span>
-                  {products.length > 0 && (
-                    <span className="text-xs font-normal text-muted-foreground">
-                      {products.filter(p => p.stock > 0).length} disponíveis
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {items.length > 0 && (
+                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                        {items.reduce((sum, item) => sum + item.quantity, 0)} itens
+                      </span>
+                    )}
+                    {products.length > 0 && (
+                      <span className="text-xs font-normal text-muted-foreground">
+                        {products.filter(p => p.stock > 0).length} disponíveis
+                      </span>
+                    )}
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -429,7 +460,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           </Button>
                         </div>
                         <span className="w-20 text-right">
-                          {formatCurrency(Number(item.product.salePrice) * item.quantity)}
+                          {formatCurrency(item.totalPrice)}
                         </span>
                         <Button
                           variant="ghost"
@@ -775,7 +806,33 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                 <Separator />
                 <div className="flex justify-between font-semibold">
                   <span>Total:</span>
-                  <span>{formatCurrency(total)}</span>
+                  <div className="flex items-center gap-2">
+                    {manualTotal !== null && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setManualTotal(null)}
+                        className="h-6 w-6 p-0"
+                        title="Usar valor calculado"
+                      >
+                        ✏️
+                      </Button>
+                    )}
+                    <Input
+                      type="number"
+                      value={total}
+                      onChange={(e) => {
+                        const value = Number(e.target.value)
+                        if (value >= 0) {
+                          setManualTotal(value)
+                        }
+                      }}
+                      className="w-32 text-right font-semibold"
+                      step="0.01"
+                      min="0"
+                    />
+                  </div>
                 </div>
                 {(isFiadoMode || remaining > 0) && (
                   <div className="flex justify-between text-sm text-amber-600">
