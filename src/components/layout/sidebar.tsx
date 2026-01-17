@@ -7,6 +7,7 @@ import {
   Package,
   ShoppingCart,
   Users,
+  UserX,
   BarChart3,
   Settings,
   Sparkles,
@@ -14,12 +15,13 @@ import {
 import { cn } from "@/lib/utils"
 
 const navItems = [
-  { href: "/dashboard", label: "Início", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
   { href: "/estoque", label: "Estoque", icon: Package },
   { href: "/vendas", label: "Vendas", icon: ShoppingCart },
   { href: "/clientes", label: "Clientes", icon: Users },
-  { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
-  { href: "/configuracoes", label: "Configurações", icon: Settings },
+  { href: "/clientes/devedores", label: "Devedores", icon: UserX },
+  { href: "/relatorios", label: "Relatorios", icon: BarChart3 },
+  { href: "/configuracoes", label: "Configuracoes", icon: Settings },
 ]
 
 export function Sidebar() {

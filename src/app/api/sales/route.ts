@@ -234,11 +234,26 @@ export async function POST(request: NextRequest) {
         },
       })
 
-      // Decrement stock
+      // Decrement stock and create stock movements
       for (const item of items) {
+        const product = products.find((p) => p.id === item.productId)!
+        const previousStock = product.stock
+        const newStock = previousStock - item.quantity
+
         await tx.product.update({
           where: { id: item.productId },
           data: { stock: { decrement: item.quantity } },
+        })
+
+        await tx.stockMovement.create({
+          data: {
+            productId: item.productId,
+            type: "SALE",
+            quantity: -item.quantity,
+            previousStock,
+            newStock,
+            saleId: newSale.id,
+          },
         })
       }
 
