@@ -47,10 +47,11 @@ model Category {
 }
 
 model Brand {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  createdAt DateTime  @default(now())
-  products  Product[]
+  id                  String    @id @default(uuid())
+  name                String    @unique
+  defaultProfitMargin Decimal   @default(35) @db.Decimal(5, 2)
+  createdAt           DateTime  @default(now())
+  products            Product[]
 }
 
 model Product {
@@ -66,6 +67,7 @@ model Product {
   salePrice      Decimal         @db.Decimal(10, 2)
   stock          Int             @default(0)
   minStock       Int             @default(5)
+  packagingType  String?         // CAIXA/KIT/UNIDADE - tipo de embalagem
   isActive       Boolean         @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -80,15 +82,16 @@ model Product {
 }
 
 model Client {
-  id        String    @id @default(uuid())
-  name      String
-  phone     String?
-  address   String?
-  discount  Decimal   @default(0) @db.Decimal(5, 2)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-  sales     Sale[]
+  id         String    @id @default(uuid())
+  name       String
+  phone      String?
+  address    String?
+  discount   Decimal   @default(0) @db.Decimal(5, 2)
+  importedAt DateTime? // Data de importação via CSV (indica dados incompletos)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+  sales      Sale[]
 
   @@index([deletedAt])
 }
