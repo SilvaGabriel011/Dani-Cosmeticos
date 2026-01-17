@@ -5,20 +5,21 @@ export async function GET() {
   try {
     const maioresVendas = await prisma.$queryRaw`
       SELECT 
-        v.id,
-        v.idVenda,
-        c.nome as nomeCliente,
-        COUNT(DISTINCT iv.idProduto) as produtos,
-        v.total,
-        v.data,
-        u.nome as vendedor
-      FROM Venda v
-      JOIN Cliente c ON v.idCliente = c.id
-      JOIN ItemVenda iv ON v.id = iv.idVenda
-      LEFT JOIN Usuario u ON v.idUsuario = u.id
-      WHERE v.data >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
-      GROUP BY v.id, v.idVenda, c.nome, v.total, v.data, u.nome
-      ORDER BY v.total DESC
+        s.id,
+        s.id as "idVenda",
+        c.name as "nomeCliente",
+        COUNT(DISTINCT si."productId") as produtos,
+        s.total,
+        s."createdAt" as data,
+        u.name as vendedor
+      FROM "Sale" s
+      JOIN "Client" c ON s."clientId" = c.id
+      JOIN "SaleItem" si ON s.id = si."saleId"
+      LEFT JOIN "User" u ON s."userId" = u.id
+      WHERE s."createdAt" >= CURRENT_DATE - INTERVAL '30 days'
+      AND s.status = 'COMPLETED'
+      GROUP BY s.id, c.name, s.total, s."createdAt", u.name
+      ORDER BY s.total DESC
       LIMIT 20
     `
 

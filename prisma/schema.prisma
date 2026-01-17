@@ -8,38 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum PaymentMethod {
-  CASH
-  PIX
-  DEBIT
-  CREDIT
-}
-
-enum FeeAbsorber {
-  SELLER
-  CLIENT
-}
-
-enum SaleStatus {
-  COMPLETED
-  PENDING
-  CANCELLED
-}
-
-enum ReceivableStatus {
-  PENDING
-  PARTIAL
-  PAID
-  OVERDUE
-}
-
-enum StockMovementType {
-  SALE
-  CANCELLATION
-  ADJUSTMENT
-  ENTRY
-}
-
 model Category {
   id        String    @id @default(uuid())
   name      String    @unique
@@ -50,8 +18,8 @@ model Category {
 model Brand {
   id                  String    @id @default(uuid())
   name                String    @unique
-  defaultProfitMargin Decimal   @default(35) @db.Decimal(5, 2)
   createdAt           DateTime  @default(now())
+  defaultProfitMargin Decimal   @default(35) @db.Decimal(5, 2)
   products            Product[]
 }
 
@@ -60,19 +28,19 @@ model Product {
   code           String?         @unique
   name           String
   categoryId     String?
-  category       Category?       @relation(fields: [categoryId], references: [id])
-  brandId        String?
-  brand          Brand?          @relation(fields: [brandId], references: [id])
   costPrice      Decimal         @db.Decimal(10, 2)
   profitMargin   Decimal         @db.Decimal(5, 2)
   salePrice      Decimal         @db.Decimal(10, 2)
   stock          Int             @default(0)
   minStock       Int             @default(5)
-  packagingType  String?         // CAIXA/KIT/UNIDADE - tipo de embalagem
   isActive       Boolean         @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   deletedAt      DateTime?
+  brandId        String?
+  packagingType  String?
+  brand          Brand?          @relation(fields: [brandId], references: [id])
+  category       Category?       @relation(fields: [categoryId], references: [id])
   saleItems      SaleItem[]
   stockMovements StockMovement[]
 
@@ -88,10 +56,10 @@ model Client {
   phone      String?
   address    String?
   discount   Decimal   @default(0) @db.Decimal(5, 2)
-  importedAt DateTime? // Data de importação via CSV (indica dados incompletos)
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
+  importedAt DateTime?
   sales      Sale[]
 
   @@index([deletedAt])
@@ -100,25 +68,25 @@ model Client {
 model Sale {
   id                     String          @id @default(uuid())
   clientId               String?
-  client                 Client?         @relation(fields: [clientId], references: [id])
   subtotal               Decimal         @db.Decimal(10, 2)
   discountPercent        Decimal         @default(0) @db.Decimal(5, 2)
   discountAmount         Decimal         @default(0) @db.Decimal(10, 2)
   totalFees              Decimal         @default(0) @db.Decimal(10, 2)
   total                  Decimal         @db.Decimal(10, 2)
   netTotal               Decimal         @db.Decimal(10, 2)
-  paidAmount             Decimal         @default(0) @db.Decimal(10, 2)
   status                 SaleStatus      @default(COMPLETED)
   notes                  String?
-  dueDate                DateTime?
-  paymentDay             Int?            // Day of month (1-31) for recurring payments
-  installmentPlan        Int             @default(1)
-  fixedInstallmentAmount Decimal?        @db.Decimal(10, 2) // Fixed amount for each payment (pre-populated in payment modal)
   createdAt              DateTime        @default(now())
-  items           SaleItem[]
-  payments        Payment[]
-  receivables     Receivable[]
-  stockMovements  StockMovement[]
+  paidAmount             Decimal         @default(0) @db.Decimal(10, 2)
+  dueDate                DateTime?
+  installmentPlan        Int             @default(1)
+  fixedInstallmentAmount Decimal?        @db.Decimal(10, 2)
+  paymentDay             Int?
+  payments               Payment[]
+  receivables            Receivable[]
+  client                 Client?         @relation(fields: [clientId], references: [id])
+  items                  SaleItem[]
+  stockMovements         StockMovement[]
 
   @@index([clientId])
   @@index([status])
@@ -130,14 +98,14 @@ model Sale {
 model SaleItem {
   id        String   @id @default(uuid())
   saleId    String
-  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
   quantity  Int
   unitPrice Decimal  @db.Decimal(10, 2)
   costPrice Decimal  @db.Decimal(10, 2)
   total     Decimal  @db.Decimal(10, 2)
-  addedAt   DateTime @default(now()) // Date when item was added (for purchase history tracking)
+  addedAt   DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
+  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@index([saleId])
   @@index([productId])
@@ -147,7 +115,6 @@ model SaleItem {
 model Payment {
   id           String        @id @default(uuid())
   saleId       String
-  sale         Sale          @relation(fields: [saleId], references: [id], onDelete: Cascade)
   method       PaymentMethod
   amount       Decimal       @db.Decimal(10, 2)
   feePercent   Decimal       @default(0) @db.Decimal(5, 2)
@@ -155,6 +122,7 @@ model Payment {
   feeAbsorber  FeeAbsorber   @default(SELLER)
   installments Int           @default(1)
   paidAt       DateTime      @default(now())
+  sale         Sale          @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@index([saleId])
   @@index([method])
@@ -174,7 +142,6 @@ model Settings {
 model Receivable {
   id          String           @id @default(uuid())
   saleId      String
-  sale        Sale             @relation(fields: [saleId], references: [id], onDelete: Cascade)
   installment Int
   amount      Decimal          @db.Decimal(10, 2)
   dueDate     DateTime
@@ -182,6 +149,7 @@ model Receivable {
   paidAt      DateTime?
   status      ReceivableStatus @default(PENDING)
   createdAt   DateTime         @default(now())
+  sale        Sale             @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@index([saleId])
   @@index([dueDate])
@@ -192,18 +160,50 @@ model Receivable {
 model StockMovement {
   id            String            @id @default(uuid())
   productId     String
-  product       Product           @relation(fields: [productId], references: [id])
   type          StockMovementType
   quantity      Int
   previousStock Int
   newStock      Int
   saleId        String?
-  sale          Sale?             @relation(fields: [saleId], references: [id])
   notes         String?
   createdAt     DateTime          @default(now())
+  product       Product           @relation(fields: [productId], references: [id])
+  sale          Sale?             @relation(fields: [saleId], references: [id])
 
   @@index([productId])
   @@index([type])
   @@index([createdAt])
   @@index([saleId])
+}
+
+enum PaymentMethod {
+  CASH
+  PIX
+  DEBIT
+  CREDIT
+}
+
+enum FeeAbsorber {
+  SELLER
+  CLIENT
+}
+
+enum SaleStatus {
+  COMPLETED
+  CANCELLED
+  PENDING
+}
+
+enum ReceivableStatus {
+  PENDING
+  PARTIAL
+  PAID
+  OVERDUE
+}
+
+enum StockMovementType {
+  SALE
+  CANCELLATION
+  ADJUSTMENT
+  ENTRY
 }

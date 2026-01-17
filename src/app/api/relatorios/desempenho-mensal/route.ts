@@ -25,21 +25,22 @@ export async function GET(request: NextRequest) {
     const dados = await prisma.$queryRaw`
       WITH vendas_mensais AS (
         SELECT 
-          MONTH(v.data) as mes,
-          SUM(v.total) as total,
-          COUNT(DISTINCT v.id) as vendas,
-          AVG(v.total) as ticketMedio
-        FROM Venda v
-        WHERE YEAR(v.data) = ${ano}
-        GROUP BY MONTH(v.data)
+          EXTRACT(MONTH FROM s."createdAt") as mes,
+          SUM(s.total) as total,
+          COUNT(DISTINCT s.id) as vendas,
+          AVG(s.total) as "ticketMedio"
+        FROM "Sale" s
+        WHERE EXTRACT(YEAR FROM s."createdAt") = ${parseInt(ano)}
+        AND s.status = 'COMPLETED'
+        GROUP BY EXTRACT(MONTH FROM s."createdAt")
       ),
       vendas_com_variacao AS (
         SELECT 
           mes,
           total,
           vendas,
-          ticketMedio,
-          LAG(total) OVER (ORDER BY mes) as mesAnterior,
+          "ticketMedio",
+          LAG(total) OVER (ORDER BY mes) as "mesAnterior",
           CASE 
             WHEN LAG(total) OVER (ORDER BY mes) IS NULL THEN 0
             ELSE ((total - LAG(total) OVER (ORDER BY mes)) / 
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
         mes,
         total,
         vendas,
-        ticketMedio,
+        "ticketMedio",
         COALESCE(variacao, 0) as variacao
       FROM vendas_com_variacao
       ORDER BY mes
@@ -65,12 +66,12 @@ export async function GET(request: NextRequest) {
           'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
           'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
         ][item.mes - 1],
-        total: item.total,
+        total: Number(item.total),
         vendas: item.vendas,
-        ticketMedio: item.ticketMedio,
+        ticketMedio: Number(item.ticketMedio),
         meta: meta,
-        atingimentoMeta: item.total / meta,
-        variacao: item.variacao
+        atingimentoMeta: Number(item.total) / meta,
+        variacao: Number(item.variacao)
       }
     })
 

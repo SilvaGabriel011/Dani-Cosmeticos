@@ -6,21 +6,22 @@ export async function GET() {
     const topClientes = await prisma.$queryRaw`
       SELECT 
         c.id,
-        c.nome,
-        COALESCE(SUM(v.total), 0) as totalCompras,
-        COUNT(DISTINCT v.id) as quantidadeVendas,
+        c.name as nome,
+        COALESCE(SUM(s.total), 0) as "totalCompras",
+        COUNT(DISTINCT s.id) as "quantidadeVendas",
         CASE 
-          WHEN COUNT(DISTINCT v.id) > 0 
-          THEN COALESCE(SUM(v.total), 0) / COUNT(DISTINCT v.id)
+          WHEN COUNT(DISTINCT s.id) > 0 
+          THEN COALESCE(SUM(s.total), 0) / COUNT(DISTINCT s.id)
           ELSE 0 
-        END as ticketMedio,
-        MAX(v.data) as ultimaCompra
-      FROM Cliente c
-      LEFT JOIN Venda v ON c.id = v.idCliente
-      WHERE v.data >= DATE_SUB(CURRENT_DATE(), INTERVAL 12 MONTH)
-      GROUP BY c.id, c.nome
-      HAVING totalCompras > 0
-      ORDER BY totalCompras DESC
+        END as "ticketMedio",
+        MAX(s."createdAt") as "ultimaCompra"
+      FROM "Client" c
+      LEFT JOIN "Sale" s ON c.id = s."clientId"
+      WHERE s."createdAt" >= CURRENT_DATE - INTERVAL '12 months'
+      AND s.status = 'COMPLETED'
+      GROUP BY c.id, c.name
+      HAVING "totalCompras" > 0
+      ORDER BY "totalCompras" DESC
       LIMIT 10
     `
 
