@@ -21,6 +21,7 @@ export const createSaleSchema = z.object({
   notes: z.string().optional(),
   paymentDay: z.number().int().min(1).max(31).optional().nullable(), // Day of month (1-31)
   installmentPlan: z.number().int().min(1).max(12).default(1),
+  fixedInstallmentAmount: z.number().positive().optional().nullable(), // Fixed amount for each payment
 })
 
 export const addPaymentSchema = z.object({

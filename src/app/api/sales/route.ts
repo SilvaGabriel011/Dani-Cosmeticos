@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { items, payments, clientId, discountPercent, notes, paymentDay, installmentPlan } = validation.data
+    const { items, payments, clientId, discountPercent, notes, paymentDay, installmentPlan, fixedInstallmentAmount } = validation.data
 
     // Fetch products and validate stock
     const productIds = items.map((item) => item.productId)
@@ -210,23 +210,24 @@ export async function POST(request: NextRequest) {
     // Create sale in transaction
     const sale = await prisma.$transaction(async (tx) => {
       // Create sale
-      const newSale = await tx.sale.create({
-        data: {
-          ...(clientId && { client: { connect: { id: clientId } } }),
-          subtotal: new Decimal(subtotal),
-          discountPercent: new Decimal(finalDiscountPercent),
-          discountAmount: new Decimal(discountAmount),
-          totalFees: new Decimal(totalFees),
-          total: new Decimal(total),
-          netTotal: new Decimal(netTotal),
-          paidAmount: new Decimal(paidAmount),
-          status: saleStatus,
-          notes,
-          paymentDay: paymentDay || null,
-          installmentPlan: installmentPlan || 1,
-          items: { create: saleItems },
-          payments: { create: salePayments.length > 0 ? salePayments : undefined },
-        },
+            const newSale = await tx.sale.create({
+              data: {
+                ...(clientId && { client: { connect: { id: clientId } } }),
+                subtotal: new Decimal(subtotal),
+                discountPercent: new Decimal(finalDiscountPercent),
+                discountAmount: new Decimal(discountAmount),
+                totalFees: new Decimal(totalFees),
+                total: new Decimal(total),
+                netTotal: new Decimal(netTotal),
+                paidAmount: new Decimal(paidAmount),
+                status: saleStatus,
+                notes,
+                paymentDay: paymentDay || null,
+                installmentPlan: installmentPlan || 1,
+                fixedInstallmentAmount: fixedInstallmentAmount ? new Decimal(fixedInstallmentAmount) : null,
+                items: { create: saleItems },
+                payments: { create: salePayments.length > 0 ? salePayments : undefined },
+              },
         include: {
           client: true,
           items: { include: { product: true } },

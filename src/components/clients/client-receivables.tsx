@@ -70,12 +70,16 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
   const [paymentAmount, setPaymentAmount] = useState("")
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "PIX" | "DEBIT" | "CREDIT">("CASH")
 
-  const handleOpenPayment = (receivable: ReceivableWithSale) => {
-    const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
-    setPaymentAmount(String(remaining))
-    setPaymentMethod("CASH")
-    setPaymentDialog({ open: true, receivable })
-  }
+    const handleOpenPayment = (receivable: ReceivableWithSale) => {
+      const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
+      // Use fixedInstallmentAmount if set, but cap at remaining amount
+      const fixedAmount = receivable.sale?.fixedInstallmentAmount 
+        ? Math.min(Number(receivable.sale.fixedInstallmentAmount), remaining)
+        : remaining
+      setPaymentAmount(String(fixedAmount))
+      setPaymentMethod("CASH")
+      setPaymentDialog({ open: true, receivable })
+    }
 
   const handlePayment = async () => {
     if (!paymentDialog.receivable || !paymentAmount) return
