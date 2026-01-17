@@ -4,7 +4,7 @@ import { ReceivableStatus } from "@prisma/client"
 interface ListFilters {
   clientId?: string
   saleId?: string
-  status?: ReceivableStatus
+  status?: ReceivableStatus | ReceivableStatus[]
   startDate?: Date
   endDate?: Date
   limit?: number
@@ -18,7 +18,7 @@ export const receivableService = {
       where: {
         ...(saleId && { saleId }),
         ...(clientId && { sale: { clientId } }),
-        ...(status && { status }),
+        ...(status && (Array.isArray(status) ? { status: { in: status } } : { status })),
         ...(startDate && endDate && {
           dueDate: {
             gte: startDate,
@@ -197,6 +197,107 @@ export const receivableService = {
       })
 
       return updatedReceivable
+    })
+
+    return updated
+  },
+
+  async registerPaymentWithDistribution(
+    saleId: string,
+    amount: number,
+    paymentMethod: "CASH" | "PIX" | "DEBIT" | "CREDIT" = "CASH",
+    paidAt?: Date
+  ) {
+    // Get all pending/partial receivables for this sale, ordered by installment
+    const receivables = await prisma.receivable.findMany({
+      where: {
+        saleId,
+        status: { in: ["PENDING", "PARTIAL"] },
+      },
+      orderBy: { installment: "asc" },
+    })
+
+    if (receivables.length === 0) {
+      throw new Error("Nenhuma parcela pendente encontrada para esta venda")
+    }
+
+    // Calculate total remaining for the sale
+    const totalRemaining = receivables.reduce(
+      (sum, r) => sum + (Number(r.amount) - Number(r.paidAmount)),
+      0
+    )
+
+    if (amount > totalRemaining + 0.01) {
+      throw new Error(`Valor excede o saldo devedor total. Maximo: R$ ${totalRemaining.toFixed(2)}`)
+    }
+
+    let remainingPayment = amount
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const updatedReceivables = []
+
+      for (const receivable of receivables) {
+        if (remainingPayment <= 0.01) break
+
+        const receivableRemaining = Number(receivable.amount) - Number(receivable.paidAmount)
+        const paymentForThis = Math.min(remainingPayment, receivableRemaining)
+
+        const newPaidAmount = Number(receivable.paidAmount) + paymentForThis
+        let newStatus: ReceivableStatus = "PENDING"
+        if (newPaidAmount >= Number(receivable.amount) - 0.01) {
+          newStatus = "PAID"
+        } else if (newPaidAmount > 0) {
+          newStatus = "PARTIAL"
+        }
+
+        const updatedReceivable = await tx.receivable.update({
+          where: { id: receivable.id },
+          data: {
+            paidAmount: newPaidAmount,
+            status: newStatus,
+            paidAt: newStatus === "PAID" ? (paidAt || new Date()) : null,
+          },
+        })
+
+        updatedReceivables.push(updatedReceivable)
+        remainingPayment -= paymentForThis
+      }
+
+      // Create Payment record for audit trail
+      await tx.payment.create({
+        data: {
+          saleId,
+          method: paymentMethod,
+          amount: amount,
+          feePercent: 0,
+          feeAmount: 0,
+          feeAbsorber: "SELLER",
+          installments: 1,
+          paidAt: paidAt || new Date(),
+        },
+      })
+
+      // Update sale paidAmount
+      const allReceivables = await tx.receivable.findMany({
+        where: { saleId },
+      })
+
+      const totalPaidFromReceivables = allReceivables.reduce(
+        (sum, r) => sum + Number(r.paidAmount),
+        0
+      )
+
+      const allReceivablesPaid = allReceivables.every(r => r.status === "PAID")
+
+      await tx.sale.update({
+        where: { id: saleId },
+        data: {
+          paidAmount: totalPaidFromReceivables,
+          ...(allReceivablesPaid && { status: "COMPLETED" }),
+        },
+      })
+
+      return updatedReceivables
     })
 
     return updated

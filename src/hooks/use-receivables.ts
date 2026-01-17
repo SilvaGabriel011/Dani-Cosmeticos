@@ -106,3 +106,32 @@ export function usePayReceivable() {
     },
   })
 }
+
+export function usePaySaleReceivables() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ saleId, amount, paymentMethod, paidAt }: { 
+      saleId: string
+      amount: number
+      paymentMethod?: "CASH" | "PIX" | "DEBIT" | "CREDIT"
+      paidAt?: string 
+    }) => {
+      const res = await fetch(`/api/receivables/pay-sale`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ saleId, amount, paymentMethod, paidAt }),
+      })
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || "Erro ao registrar pagamento")
+      }
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["receivables"] })
+      queryClient.invalidateQueries({ queryKey: ["sales"] })
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+    },
+  })
+}

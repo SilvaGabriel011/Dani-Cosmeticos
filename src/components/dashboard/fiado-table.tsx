@@ -37,7 +37,7 @@ interface SaleReceivableSummary {
 
 export function FiadoTable() {
   const { data: receivablesData, isLoading } = useReceivables({ 
-    status: "PENDING",
+    status: "PENDING,PARTIAL",
     limit: 100 
   })
   

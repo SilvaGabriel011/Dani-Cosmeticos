@@ -8,10 +8,12 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     
+    const rawStatus = searchParams.get("status") || undefined
+    
     const filters = listReceivablesSchema.parse({
       clientId: searchParams.get("clientId") || undefined,
       saleId: searchParams.get("saleId") || undefined,
-      status: searchParams.get("status") || undefined,
+      status: rawStatus,
       startDate: searchParams.get("startDate") || undefined,
       endDate: searchParams.get("endDate") || undefined,
       limit: searchParams.get("limit") || 50,
@@ -27,10 +29,15 @@ export async function GET(request: NextRequest) {
         limit: filters.limit,
       })
     } else {
+      // Handle status as array or single value
+      const statusFilter = filters.status
       data = await receivableService.list({
-        ...filters,
+        clientId: filters.clientId,
+        saleId: filters.saleId,
+        status: statusFilter as any,
         startDate: filters.startDate ? new Date(filters.startDate) : undefined,
         endDate: filters.endDate ? new Date(filters.endDate) : undefined,
+        limit: filters.limit,
       })
     }
 

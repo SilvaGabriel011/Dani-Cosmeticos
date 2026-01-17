@@ -16,7 +16,10 @@ export const payReceivableSchema = z.object({
 export const listReceivablesSchema = z.object({
   clientId: z.string().uuid().optional(),
   saleId: z.string().uuid().optional(),
-  status: z.enum(["PENDING", "PARTIAL", "PAID", "OVERDUE"]).optional(),
+  status: z.union([
+    z.enum(["PENDING", "PARTIAL", "PAID", "OVERDUE"]),
+    z.string().transform((val) => val.split(",") as ("PENDING" | "PARTIAL" | "PAID" | "OVERDUE")[]),
+  ]).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(50),
