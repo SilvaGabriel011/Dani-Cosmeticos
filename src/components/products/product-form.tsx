@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -81,9 +81,35 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
         },
   })
 
-  const costPrice = watch("costPrice")
-  const profitMargin = watch("profitMargin")
-  const salePrice = costPrice * (1 + profitMargin / 100)
+    const costPrice = watch("costPrice")
+    const profitMargin = watch("profitMargin")
+    const salePrice = costPrice * (1 + profitMargin / 100)
+
+    useEffect(() => {
+      if (product) {
+        reset({
+          code: product.code || "",
+          name: product.name,
+          categoryId: product.categoryId,
+          brandId: product.brandId,
+          costPrice: Number(product.costPrice),
+          profitMargin: Number(product.profitMargin),
+          stock: product.stock,
+          minStock: product.minStock,
+        })
+      } else {
+        reset({
+          code: "",
+          name: "",
+          categoryId: null,
+          brandId: null,
+          costPrice: 0,
+          profitMargin: 100,
+          stock: 0,
+          minStock: 5,
+        })
+      }
+    }, [product, reset])
 
   const onSubmit = async (data: CreateProductInput) => {
     try {
