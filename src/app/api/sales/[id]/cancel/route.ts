@@ -40,12 +40,33 @@ export async function POST(
         },
       })
 
-      // Restore stock
+      // Restore stock and create stock movements
       for (const item of sale.items) {
-        await tx.product.update({
+        const product = await tx.product.findUnique({
           where: { id: item.productId },
-          data: { stock: { increment: item.quantity } },
         })
+        
+        if (product) {
+          const previousStock = product.stock
+          const newStock = previousStock + item.quantity
+
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } },
+          })
+
+          await tx.stockMovement.create({
+            data: {
+              productId: item.productId,
+              type: "CANCELLATION",
+              quantity: item.quantity,
+              previousStock,
+              newStock,
+              saleId: params.id,
+              notes: "Estoque restaurado por cancelamento de venda",
+            },
+          })
+        }
       }
 
       return updated

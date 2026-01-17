@@ -23,11 +23,12 @@ import {
 import { useToast } from "@/components/ui/use-toast"
 import { useCategories, useCreateCategory } from "@/hooks/use-categories"
 import { useBrands, useCreateBrand } from "@/hooks/use-brands"
-import { Plus, X } from "lucide-react"
-import { useCreateProduct, useUpdateProduct } from "@/hooks/use-products"
+import { Plus, X, RefreshCw } from "lucide-react"
+import { useCreateProduct, useUpdateProduct, useProducts } from "@/hooks/use-products"
+import { generateProductCode } from "@/lib/code-generator"
 import { createProductSchema, CreateProductInput } from "@/schemas/product"
 import { Product } from "@/types"
-import { formatCurrency } from "@/lib/utils"
+import { formatCurrency, calculateProfitMargin, calculateProfit } from "@/lib/utils"
 
 interface ProductFormProps {
   open: boolean
@@ -40,6 +41,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const { data: categories } = useCategories()
   const createProduct = useCreateProduct()
   const updateProduct = useUpdateProduct()
+  const { data: productsData } = useProducts({ limit: 1000 })
   const createCategory = useCreateCategory()
   const { data: brands } = useBrands()
   const createBrand = useCreateBrand()
@@ -48,6 +50,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const [newCategoryName, setNewCategoryName] = useState("")
   const [isCreatingBrand, setIsCreatingBrand] = useState(false)
   const [newBrandName, setNewBrandName] = useState("")
+  const [pricingMode, setPricingMode] = useState<"margin" | "salePrice">("margin")
+  const [inputSalePrice, setInputSalePrice] = useState(0)
 
   const {
     register,
@@ -83,7 +87,28 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
 
     const costPrice = watch("costPrice")
     const profitMargin = watch("profitMargin")
-    const salePrice = costPrice * (1 + profitMargin / 100)
+
+    const calculatedSalePrice = pricingMode === "margin"
+      ? costPrice * (1 + profitMargin / 100)
+      : inputSalePrice
+
+    const calculatedMargin = pricingMode === "salePrice"
+      ? calculateProfitMargin(costPrice, inputSalePrice)
+      : profitMargin
+
+    const profit = calculateProfit(costPrice, calculatedSalePrice)
+
+    const handleGenerateCode = () => {
+      const name = watch("name")
+      if (!name) {
+        toast({ title: "Digite o nome do produto primeiro", variant: "destructive" })
+        return
+      }
+      const existingCodes = productsData?.data?.map(p => p.code).filter((c): c is string => !!c) || []
+      const code = generateProductCode(name, existingCodes)
+      setValue("code", code)
+      toast({ title: "Codigo gerado!", description: code })
+    }
 
     useEffect(() => {
       if (product) {
@@ -97,6 +122,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           stock: product.stock,
           minStock: product.minStock,
         })
+        setInputSalePrice(Number(product.salePrice))
+        setPricingMode("margin")
       } else {
         reset({
           code: "",
@@ -108,24 +135,32 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           stock: 0,
           minStock: 5,
         })
+        setInputSalePrice(0)
+        setPricingMode("margin")
       }
     }, [product, reset])
 
   const onSubmit = async (data: CreateProductInput) => {
     try {
+      const submitData = { ...data }
+      if (pricingMode === "salePrice") {
+        submitData.profitMargin = calculatedMargin
+      }
+
       if (isEditing && product) {
-        await updateProduct.mutateAsync({ id: product.id, data })
+        await updateProduct.mutateAsync({ id: product.id, data: submitData })
         toast({ title: "Produto atualizado com sucesso!" })
       } else {
-        await createProduct.mutateAsync(data)
+        await createProduct.mutateAsync(submitData)
         toast({ title: "Produto criado com sucesso!" })
       }
       reset()
       onOpenChange(false)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
       toast({
         title: "Erro",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       })
     }
@@ -140,26 +175,40 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="code">Código</Label>
+          <div className="space-y-2">
+            <Label htmlFor="name">Nome *</Label>
+            <Input
+              id="name"
+              placeholder="Nome do produto"
+              {...register("name")}
+            />
+            {errors.name && (
+              <p className="text-sm text-destructive">{errors.name.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="code">Codigo</Label>
+            <div className="flex gap-2">
               <Input
                 id="code"
-                placeholder="Ex: SKU001"
+                placeholder="Ex: SHP15"
                 {...register("code")}
+                className="flex-1"
               />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGenerateCode}
+                title="Gerar codigo automaticamente"
+              >
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Gerar
+              </Button>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome *</Label>
-              <Input
-                id="name"
-                placeholder="Nome do produto"
-                {...register("name")}
-              />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
-              )}
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Clique em &quot;Gerar&quot; para criar um codigo baseado no nome do produto
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -314,22 +363,49 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="costPrice">Valor Produto *</Label>
-              <Input
-                id="costPrice"
-                type="number"
-                step="0.01"
-                min="0"
-                {...register("costPrice", { valueAsNumber: true })}
-              />
-              {errors.costPrice && (
-                <p className="text-sm text-destructive">
-                  {errors.costPrice.message}
-                </p>
-              )}
+          <div className="space-y-2">
+            <Label htmlFor="costPrice">Valor Produto (Custo) *</Label>
+            <Input
+              id="costPrice"
+              type="number"
+              step="0.01"
+              min="0"
+              {...register("costPrice", { valueAsNumber: true })}
+            />
+            {errors.costPrice && (
+              <p className="text-sm text-destructive">
+                {errors.costPrice.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label>Modo de Precificacao</Label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="pricingMode"
+                  checked={pricingMode === "margin"}
+                  onChange={() => setPricingMode("margin")}
+                  className="h-4 w-4"
+                />
+                <span className="text-sm">Definir Margem de Lucro</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="pricingMode"
+                  checked={pricingMode === "salePrice"}
+                  onChange={() => setPricingMode("salePrice")}
+                  className="h-4 w-4"
+                />
+                <span className="text-sm">Definir Preco de Venda</span>
+              </label>
             </div>
+          </div>
+
+          {pricingMode === "margin" ? (
             <div className="space-y-2">
               <Label htmlFor="profitMargin">Margem de Lucro (%)</Label>
               <Input
@@ -340,15 +416,39 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 {...register("profitMargin", { valueAsNumber: true })}
               />
             </div>
-          </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="inputSalePrice">Preco de Venda</Label>
+              <Input
+                id="inputSalePrice"
+                type="number"
+                step="0.01"
+                min="0"
+                value={inputSalePrice}
+                onChange={(e) => setInputSalePrice(Number(e.target.value))}
+              />
+            </div>
+          )}
 
-          <div className="rounded-md bg-muted p-3">
-            <p className="text-sm text-muted-foreground">
-              Preço de Venda Calculado:{" "}
+          <div className="rounded-md bg-muted p-3 space-y-1">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Preco de Venda:</span>
               <span className="font-semibold text-foreground">
-                {formatCurrency(salePrice || 0)}
+                {formatCurrency(calculatedSalePrice || 0)}
               </span>
-            </p>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Margem de Lucro:</span>
+              <span className="font-semibold text-foreground">
+                {calculatedMargin.toFixed(1)}%
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Lucro por unidade:</span>
+              <span className="font-semibold text-green-600">
+                {formatCurrency(profit || 0)}
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

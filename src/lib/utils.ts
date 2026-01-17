@@ -43,6 +43,15 @@ export function calculateSalePrice(costPrice: number, profitMargin: number): num
   return costPrice * (1 + profitMargin / 100)
 }
 
+export function calculateProfitMargin(costPrice: number, salePrice: number): number {
+  if (costPrice <= 0) return 0
+  return ((salePrice / costPrice) - 1) * 100
+}
+
+export function calculateProfit(costPrice: number, salePrice: number): number {
+  return salePrice - costPrice
+}
+
 export function calculateFeeAmount(amount: number, feePercent: number): number {
   return amount * (feePercent / 100)
 }

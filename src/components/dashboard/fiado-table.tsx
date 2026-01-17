@@ -155,7 +155,9 @@ export function FiadoTable() {
                   <TableHead>Nome</TableHead>
                   <TableHead className="text-center">Parcelas</TableHead>
                   <TableHead className="text-right">Valor Pago</TableHead>
+                  <TableHead className="text-right">Valor Restante</TableHead>
                   <TableHead className="text-right">Valor Total</TableHead>
+                  <TableHead>Progresso</TableHead>
                   <TableHead>Prox. Pagamento</TableHead>
                   <TableHead className="text-center">Acao</TableHead>
                 </TableRow>
@@ -174,8 +176,24 @@ export function FiadoTable() {
                     <TableCell className="text-right text-green-600">
                       {formatCurrency(summary.paidAmount)}
                     </TableCell>
+                    <TableCell className="text-right text-amber-600">
+                      {formatCurrency(summary.totalAmount - summary.paidAmount)}
+                    </TableCell>
                     <TableCell className="text-right font-medium">
                       {formatCurrency(summary.totalAmount)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="w-20">
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-green-500 transition-all"
+                            style={{ width: `${Math.min((summary.paidAmount / summary.totalAmount) * 100, 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {Math.round((summary.paidAmount / summary.totalAmount) * 100)}%
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       {summary.nextDueDate ? (

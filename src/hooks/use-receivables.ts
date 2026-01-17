@@ -101,6 +101,8 @@ export function usePayReceivable() {
       queryClient.invalidateQueries({ queryKey: ["receivables"] })
       queryClient.invalidateQueries({ queryKey: ["sales"] })
       queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+      queryClient.invalidateQueries({ queryKey: ["debtors"] })
+      queryClient.invalidateQueries({ queryKey: ["clients"] })
     },
   })
 }
