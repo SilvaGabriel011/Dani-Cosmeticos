@@ -68,7 +68,7 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div>
-        <PageHeader title="Dashboard" description="Visão geral do seu negócio" />
+        <PageHeader title="Início" description="Visão geral do seu negócio" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-32" />
@@ -80,7 +80,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Dashboard" description="Visão geral do seu negócio">
+      <PageHeader title="Início" description="Visão geral do seu negócio">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Button onClick={() => setSaleFormOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
