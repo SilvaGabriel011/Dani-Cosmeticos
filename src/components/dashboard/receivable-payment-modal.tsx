@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
-import { usePayReceivable } from "@/hooks/use-receivables"
+import { usePaySaleReceivables } from "@/hooks/use-receivables"
 import { formatCurrency } from "@/lib/utils"
 import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
 import { Receivable, Sale, Client } from "@prisma/client"
@@ -40,7 +40,7 @@ export function ReceivablePaymentModal({
   receivable 
 }: ReceivablePaymentModalProps) {
   const { toast } = useToast()
-  const payReceivable = usePayReceivable()
+  const paySaleReceivables = usePaySaleReceivables()
 
   const [amount, setAmount] = useState(0)
   const [paidAt, setPaidAt] = useState("")
@@ -67,29 +67,17 @@ export function ReceivablePaymentModal({
       return
     }
 
-    if (amount > remaining + 0.01) {
-      toast({ 
-        title: "Valor excede o saldo da parcela", 
-        description: `Maximo: ${formatCurrency(remaining)}`,
-        variant: "destructive" 
-      })
-      return
-    }
-
     try {
-      await payReceivable.mutateAsync({
-        id: receivable.id,
+      await paySaleReceivables.mutateAsync({
+        saleId: receivable.saleId,
         amount,
         paymentMethod,
         paidAt: paidAt ? new Date(paidAt).toISOString() : undefined,
       })
 
-      const newRemaining = remaining - amount
       toast({ 
         title: "Pagamento registrado!",
-        description: newRemaining <= 0.01 
-          ? "Parcela quitada!" 
-          : `Saldo restante: ${formatCurrency(newRemaining)}`
+        description: "O pagamento foi distribuido entre as parcelas pendentes."
       })
 
       onOpenChange(false)
@@ -194,8 +182,8 @@ export function ReceivablePaymentModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={payReceivable.isPending}>
-            {payReceivable.isPending ? "Registrando..." : "Confirmar"}
+          <Button onClick={handleSubmit} disabled={paySaleReceivables.isPending}>
+            {paySaleReceivables.isPending ? "Registrando..." : "Confirmar"}
           </Button>
         </DialogFooter>
       </DialogContent>
