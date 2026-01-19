@@ -272,7 +272,7 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
                         <TableCell>{row.tipoEmbalagem || "-"}</TableCell>
                         <TableCell className="text-center">{row.quantidade}</TableCell>
                         <TableCell className="text-right">
-                          {formatCurrency(row.valor)}
+                          {formatCurrency(row.valor ?? 0)}
                         </TableCell>
                       </TableRow>
                     ))}
