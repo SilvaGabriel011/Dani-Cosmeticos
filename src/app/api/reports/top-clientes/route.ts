@@ -8,6 +8,8 @@ interface TopClientResult {
   id: string
   nome: string
   totalCompras: number
+  totalPago: number
+  totalEmAberto: number
   quantidadeVendas: bigint
   ticketMedio: number
   ultimaCompra: Date | null
@@ -32,6 +34,8 @@ export async function GET(request: NextRequest) {
         c.id,
         c.name as nome,
         COALESCE(SUM(s.total), 0) as "totalCompras",
+        COALESCE(SUM(s."paidAmount"), 0) as "totalPago",
+        COALESCE(SUM(s.total - s."paidAmount"), 0) as "totalEmAberto",
         COUNT(DISTINCT s.id) as "quantidadeVendas",
         CASE 
           WHEN COUNT(DISTINCT s.id) > 0 
@@ -43,7 +47,7 @@ export async function GET(request: NextRequest) {
       LEFT JOIN "Sale" s ON c.id = s."clientId"
         AND s."createdAt" >= ${startDate}
         AND s."createdAt" <= ${endDate}
-        AND s.status = 'COMPLETED'
+        AND s.status != 'CANCELLED'
       GROUP BY c.id, c.name
       HAVING COALESCE(SUM(s.total), 0) > 0
       ORDER BY "totalCompras" DESC
@@ -54,6 +58,8 @@ export async function GET(request: NextRequest) {
       id: c.id,
       nome: c.nome,
       totalCompras: Number(c.totalCompras),
+      totalPago: Number(c.totalPago),
+      totalEmAberto: Number(c.totalEmAberto),
       quantidadeVendas: Number(c.quantidadeVendas),
       ticketMedio: Number(c.ticketMedio),
       ultimaCompra: c.ultimaCompra?.toISOString() || null,

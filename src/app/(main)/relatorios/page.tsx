@@ -21,8 +21,11 @@ import {
   useReportSummary,
   useReportByProduct,
   useTopClientes,
+  useCollection,
 } from "@/hooks/use-reports"
 import { formatCurrency, formatPercent, formatDate, getDateRange } from "@/lib/utils"
+import { Wallet, TrendingUp, TrendingDown, Minus } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const periodOptions = [
   { value: "today", label: "Hoje" },
@@ -45,6 +48,9 @@ export default function RelatoriosPage() {
   const { data: topClientes, isLoading: loadingClientes } = useTopClientes({
     ...dateFilters,
     limit: 10,
+  })
+  const { data: collection, isLoading: loadingCollection } = useCollection({
+    period: filterState.period as "today" | "week" | "month",
   })
 
   const topProductsData = useMemo(
@@ -150,6 +156,107 @@ export default function RelatoriosPage() {
           </>
         )}
       </div>
+
+      {/* Arrecadação Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wallet className="h-5 w-5" />
+            Arrecadação (Fluxo de Caixa Real)
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Dinheiro que efetivamente entrou no período, incluindo pagamentos de vendas fiado
+          </p>
+        </CardHeader>
+        <CardContent>
+          {loadingCollection ? (
+            <div className="grid gap-4 md:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-20" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-4">
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm text-muted-foreground">Total Arrecadado</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {formatCurrency(collection?.totalCollection || 0)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {collection?.paymentCount || 0} pagamentos
+                  </p>
+                </div>
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm text-muted-foreground">Líquido (- taxas)</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {formatCurrency(collection?.netCollection || 0)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Taxas: -{formatCurrency(collection?.totalFees || 0)}
+                  </p>
+                </div>
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm text-muted-foreground">Média por Pagamento</p>
+                  <p className="text-2xl font-bold">
+                    {formatCurrency(collection?.averagePayment || 0)}
+                  </p>
+                </div>
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm text-muted-foreground">vs Período Anterior</p>
+                  <div className="flex items-center gap-2">
+                    {collection?.comparison.trend === "up" ? (
+                      <TrendingUp className="h-5 w-5 text-green-600" />
+                    ) : collection?.comparison.trend === "down" ? (
+                      <TrendingDown className="h-5 w-5 text-red-600" />
+                    ) : (
+                      <Minus className="h-5 w-5 text-muted-foreground" />
+                    )}
+                    <span className={cn(
+                      "text-2xl font-bold",
+                      collection?.comparison.trend === "up" && "text-green-600",
+                      collection?.comparison.trend === "down" && "text-red-600"
+                    )}>
+                      {collection?.comparison.change ? (
+                        `${collection.comparison.change > 0 ? "+" : ""}${collection.comparison.change.toFixed(1)}%`
+                      ) : "0%"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Anterior: {formatCurrency(collection?.comparison.previousCollection || 0)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Breakdown by payment method */}
+              {collection?.byMethod && collection.byMethod.length > 0 && (
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm font-medium mb-3">Por Forma de Pagamento</p>
+                  <div className="grid gap-2 md:grid-cols-4">
+                    {collection.byMethod.map((method) => (
+                      <div key={method.method} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                        <div>
+                          <Badge variant="outline" className="mb-1">
+                            {method.method === "CASH" ? "Dinheiro" :
+                             method.method === "PIX" ? "PIX" :
+                             method.method === "DEBIT" ? "Débito" :
+                             method.method === "CREDIT" ? "Crédito" : method.method}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground">{method.count} pagamentos</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">{formatCurrency(method.total)}</p>
+                          <p className="text-xs text-muted-foreground">{method.percentage.toFixed(1)}%</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">

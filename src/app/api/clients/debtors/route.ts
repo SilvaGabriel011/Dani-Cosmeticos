@@ -35,13 +35,14 @@ export async function GET(request: NextRequest) {
       : ''
 
     const orderByClause = {
-      totalDebt: 'ORDER BY "totalDebt" DESC',
-      overdueAmount: 'ORDER BY "overdueAmount" DESC',
+      totalDebt: 'ORDER BY total_debt_num DESC',
+      overdueAmount: 'ORDER BY overdue_amount_num DESC',
       oldestDueDate: 'ORDER BY "oldestDueDate" ASC NULLS LAST',
       name: 'ORDER BY "clientName" ASC',
-    }[sortBy] || 'ORDER BY "totalDebt" DESC'
+    }[sortBy] || 'ORDER BY total_debt_num DESC'
 
     // Single optimized query with aggregations
+    // Note: We calculate numeric values for sorting, then cast to text for output
     const debtorsSummary = await prisma.$queryRawUnsafe<DebtorSummary[]>(`
       SELECT 
         c."id" as "clientId",
@@ -50,12 +51,14 @@ export async function GET(request: NextRequest) {
         c."address" as "clientAddress",
         c."discount"::text as "clientDiscount",
         COALESCE(SUM(r."amount" - r."paidAmount"), 0)::text as "totalDebt",
+        COALESCE(SUM(r."amount" - r."paidAmount"), 0) as total_debt_num,
         COALESCE(SUM(CASE WHEN r."dueDate" < NOW() THEN r."amount" - r."paidAmount" ELSE 0 END), 0)::text as "overdueAmount",
+        COALESCE(SUM(CASE WHEN r."dueDate" < NOW() THEN r."amount" - r."paidAmount" ELSE 0 END), 0) as overdue_amount_num,
         COUNT(DISTINCT s."id")::text as "salesCount",
         MIN(r."dueDate") as "oldestDueDate"
       FROM "Client" c
       INNER JOIN "Sale" s ON s."clientId" = c."id" AND s."status" = 'PENDING'
-      INNER JOIN "Receivable" r ON r."saleId" = s."id" AND r."status" IN ('PENDING', 'PARTIAL', 'OVERDUE')
+      INNER JOIN "Receivable" r ON r."saleId" = s."id" AND r."status" IN ('PENDING', 'PARTIAL')
       WHERE c."deletedAt" IS NULL
       ${searchFilter}
       GROUP BY c."id", c."name", c."phone", c."address", c."discount"
@@ -88,7 +91,7 @@ export async function GET(request: NextRequest) {
           }
         },
         receivables: {
-          where: { status: { in: ["PENDING", "PARTIAL", "OVERDUE"] } },
+          where: { status: { in: ["PENDING", "PARTIAL"] } },
           select: {
             id: true,
             installment: true,

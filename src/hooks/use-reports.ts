@@ -47,6 +47,49 @@ interface PaymentsReportResponse {
   totalAmount: number
 }
 
+interface CollectionByMethod {
+  method: string
+  total: number
+  count: number
+  percentage: number
+}
+
+interface CollectionReport {
+  period: { startDate: string; endDate: string }
+  totalCollection: number
+  paymentCount: number
+  totalFees: number
+  netCollection: number
+  averagePayment: number
+  byMethod: CollectionByMethod[]
+  comparison: {
+    previousPeriod: { startDate: string; endDate: string }
+    previousCollection: number
+    change: number
+    trend: "up" | "down" | "stable"
+  }
+}
+
+export function useCollection(filters: ReportFilters & { period?: string; enabled?: boolean } = {}) {
+  const { enabled = true, period, ...restFilters } = filters
+  const params = new URLSearchParams()
+  if (period) params.append("period", period)
+  if (restFilters.startDate) params.append("startDate", restFilters.startDate)
+  if (restFilters.endDate) params.append("endDate", restFilters.endDate)
+
+  return useQuery<CollectionReport>({
+    queryKey: ["reports", "collection", { period, ...restFilters }],
+    queryFn: async () => {
+      const res = await fetch(`/api/reports/collection?${params}`)
+      if (!res.ok) throw new Error("Erro ao carregar arrecadação")
+      return res.json()
+    },
+    enabled,
+    staleTime: 2 * 60 * 1000, // 2 minutos - arrecadação muda mais frequentemente
+    refetchOnWindowFocus: true,
+  })
+}
+
 export function useReportSummary(filters: ReportFilters = {}) {
   const params = new URLSearchParams()
   if (filters.startDate) params.append("startDate", filters.startDate)

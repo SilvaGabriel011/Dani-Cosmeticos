@@ -11,6 +11,8 @@ interface Cliente {
   id: string
   nome: string
   totalCompras: number
+  totalPago: number
+  totalEmAberto: number
   quantidadeVendas: number
   ticketMedio: number
   ultimaCompra: string
@@ -83,9 +85,10 @@ export function TopClientes() {
               <TableRow>
                 <TableHead>Posição</TableHead>
                 <TableHead>Cliente</TableHead>
-                <TableHead>Total em Compras</TableHead>
-                <TableHead>Nº de Vendas</TableHead>
-                <TableHead>Ticket Médio</TableHead>
+                <TableHead>Total Compras</TableHead>
+                <TableHead className="text-green-600">Pago</TableHead>
+                <TableHead className="text-amber-600">Em Aberto</TableHead>
+                <TableHead>Nº Vendas</TableHead>
                 <TableHead>Última Compra</TableHead>
               </TableRow>
             </TableHeader>
@@ -111,25 +114,28 @@ export function TopClientes() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-green-600" />
-                      <span className="font-semibold text-green-600">
-                        {cliente.totalCompras.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })}
-                      </span>
-                    </div>
+                    <span className="font-semibold">
+                      {cliente.totalCompras.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </span>
                   </TableCell>
-                  <TableCell>{cliente.quantidadeVendas}</TableCell>
-                  <TableCell>
-                    {cliente.ticketMedio.toLocaleString("pt-BR", {
+                  <TableCell className="text-green-600 font-medium">
+                    {cliente.totalPago.toLocaleString("pt-BR", {
                       style: "currency",
                       currency: "BRL",
                     })}
                   </TableCell>
+                  <TableCell className="text-amber-600 font-medium">
+                    {cliente.totalEmAberto.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </TableCell>
+                  <TableCell>{cliente.quantidadeVendas}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {new Date(cliente.ultimaCompra).toLocaleDateString("pt-BR")}
+                    {cliente.ultimaCompra ? new Date(cliente.ultimaCompra).toLocaleDateString("pt-BR") : "-"}
                   </TableCell>
                 </TableRow>
               ))}

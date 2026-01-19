@@ -59,52 +59,62 @@ export async function POST(request: NextRequest) {
       const rowNumber = i + 1
 
       try {
-        const brandKey = row.marca.toLowerCase()
-        let brand = brandCache.get(brandKey)
+        let brandId: string | null = null
+        let brandMargin = defaultProfitMargin
 
-        if (!brand) {
-          const newBrand = await prisma.brand.create({
-            data: {
-              name: row.marca,
-              defaultProfitMargin: new Decimal(defaultProfitMargin),
-            },
-          })
-          brand = {
-            id: newBrand.id,
-            defaultProfitMargin: Number(newBrand.defaultProfitMargin),
+        if (row.marca) {
+          const brandKey = row.marca.toLowerCase()
+          let brand = brandCache.get(brandKey)
+
+          if (!brand) {
+            const newBrand = await prisma.brand.create({
+              data: {
+                name: row.marca,
+                defaultProfitMargin: new Decimal(defaultProfitMargin),
+              },
+            })
+            brand = {
+              id: newBrand.id,
+              defaultProfitMargin: Number(newBrand.defaultProfitMargin),
+            }
+            brandCache.set(brandKey, brand)
+            result.brandsCreated.push(row.marca)
           }
-          brandCache.set(brandKey, brand)
-          result.brandsCreated.push(row.marca)
+          brandId = brand.id
+          brandMargin = brand.defaultProfitMargin
         }
 
-        const categoryKey = row.categoria.toLowerCase()
-        let categoryId = categoryCache.get(categoryKey)
+        let categoryId: string | null = null
+        if (row.categoria) {
+          const categoryKey = row.categoria.toLowerCase()
+          categoryId = categoryCache.get(categoryKey) || null
 
-        if (!categoryId) {
-          const newCategory = await prisma.category.create({
-            data: { name: row.categoria },
-          })
-          categoryId = newCategory.id
-          categoryCache.set(categoryKey, categoryId)
-          result.categoriesCreated.push(row.categoria)
+          if (!categoryId) {
+            const newCategory = await prisma.category.create({
+              data: { name: row.categoria },
+            })
+            categoryId = newCategory.id
+            categoryCache.set(categoryKey, categoryId)
+            result.categoriesCreated.push(row.categoria)
+          }
         }
 
         const nameParts = [row.marca, row.linha, row.fragrancia].filter(Boolean)
-        const productName = nameParts.join(" - ")
+        const productName = nameParts.length > 0 ? nameParts.join(" - ") : `Produto ${rowNumber}`
 
-        const salePrice = row.valor
-        const profitMargin = brand.defaultProfitMargin
-        const costPrice = salePrice / (1 + profitMargin / 100)
+        const salePrice = row.valor || 0
+        const profitMargin = brandMargin
+        const costPrice = salePrice > 0 ? salePrice / (1 + profitMargin / 100) : 0
 
         await prisma.product.create({
           data: {
             name: productName,
-            brandId: brand.id,
+            brandId: brandId,
             categoryId: categoryId,
             salePrice: new Decimal(salePrice),
             costPrice: new Decimal(costPrice),
             profitMargin: new Decimal(profitMargin),
-            stock: row.quantidade,
+            stock: row.quantidade || 0,
             minStock: 5,
             packagingType: row.tipoEmbalagem || null,
           },

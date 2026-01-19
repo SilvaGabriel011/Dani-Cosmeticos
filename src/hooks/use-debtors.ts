@@ -27,7 +27,7 @@ interface DebtorReceivable {
   amount: string | number
   paidAmount: string | number
   dueDate: string
-  status: "PENDING" | "PARTIAL" | "PAID" | "OVERDUE"
+  status: "PENDING" | "PARTIAL" | "PAID"
 }
 
 interface DebtorSale {

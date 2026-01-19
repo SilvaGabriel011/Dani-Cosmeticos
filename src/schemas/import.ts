@@ -15,13 +15,13 @@ export const clientImportSchema = z.object({
 })
 
 export const productImportRowSchema = z.object({
-  marca: z.string().min(1, "Marca é obrigatória"),
+  marca: z.string().optional(),
   linha: z.string().optional(),
   fragrancia: z.string().optional(),
-  categoria: z.string().min(1, "Categoria é obrigatória"),
+  categoria: z.string().optional(),
   tipoEmbalagem: z.string().optional(),
-  quantidade: z.number().int().min(0, "Quantidade deve ser positiva"),
-  valor: z.number().min(0, "Valor deve ser positivo"),
+  quantidade: z.number().int().min(0).optional().default(0),
+  valor: z.number().min(0).optional(),
 })
 
 export const productImportSchema = z.object({

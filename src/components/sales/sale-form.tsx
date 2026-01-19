@@ -576,140 +576,68 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     }}
                   />
                 </div>
-                <Separator className="my-3" />
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="installment-toggle"
-                      checked={isInstallment}
-                      onChange={(e) => setIsInstallment(e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300"
-                    />
-                    <Label htmlFor="installment-toggle" className="cursor-pointer">
-                      Venda parcelada / a prazo
-                    </Label>
-                  </div>
-                  {isInstallment && (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Dia do Pagamento</Label>
-                          <Select
-                            value={String(paymentDay)}
-                            onValueChange={(v) => setPaymentDay(Number(v))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Dia" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
-                                <SelectItem key={day} value={String(day)}>
-                                  Dia {day}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">Parcelas</Label>
-                          <Select
-                            value={String(installmentPlan)}
-                            onValueChange={(v) => setInstallmentPlan(Number(v))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {[1, 2, 3, 4, 5, 6, 12].map((n) => (
-                                <SelectItem key={n} value={String(n)}>
-                                  {n}x
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      {total > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-sm text-muted-foreground">
-                            {installmentPlan}x de {formatCurrency(total / installmentPlan)} - todo dia {paymentDay}
-                          </p>
-                          <div className="border rounded-md p-2 space-y-1 text-xs text-muted-foreground">
-                            <p className="font-medium">Previsao de pagamentos:</p>
-                            {getPaymentDatesPreview().map((date, index) => (
-                              <p key={index}>
-                                {index + 1}a parcela: {date.toLocaleDateString('pt-BR')}
-                              </p>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Pagamentos</CardTitle>
+                <CardTitle className="text-base">Forma de Pagamento</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="fiado-toggle"
-                      checked={isFiadoMode}
-                      onChange={(e) => {
-                        setIsFiadoMode(e.target.checked)
-                        if (e.target.checked) {
-                          setPayments([]) // Clear payments when switching to fiado mode
-                        }
-                      }}
-                      className="h-4 w-4 rounded border-gray-300"
-                    />
-                    <Label htmlFor="fiado-toggle" className="cursor-pointer font-medium">
-                      Venda Fiado (a prazo)
-                    </Label>
-                  </div>
-                  {isFiadoMode && (
-                    <span className="text-xs text-amber-600 font-medium">
-                      Sem pagamento agora
-                    </span>
-                  )}
+              <CardContent className="space-y-4">
+                {/* Resumo do valor */}
+                <div className="bg-blue-50 p-4 rounded-lg text-center">
+                  <p className="text-sm text-muted-foreground">Total da compra</p>
+                  <p className="text-2xl font-bold text-blue-600">{formatCurrency(total)}</p>
                 </div>
 
-                                {isFiadoMode ? (
-                                  <div className="space-y-3">
-                                    <div className="p-3 border rounded-md border-amber-200 bg-amber-50 text-amber-800">
-                                      <p className="text-sm">
-                                        O valor total de <strong>{formatCurrency(total)}</strong> sera registrado como fiado.
-                                      </p>
-                                      {isInstallment && installmentPlan > 1 && (
-                                        <p className="text-xs mt-1 text-amber-600">
-                                          Parcelado em {installmentPlan}x de {formatCurrency(total / installmentPlan)}
-                                        </p>
-                                      )}
-                                    </div>
-                                    <div className="space-y-2">
-                                      <Label>Valor fixo da parcela (opcional)</Label>
-                                      <Input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder={total > 0 && installmentPlan > 0 ? formatCurrency(total / installmentPlan) : "Ex: 50.00"}
-                                        value={fixedInstallmentAmount || ""}
-                                        onChange={(e) => setFixedInstallmentAmount(e.target.value ? Number(e.target.value) : null)}
-                                      />
-                                      <p className="text-xs text-muted-foreground">
-                                        Este valor sera sugerido ao registrar pagamentos
-                                      </p>
-                                    </div>
-                                  </div>
-                                ): (
-                  <>
+                {/* Escolha principal: Pagar Agora vs Fiado */}
+                <div className="grid gap-3">
+                  <Button
+                    variant={!isFiadoMode ? "default" : "outline"}
+                    className="h-16 text-lg justify-start"
+                    onClick={() => {
+                      setIsFiadoMode(false)
+                      if (payments.length === 0) {
+                        addPayment()
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">💰</span>
+                      <div className="flex-1 text-left">
+                        <div className="font-medium">Pagar Agora</div>
+                        <div className="text-sm opacity-70">
+                          Dinheiro, PIX ou cartão
+                        </div>
+                      </div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    variant={isFiadoMode ? "default" : "outline"}
+                    className="h-16 text-lg justify-start"
+                    onClick={() => {
+                      setIsFiadoMode(true)
+                      setPayments([]) // Clear payments when switching to fiado mode
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🤝</span>
+                      <div className="flex-1 text-left">
+                        <div className="font-medium">Fiado</div>
+                        <div className="text-sm opacity-70">
+                          Pagar depois em parcelas
+                        </div>
+                      </div>
+                    </div>
+                  </Button>
+                </div>
+
+                {/* Campos específicos baseados na escolha */}
+                {!isFiadoMode ? (
+                  <div className="bg-green-50 p-4 rounded-lg space-y-3">
+                    <p className="font-medium text-green-800">💳 Forma de pagamento:</p>
+                    
                     <div className="flex justify-end">
                       <Button variant="outline" size="sm" onClick={addPayment}>
                         <Plus className="h-4 w-4 mr-1" />
@@ -722,7 +650,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       </p>
                     ) : (
                       payments.map((payment, index) => (
-                        <div key={index} className="space-y-2 p-3 border rounded-md">
+                        <div key={index} className="space-y-2 p-3 border rounded-md bg-white">
                           <div className="flex gap-2">
                             <Select
                               value={payment.method}
@@ -786,7 +714,101 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                         </div>
                       ))
                     )}
-                  </>
+                  </div>
+                ) : (
+                  <div className="bg-amber-50 p-4 rounded-lg space-y-4">
+                    <div className="text-center">
+                      <p className="font-medium text-amber-800">📅 Como vai ser o fiado?</p>
+                      <p className="text-sm text-amber-600 mt-1">
+                        O valor total de <strong>{formatCurrency(total)}</strong> será registrado como fiado.
+                      </p>
+                    </div>
+                    
+                    {/* Configurações do fiado */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="installment-toggle-simple"
+                          checked={isInstallment}
+                          onChange={(e) => setIsInstallment(e.target.checked)}
+                          className="h-4 w-4 rounded border-gray-300"
+                        />
+                        <Label htmlFor="installment-toggle-simple" className="cursor-pointer">
+                          Dividir em parcelas mensais
+                        </Label>
+                      </div>
+                      
+                      {isInstallment && (
+                        <div className="space-y-3 pl-6">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Dia do pagamento</Label>
+                              <Select
+                                value={String(paymentDay)}
+                                onValueChange={(v) => setPaymentDay(Number(v))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Dia" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
+                                    <SelectItem key={day} value={String(day)}>
+                                      Todo dia {day}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Número de parcelas</Label>
+                              <Select
+                                value={String(installmentPlan)}
+                                onValueChange={(v) => setInstallmentPlan(Number(v))}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[1, 2, 3, 4, 5, 6, 12].map((n) => (
+                                    <SelectItem key={n} value={String(n)}>
+                                      {n}x
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          
+                          {total > 0 && (
+                            <div className="bg-white p-3 rounded-md border border-amber-200">
+                              <p className="text-sm font-medium text-amber-800">
+                                {installmentPlan}x de {formatCurrency(total / installmentPlan)}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Primeiro pagamento: {getPaymentDatesPreview()[0]?.toLocaleDateString('pt-BR')}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      <div className="space-y-2">
+                        <Label className="text-sm">Valor fixo da parcela (opcional)</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          placeholder={total > 0 && installmentPlan > 0 ? formatCurrency(total / installmentPlan) : "Ex: 50.00"}
+                          value={fixedInstallmentAmount || ""}
+                          onChange={(e) => setFixedInstallmentAmount(e.target.value ? Number(e.target.value) : null)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          💡 Este valor será sugerido ao registrar pagamentos
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </CardContent>
             </Card>

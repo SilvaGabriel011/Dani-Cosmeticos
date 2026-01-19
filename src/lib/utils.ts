@@ -57,24 +57,23 @@ export function calculateFeeAmount(amount: number, feePercent: number): number {
 }
 
 export function getDateRange(period: string): { startDate: string; endDate: string } {
-  const now = new Date()
-  const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+  const today = new Date()
   
   switch (period) {
     case "today":
       return {
-        startDate: format(todayUTC, "yyyy-MM-dd"),
-        endDate: format(todayUTC, "yyyy-MM-dd"),
+        startDate: format(today, "yyyy-MM-dd"),
+        endDate: format(today, "yyyy-MM-dd"),
       }
     case "week":
       return {
-        startDate: format(subDays(todayUTC, 7), "yyyy-MM-dd"),
-        endDate: format(todayUTC, "yyyy-MM-dd"),
+        startDate: format(subDays(today, 7), "yyyy-MM-dd"),
+        endDate: format(today, "yyyy-MM-dd"),
       }
     case "month":
       return {
-        startDate: format(startOfMonth(todayUTC), "yyyy-MM-dd"),
-        endDate: format(todayUTC, "yyyy-MM-dd"),
+        startDate: format(startOfMonth(today), "yyyy-MM-dd"),
+        endDate: format(today, "yyyy-MM-dd"),
       }
     default:
       return { startDate: "", endDate: "" }

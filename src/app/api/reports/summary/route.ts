@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         COALESCE(SUM(total), 0) as "totalRevenue",
         COALESCE(SUM("totalFees"), 0) as "totalFees"
       FROM "Sale"
-      WHERE status = 'COMPLETED'
+      WHERE status != 'CANCELLED'
         AND "createdAt" >= ${startDate}
         AND "createdAt" <= ${endDate}
     `
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       SELECT COALESCE(SUM(si."costPrice" * si.quantity), 0) as "totalCost"
       FROM "SaleItem" si
       JOIN "Sale" s ON s.id = si."saleId"
-      WHERE s.status = 'COMPLETED'
+      WHERE s.status != 'CANCELLED'
         AND s."createdAt" >= ${startDate}
         AND s."createdAt" <= ${endDate}
     `

@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const saleItems = await prisma.saleItem.findMany({
       where: {
         sale: {
-          status: "COMPLETED",
+          status: { not: "CANCELLED" },
           createdAt: {
             gte: startDate,
             lte: endDate,
