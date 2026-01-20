@@ -19,7 +19,9 @@ import { useClients, useDeleteClient } from "@/hooks/use-clients"
 import { useFilters } from "@/hooks/use-filters"
 import { ClientForm } from "./client-form"
 import { Client } from "@/types"
-import { formatPercent } from "@/lib/utils"
+import { formatPercent, formatCurrency } from "@/lib/utils"
+
+type ClientWithDebt = Client & { totalDebt?: number }
 
 const discountOptions = [
   { value: "all", label: "Todos" },
@@ -135,15 +137,16 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
     <div className="space-y-4">
       {filtersBar}
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Telefone</TableHead>
-            <TableHead>Endereço</TableHead>
-            <TableHead className="text-center">Desconto</TableHead>
-            <TableHead className="text-right">Ações</TableHead>
-          </TableRow>
-        </TableHeader>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Telefone</TableHead>
+                    <TableHead>Endereço</TableHead>
+                    <TableHead className="text-center">Desconto</TableHead>
+                    <TableHead className="text-right">Devendo</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
         <TableBody>
           {filteredClients.map((client) => (
             <TableRow key={client.id}>
@@ -152,16 +155,25 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
               <TableCell className="max-w-[200px] truncate">
                 {client.address}
               </TableCell>
-              <TableCell className="text-center">
-                {Number(client.discount) > 0 ? (
-                  <Badge variant="secondary">
-                    {formatPercent(Number(client.discount))}
-                  </Badge>
-                ) : (
-                  <span className="text-muted-foreground">-</span>
-                )}
-              </TableCell>
-              <TableCell className="text-right">
+                            <TableCell className="text-center">
+                              {Number(client.discount) > 0 ? (
+                                <Badge variant="secondary">
+                                  {formatPercent(Number(client.discount))}
+                                </Badge>
+                              ) : (
+                                <span className="text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {(client as ClientWithDebt).totalDebt && (client as ClientWithDebt).totalDebt! > 0 ? (
+                                <span className="text-amber-600 font-medium">
+                                  {formatCurrency((client as ClientWithDebt).totalDebt!)}
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   {onNewSale && (
                     <Button
