@@ -1,25 +1,26 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { createProductSchema } from "@/schemas/product"
-import { calculateSalePrice } from "@/lib/utils"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
+import { calculateSalePrice } from '@/lib/utils'
+import { createProductSchema } from '@/schemas/product'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get("page") || "1")
-    const limit = parseInt(searchParams.get("limit") || "20")
-    const search = searchParams.get("search") || ""
-    const categoryId = searchParams.get("categoryId")
-    const brandId = searchParams.get("brandId")
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const search = searchParams.get('search') || ''
+    const categoryId = searchParams.get('categoryId')
+    const brandId = searchParams.get('brandId')
 
     const where = {
       deletedAt: null,
       ...(search && {
         OR: [
-          { name: { contains: search, mode: "insensitive" as const } },
-          { code: { contains: search, mode: "insensitive" as const } },
+          { name: { contains: search, mode: 'insensitive' as const } },
+          { code: { contains: search, mode: 'insensitive' as const } },
         ],
       }),
       ...(categoryId && { categoryId }),
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
         include: { category: true, brand: true },
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { name: "asc" },
+        orderBy: { name: 'asc' },
       }),
       prisma.product.count({ where }),
     ])
@@ -47,9 +48,9 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error("Error fetching products:", error)
+    console.error('Error fetching products:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao buscar produtos" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar produtos' } },
       { status: 500 }
     )
   }
@@ -64,8 +65,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Dados inválidos",
+            code: 'VALIDATION_ERROR',
+            message: 'Dados inválidos',
             details: validation.error.flatten().fieldErrors,
           },
         },
@@ -88,9 +89,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(product, { status: 201 })
   } catch (error) {
-    console.error("Error creating product:", error)
+    console.error('Error creating product:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao criar produto" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao criar produto' } },
       { status: 500 }
     )
   }

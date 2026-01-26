@@ -1,19 +1,20 @@
-import { NextRequest, NextResponse } from "next/server"
-import { receivableService } from "@/services/receivable.service"
-import { cache, CACHE_TTL, CACHE_KEYS } from "@/lib/cache"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { cache, CACHE_TTL, CACHE_KEYS } from '@/lib/cache'
+import { receivableService } from '@/services/receivable.service'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    
-    const startDate = searchParams.get("startDate")
-    const endDate = searchParams.get("endDate")
+
+    const startDate = searchParams.get('startDate')
+    const endDate = searchParams.get('endDate')
 
     // Build cache key based on filters
     const cacheKey = `${CACHE_KEYS.RECEIVABLES_SUMMARY}:${startDate || 'all'}:${endDate || 'all'}`
-    
+
     // Check cache first
     const cached = cache.get(cacheKey)
     if (cached) {
@@ -30,11 +31,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error: unknown) {
-    console.error("Error fetching receivables summary:", error)
-    const message = error instanceof Error ? error.message : "Erro ao buscar resumo"
-    return NextResponse.json(
-      { error: message },
-      { status: 400 }
-    )
+    console.error('Error fetching receivables summary:', error)
+    const message = error instanceof Error ? error.message : 'Erro ao buscar resumo'
+    return NextResponse.json({ error: message }, { status: 400 })
   }
 }

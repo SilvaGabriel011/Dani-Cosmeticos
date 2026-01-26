@@ -1,23 +1,24 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { updateSettingsSchema } from "@/schemas/settings"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
+import { updateSettingsSchema } from '@/schemas/settings'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
     let settings = await prisma.settings.findUnique({
-      where: { id: "default" },
+      where: { id: 'default' },
     })
 
     if (!settings) {
       settings = await prisma.settings.create({
         data: {
-          id: "default",
+          id: 'default',
           debitFeePercent: 1.5,
           creditFeePercent: 3.0,
           creditInstallmentFee: 4.0,
-          defaultFeeAbsorber: "SELLER",
+          defaultFeeAbsorber: 'SELLER',
           lowStockAlertEnabled: true,
         },
       })
@@ -25,9 +26,9 @@ export async function GET() {
 
     return NextResponse.json(settings)
   } catch (error) {
-    console.error("Error fetching settings:", error)
+    console.error('Error fetching settings:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao buscar configurações" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar configurações' } },
       { status: 500 }
     )
   }
@@ -42,8 +43,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json(
         {
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Dados inválidos",
+            code: 'VALIDATION_ERROR',
+            message: 'Dados inválidos',
             details: validation.error.flatten().fieldErrors,
           },
         },
@@ -52,19 +53,19 @@ export async function PATCH(request: NextRequest) {
     }
 
     const settings = await prisma.settings.upsert({
-      where: { id: "default" },
+      where: { id: 'default' },
       update: validation.data,
       create: {
-        id: "default",
+        id: 'default',
         ...validation.data,
       },
     })
 
     return NextResponse.json(settings)
   } catch (error) {
-    console.error("Error updating settings:", error)
+    console.error('Error updating settings:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao atualizar configurações" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao atualizar configurações' } },
       { status: 500 }
     )
   }

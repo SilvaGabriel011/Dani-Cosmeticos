@@ -1,11 +1,30 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from "recharts"
-import { TrendingUp, TrendingDown, DollarSign, Calendar, Target, Activity } from "lucide-react"
+import { TrendingUp, TrendingDown, DollarSign, Target, Activity } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Area,
+  AreaChart,
+} from 'recharts'
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface MesData {
   mes: string
@@ -29,7 +48,7 @@ export function DesempenhoMensal() {
         const data = await response.json()
         setDados(data)
       } catch (error) {
-        console.error("Erro ao buscar dados:", error)
+        console.error('Erro ao buscar dados:', error)
       } finally {
         setLoading(false)
       }
@@ -48,9 +67,7 @@ export function DesempenhoMensal() {
             <Activity className="h-5 w-5" />
             Desempenho Mensal
           </CardTitle>
-          <CardDescription>
-            Análise de performance mensal do ano
-          </CardDescription>
+          <CardDescription>Análise de performance mensal do ano</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -66,14 +83,14 @@ export function DesempenhoMensal() {
     )
   }
 
-  const chartData = dados.map(mes => ({
+  const chartData = dados.map((mes) => ({
     name: mes.mes,
     vendas: mes.total,
     meta: mes.meta,
     ticket: mes.ticketMedio,
   }))
 
-  const chartDataVariacao = dados.map(mes => ({
+  const chartDataVariacao = dados.map((mes) => ({
     name: mes.mes,
     variacao: mes.variacao,
   }))
@@ -83,16 +100,14 @@ export function DesempenhoMensal() {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">Desempenho Mensal</h3>
-          <p className="text-sm text-muted-foreground">
-            Análise completa de performance por mês
-          </p>
+          <p className="text-sm text-muted-foreground">Análise completa de performance por mês</p>
         </div>
         <Select value={anoSelecionado} onValueChange={setAnoSelecionado}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Selecione o ano" />
           </SelectTrigger>
           <SelectContent>
-            {anos.map(ano => (
+            {anos.map((ano) => (
               <SelectItem key={ano} value={ano}>
                 {ano}
               </SelectItem>
@@ -105,9 +120,7 @@ export function DesempenhoMensal() {
         <Card>
           <CardHeader>
             <CardTitle>Vendas x Meta</CardTitle>
-            <CardDescription>
-              Comparativo entre vendas realizadas e metas mensais
-            </CardDescription>
+            <CardDescription>Comparativo entre vendas realizadas e metas mensais</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -115,12 +128,14 @@ export function DesempenhoMensal() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip 
-                  formatter={(value: number | undefined) => 
-                    value ? value.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    }) : "R$ 0,00"
+                <Tooltip
+                  formatter={(value: number | undefined) =>
+                    value
+                      ? value.toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        })
+                      : 'R$ 0,00'
                   }
                 />
                 <Bar dataKey="vendas" fill="#8884d8" name="Vendas" />
@@ -133,9 +148,7 @@ export function DesempenhoMensal() {
         <Card>
           <CardHeader>
             <CardTitle>Variação Mensal</CardTitle>
-            <CardDescription>
-              Percentual de crescimento ou queda mês a mês
-            </CardDescription>
+            <CardDescription>Percentual de crescimento ou queda mês a mês</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -143,15 +156,18 @@ export function DesempenhoMensal() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip 
-                  formatter={(value: number | undefined) => [value ? `${value.toFixed(1)}%` : "0%", "Variação"]}
+                <Tooltip
+                  formatter={(value: number | undefined) => [
+                    value ? `${value.toFixed(1)}%` : '0%',
+                    'Variação',
+                  ]}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="variacao" 
-                  stroke="#8884d8" 
+                <Line
+                  type="monotone"
+                  dataKey="variacao"
+                  stroke="#8884d8"
                   strokeWidth={2}
-                  dot={{ fill: "#8884d8" }}
+                  dot={{ fill: '#8884d8' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -162,9 +178,7 @@ export function DesempenhoMensal() {
       <Card>
         <CardHeader>
           <CardTitle>Evolução do Ticket Médio</CardTitle>
-          <CardDescription>
-            Valor médio por venda ao longo do ano
-          </CardDescription>
+          <CardDescription>Valor médio por venda ao longo do ano</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -172,22 +186,30 @@ export function DesempenhoMensal() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip 
-                formatter={(value: number | undefined) => 
-                  value ? value.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }) : "R$ 0,00"
+              <Tooltip
+                formatter={(value: number | undefined) =>
+                  value
+                    ? value.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })
+                    : 'R$ 0,00'
                 }
               />
-              <Area type="monotone" dataKey="ticket" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+              <Area
+                type="monotone"
+                dataKey="ticket"
+                stroke="#8884d8"
+                fill="#8884d8"
+                fillOpacity={0.6}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {dados.map((mes, index) => (
+        {dados.map((mes) => (
           <Card key={mes.mes}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{mes.mes}</CardTitle>
@@ -197,8 +219,10 @@ export function DesempenhoMensal() {
                 ) : mes.variacao < 0 ? (
                   <TrendingDown className="h-4 w-4 text-red-600" />
                 ) : null}
-                <span className={`text-xs ${mes.variacao > 0 ? "text-green-600" : mes.variacao < 0 ? "text-red-600" : ""}`}>
-                  {mes.variacao > 0 ? "+" : ""}
+                <span
+                  className={`text-xs ${mes.variacao > 0 ? 'text-green-600' : mes.variacao < 0 ? 'text-red-600' : ''}`}
+                >
+                  {mes.variacao > 0 ? '+' : ''}
                   {mes.variacao.toFixed(1)}%
                 </span>
               </div>
@@ -208,9 +232,9 @@ export function DesempenhoMensal() {
                 <div>
                   <p className="text-xs text-muted-foreground">Vendas</p>
                   <p className="text-lg font-bold">
-                    {mes.total.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
+                    {mes.total.toLocaleString('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
                     })}
                   </p>
                 </div>
@@ -219,10 +243,13 @@ export function DesempenhoMensal() {
                   <span>{(mes.atingimentoMeta * 100).toFixed(0)}%</span>
                 </div>
                 <div className="w-full bg-secondary rounded-full h-2">
-                  <div 
+                  <div
                     className={`h-2 rounded-full ${
-                      mes.atingimentoMeta >= 1 ? "bg-green-600" : 
-                      mes.atingimentoMeta >= 0.8 ? "bg-yellow-600" : "bg-red-600"
+                      mes.atingimentoMeta >= 1
+                        ? 'bg-green-600'
+                        : mes.atingimentoMeta >= 0.8
+                          ? 'bg-yellow-600'
+                          : 'bg-red-600'
                     }`}
                     style={{ width: `${Math.min(mes.atingimentoMeta * 100, 100)}%` }}
                   />
@@ -241,13 +268,15 @@ export function DesempenhoMensal() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dados.length > 0 ? Math.max(...dados.map(d => d.total)).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }) : "-"}
+              {dados.length > 0
+                ? Math.max(...dados.map((d) => d.total)).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  })
+                : '-'}
             </div>
             <p className="text-xs text-muted-foreground">
-              {dados.find(d => d.total === Math.max(...dados.map(d => d.total)))?.mes || "-"}
+              {dados.find((d) => d.total === Math.max(...dados.map((d) => d.total)))?.mes || '-'}
             </p>
           </CardContent>
         </Card>
@@ -259,14 +288,17 @@ export function DesempenhoMensal() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dados.length > 0 ? (dados.reduce((sum, d) => sum + d.total, 0) / dados.length).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }) : "-"}
+              {dados.length > 0
+                ? (dados.reduce((sum, d) => sum + d.total, 0) / dados.length).toLocaleString(
+                    'pt-BR',
+                    {
+                      style: 'currency',
+                      currency: 'BRL',
+                    }
+                  )
+                : '-'}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Média de vendas por mês
-            </p>
+            <p className="text-xs text-muted-foreground">Média de vendas por mês</p>
           </CardContent>
         </Card>
 
@@ -277,11 +309,15 @@ export function DesempenhoMensal() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dados.length > 0 ? (dados.reduce((sum, d) => sum + d.atingimentoMeta, 0) / dados.length * 100).toFixed(0) : 0}%
+              {dados.length > 0
+                ? (
+                    (dados.reduce((sum, d) => sum + d.atingimentoMeta, 0) / dados.length) *
+                    100
+                  ).toFixed(0)
+                : 0}
+              %
             </div>
-            <p className="text-xs text-muted-foreground">
-              Média de atingimento de meta
-            </p>
+            <p className="text-xs text-muted-foreground">Média de atingimento de meta</p>
           </CardContent>
         </Card>
       </div>

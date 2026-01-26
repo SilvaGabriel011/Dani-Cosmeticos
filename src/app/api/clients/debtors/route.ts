@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { cache, CACHE_TTL } from "@/lib/cache"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { cache, CACHE_TTL } from '@/lib/cache'
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,27 +20,29 @@ interface DebtorSummary {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const search = searchParams.get("search") || ""
-    const sortBy = searchParams.get("sortBy") || "totalDebt"
+    const search = searchParams.get('search') || ''
+    const sortBy = searchParams.get('sortBy') || 'totalDebt'
 
     // Build cache key
     const cacheKey = `debtors:${search}:${sortBy}`
     const cached = cache.get(cacheKey)
-    if (cached && !search) { // Only use cache for non-search queries
+    if (cached && !search) {
+      // Only use cache for non-search queries
       return NextResponse.json(cached)
     }
 
     // Use SQL aggregation to calculate totals in database
-    const searchFilter = search 
+    const searchFilter = search
       ? `AND (c."name" ILIKE '%${search.replace(/'/g, "''")}%' OR c."phone" ILIKE '%${search.replace(/'/g, "''")}%')`
       : ''
 
-    const orderByClause = {
-      totalDebt: 'ORDER BY total_debt_num DESC',
-      overdueAmount: 'ORDER BY overdue_amount_num DESC',
-      oldestDueDate: 'ORDER BY "oldestDueDate" ASC NULLS LAST',
-      name: 'ORDER BY "clientName" ASC',
-    }[sortBy] || 'ORDER BY total_debt_num DESC'
+    const orderByClause =
+      {
+        totalDebt: 'ORDER BY total_debt_num DESC',
+        overdueAmount: 'ORDER BY overdue_amount_num DESC',
+        oldestDueDate: 'ORDER BY "oldestDueDate" ASC NULLS LAST',
+        name: 'ORDER BY "clientName" ASC',
+      }[sortBy] || 'ORDER BY total_debt_num DESC'
 
     // Single optimized query with aggregations
     // Note: We calculate numeric values for sorting, then cast to text for output
@@ -68,47 +71,50 @@ export async function GET(request: NextRequest) {
     `)
 
     // Get client IDs for detailed data fetch
-    const clientIds = debtorsSummary.map(d => d.clientId)
+    const clientIds = debtorsSummary.map((d) => d.clientId)
 
     // Fetch sales details only for clients in the summary (batch query)
-    const salesDetails = clientIds.length > 0 ? await prisma.sale.findMany({
-      where: {
-        clientId: { in: clientIds },
-        status: "PENDING",
-      },
-      select: {
-        id: true,
-        clientId: true,
-        createdAt: true,
-        total: true,
-        items: {
-          select: {
-            id: true,
-            quantity: true,
-            unitPrice: true,
-            total: true,
-            product: { select: { id: true, name: true, code: true } }
-          }
-        },
-        receivables: {
-          where: { status: { in: ["PENDING", "PARTIAL"] } },
-          select: {
-            id: true,
-            installment: true,
-            amount: true,
-            paidAmount: true,
-            dueDate: true,
-            status: true,
-          },
-          orderBy: { dueDate: "asc" }
-        }
-      },
-      orderBy: { createdAt: "desc" }
-    }) : []
+    const salesDetails =
+      clientIds.length > 0
+        ? await prisma.sale.findMany({
+            where: {
+              clientId: { in: clientIds },
+              status: 'PENDING',
+            },
+            select: {
+              id: true,
+              clientId: true,
+              createdAt: true,
+              total: true,
+              items: {
+                select: {
+                  id: true,
+                  quantity: true,
+                  unitPrice: true,
+                  total: true,
+                  product: { select: { id: true, name: true, code: true } },
+                },
+              },
+              receivables: {
+                where: { status: { in: ['PENDING', 'PARTIAL'] } },
+                select: {
+                  id: true,
+                  installment: true,
+                  amount: true,
+                  paidAmount: true,
+                  dueDate: true,
+                  status: true,
+                },
+                orderBy: { dueDate: 'asc' },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          })
+        : []
 
     // Group sales by client
     const salesByClient = new Map<string, typeof salesDetails>()
-    salesDetails.forEach(sale => {
+    salesDetails.forEach((sale) => {
       const clientId = sale.clientId!
       if (!salesByClient.has(clientId)) {
         salesByClient.set(clientId, [])
@@ -117,7 +123,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Build final result
-    const result = debtorsSummary.map(debtor => ({
+    const result = debtorsSummary.map((debtor) => ({
       client: {
         id: debtor.clientId,
         name: debtor.clientName,
@@ -125,11 +131,11 @@ export async function GET(request: NextRequest) {
         address: debtor.clientAddress,
         discount: debtor.clientDiscount,
       },
-      sales: (salesByClient.get(debtor.clientId) || []).map(sale => ({
+      sales: (salesByClient.get(debtor.clientId) || []).map((sale) => ({
         id: sale.id,
         createdAt: sale.createdAt,
         total: sale.total,
-        items: sale.items.map(item => ({
+        items: sale.items.map((item) => ({
           id: item.id,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
@@ -152,9 +158,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error("Error fetching debtors:", error)
+    console.error('Error fetching debtors:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao buscar devedores" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar devedores' } },
       { status: 500 }
     )
   }

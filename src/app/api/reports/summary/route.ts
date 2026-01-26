@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { startOfDay, endOfDay, parseISO } from "date-fns"
+import { startOfDay, endOfDay, parseISO } from 'date-fns'
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,15 +18,13 @@ interface CostSummary {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const startDateParam = searchParams.get("startDate")
-    const endDateParam = searchParams.get("endDate")
+    const startDateParam = searchParams.get('startDate')
+    const endDateParam = searchParams.get('endDate')
 
     const startDate = startDateParam
       ? startOfDay(parseISO(startDateParam))
       : startOfDay(new Date(new Date().setDate(1)))
-    const endDate = endDateParam
-      ? endOfDay(parseISO(endDateParam))
-      : endOfDay(new Date())
+    const endDate = endDateParam ? endOfDay(parseISO(endDateParam)) : endOfDay(new Date())
 
     // Usar agregacoes SQL nativas para melhor performance
     const [saleSummary] = await prisma.$queryRaw<SaleSummary[]>`
@@ -71,10 +70,7 @@ export async function GET(request: NextRequest) {
       profitMargin: totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0,
     })
   } catch (error) {
-    console.error("Error fetching report summary:", error)
-    return NextResponse.json(
-      { error: "Erro ao gerar relatório" },
-      { status: 500 }
-    )
+    console.error('Error fetching report summary:', error)
+    return NextResponse.json({ error: 'Erro ao gerar relatório' }, { status: 500 })
   }
 }

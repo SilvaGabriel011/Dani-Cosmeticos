@@ -1,13 +1,11 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { rescheduleSaleSchema } from "@/schemas/sale"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
+import { rescheduleSaleSchema } from '@/schemas/sale'
 
 export const dynamic = 'force-dynamic'
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params
     const body = await request.json()
@@ -17,8 +15,8 @@ export async function PATCH(
       return NextResponse.json(
         {
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Dados inválidos",
+            code: 'VALIDATION_ERROR',
+            message: 'Dados inválidos',
             details: validation.error.flatten().fieldErrors,
           },
         },
@@ -33,29 +31,29 @@ export async function PATCH(
       where: { id },
       include: {
         receivables: {
-          where: { status: { in: ["PENDING", "PARTIAL"] } },
-          orderBy: { installment: "asc" },
+          where: { status: { in: ['PENDING', 'PARTIAL'] } },
+          orderBy: { installment: 'asc' },
         },
       },
     })
 
     if (!sale) {
       return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Venda não encontrada" } },
+        { error: { code: 'NOT_FOUND', message: 'Venda não encontrada' } },
         { status: 404 }
       )
     }
 
-    if (sale.status === "CANCELLED") {
+    if (sale.status === 'CANCELLED') {
       return NextResponse.json(
-        { error: { code: "INVALID_STATUS", message: "Não é possível reagendar venda cancelada" } },
+        { error: { code: 'INVALID_STATUS', message: 'Não é possível reagendar venda cancelada' } },
         { status: 400 }
       )
     }
 
     if (sale.receivables.length === 0) {
       return NextResponse.json(
-        { error: { code: "NO_RECEIVABLES", message: "Não há parcelas pendentes para reagendar" } },
+        { error: { code: 'NO_RECEIVABLES', message: 'Não há parcelas pendentes para reagendar' } },
         { status: 400 }
       )
     }
@@ -103,7 +101,7 @@ export async function PATCH(
         include: {
           client: true,
           items: { include: { product: true } },
-          receivables: { orderBy: { installment: "asc" } },
+          receivables: { orderBy: { installment: 'asc' } },
           payments: true,
         },
       })
@@ -116,9 +114,9 @@ export async function PATCH(
       rescheduledCount: sale.receivables.length,
     })
   } catch (error) {
-    console.error("Error rescheduling sale:", error)
+    console.error('Error rescheduling sale:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao reagendar parcelas" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao reagendar parcelas' } },
       { status: 500 }
     )
   }

@@ -1,14 +1,15 @@
-import { NextRequest, NextResponse } from "next/server"
-import { receivableService } from "@/services/receivable.service"
-import { cache, CACHE_KEYS } from "@/lib/cache"
-import { z } from "zod"
+import { type NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+
+import { cache, CACHE_KEYS } from '@/lib/cache'
+import { receivableService } from '@/services/receivable.service'
 
 export const dynamic = 'force-dynamic'
 
 const paySaleSchema = z.object({
   saleId: z.string().uuid(),
   amount: z.number().positive(),
-  paymentMethod: z.enum(["CASH", "PIX", "DEBIT", "CREDIT"]).default("CASH"),
+  paymentMethod: z.enum(['CASH', 'PIX', 'DEBIT', 'CREDIT']).default('CASH'),
   paidAt: z.string().datetime().optional(),
 })
 
@@ -30,11 +31,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error: unknown) {
-    console.error("Error registering payment:", error)
-    const message = error instanceof Error ? error.message : "Erro ao registrar pagamento"
-    return NextResponse.json(
-      { error: message },
-      { status: 400 }
-    )
+    console.error('Error registering payment:', error)
+    const message = error instanceof Error ? error.message : 'Erro ao registrar pagamento'
+    return NextResponse.json({ error: message }, { status: 400 })
   }
 }

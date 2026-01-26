@@ -1,16 +1,10 @@
-"use client"
+'use client'
 
-import {
-  PieChart as RechartsPie,
-  Pie,
-  Cell,
-  Legend,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts"
-import { CHART_COLORS } from "@/lib/chart-colors"
-import { formatCurrency } from "@/lib/utils"
-import { useChartContext } from "@/components/ui/chart-container"
+import { PieChart as RechartsPie, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts'
+
+import { useChartContext } from '@/components/ui/chart-container'
+import { CHART_COLORS } from '@/lib/chart-colors'
+import { formatCurrency } from '@/lib/utils'
 
 interface PieChartData {
   name: string
@@ -59,26 +53,19 @@ export function PieChart({
           cy="50%"
           innerRadius={donut ? 60 : 0}
           outerRadius={80}
-          label={
-            showValues
-              ? ({ value }) => valueFormatter(Number(value))
-              : undefined
-          }
+          label={showValues ? ({ value }) => valueFormatter(Number(value)) : undefined}
           labelLine={showValues}
         >
           {data.map((entry, i) => (
-            <Cell
-              key={`cell-${i}`}
-              fill={entry.color || CHART_COLORS[i % CHART_COLORS.length]}
-            />
+            <Cell key={`cell-${i}`} fill={entry.color || CHART_COLORS[i % CHART_COLORS.length]} />
           ))}
         </Pie>
         <Tooltip
           formatter={(value) => valueFormatter(Number(value))}
           contentStyle={{
-            backgroundColor: "hsl(var(--popover))",
-            border: "1px solid hsl(var(--border))",
-            borderRadius: "6px",
+            backgroundColor: 'hsl(var(--popover))',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '6px',
           }}
         />
         {showLegend && <Legend />}

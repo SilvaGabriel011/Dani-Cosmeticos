@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
@@ -27,10 +28,7 @@ export async function GET() {
 
     return NextResponse.json(topClientes)
   } catch (error) {
-    console.error("Erro ao buscar top clientes:", error)
-    return NextResponse.json(
-      { error: "Erro ao buscar dados" },
-      { status: 500 }
-    )
+    console.error('Erro ao buscar top clientes:', error)
+    return NextResponse.json({ error: 'Erro ao buscar dados' }, { status: 500 })
   }
 }

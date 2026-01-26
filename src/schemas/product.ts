@@ -1,14 +1,14 @@
-import { z } from "zod"
+import { z } from 'zod'
 
 export const createProductSchema = z.object({
   code: z.string().optional(),
-  name: z.string().min(1, "Nome é obrigatório"),
+  name: z.string().min(1, 'Nome é obrigatório'),
   categoryId: z.string().uuid().optional().nullable(),
   brandId: z.string().uuid().optional().nullable(),
-  costPrice: z.number().positive("Custo deve ser positivo"),
-  profitMargin: z.number().min(0, "Margem não pode ser negativa"),
-  stock: z.number().int().min(0, "Estoque não pode ser negativo"),
-  minStock: z.number().int().min(0, "Estoque mínimo não pode ser negativo"),
+  costPrice: z.number().positive('Custo deve ser positivo'),
+  profitMargin: z.number().min(0, 'Margem não pode ser negativa'),
+  stock: z.number().int().min(0, 'Estoque não pode ser negativo'),
+  minStock: z.number().int().min(0, 'Estoque mínimo não pode ser negativo'),
 })
 
 export const updateProductSchema = createProductSchema.partial()

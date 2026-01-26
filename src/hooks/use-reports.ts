@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useQuery } from '@tanstack/react-query'
 
 interface ReportFilters {
   startDate?: string
@@ -66,22 +66,24 @@ interface CollectionReport {
     previousPeriod: { startDate: string; endDate: string }
     previousCollection: number
     change: number
-    trend: "up" | "down" | "stable"
+    trend: 'up' | 'down' | 'stable'
   }
 }
 
-export function useCollection(filters: ReportFilters & { period?: string; enabled?: boolean } = {}) {
+export function useCollection(
+  filters: ReportFilters & { period?: string; enabled?: boolean } = {}
+) {
   const { enabled = true, period, ...restFilters } = filters
   const params = new URLSearchParams()
-  if (period) params.append("period", period)
-  if (restFilters.startDate) params.append("startDate", restFilters.startDate)
-  if (restFilters.endDate) params.append("endDate", restFilters.endDate)
+  if (period) params.append('period', period)
+  if (restFilters.startDate) params.append('startDate', restFilters.startDate)
+  if (restFilters.endDate) params.append('endDate', restFilters.endDate)
 
   return useQuery<CollectionReport>({
-    queryKey: ["reports", "collection", { period, ...restFilters }],
+    queryKey: ['reports', 'collection', { period, ...restFilters }],
     queryFn: async () => {
       const res = await fetch(`/api/reports/collection?${params}`)
-      if (!res.ok) throw new Error("Erro ao carregar arrecadação")
+      if (!res.ok) throw new Error('Erro ao carregar arrecadação')
       return res.json()
     },
     enabled,
@@ -92,14 +94,14 @@ export function useCollection(filters: ReportFilters & { period?: string; enable
 
 export function useReportSummary(filters: ReportFilters = {}) {
   const params = new URLSearchParams()
-  if (filters.startDate) params.append("startDate", filters.startDate)
-  if (filters.endDate) params.append("endDate", filters.endDate)
+  if (filters.startDate) params.append('startDate', filters.startDate)
+  if (filters.endDate) params.append('endDate', filters.endDate)
 
   return useQuery<ReportSummary>({
-    queryKey: ["reports", "summary", filters],
+    queryKey: ['reports', 'summary', filters],
     queryFn: async () => {
       const res = await fetch(`/api/reports/summary?${params}`)
-      if (!res.ok) throw new Error("Erro ao carregar resumo")
+      if (!res.ok) throw new Error('Erro ao carregar resumo')
       return res.json()
     },
     staleTime: 5 * 60 * 1000, // 5 minutos - relatórios são dados históricos
@@ -107,18 +109,20 @@ export function useReportSummary(filters: ReportFilters = {}) {
   })
 }
 
-export function useReportByProduct(filters: ReportFilters & { limit?: number; enabled?: boolean } = {}) {
+export function useReportByProduct(
+  filters: ReportFilters & { limit?: number; enabled?: boolean } = {}
+) {
   const { enabled = true, ...restFilters } = filters
   const params = new URLSearchParams()
-  if (restFilters.startDate) params.append("startDate", restFilters.startDate)
-  if (restFilters.endDate) params.append("endDate", restFilters.endDate)
-  if (restFilters.limit) params.append("limit", restFilters.limit.toString())
+  if (restFilters.startDate) params.append('startDate', restFilters.startDate)
+  if (restFilters.endDate) params.append('endDate', restFilters.endDate)
+  if (restFilters.limit) params.append('limit', restFilters.limit.toString())
 
   return useQuery<ProductsReportResponse>({
-    queryKey: ["reports", "by-product", restFilters],
+    queryKey: ['reports', 'by-product', restFilters],
     queryFn: async () => {
       const res = await fetch(`/api/reports/by-product?${params}`)
-      if (!res.ok) throw new Error("Erro ao carregar relatório por produto")
+      if (!res.ok) throw new Error('Erro ao carregar relatório por produto')
       return res.json()
     },
     enabled,
@@ -130,14 +134,14 @@ export function useReportByProduct(filters: ReportFilters & { limit?: number; en
 export function useReportByPayment(filters: ReportFilters & { enabled?: boolean } = {}) {
   const { enabled = true, ...restFilters } = filters
   const params = new URLSearchParams()
-  if (restFilters.startDate) params.append("startDate", restFilters.startDate)
-  if (restFilters.endDate) params.append("endDate", restFilters.endDate)
+  if (restFilters.startDate) params.append('startDate', restFilters.startDate)
+  if (restFilters.endDate) params.append('endDate', restFilters.endDate)
 
   return useQuery<PaymentsReportResponse>({
-    queryKey: ["reports", "by-payment", restFilters],
+    queryKey: ['reports', 'by-payment', restFilters],
     queryFn: async () => {
       const res = await fetch(`/api/reports/by-payment?${params}`)
-      if (!res.ok) throw new Error("Erro ao carregar relatório por pagamento")
+      if (!res.ok) throw new Error('Erro ao carregar relatório por pagamento')
       return res.json()
     },
     enabled,
@@ -155,18 +159,20 @@ interface TopClientReport {
   ultimaCompra: string
 }
 
-export function useTopClientes(filters: ReportFilters & { limit?: number; enabled?: boolean } = {}) {
+export function useTopClientes(
+  filters: ReportFilters & { limit?: number; enabled?: boolean } = {}
+) {
   const { enabled = true, limit = 10, ...restFilters } = filters
   const params = new URLSearchParams()
-  if (restFilters.startDate) params.append("startDate", restFilters.startDate)
-  if (restFilters.endDate) params.append("endDate", restFilters.endDate)
-  if (limit) params.append("limit", limit.toString())
+  if (restFilters.startDate) params.append('startDate', restFilters.startDate)
+  if (restFilters.endDate) params.append('endDate', restFilters.endDate)
+  if (limit) params.append('limit', limit.toString())
 
   return useQuery<TopClientReport[]>({
-    queryKey: ["reports", "top-clientes", { ...restFilters, limit }],
+    queryKey: ['reports', 'top-clientes', { ...restFilters, limit }],
     queryFn: async () => {
       const res = await fetch(`/api/reports/top-clientes?${params}`)
-      if (!res.ok) throw new Error("Erro ao carregar top clientes")
+      if (!res.ok) throw new Error('Erro ao carregar top clientes')
       return res.json()
     },
     enabled,

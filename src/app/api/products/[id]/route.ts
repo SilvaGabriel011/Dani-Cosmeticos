@@ -1,14 +1,12 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { updateProductSchema } from "@/schemas/product"
-import { calculateSalePrice } from "@/lib/utils"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
+import { calculateSalePrice } from '@/lib/utils'
+import { updateProductSchema } from '@/schemas/product'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const product = await prisma.product.findFirst({
       where: { id: params.id, deletedAt: null },
@@ -17,25 +15,22 @@ export async function GET(
 
     if (!product) {
       return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Produto não encontrado" } },
+        { error: { code: 'NOT_FOUND', message: 'Produto não encontrado' } },
         { status: 404 }
       )
     }
 
     return NextResponse.json(product)
   } catch (error) {
-    console.error("Error fetching product:", error)
+    console.error('Error fetching product:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao buscar produto" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar produto' } },
       { status: 500 }
     )
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await request.json()
     const validation = updateProductSchema.safeParse(body)
@@ -44,8 +39,8 @@ export async function PATCH(
       return NextResponse.json(
         {
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Dados inválidos",
+            code: 'VALIDATION_ERROR',
+            message: 'Dados inválidos',
             details: validation.error.flatten().fieldErrors,
           },
         },
@@ -59,7 +54,7 @@ export async function PATCH(
 
     if (!existing) {
       return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Produto não encontrado" } },
+        { error: { code: 'NOT_FOUND', message: 'Produto não encontrado' } },
         { status: 404 }
       )
     }
@@ -82,18 +77,15 @@ export async function PATCH(
 
     return NextResponse.json(product)
   } catch (error) {
-    console.error("Error updating product:", error)
+    console.error('Error updating product:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao atualizar produto" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao atualizar produto' } },
       { status: 500 }
     )
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const existing = await prisma.product.findFirst({
       where: { id: params.id, deletedAt: null },
@@ -101,7 +93,7 @@ export async function DELETE(
 
     if (!existing) {
       return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Produto não encontrado" } },
+        { error: { code: 'NOT_FOUND', message: 'Produto não encontrado' } },
         { status: 404 }
       )
     }
@@ -113,9 +105,9 @@ export async function DELETE(
 
     return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error("Error deleting product:", error)
+    console.error('Error deleting product:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao excluir produto" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao excluir produto' } },
       { status: 500 }
     )
   }

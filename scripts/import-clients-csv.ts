@@ -1,7 +1,9 @@
-import { prisma } from "../src/lib/prisma"
-import { Decimal } from "@prisma/client/runtime/library"
 import * as fs from "fs"
 import * as path from "path"
+
+import { Decimal } from "@prisma/client/runtime/library"
+
+import { prisma } from "../src/lib/prisma"
 
 interface ClientRow {
   nome: string
@@ -86,7 +88,7 @@ async function importClients() {
   
   const importDate = new Date()
   let created = 0
-  let errors: Array<{ row: number; nome: string; message: string }> = []
+  const errors: Array<{ row: number; nome: string; message: string }> = []
   
   // Group by client name to handle duplicates
   const clientMap = new Map<string, ClientRow[]>()

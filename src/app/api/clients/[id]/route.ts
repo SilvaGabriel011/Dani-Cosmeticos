@@ -1,24 +1,22 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { updateClientSchema } from "@/schemas/client"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
+import { updateClientSchema } from '@/schemas/client'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const client = await prisma.client.findFirst({
       where: { id: params.id, deletedAt: null },
       include: {
         sales: {
-          where: { status: "COMPLETED" },
+          where: { status: 'COMPLETED' },
           include: {
             items: { include: { product: true } },
             payments: true,
           },
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
           take: 10,
         },
       },
@@ -26,25 +24,22 @@ export async function GET(
 
     if (!client) {
       return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Cliente não encontrado" } },
+        { error: { code: 'NOT_FOUND', message: 'Cliente não encontrado' } },
         { status: 404 }
       )
     }
 
     return NextResponse.json(client)
   } catch (error) {
-    console.error("Error fetching client:", error)
+    console.error('Error fetching client:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao buscar cliente" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar cliente' } },
       { status: 500 }
     )
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await request.json()
     const validation = updateClientSchema.safeParse(body)
@@ -53,8 +48,8 @@ export async function PATCH(
       return NextResponse.json(
         {
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Dados inválidos",
+            code: 'VALIDATION_ERROR',
+            message: 'Dados inválidos',
             details: validation.error.flatten().fieldErrors,
           },
         },
@@ -68,7 +63,7 @@ export async function PATCH(
 
     if (!existing) {
       return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Cliente não encontrado" } },
+        { error: { code: 'NOT_FOUND', message: 'Cliente não encontrado' } },
         { status: 404 }
       )
     }
@@ -80,18 +75,15 @@ export async function PATCH(
 
     return NextResponse.json(client)
   } catch (error) {
-    console.error("Error updating client:", error)
+    console.error('Error updating client:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao atualizar cliente" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao atualizar cliente' } },
       { status: 500 }
     )
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const existing = await prisma.client.findFirst({
       where: { id: params.id, deletedAt: null },
@@ -99,7 +91,7 @@ export async function DELETE(
 
     if (!existing) {
       return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Cliente não encontrado" } },
+        { error: { code: 'NOT_FOUND', message: 'Cliente não encontrado' } },
         { status: 404 }
       )
     }
@@ -111,9 +103,9 @@ export async function DELETE(
 
     return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error("Error deleting client:", error)
+    console.error('Error deleting client:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao excluir cliente" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao excluir cliente' } },
       { status: 500 }
     )
   }

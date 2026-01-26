@@ -1,27 +1,26 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { startOfDay, endOfDay, parseISO } from "date-fns"
+import { startOfDay, endOfDay, parseISO } from 'date-fns'
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const startDateParam = searchParams.get("startDate")
-    const endDateParam = searchParams.get("endDate")
-    const limit = parseInt(searchParams.get("limit") || "10")
+    const startDateParam = searchParams.get('startDate')
+    const endDateParam = searchParams.get('endDate')
+    const limit = parseInt(searchParams.get('limit') || '10')
 
     const startDate = startDateParam
       ? startOfDay(parseISO(startDateParam))
       : startOfDay(new Date(new Date().setDate(1)))
-    const endDate = endDateParam
-      ? endOfDay(parseISO(endDateParam))
-      : endOfDay(new Date())
+    const endDate = endDateParam ? endOfDay(parseISO(endDateParam)) : endOfDay(new Date())
 
     const saleItems = await prisma.saleItem.findMany({
       where: {
         sale: {
-          status: { not: "CANCELLED" },
+          status: { not: 'CANCELLED' },
           createdAt: {
             gte: startDate,
             lte: endDate,
@@ -88,10 +87,7 @@ export async function GET(request: NextRequest) {
       products,
     })
   } catch (error) {
-    console.error("Error fetching products report:", error)
-    return NextResponse.json(
-      { error: "Erro ao gerar relatório por produto" },
-      { status: 500 }
-    )
+    console.error('Error fetching products report:', error)
+    return NextResponse.json({ error: 'Erro ao gerar relatório por produto' }, { status: 500 })
   }
 }

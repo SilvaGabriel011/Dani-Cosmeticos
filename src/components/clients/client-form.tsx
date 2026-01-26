@@ -1,22 +1,23 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { useToast } from "@/components/ui/use-toast"
-import { useCreateClient, useUpdateClient } from "@/hooks/use-clients"
-import { createClientSchema, CreateClientInput } from "@/schemas/client"
-import { Client } from "@/types"
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useToast } from '@/components/ui/use-toast'
+import { useCreateClient, useUpdateClient } from '@/hooks/use-clients'
+import { createClientSchema, type CreateClientInput } from '@/schemas/client'
+import { type Client } from '@/types'
 
 interface ClientFormProps {
   open: boolean
@@ -45,9 +46,9 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
           discount: Number(client.discount),
         }
       : {
-          name: "",
-          phone: "",
-          address: "",
+          name: '',
+          phone: '',
+          address: '',
           discount: 0,
         },
   })
@@ -62,9 +63,9 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
       })
     } else {
       reset({
-        name: "",
-        phone: "",
-        address: "",
+        name: '',
+        phone: '',
+        address: '',
         discount: 0,
       })
     }
@@ -74,18 +75,18 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
     try {
       if (isEditing && client) {
         await updateClient.mutateAsync({ id: client.id, data })
-        toast({ title: "Cliente atualizado com sucesso!" })
+        toast({ title: 'Cliente atualizado com sucesso!' })
       } else {
         await createClient.mutateAsync(data)
-        toast({ title: "Cliente criado com sucesso!" })
+        toast({ title: 'Cliente criado com sucesso!' })
       }
       reset()
       onOpenChange(false)
     } catch (error: any) {
       toast({
-        title: "Erro",
+        title: 'Erro',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       })
     }
   }
@@ -94,45 +95,25 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] md:max-w-xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Editar Cliente" : "Novo Cliente"}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? 'Editar Cliente' : 'Novo Cliente'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nome *</Label>
-            <Input
-              id="name"
-              placeholder="Nome completo"
-              {...register("name")}
-            />
-            {errors.name && (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
-            )}
+            <Input id="name" placeholder="Nome completo" {...register('name')} />
+            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone">Telefone</Label>
-            <Input
-              id="phone"
-              placeholder="(00) 00000-0000"
-              {...register("phone")}
-            />
-            {errors.phone && (
-              <p className="text-sm text-destructive">{errors.phone.message}</p>
-            )}
+            <Input id="phone" placeholder="(00) 00000-0000" {...register('phone')} />
+            {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="address">Endereço</Label>
-            <Input
-              id="address"
-              placeholder="Rua, número, bairro"
-              {...register("address")}
-            />
-            {errors.address && (
-              <p className="text-sm text-destructive">{errors.address.message}</p>
-            )}
+            <Input id="address" placeholder="Rua, número, bairro" {...register('address')} />
+            {errors.address && <p className="text-sm text-destructive">{errors.address.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -143,7 +124,7 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
               min="0"
               max="100"
               step="0.1"
-              {...register("discount", { valueAsNumber: true })}
+              {...register('discount', { valueAsNumber: true })}
             />
             {errors.discount && (
               <p className="text-sm text-destructive">{errors.discount.message}</p>
@@ -151,15 +132,11 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Salvando..." : isEditing ? "Atualizar" : "Criar"}
+              {isSubmitting ? 'Salvando...' : isEditing ? 'Atualizar' : 'Criar'}
             </Button>
           </DialogFooter>
         </form>

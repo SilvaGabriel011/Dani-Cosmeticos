@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const brand = await prisma.brand.findUnique({
       where: { id: params.id },
@@ -15,7 +13,7 @@ export async function DELETE(
 
     if (!brand) {
       return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Marca não encontrada" } },
+        { error: { code: 'NOT_FOUND', message: 'Marca não encontrada' } },
         { status: 404 }
       )
     }
@@ -24,7 +22,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error: {
-            code: "CONFLICT",
+            code: 'CONFLICT',
             message: `Não é possível excluir. Existem ${brand._count.products} produto(s) vinculados a esta marca.`,
           },
         },
@@ -38,9 +36,9 @@ export async function DELETE(
 
     return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error("Error deleting brand:", error)
+    console.error('Error deleting brand:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao excluir marca" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao excluir marca' } },
       { status: 500 }
     )
   }

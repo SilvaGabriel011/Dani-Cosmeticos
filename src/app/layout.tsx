@@ -1,21 +1,20 @@
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import { Providers } from "./providers"
-import { Toaster } from "@/components/ui/toaster"
+import type { Metadata } from 'next'
 
-const inter = Inter({ subsets: ["latin"] })
+import { Inter } from 'next/font/google'
+
+import './globals.css'
+import { Toaster } from '@/components/ui/toaster'
+
+import { Providers } from './providers'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "Dani Cosméticos",
-  description: "Sistema de controle de vendas e estoque",
+  title: 'Dani Cosméticos',
+  description: 'Sistema de controle de vendas e estoque',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
       <body className={inter.className}>

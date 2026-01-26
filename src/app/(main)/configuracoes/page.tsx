@@ -1,22 +1,23 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { PageHeader } from "@/components/layout/page-header"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useEffect, useState } from 'react'
+
+import { PageHeader } from '@/components/layout/page-header'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
-import { useSettings, useUpdateSettings } from "@/hooks/use-settings"
-import { FEE_ABSORBER_LABELS } from "@/lib/constants"
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useToast } from '@/components/ui/use-toast'
+import { useSettings, useUpdateSettings } from '@/hooks/use-settings'
+import { FEE_ABSORBER_LABELS } from '@/lib/constants'
 
 export default function ConfiguracoesPage() {
   const { toast } = useToast()
@@ -26,7 +27,7 @@ export default function ConfiguracoesPage() {
   const [debitFee, setDebitFee] = useState(1.5)
   const [creditFee, setCreditFee] = useState(3.0)
   const [installmentFee, setInstallmentFee] = useState(4.0)
-  const [feeAbsorber, setFeeAbsorber] = useState<"SELLER" | "CLIENT">("SELLER")
+  const [feeAbsorber, setFeeAbsorber] = useState<'SELLER' | 'CLIENT'>('SELLER')
   const [lowStockAlert, setLowStockAlert] = useState(true)
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function ConfiguracoesPage() {
       setDebitFee(Number(settings.debitFeePercent))
       setCreditFee(Number(settings.creditFeePercent))
       setInstallmentFee(Number(settings.creditInstallmentFee))
-      setFeeAbsorber(settings.defaultFeeAbsorber as "SELLER" | "CLIENT")
+      setFeeAbsorber(settings.defaultFeeAbsorber as 'SELLER' | 'CLIENT')
       setLowStockAlert(settings.lowStockAlertEnabled)
     }
   }, [settings])
@@ -48,12 +49,12 @@ export default function ConfiguracoesPage() {
         defaultFeeAbsorber: feeAbsorber,
         lowStockAlertEnabled: lowStockAlert,
       })
-      toast({ title: "Configurações salvas com sucesso!" })
+      toast({ title: 'Configurações salvas com sucesso!' })
     } catch (error: any) {
       toast({
-        title: "Erro ao salvar",
+        title: 'Erro ao salvar',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       })
     }
   }
@@ -74,9 +75,7 @@ export default function ConfiguracoesPage() {
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>Taxas de Cartão</CardTitle>
-          <CardDescription>
-            Configure as taxas cobradas pelas operadoras de cartão
-          </CardDescription>
+          <CardDescription>Configure as taxas cobradas pelas operadoras de cartão</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2">
@@ -120,7 +119,10 @@ export default function ConfiguracoesPage() {
           </div>
           <div className="grid gap-2">
             <Label>Quem paga a taxa por padrão?</Label>
-            <Select value={feeAbsorber} onValueChange={(v) => setFeeAbsorber(v as "SELLER" | "CLIENT")}>
+            <Select
+              value={feeAbsorber}
+              onValueChange={(v) => setFeeAbsorber(v as 'SELLER' | 'CLIENT')}
+            >
               <SelectTrigger className="max-w-xs">
                 <SelectValue />
               </SelectTrigger>
@@ -134,7 +136,7 @@ export default function ConfiguracoesPage() {
             </Select>
           </div>
           <Button className="mt-4" onClick={handleSave} disabled={updateSettings.isPending}>
-            {updateSettings.isPending ? "Salvando..." : "Salvar Configurações"}
+            {updateSettings.isPending ? 'Salvando...' : 'Salvar Configurações'}
           </Button>
         </CardContent>
       </Card>

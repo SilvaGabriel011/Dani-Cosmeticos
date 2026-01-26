@@ -1,12 +1,14 @@
-"use client"
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useReceivablesDashboard } from "@/hooks/use-receivables"
-import { formatCurrency, formatDate } from "@/lib/utils"
-import { AlertCircle } from "lucide-react"
-import { Receivable, Sale, Client } from "@prisma/client"
+import { type Receivable, type Sale, type Client } from '@prisma/client'
+import { AlertCircle } from 'lucide-react'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useReceivablesDashboard } from '@/hooks/use-receivables'
+import { formatCurrency, formatDate } from '@/lib/utils'
+
 
 type ReceivableWithSale = Receivable & {
   sale: Sale & { client: Client | null }
@@ -62,23 +64,19 @@ export function ReceivablesCard({ startDate, endDate }: ReceivablesCardProps) {
         </div>
 
         {receivables.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Nenhuma conta a receber no período.
-          </p>
+          <p className="text-sm text-muted-foreground">Nenhuma conta a receber no período.</p>
         ) : (
           <div className="space-y-3 max-h-[200px] overflow-y-auto">
             {(receivables as ReceivableWithSale[]).slice(0, 5).map((receivable) => {
               const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
-              const isOverdue = new Date(receivable.dueDate) < new Date() && receivable.status !== "PAID"
+              const isOverdue =
+                new Date(receivable.dueDate) < new Date() && receivable.status !== 'PAID'
 
               return (
-                <div
-                  key={receivable.id}
-                  className="flex items-center justify-between text-sm"
-                >
+                <div key={receivable.id} className="flex items-center justify-between text-sm">
                   <div>
                     <p className="font-medium">
-                      {receivable.sale?.client?.name || "Cliente não informado"}
+                      {receivable.sale?.client?.name || 'Cliente não informado'}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Vence: {formatDate(new Date(receivable.dueDate))}

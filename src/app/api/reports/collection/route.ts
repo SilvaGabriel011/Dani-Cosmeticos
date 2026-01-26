@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { startOfDay, endOfDay, parseISO, subDays, startOfWeek, startOfMonth } from "date-fns"
+import { startOfDay, endOfDay, parseISO, subDays, startOfWeek, startOfMonth } from 'date-fns'
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,9 +20,9 @@ interface CollectionByMethod {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const startDateParam = searchParams.get("startDate")
-    const endDateParam = searchParams.get("endDate")
-    const period = searchParams.get("period") // today, week, biweekly, month
+    const startDateParam = searchParams.get('startDate')
+    const endDateParam = searchParams.get('endDate')
+    const period = searchParams.get('period') // today, week, biweekly, month
 
     let startDate: Date
     let endDate: Date = endOfDay(new Date())
@@ -30,27 +31,23 @@ export async function GET(request: NextRequest) {
     if (period) {
       const now = new Date()
       switch (period) {
-        case "today":
+        case 'today':
           startDate = startOfDay(now)
           break
-        case "week":
+        case 'week':
           startDate = startOfWeek(now, { weekStartsOn: 0 })
           break
-        case "biweekly":
+        case 'biweekly':
           startDate = subDays(startOfDay(now), 14)
           break
-        case "month":
+        case 'month':
         default:
           startDate = startOfMonth(now)
           break
       }
     } else {
-      startDate = startDateParam
-        ? startOfDay(parseISO(startDateParam))
-        : startOfMonth(new Date())
-      endDate = endDateParam
-        ? endOfDay(parseISO(endDateParam))
-        : endOfDay(new Date())
+      startDate = startDateParam ? startOfDay(parseISO(startDateParam)) : startOfMonth(new Date())
+      endDate = endDateParam ? endOfDay(parseISO(endDateParam)) : endOfDay(new Date())
     }
 
     // Query payments by paidAt date - this is the actual money received
@@ -98,9 +95,12 @@ export async function GET(request: NextRequest) {
     const netCollection = totalCollection - totalFees
 
     const previousCollection = Number(previousSummary.totalCollection || 0)
-    const collectionChange = previousCollection > 0
-      ? ((totalCollection - previousCollection) / previousCollection) * 100
-      : totalCollection > 0 ? 100 : 0
+    const collectionChange =
+      previousCollection > 0
+        ? ((totalCollection - previousCollection) / previousCollection) * 100
+        : totalCollection > 0
+          ? 100
+          : 0
 
     return NextResponse.json({
       period: {
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
       totalFees,
       netCollection,
       averagePayment: paymentCount > 0 ? totalCollection / paymentCount : 0,
-      byMethod: byMethod.map(m => ({
+      byMethod: byMethod.map((m) => ({
         method: m.method,
         total: Number(m.total || 0),
         count: Number(m.count),
@@ -125,14 +125,11 @@ export async function GET(request: NextRequest) {
         },
         previousCollection,
         change: collectionChange,
-        trend: collectionChange > 0 ? "up" : collectionChange < 0 ? "down" : "stable",
+        trend: collectionChange > 0 ? 'up' : collectionChange < 0 ? 'down' : 'stable',
       },
     })
   } catch (error) {
-    console.error("Error fetching collection report:", error)
-    return NextResponse.json(
-      { error: "Erro ao gerar relatório de arrecadação" },
-      { status: 500 }
-    )
+    console.error('Error fetching collection report:', error)
+    return NextResponse.json({ error: 'Erro ao gerar relatório de arrecadação' }, { status: 500 })
   }
 }

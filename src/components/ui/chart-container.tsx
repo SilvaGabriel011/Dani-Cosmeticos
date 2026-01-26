@@ -1,9 +1,10 @@
-"use client"
+'use client'
 
-import { createContext, useContext, useState, ReactNode } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Toggle } from "@/components/ui/toggle"
-import { cn } from "@/lib/utils"
+import { createContext, useContext, useState, type ReactNode } from 'react'
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Toggle } from '@/components/ui/toggle'
+import { cn } from '@/lib/utils'
 
 interface ChartContextValue {
   showLegend: boolean

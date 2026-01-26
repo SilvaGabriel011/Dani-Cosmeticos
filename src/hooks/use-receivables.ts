@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface ReceivableFilters {
   clientId?: string
@@ -11,18 +11,18 @@ interface ReceivableFilters {
 
 export function useReceivables(filters: ReceivableFilters = {}) {
   const params = new URLSearchParams()
-  if (filters.clientId) params.set("clientId", filters.clientId)
-  if (filters.saleId) params.set("saleId", filters.saleId)
-  if (filters.status) params.set("status", filters.status)
-  if (filters.startDate) params.set("startDate", filters.startDate)
-  if (filters.endDate) params.set("endDate", filters.endDate)
-  if (filters.limit) params.set("limit", String(filters.limit))
+  if (filters.clientId) params.set('clientId', filters.clientId)
+  if (filters.saleId) params.set('saleId', filters.saleId)
+  if (filters.status) params.set('status', filters.status)
+  if (filters.startDate) params.set('startDate', filters.startDate)
+  if (filters.endDate) params.set('endDate', filters.endDate)
+  if (filters.limit) params.set('limit', String(filters.limit))
 
   return useQuery({
-    queryKey: ["receivables", filters],
+    queryKey: ['receivables', filters],
     queryFn: async () => {
       const res = await fetch(`/api/receivables?${params}`)
-      if (!res.ok) throw new Error("Erro ao carregar contas a receber")
+      if (!res.ok) throw new Error('Erro ao carregar contas a receber')
       return res.json()
     },
     staleTime: 2 * 60 * 1000, // 2 minutos
@@ -30,17 +30,20 @@ export function useReceivables(filters: ReceivableFilters = {}) {
   })
 }
 
-export function useReceivablesByClient(clientId: string, filters?: { startDate?: string; endDate?: string }) {
+export function useReceivablesByClient(
+  clientId: string,
+  filters?: { startDate?: string; endDate?: string }
+) {
   const params = new URLSearchParams()
-  params.set("clientId", clientId)
-  if (filters?.startDate) params.set("startDate", filters.startDate)
-  if (filters?.endDate) params.set("endDate", filters.endDate)
+  params.set('clientId', clientId)
+  if (filters?.startDate) params.set('startDate', filters.startDate)
+  if (filters?.endDate) params.set('endDate', filters.endDate)
 
   return useQuery({
-    queryKey: ["receivables", "client", clientId, filters],
+    queryKey: ['receivables', 'client', clientId, filters],
     queryFn: async () => {
       const res = await fetch(`/api/receivables?${params}`)
-      if (!res.ok) throw new Error("Erro ao carregar contas do cliente")
+      if (!res.ok) throw new Error('Erro ao carregar contas do cliente')
       return res.json()
     },
     enabled: !!clientId,
@@ -50,15 +53,15 @@ export function useReceivablesByClient(clientId: string, filters?: { startDate?:
 
 export function useReceivablesDue(filters?: { startDate?: string; endDate?: string }) {
   const params = new URLSearchParams()
-  params.set("pending", "true")
-  if (filters?.startDate) params.set("startDate", filters.startDate)
-  if (filters?.endDate) params.set("endDate", filters.endDate)
+  params.set('pending', 'true')
+  if (filters?.startDate) params.set('startDate', filters.startDate)
+  if (filters?.endDate) params.set('endDate', filters.endDate)
 
   return useQuery({
-    queryKey: ["receivables", "due", filters],
+    queryKey: ['receivables', 'due', filters],
     queryFn: async () => {
       const res = await fetch(`/api/receivables?${params}`)
-      if (!res.ok) throw new Error("Erro ao carregar contas a receber")
+      if (!res.ok) throw new Error('Erro ao carregar contas a receber')
       return res.json()
     },
     staleTime: 2 * 60 * 1000, // 2 minutos
@@ -68,14 +71,14 @@ export function useReceivablesDue(filters?: { startDate?: string; endDate?: stri
 
 export function useReceivablesDashboard(filters?: { startDate?: string; endDate?: string }) {
   const params = new URLSearchParams()
-  if (filters?.startDate) params.set("startDate", filters.startDate)
-  if (filters?.endDate) params.set("endDate", filters.endDate)
+  if (filters?.startDate) params.set('startDate', filters.startDate)
+  if (filters?.endDate) params.set('endDate', filters.endDate)
 
   return useQuery({
-    queryKey: ["receivables", "dashboard", filters],
+    queryKey: ['receivables', 'dashboard', filters],
     queryFn: async () => {
       const res = await fetch(`/api/receivables/summary?${params}`)
-      if (!res.ok) throw new Error("Erro ao carregar resumo")
+      if (!res.ok) throw new Error('Erro ao carregar resumo')
       return res.json()
     },
     staleTime: 2 * 60 * 1000, // 2 minutos
@@ -87,28 +90,33 @@ export function usePayReceivable() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, amount, paymentMethod, paidAt }: { 
+    mutationFn: async ({
+      id,
+      amount,
+      paymentMethod,
+      paidAt,
+    }: {
       id: string
       amount: number
-      paymentMethod?: "CASH" | "PIX" | "DEBIT" | "CREDIT"
-      paidAt?: string 
+      paymentMethod?: 'CASH' | 'PIX' | 'DEBIT' | 'CREDIT'
+      paidAt?: string
     }) => {
       const res = await fetch(`/api/receivables/${id}/pay`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount, paymentMethod, paidAt }),
       })
       if (!res.ok) {
         const error = await res.json()
-        throw new Error(error.error || "Erro ao registrar pagamento")
+        throw new Error(error.error || 'Erro ao registrar pagamento')
       }
       return res.json()
     },
     onSuccess: () => {
       // Invalida apenas receivables e sales - outros serão atualizados no ciclo
-      queryClient.invalidateQueries({ queryKey: ["receivables"] })
-      queryClient.invalidateQueries({ queryKey: ["sales"] })
-      queryClient.invalidateQueries({ queryKey: ["salesWithReceivables"] })
+      queryClient.invalidateQueries({ queryKey: ['receivables'] })
+      queryClient.invalidateQueries({ queryKey: ['sales'] })
+      queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
     },
   })
 }
@@ -117,42 +125,47 @@ export function usePaySaleReceivables() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ saleId, amount, paymentMethod, paidAt }: { 
+    mutationFn: async ({
+      saleId,
+      amount,
+      paymentMethod,
+      paidAt,
+    }: {
       saleId: string
       amount: number
-      paymentMethod?: "CASH" | "PIX" | "DEBIT" | "CREDIT"
-      paidAt?: string 
+      paymentMethod?: 'CASH' | 'PIX' | 'DEBIT' | 'CREDIT'
+      paidAt?: string
     }) => {
       const res = await fetch(`/api/receivables/pay-sale`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ saleId, amount, paymentMethod, paidAt }),
       })
       if (!res.ok) {
         const error = await res.json()
-        throw new Error(error.error || "Erro ao registrar pagamento")
+        throw new Error(error.error || 'Erro ao registrar pagamento')
       }
       return res.json()
     },
     onSuccess: () => {
       // Invalida apenas o necessário
-      queryClient.invalidateQueries({ queryKey: ["receivables"] })
-      queryClient.invalidateQueries({ queryKey: ["sales"] })
-      queryClient.invalidateQueries({ queryKey: ["salesWithReceivables"] })
+      queryClient.invalidateQueries({ queryKey: ['receivables'] })
+      queryClient.invalidateQueries({ queryKey: ['sales'] })
+      queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
     },
   })
 }
 
 export function useSalesWithPendingReceivables(limit?: number) {
   const params = new URLSearchParams()
-  params.set("groupBySale", "true")
-  if (limit) params.set("limit", String(limit))
+  params.set('groupBySale', 'true')
+  if (limit) params.set('limit', String(limit))
 
   return useQuery({
-    queryKey: ["salesWithReceivables", limit],
+    queryKey: ['salesWithReceivables', limit],
     queryFn: async () => {
       const res = await fetch(`/api/receivables?${params}`)
-      if (!res.ok) throw new Error("Erro ao carregar vendas fiado")
+      if (!res.ok) throw new Error('Erro ao carregar vendas fiado')
       return res.json()
     },
     staleTime: 2 * 60 * 1000, // 2 minutos

@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import {
   LineChart as RechartsLine,
@@ -9,10 +9,11 @@ import {
   Legend,
   ResponsiveContainer,
   CartesianGrid,
-} from "recharts"
-import { CHART_COLORS } from "@/lib/chart-colors"
-import { formatCurrency } from "@/lib/utils"
-import { useChartContext } from "@/components/ui/chart-container"
+} from 'recharts'
+
+import { useChartContext } from '@/components/ui/chart-container'
+import { CHART_COLORS } from '@/lib/chart-colors'
+import { formatCurrency } from '@/lib/utils'
 
 interface LineChartData {
   name: string
@@ -56,19 +57,16 @@ export function LineChart({
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <RechartsLine
-        data={data}
-        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-      >
+      <RechartsLine data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
         <XAxis dataKey="name" tick={{ fontSize: 11 }} />
         <YAxis tickFormatter={(v) => valueFormatter(v)} tick={{ fontSize: 11 }} />
         <Tooltip
           formatter={(value) => valueFormatter(Number(value))}
           contentStyle={{
-            backgroundColor: "hsl(var(--popover))",
-            border: "1px solid hsl(var(--border))",
-            borderRadius: "6px",
+            backgroundColor: 'hsl(var(--popover))',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '6px',
           }}
         />
         {showLegend && <Legend />}

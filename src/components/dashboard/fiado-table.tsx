@@ -1,18 +1,21 @@
-"use client"
+'use client'
 
-import { useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Input } from "@/components/ui/input"
+import { type Receivable, type Sale, type Client } from '@prisma/client'
+import { CreditCard, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useMemo } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -20,12 +23,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { useSalesWithPendingReceivables } from "@/hooks/use-receivables"
-import { ReceivablePaymentModal } from "./receivable-payment-modal"
-import { formatCurrency, formatDate } from "@/lib/utils"
-import { CreditCard, Plus, Search, ChevronLeft, ChevronRight } from "lucide-react"
-import { Receivable, Sale, Client } from "@prisma/client"
+} from '@/components/ui/table'
+import { useSalesWithPendingReceivables } from '@/hooks/use-receivables'
+import { formatCurrency, formatDate } from '@/lib/utils'
+
+import { ReceivablePaymentModal } from './receivable-payment-modal'
 
 type SaleWithReceivables = Sale & {
   client: Client | null
@@ -48,15 +50,15 @@ interface SaleReceivableSummary {
   isOverdue: boolean
 }
 
-type FilterStatus = "all" | "overdue" | "upcoming"
+type FilterStatus = 'all' | 'overdue' | 'upcoming'
 
 export function FiadoTable() {
   const { data: salesData, isLoading } = useSalesWithPendingReceivables(500)
-  
+
   const [selectedReceivable, setSelectedReceivable] = useState<ReceivableWithSale | null>(null)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
-  const [search, setSearch] = useState("")
-  const [statusFilter, setStatusFilter] = useState<FilterStatus>("all")
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<FilterStatus>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
@@ -67,65 +69,67 @@ export function FiadoTable() {
     const sales = salesData as SaleWithReceivables[]
     const now = new Date()
 
-    return sales.map((sale) => {
-      const receivables = sale.receivables
-      const totalInstallments = receivables.length
-      const paidInstallments = receivables.filter(r => r.status === "PAID").length
-      // Use sale.total for total amount (includes already paid + remaining)
-      const totalAmount = Number(sale.total)
-      // Use sale.paidAmount for what's been paid (more accurate than summing receivables)
-      const paidAmount = Number(sale.paidAmount)
-      
-      // Find next unpaid receivable (earliest due date among pending/partial)
-      const pendingReceivables = receivables
-        .filter(r => r.status === "PENDING" || r.status === "PARTIAL")
-        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-      
-      const nextReceivable = pendingReceivables[0] || null
-      const nextDueDate = nextReceivable ? new Date(nextReceivable.dueDate) : null
-      const isOverdue = nextDueDate ? nextDueDate < now : false
+    return sales
+      .map((sale) => {
+        const receivables = sale.receivables
+        const totalInstallments = receivables.length
+        const paidInstallments = receivables.filter((r) => r.status === 'PAID').length
+        // Use sale.total for total amount (includes already paid + remaining)
+        const totalAmount = Number(sale.total)
+        // Use sale.paidAmount for what's been paid (more accurate than summing receivables)
+        const paidAmount = Number(sale.paidAmount)
 
-      // Create a receivable with sale reference for the modal
-      const nextReceivableWithSale: ReceivableWithSale | null = nextReceivable 
-        ? { ...nextReceivable, sale: { ...sale, client: sale.client } }
-        : null
+        // Find next unpaid receivable (earliest due date among pending/partial)
+        const pendingReceivables = receivables
+          .filter((r) => r.status === 'PENDING' || r.status === 'PARTIAL')
+          .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
 
-      return {
-        saleId: sale.id,
-        clientName: sale.client?.name || "Cliente nao informado",
-        totalInstallments,
-        paidInstallments,
-        totalAmount,
-        paidAmount,
-        nextDueDate,
-        nextReceivable: nextReceivableWithSale,
-        isOverdue,
-      }
-    }).sort((a, b) => {
-      // Sort by next due date (overdue first, then by date)
-      if (a.isOverdue && !b.isOverdue) return -1
-      if (!a.isOverdue && b.isOverdue) return 1
-      if (!a.nextDueDate) return 1
-      if (!b.nextDueDate) return -1
-      return a.nextDueDate.getTime() - b.nextDueDate.getTime()
-    })
+        const nextReceivable = pendingReceivables[0] || null
+        const nextDueDate = nextReceivable ? new Date(nextReceivable.dueDate) : null
+        const isOverdue = nextDueDate ? nextDueDate < now : false
+
+        // Create a receivable with sale reference for the modal
+        const nextReceivableWithSale: ReceivableWithSale | null = nextReceivable
+          ? { ...nextReceivable, sale: { ...sale, client: sale.client } }
+          : null
+
+        return {
+          saleId: sale.id,
+          clientName: sale.client?.name || 'Cliente nao informado',
+          totalInstallments,
+          paidInstallments,
+          totalAmount,
+          paidAmount,
+          nextDueDate,
+          nextReceivable: nextReceivableWithSale,
+          isOverdue,
+        }
+      })
+      .sort((a, b) => {
+        // Sort by next due date (overdue first, then by date)
+        if (a.isOverdue && !b.isOverdue) return -1
+        if (!a.isOverdue && b.isOverdue) return 1
+        if (!a.nextDueDate) return 1
+        if (!b.nextDueDate) return -1
+        return a.nextDueDate.getTime() - b.nextDueDate.getTime()
+      })
   }, [salesData])
 
   // Filter summaries based on search and status
   const filteredSummaries = useMemo(() => {
     return saleSummaries.filter((summary) => {
       // Search filter
-      const matchesSearch = search === "" || 
-        summary.clientName.toLowerCase().includes(search.toLowerCase())
-      
+      const matchesSearch =
+        search === '' || summary.clientName.toLowerCase().includes(search.toLowerCase())
+
       // Status filter
       let matchesStatus = true
-      if (statusFilter === "overdue") {
+      if (statusFilter === 'overdue') {
         matchesStatus = summary.isOverdue
-      } else if (statusFilter === "upcoming") {
+      } else if (statusFilter === 'upcoming') {
         matchesStatus = !summary.isOverdue
       }
-      
+
       return matchesSearch && matchesStatus
     })
   }, [saleSummaries, search, statusFilter])
@@ -171,7 +175,6 @@ export function FiadoTable() {
     )
   }
 
-
   return (
     <>
       <Card>
@@ -196,7 +199,10 @@ export function FiadoTable() {
                 className="pl-9"
               />
             </div>
-            <Select value={statusFilter} onValueChange={(v) => handleStatusFilterChange(v as FilterStatus)}>
+            <Select
+              value={statusFilter}
+              onValueChange={(v) => handleStatusFilterChange(v as FilterStatus)}
+            >
               <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -226,79 +232,80 @@ export function FiadoTable() {
                 {paginatedSummaries.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      {saleSummaries.length === 0 
-                        ? "Nenhuma venda fiado pendente."
-                        : "Nenhum resultado encontrado para os filtros selecionados."
-                      }
+                      {saleSummaries.length === 0
+                        ? 'Nenhuma venda fiado pendente.'
+                        : 'Nenhum resultado encontrado para os filtros selecionados.'}
                     </TableCell>
                   </TableRow>
-                ) : paginatedSummaries.map((summary) => (
-                  <TableRow key={summary.saleId}>
-                    <TableCell className="font-medium">
-                      {summary.clientName}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className="font-mono">
-                        {summary.paidInstallments}/{summary.totalInstallments}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right text-green-600">
-                      {formatCurrency(summary.paidAmount)}
-                    </TableCell>
-                    <TableCell className="text-right text-amber-600">
-                      {formatCurrency(summary.totalAmount - summary.paidAmount)}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrency(summary.totalAmount)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-20">
-                        <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-green-500 transition-all"
-                            style={{ width: `${Math.min((summary.paidAmount / summary.totalAmount) * 100, 100)}%` }}
-                          />
-                          {/* Marcadores de 25%, 50%, 75% */}
-                          <div className="absolute inset-0 flex">
-                            <div className="w-1/4 border-r border-gray-400/50" />
-                            <div className="w-1/4 border-r border-gray-400/50" />
-                            <div className="w-1/4 border-r border-gray-400/50" />
-                          </div>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {Math.round((summary.paidAmount / summary.totalAmount) * 100)}%
+                ) : (
+                  paginatedSummaries.map((summary) => (
+                    <TableRow key={summary.saleId}>
+                      <TableCell className="font-medium">{summary.clientName}</TableCell>
+                      <TableCell className="text-center">
+                        <span className="font-mono">
+                          {summary.paidInstallments}/{summary.totalInstallments}
                         </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {summary.nextDueDate ? (
-                        <div className="flex items-center gap-2">
-                          <span className={summary.isOverdue ? "text-destructive" : ""}>
-                            {formatDate(summary.nextDueDate)}
+                      </TableCell>
+                      <TableCell className="text-right text-green-600">
+                        {formatCurrency(summary.paidAmount)}
+                      </TableCell>
+                      <TableCell className="text-right text-amber-600">
+                        {formatCurrency(summary.totalAmount - summary.paidAmount)}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatCurrency(summary.totalAmount)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="w-20">
+                          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-green-500 transition-all"
+                              style={{
+                                width: `${Math.min((summary.paidAmount / summary.totalAmount) * 100, 100)}%`,
+                              }}
+                            />
+                            {/* Marcadores de 25%, 50%, 75% */}
+                            <div className="absolute inset-0 flex">
+                              <div className="w-1/4 border-r border-gray-400/50" />
+                              <div className="w-1/4 border-r border-gray-400/50" />
+                              <div className="w-1/4 border-r border-gray-400/50" />
+                            </div>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {Math.round((summary.paidAmount / summary.totalAmount) * 100)}%
                           </span>
-                          {summary.isOverdue && (
-                            <Badge variant="destructive" className="text-xs">
-                              Vencido
-                            </Badge>
-                          )}
                         </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleAddPayment(summary)}
-                        disabled={!summary.nextReceivable}
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Pagamento
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell>
+                        {summary.nextDueDate ? (
+                          <div className="flex items-center gap-2">
+                            <span className={summary.isOverdue ? 'text-destructive' : ''}>
+                              {formatDate(summary.nextDueDate)}
+                            </span>
+                            {summary.isOverdue && (
+                              <Badge variant="destructive" className="text-xs">
+                                Vencido
+                              </Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAddPayment(summary)}
+                          disabled={!summary.nextReceivable}
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Pagamento
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
@@ -307,13 +314,15 @@ export function FiadoTable() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between pt-4 border-t">
               <p className="text-sm text-muted-foreground">
-                Mostrando {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, filteredSummaries.length)} de {filteredSummaries.length}
+                Mostrando {(currentPage - 1) * itemsPerPage + 1}-
+                {Math.min(currentPage * itemsPerPage, filteredSummaries.length)} de{' '}
+                {filteredSummaries.length}
               </p>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -324,7 +333,7 @@ export function FiadoTable() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
                 >
                   <ChevronRight className="h-4 w-4" />

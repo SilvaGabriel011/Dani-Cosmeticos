@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery } from '@tanstack/react-query'
 
 interface DebtorFilters {
   search?: string
-  sortBy?: "totalDebt" | "overdueAmount" | "oldestDueDate" | "name"
+  sortBy?: 'totalDebt' | 'overdueAmount' | 'oldestDueDate' | 'name'
 }
 
 interface DebtorProduct {
@@ -27,7 +27,7 @@ interface DebtorReceivable {
   amount: string | number
   paidAmount: string | number
   dueDate: string
-  status: "PENDING" | "PARTIAL" | "PAID"
+  status: 'PENDING' | 'PARTIAL' | 'PAID'
 }
 
 interface DebtorSale {
@@ -58,17 +58,17 @@ export interface Debtor {
 
 async function fetchDebtors(filters: DebtorFilters): Promise<Debtor[]> {
   const params = new URLSearchParams()
-  if (filters.search) params.set("search", filters.search)
-  if (filters.sortBy) params.set("sortBy", filters.sortBy)
+  if (filters.search) params.set('search', filters.search)
+  if (filters.sortBy) params.set('sortBy', filters.sortBy)
 
   const res = await fetch(`/api/clients/debtors?${params}`)
-  if (!res.ok) throw new Error("Erro ao buscar devedores")
+  if (!res.ok) throw new Error('Erro ao buscar devedores')
   return res.json()
 }
 
 export function useDebtors(filters: DebtorFilters = {}) {
   return useQuery({
-    queryKey: ["debtors", filters],
+    queryKey: ['debtors', filters],
     queryFn: () => fetchDebtors(filters),
     staleTime: 3 * 60 * 1000, // 3 minutos - dados de devedores não mudam frequentemente
     refetchOnWindowFocus: false,

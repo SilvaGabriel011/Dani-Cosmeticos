@@ -1,9 +1,9 @@
-import { z } from "zod"
+import { z } from 'zod'
 
 export const clientImportRowSchema = z.object({
-  nome: z.string().min(1, "Nome é obrigatório"),
-  debitoAberto: z.number().min(0, "Débito deve ser positivo"),
-  pago: z.number().min(0, "Valor pago deve ser positivo"),
+  nome: z.string().min(1, 'Nome é obrigatório'),
+  debitoAberto: z.number().min(0, 'Débito deve ser positivo'),
+  pago: z.number().min(0, 'Valor pago deve ser positivo'),
   totalEmAberto: z.number().optional(),
   valorParcelas: z.number().optional(),
   numeroParcelas: z.number().int().min(0).optional(),
@@ -11,7 +11,7 @@ export const clientImportRowSchema = z.object({
 })
 
 export const clientImportSchema = z.object({
-  clients: z.array(clientImportRowSchema).min(1, "Pelo menos um cliente é necessário"),
+  clients: z.array(clientImportRowSchema).min(1, 'Pelo menos um cliente é necessário'),
 })
 
 export const productImportRowSchema = z.object({
@@ -25,7 +25,7 @@ export const productImportRowSchema = z.object({
 })
 
 export const productImportSchema = z.object({
-  products: z.array(productImportRowSchema).min(1, "Pelo menos um produto é necessário"),
+  products: z.array(productImportRowSchema).min(1, 'Pelo menos um produto é necessário'),
   defaultProfitMargin: z.number().min(0).max(100).optional(),
 })
 

@@ -39,15 +39,20 @@ model Product {
   deletedAt      DateTime?
   brandId        String?
   packagingType  String?
+  linha          String?
+  fragrancia     String?
   brand          Brand?          @relation(fields: [brandId], references: [id])
   category       Category?       @relation(fields: [categoryId], references: [id])
   saleItems      SaleItem[]
   stockMovements StockMovement[]
 
+  @@unique([brandId, linha, fragrancia, categoryId, packagingType])
   @@index([categoryId])
   @@index([brandId])
   @@index([isActive])
   @@index([deletedAt])
+  @@index([linha])
+  @@index([fragrancia])
 }
 
 model Client {

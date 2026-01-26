@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client"
+import { type Prisma } from '@prisma/client'
 
 export type Product = Prisma.ProductGetPayload<{
   include: { category: true; brand: true }

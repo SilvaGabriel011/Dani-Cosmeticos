@@ -1,12 +1,34 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts"
-import { Calendar, TrendingUp, TrendingDown, DollarSign } from "lucide-react"
+import { Calendar, TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 interface SemanaData {
   semana: number
@@ -34,7 +56,7 @@ export function RelacaoSemanalMensal() {
         const data = await response.json()
         setDados(data)
       } catch (error) {
-        console.error("Erro ao buscar dados:", error)
+        console.error('Erro ao buscar dados:', error)
       } finally {
         setLoading(false)
       }
@@ -53,9 +75,7 @@ export function RelacaoSemanalMensal() {
             <Calendar className="h-5 w-5" />
             Relação Semanal x Mensal
           </CardTitle>
-          <CardDescription>
-            Comparativo de vendas semanais dentro de cada mês
-          </CardDescription>
+          <CardDescription>Comparativo de vendas semanais dentro de cada mês</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -69,8 +89,8 @@ export function RelacaoSemanalMensal() {
     )
   }
 
-  const chartData = dados.flatMap(mes =>
-    mes.semanas.map(semana => ({
+  const chartData = dados.flatMap((mes) =>
+    mes.semanas.map((semana) => ({
       name: `${mes.mes} - S${semana.semana}`,
       vendas: semana.totalVendas,
       media: semana.mediaDiaria,
@@ -91,7 +111,7 @@ export function RelacaoSemanalMensal() {
             <SelectValue placeholder="Selecione o ano" />
           </SelectTrigger>
           <SelectContent>
-            {anos.map(ano => (
+            {anos.map((ano) => (
               <SelectItem key={ano} value={ano}>
                 {ano}
               </SelectItem>
@@ -103,16 +123,14 @@ export function RelacaoSemanalMensal() {
       <Card>
         <CardHeader>
           <CardTitle>Evolução Semanal</CardTitle>
-          <CardDescription>
-            Total de vendas por semana ao longo do ano
-          </CardDescription>
+          <CardDescription>Total de vendas por semana ao longo do ano</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="name" 
+              <XAxis
+                dataKey="name"
                 angle={-45}
                 textAnchor="end"
                 height={80}
@@ -120,12 +138,14 @@ export function RelacaoSemanalMensal() {
                 fontSize={12}
               />
               <YAxis />
-              <Tooltip 
-                formatter={(value: number | undefined) => 
-                  value ? value.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }) : "R$ 0,00"
+              <Tooltip
+                formatter={(value: number | undefined) =>
+                  value
+                    ? value.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })
+                    : 'R$ 0,00'
                 }
               />
               <Bar dataKey="vendas" fill="#8884d8" />
@@ -135,14 +155,15 @@ export function RelacaoSemanalMensal() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {dados.map(mes => (
+        {dados.map((mes) => (
           <Card key={mes.mes}>
             <CardHeader>
               <CardTitle className="text-base">{mes.mes}</CardTitle>
               <CardDescription>
-                Total: {mes.total.toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
+                Total:{' '}
+                {mes.total.toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
                 })}
               </CardDescription>
             </CardHeader>
@@ -157,21 +178,19 @@ export function RelacaoSemanalMensal() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mes.semanas.map((semana, index) => (
+                  {mes.semanas.map((semana) => (
                     <TableRow key={semana.semana}>
-                      <TableCell className="font-medium">
-                        Semana {semana.semana}
-                      </TableCell>
+                      <TableCell className="font-medium">Semana {semana.semana}</TableCell>
                       <TableCell>
-                        {semana.totalVendas.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
+                        {semana.totalVendas.toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
                         })}
                       </TableCell>
                       <TableCell>
-                        {semana.mediaDiaria.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
+                        {semana.mediaDiaria.toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
                         })}
                       </TableCell>
                       <TableCell>
@@ -181,8 +200,16 @@ export function RelacaoSemanalMensal() {
                           ) : semana.variacao < 0 ? (
                             <TrendingDown className="h-4 w-4 text-red-600" />
                           ) : null}
-                          <span className={semana.variacao > 0 ? "text-green-600" : semana.variacao < 0 ? "text-red-600" : ""}>
-                            {semana.variacao > 0 ? "+" : ""}
+                          <span
+                            className={
+                              semana.variacao > 0
+                                ? 'text-green-600'
+                                : semana.variacao < 0
+                                  ? 'text-red-600'
+                                  : ''
+                            }
+                          >
+                            {semana.variacao > 0 ? '+' : ''}
                             {semana.variacao.toFixed(1)}%
                           </span>
                         </div>
@@ -205,15 +232,15 @@ export function RelacaoSemanalMensal() {
           <CardContent>
             <div className="text-2xl font-bold">
               {dados.length > 0
-                ? Math.max(...dados.flatMap(m => m.semanas.map(s => s.totalVendas))).toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
+                ? Math.max(
+                    ...dados.flatMap((m) => m.semanas.map((s) => s.totalVendas))
+                  ).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
                   })
-                : "-"}
+                : '-'}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Maior valor de vendas em uma semana
-            </p>
+            <p className="text-xs text-muted-foreground">Maior valor de vendas em uma semana</p>
           </CardContent>
         </Card>
 
@@ -225,15 +252,16 @@ export function RelacaoSemanalMensal() {
           <CardContent>
             <div className="text-2xl font-bold">
               {dados.length > 0
-                ? (dados.reduce((sum, m) => sum + m.total, 0) / dados.reduce((sum, m) => sum + m.semanas.length, 0)).toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
+                ? (
+                    dados.reduce((sum, m) => sum + m.total, 0) /
+                    dados.reduce((sum, m) => sum + m.semanas.length, 0)
+                  ).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
                   })
-                : "-"}
+                : '-'}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Média de vendas por semana
-            </p>
+            <p className="text-xs text-muted-foreground">Média de vendas por semana</p>
           </CardContent>
         </Card>
 
@@ -244,14 +272,14 @@ export function RelacaoSemanalMensal() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dados.reduce((sum, m) => sum + m.total, 0).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
+              {dados
+                .reduce((sum, m) => sum + m.total, 0)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                })}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Total de vendas no ano
-            </p>
+            <p className="text-xs text-muted-foreground">Total de vendas no ano</p>
           </CardContent>
         </Card>
       </div>

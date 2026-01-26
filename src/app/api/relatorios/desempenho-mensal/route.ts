@@ -1,22 +1,23 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const ano = searchParams.get("ano") || new Date().getFullYear().toString()
+    const ano = searchParams.get('ano') || new Date().getFullYear().toString()
 
     // Dados simulados de metas mensais (em um sistema real, isso viria de uma tabela de metas)
     const metasMensais = {
-      1: 50000,  // Janeiro
-      2: 45000,  // Fevereiro
-      3: 55000,  // Março
-      4: 50000,  // Abril
-      5: 52000,  // Maio
-      6: 58000,  // Junho
-      7: 60000,  // Julho
-      8: 62000,  // Agosto
-      9: 59000,  // Setembro
+      1: 50000, // Janeiro
+      2: 45000, // Fevereiro
+      3: 55000, // Março
+      4: 50000, // Abril
+      5: 52000, // Maio
+      6: 58000, // Junho
+      7: 60000, // Julho
+      8: 62000, // Agosto
+      9: 59000, // Setembro
       10: 61000, // Outubro
       11: 65000, // Novembro
       12: 70000, // Dezembro
@@ -59,28 +60,35 @@ export async function GET(request: NextRequest) {
     `
 
     // Adicionar informações de metas e atingimento
-    const dadosComMetas = (dados as any[]).map(item => {
+    const dadosComMetas = (dados as any[]).map((item) => {
       const meta = metasMensais[item.mes as keyof typeof metasMensais] || 50000
       return {
         mes: [
-          'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+          'Janeiro',
+          'Fevereiro',
+          'Março',
+          'Abril',
+          'Maio',
+          'Junho',
+          'Julho',
+          'Agosto',
+          'Setembro',
+          'Outubro',
+          'Novembro',
+          'Dezembro',
         ][item.mes - 1],
         total: Number(item.total),
         vendas: item.vendas,
         ticketMedio: Number(item.ticketMedio),
         meta: meta,
         atingimentoMeta: Number(item.total) / meta,
-        variacao: Number(item.variacao)
+        variacao: Number(item.variacao),
       }
     })
 
     return NextResponse.json(dadosComMetas)
   } catch (error) {
-    console.error("Erro ao buscar desempenho mensal:", error)
-    return NextResponse.json(
-      { error: "Erro ao buscar dados" },
-      { status: 500 }
-    )
+    console.error('Erro ao buscar desempenho mensal:', error)
+    return NextResponse.json({ error: 'Erro ao buscar dados' }, { status: 500 })
   }
 }

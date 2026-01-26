@@ -1,11 +1,19 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Trophy, User, DollarSign } from "lucide-react"
+import { Trophy, User, DollarSign } from 'lucide-react'
+import { useEffect, useState } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 interface Cliente {
   id: string
@@ -25,11 +33,11 @@ export function TopClientes() {
   useEffect(() => {
     async function fetchTopClientes() {
       try {
-        const response = await fetch("/api/relatorios/top-clientes")
+        const response = await fetch('/api/relatorios/top-clientes')
         const data = await response.json()
         setClientes(data)
       } catch (error) {
-        console.error("Erro ao buscar top clientes:", error)
+        console.error('Erro ao buscar top clientes:', error)
       } finally {
         setLoading(false)
       }
@@ -46,9 +54,7 @@ export function TopClientes() {
             <Trophy className="h-5 w-5" />
             Top Clientes
           </CardTitle>
-          <CardDescription>
-            Clientes com maior volume de compras
-          </CardDescription>
+          <CardDescription>Clientes com maior volume de compras</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -98,13 +104,13 @@ export function TopClientes() {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {index < 3 && (
-                        <Badge variant={index === 0 ? "default" : index === 1 ? "secondary" : "outline"}>
+                        <Badge
+                          variant={index === 0 ? 'default' : index === 1 ? 'secondary' : 'outline'}
+                        >
                           {index + 1}º
                         </Badge>
                       )}
-                      {index >= 3 && (
-                        <span className="text-muted-foreground">{index + 1}º</span>
-                      )}
+                      {index >= 3 && <span className="text-muted-foreground">{index + 1}º</span>}
                     </div>
                   </TableCell>
                   <TableCell className="font-medium">
@@ -115,27 +121,29 @@ export function TopClientes() {
                   </TableCell>
                   <TableCell>
                     <span className="font-semibold">
-                      {cliente.totalCompras.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
+                      {cliente.totalCompras.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
                       })}
                     </span>
                   </TableCell>
                   <TableCell className="text-green-600 font-medium">
-                    {cliente.totalPago.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
+                    {cliente.totalPago.toLocaleString('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
                     })}
                   </TableCell>
                   <TableCell className="text-amber-600 font-medium">
-                    {cliente.totalEmAberto.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
+                    {cliente.totalEmAberto.toLocaleString('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
                     })}
                   </TableCell>
                   <TableCell>{cliente.quantidadeVendas}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {cliente.ultimaCompra ? new Date(cliente.ultimaCompra).toLocaleDateString("pt-BR") : "-"}
+                    {cliente.ultimaCompra
+                      ? new Date(cliente.ultimaCompra).toLocaleDateString('pt-BR')
+                      : '-'}
                   </TableCell>
                 </TableRow>
               ))}
@@ -151,14 +159,13 @@ export function TopClientes() {
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {clientes[0]?.nome || "-"}
-            </div>
+            <div className="text-2xl font-bold">{clientes[0]?.nome || '-'}</div>
             <p className="text-xs text-muted-foreground">
-              {clientes[0]?.totalCompras.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }) || "-"} em compras
+              {clientes[0]?.totalCompras.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              }) || '-'}{' '}
+              em compras
             </p>
           </CardContent>
         </Card>
@@ -171,11 +178,11 @@ export function TopClientes() {
           <CardContent>
             <div className="text-2xl font-bold">
               {clientes.length > 0
-                ? Math.max(...clientes.map(c => c.ticketMedio)).toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
+                ? Math.max(...clientes.map((c) => c.ticketMedio)).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
                   })
-                : "-"}
+                : '-'}
             </div>
             <p className="text-xs text-muted-foreground">
               Maior ticket médio entre os top clientes
@@ -192,14 +199,12 @@ export function TopClientes() {
             <div className="text-2xl font-bold">
               {clientes
                 .reduce((sum, c) => sum + c.totalCompras, 0)
-                .toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
                 })}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Soma das compras dos top 10 clientes
-            </p>
+            <p className="text-xs text-muted-foreground">Soma das compras dos top 10 clientes</p>
           </CardContent>
         </Card>
       </div>

@@ -18,7 +18,7 @@ class MemoryCache {
    */
   get<T>(key: string): T | null {
     const entry = this.cache.get(key) as CacheEntry<T> | undefined
-    
+
     if (!entry) {
       return null
     }
@@ -86,10 +86,10 @@ export const cache = new MemoryCache()
 
 // Cache TTL constants (in milliseconds)
 export const CACHE_TTL = {
-  DASHBOARD: 2 * 60 * 1000,      // 2 minutes
-  COUNTS: 5 * 60 * 1000,         // 5 minutes  
-  REPORTS: 5 * 60 * 1000,        // 5 minutes
-  SETTINGS: 10 * 60 * 1000,      // 10 minutes
+  DASHBOARD: 2 * 60 * 1000, // 2 minutes
+  COUNTS: 5 * 60 * 1000, // 5 minutes
+  REPORTS: 5 * 60 * 1000, // 5 minutes
+  SETTINGS: 10 * 60 * 1000, // 10 minutes
 } as const
 
 // Cache keys

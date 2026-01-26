@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const ano = searchParams.get("ano") || new Date().getFullYear().toString()
+    const ano = searchParams.get('ano') || new Date().getFullYear().toString()
 
     const dados = await prisma.$queryRaw`
       WITH semanas AS (
@@ -58,18 +59,15 @@ export async function GET(request: NextRequest) {
     `
 
     // Formatar os dados para o formato esperado
-    const dadosFormatados = (dados as any[]).map(item => ({
+    const dadosFormatados = (dados as any[]).map((item) => ({
       mes: item.mes,
       total: Number(item.total),
-      semanas: [] // Simplificado por enquanto
+      semanas: [], // Simplificado por enquanto
     }))
 
     return NextResponse.json(dadosFormatados)
   } catch (error) {
-    console.error("Erro ao buscar dados semanais:", error)
-    return NextResponse.json(
-      { error: "Erro ao buscar dados" },
-      { status: 500 }
-    )
+    console.error('Erro ao buscar dados semanais:', error)
+    return NextResponse.json({ error: 'Erro ao buscar dados' }, { status: 500 })
   }
 }

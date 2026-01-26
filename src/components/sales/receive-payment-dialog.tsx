@@ -1,29 +1,30 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState } from 'react'
+
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
-import { useSettings } from "@/hooks/use-settings"
-import { useAddPayment } from "@/hooks/use-sales"
-import { Sale } from "@/types"
-import { formatCurrency } from "@/lib/utils"
-import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
+} from '@/components/ui/select'
+import { useToast } from '@/components/ui/use-toast'
+import { useAddPayment } from '@/hooks/use-sales'
+import { useSettings } from '@/hooks/use-settings'
+import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
+import { formatCurrency } from '@/lib/utils'
+import { type Sale } from '@/types'
 
 interface ReceivePaymentDialogProps {
   open: boolean
@@ -36,10 +37,10 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
   const { data: settings } = useSettings()
   const addPayment = useAddPayment()
 
-  const [method, setMethod] = useState<"CASH" | "PIX" | "DEBIT" | "CREDIT">("PIX")
+  const [method, setMethod] = useState<'CASH' | 'PIX' | 'DEBIT' | 'CREDIT'>('PIX')
   const [amount, setAmount] = useState(0)
   const [feePercent, setFeePercent] = useState(0)
-  const [feeAbsorber, setFeeAbsorber] = useState<"SELLER" | "CLIENT">("SELLER")
+  const [feeAbsorber, setFeeAbsorber] = useState<'SELLER' | 'CLIENT'>('SELLER')
   const [installments, setInstallments] = useState(1)
 
   if (!sale) return null
@@ -48,13 +49,13 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
   const total = Number(sale.total)
   const remaining = total - paidAmount
 
-  const handleMethodChange = (newMethod: "CASH" | "PIX" | "DEBIT" | "CREDIT") => {
+  const handleMethodChange = (newMethod: 'CASH' | 'PIX' | 'DEBIT' | 'CREDIT') => {
     setMethod(newMethod)
     switch (newMethod) {
-      case "DEBIT":
+      case 'DEBIT':
         setFeePercent(Number(settings?.debitFeePercent || 1.5))
         break
-      case "CREDIT":
+      case 'CREDIT':
         setFeePercent(
           installments > 1
             ? Number(settings?.creditInstallmentFee || 4)
@@ -68,7 +69,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
 
   const handleInstallmentsChange = (value: number) => {
     setInstallments(value)
-    if (method === "CREDIT") {
+    if (method === 'CREDIT') {
       setFeePercent(
         value > 1
           ? Number(settings?.creditInstallmentFee || 4)
@@ -79,15 +80,15 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
 
   const handleSubmit = async () => {
     if (amount <= 0) {
-      toast({ title: "Informe um valor válido", variant: "destructive" })
+      toast({ title: 'Informe um valor válido', variant: 'destructive' })
       return
     }
 
     if (amount > remaining + 0.01) {
-      toast({ 
-        title: "Valor excede o saldo devedor", 
+      toast({
+        title: 'Valor excede o saldo devedor',
         description: `Máximo: ${formatCurrency(remaining)}`,
-        variant: "destructive" 
+        variant: 'destructive',
       })
       return
     }
@@ -105,23 +106,24 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
       })
 
       const newRemaining = remaining - amount
-      toast({ 
-        title: "Pagamento registrado!",
-        description: newRemaining <= 0.01 
-          ? "Venda quitada!" 
-          : `Saldo restante: ${formatCurrency(newRemaining)}`
+      toast({
+        title: 'Pagamento registrado!',
+        description:
+          newRemaining <= 0.01
+            ? 'Venda quitada!'
+            : `Saldo restante: ${formatCurrency(newRemaining)}`,
       })
 
       setAmount(0)
-      setMethod("PIX")
+      setMethod('PIX')
       setFeePercent(0)
       setInstallments(1)
       onOpenChange(false)
     } catch (error: any) {
       toast({
-        title: "Erro ao registrar pagamento",
+        title: 'Erro ao registrar pagamento',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       })
     }
   }
@@ -129,9 +131,9 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen && sale) {
       setAmount(remaining)
-      setMethod("PIX")
+      setMethod('PIX')
       setFeePercent(0)
-      setFeeAbsorber(settings?.defaultFeeAbsorber || "SELLER")
+      setFeeAbsorber(settings?.defaultFeeAbsorber || 'SELLER')
       setInstallments(1)
     }
     onOpenChange(isOpen)
@@ -148,7 +150,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
           <div className="rounded-md bg-muted p-3 space-y-1">
             <div className="flex justify-between text-sm">
               <span>Cliente:</span>
-              <span className="font-medium">{sale.client?.name || "—"}</span>
+              <span className="font-medium">{sale.client?.name || '—'}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span>Total da Venda:</span>
@@ -191,26 +193,26 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
               onChange={(e) => setAmount(Number(e.target.value))}
             />
             <div className="flex gap-2">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 size="sm"
                 onClick={() => setAmount(remaining)}
               >
                 Valor Total
               </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 size="sm"
-                onClick={() => setAmount(Math.round(remaining / 2 * 100) / 100)}
+                onClick={() => setAmount(Math.round((remaining / 2) * 100) / 100)}
               >
                 Metade
               </Button>
             </div>
           </div>
 
-          {method === "CREDIT" && (
+          {method === 'CREDIT' && (
             <div className="space-y-2">
               <Label>Parcelas</Label>
               <Select
@@ -223,7 +225,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
                 <SelectContent>
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
                     <SelectItem key={n} value={n.toString()}>
-                      {n}x {n === 1 ? "à vista" : ""}
+                      {n}x {n === 1 ? 'à vista' : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -234,7 +236,10 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
           {feePercent > 0 && (
             <div className="space-y-2">
               <Label>Quem paga a taxa?</Label>
-              <Select value={feeAbsorber} onValueChange={(v) => setFeeAbsorber(v as typeof feeAbsorber)}>
+              <Select
+                value={feeAbsorber}
+                onValueChange={(v) => setFeeAbsorber(v as typeof feeAbsorber)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -252,7 +257,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={addPayment.isPending}>
-            {addPayment.isPending ? "Registrando..." : "Registrar Pagamento"}
+            {addPayment.isPending ? 'Registrando...' : 'Registrar Pagamento'}
           </Button>
         </DialogFooter>
       </DialogContent>

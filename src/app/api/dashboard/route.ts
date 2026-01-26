@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { cache, CACHE_TTL, CACHE_KEYS } from "@/lib/cache"
-import { startOfDay, startOfWeek, startOfMonth, endOfDay } from "date-fns"
+import { startOfDay, startOfWeek, startOfMonth, endOfDay } from 'date-fns'
+import { NextResponse } from 'next/server'
+
+import { cache, CACHE_TTL, CACHE_KEYS } from '@/lib/cache'
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,7 +38,7 @@ async function fetchDashboardData(): Promise<DashboardData> {
     // Sales today
     prisma.sale.aggregate({
       where: {
-        status: "COMPLETED",
+        status: 'COMPLETED',
         createdAt: { gte: todayStart, lte: todayEnd },
       },
       _sum: { total: true },
@@ -47,7 +48,7 @@ async function fetchDashboardData(): Promise<DashboardData> {
     // Sales this week
     prisma.sale.aggregate({
       where: {
-        status: "COMPLETED",
+        status: 'COMPLETED',
         createdAt: { gte: weekStart },
       },
       _sum: { total: true },
@@ -57,7 +58,7 @@ async function fetchDashboardData(): Promise<DashboardData> {
     // Sales this month
     prisma.sale.aggregate({
       where: {
-        status: "COMPLETED",
+        status: 'COMPLETED',
         createdAt: { gte: monthStart },
       },
       _sum: { total: true },
@@ -85,14 +86,14 @@ async function fetchDashboardData(): Promise<DashboardData> {
 
     // Recent sales - optimized includes
     prisma.sale.findMany({
-      where: { status: "COMPLETED" },
+      where: { status: 'COMPLETED' },
       select: {
         id: true,
         total: true,
         createdAt: true,
         client: { select: { id: true, name: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: 5,
     }),
 
@@ -147,9 +148,9 @@ export async function GET() {
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error("Error fetching dashboard:", error)
+    console.error('Error fetching dashboard:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao buscar dashboard" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar dashboard' } },
       { status: 500 }
     )
   }

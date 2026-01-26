@@ -1,5 +1,6 @@
-import { prisma } from "@/lib/prisma"
-import { ReceivableStatus } from "@prisma/client"
+import { type ReceivableStatus } from '@prisma/client'
+
+import { prisma } from '@/lib/prisma'
 
 interface ListFilters {
   clientId?: string
@@ -19,12 +20,13 @@ export const receivableService = {
         ...(saleId && { saleId }),
         ...(clientId && { sale: { clientId } }),
         ...(status && (Array.isArray(status) ? { status: { in: status } } : { status })),
-        ...(startDate && endDate && {
-          dueDate: {
-            gte: startDate,
-            lte: endDate,
-          },
-        }),
+        ...(startDate &&
+          endDate && {
+            dueDate: {
+              gte: startDate,
+              lte: endDate,
+            },
+          }),
       },
       include: {
         sale: {
@@ -33,7 +35,7 @@ export const receivableService = {
           },
         },
       },
-      orderBy: { dueDate: "asc" },
+      orderBy: { dueDate: 'asc' },
       take: limit,
     })
   },
@@ -42,40 +44,42 @@ export const receivableService = {
     return prisma.receivable.findMany({
       where: {
         sale: { clientId },
-        ...(filters?.startDate && filters?.endDate && {
-          dueDate: {
-            gte: filters.startDate,
-            lte: filters.endDate,
-          },
-        }),
+        ...(filters?.startDate &&
+          filters?.endDate && {
+            dueDate: {
+              gte: filters.startDate,
+              lte: filters.endDate,
+            },
+          }),
       },
       include: {
         sale: {
           include: { client: true },
         },
       },
-      orderBy: { dueDate: "asc" },
+      orderBy: { dueDate: 'asc' },
     })
   },
 
   async listPending(filters?: { startDate?: Date; endDate?: Date; limit?: number }) {
-    const now = new Date()
+    const _now = new Date()
     return prisma.receivable.findMany({
       where: {
-        status: { in: ["PENDING", "PARTIAL"] },
-        ...(filters?.startDate && filters?.endDate && {
-          dueDate: {
-            gte: filters.startDate,
-            lte: filters.endDate,
-          },
-        }),
+        status: { in: ['PENDING', 'PARTIAL'] },
+        ...(filters?.startDate &&
+          filters?.endDate && {
+            dueDate: {
+              gte: filters.startDate,
+              lte: filters.endDate,
+            },
+          }),
       },
       include: {
         sale: {
           include: { client: true },
         },
       },
-      orderBy: { dueDate: "asc" },
+      orderBy: { dueDate: 'asc' },
       take: filters?.limit || 50,
     })
   },
@@ -84,7 +88,7 @@ export const receivableService = {
     const now = new Date()
     return prisma.receivable.findMany({
       where: {
-        status: { in: ["PENDING", "PARTIAL"] },
+        status: { in: ['PENDING', 'PARTIAL'] },
         dueDate: { lt: now },
       },
       include: {
@@ -92,7 +96,7 @@ export const receivableService = {
           include: { client: true },
         },
       },
-      orderBy: { dueDate: "asc" },
+      orderBy: { dueDate: 'asc' },
       take: limit || 50,
     })
   },
@@ -109,25 +113,25 @@ export const receivableService = {
   },
 
   async registerPayment(
-    id: string, 
-    amount: number, 
-    paymentMethod: "CASH" | "PIX" | "DEBIT" | "CREDIT" = "CASH",
+    id: string,
+    amount: number,
+    paymentMethod: 'CASH' | 'PIX' | 'DEBIT' | 'CREDIT' = 'CASH',
     paidAt?: Date
   ) {
-    const receivable = await prisma.receivable.findUnique({ 
+    const receivable = await prisma.receivable.findUnique({
       where: { id },
-      include: { sale: true }
+      include: { sale: true },
     })
-    if (!receivable) throw new Error("Parcela não encontrada")
+    if (!receivable) throw new Error('Parcela não encontrada')
 
     const newPaidAmount = Number(receivable.paidAmount) + amount
     const expectedAmount = Number(receivable.amount)
 
-    let newStatus: ReceivableStatus = "PENDING"
+    let newStatus: ReceivableStatus = 'PENDING'
     if (newPaidAmount >= expectedAmount) {
-      newStatus = "PAID"
+      newStatus = 'PAID'
     } else if (newPaidAmount > 0) {
-      newStatus = "PARTIAL"
+      newStatus = 'PARTIAL'
     }
 
     // Use transaction to ensure atomicity
@@ -137,7 +141,7 @@ export const receivableService = {
         where: { id },
         data: {
           paidAmount: newPaidAmount,
-          paidAt: newStatus === "PAID" ? (paidAt || new Date()) : null,
+          paidAt: newStatus === 'PAID' ? paidAt || new Date() : null,
           status: newStatus,
         },
         include: {
@@ -155,7 +159,7 @@ export const receivableService = {
           amount: amount,
           feePercent: 0,
           feeAmount: 0,
-          feeAbsorber: "SELLER",
+          feeAbsorber: 'SELLER',
           installments: 1,
         },
       })
@@ -171,7 +175,7 @@ export const receivableService = {
       )
 
       // Get existing payments that were made at sale creation time
-      const existingPayments = await tx.payment.findMany({
+      const _existingPayments = await tx.payment.findMany({
         where: { saleId: receivable.saleId },
       })
 
@@ -182,17 +186,17 @@ export const receivableService = {
       const saleTotal = Number(sale?.total || 0)
 
       // Check if sale is fully paid
-      const isFullyPaid = totalPaidFromReceivables >= saleTotal - 0.01
-      const allReceivablesPaid = allReceivables.every(r => 
-        r.id === id ? newStatus === "PAID" : r.status === "PAID"
+      const _isFullyPaid = totalPaidFromReceivables >= saleTotal - 0.01
+      const allReceivablesPaid = allReceivables.every((r) =>
+        r.id === id ? newStatus === 'PAID' : r.status === 'PAID'
       )
 
       await tx.sale.update({
         where: { id: receivable.saleId },
-        data: { 
+        data: {
           paidAmount: totalPaidFromReceivables,
           // Update status to COMPLETED if all receivables are paid
-          ...(allReceivablesPaid && { status: "COMPLETED" }),
+          ...(allReceivablesPaid && { status: 'COMPLETED' }),
         },
       })
 
@@ -205,20 +209,20 @@ export const receivableService = {
   async registerPaymentWithDistribution(
     saleId: string,
     amount: number,
-    paymentMethod: "CASH" | "PIX" | "DEBIT" | "CREDIT" = "CASH",
+    paymentMethod: 'CASH' | 'PIX' | 'DEBIT' | 'CREDIT' = 'CASH',
     paidAt?: Date
   ) {
     // Get all pending/partial receivables for this sale, ordered by installment
     const receivables = await prisma.receivable.findMany({
       where: {
         saleId,
-        status: { in: ["PENDING", "PARTIAL"] },
+        status: { in: ['PENDING', 'PARTIAL'] },
       },
-      orderBy: { installment: "asc" },
+      orderBy: { installment: 'asc' },
     })
 
     if (receivables.length === 0) {
-      throw new Error("Nenhuma parcela pendente encontrada para esta venda")
+      throw new Error('Nenhuma parcela pendente encontrada para esta venda')
     }
 
     // Calculate total remaining for the sale
@@ -243,11 +247,11 @@ export const receivableService = {
         const paymentForThis = Math.min(remainingPayment, receivableRemaining)
 
         const newPaidAmount = Number(receivable.paidAmount) + paymentForThis
-        let newStatus: ReceivableStatus = "PENDING"
+        let newStatus: ReceivableStatus = 'PENDING'
         if (newPaidAmount >= Number(receivable.amount) - 0.01) {
-          newStatus = "PAID"
+          newStatus = 'PAID'
         } else if (newPaidAmount > 0) {
-          newStatus = "PARTIAL"
+          newStatus = 'PARTIAL'
         }
 
         const updatedReceivable = await tx.receivable.update({
@@ -255,7 +259,7 @@ export const receivableService = {
           data: {
             paidAmount: newPaidAmount,
             status: newStatus,
-            paidAt: newStatus === "PAID" ? (paidAt || new Date()) : null,
+            paidAt: newStatus === 'PAID' ? paidAt || new Date() : null,
           },
         })
 
@@ -271,7 +275,7 @@ export const receivableService = {
           amount: amount,
           feePercent: 0,
           feeAmount: 0,
-          feeAbsorber: "SELLER",
+          feeAbsorber: 'SELLER',
           installments: 1,
           paidAt: paidAt || new Date(),
         },
@@ -287,31 +291,33 @@ export const receivableService = {
         0
       )
 
-      const allReceivablesPaid = allReceivables.every(r => r.status === "PAID")
+      const allReceivablesPaid = allReceivables.every((r) => r.status === 'PAID')
 
       // Update dueDate of remaining pending receivables to push client to end of queue
       // Only update if there are still pending receivables (not fully paid)
       if (!allReceivablesPaid) {
         const pendingReceivables = allReceivables.filter(
-          r => r.status === "PENDING" || r.status === "PARTIAL"
+          (r) => r.status === 'PENDING' || r.status === 'PARTIAL'
         )
-        
+
         if (pendingReceivables.length > 0) {
           // Get the sale to check for paymentDay configuration
-          const sale = await tx.sale.findUnique({ where: { id: saleId } }) as { paymentDay?: number | null } | null
-          
+          const sale = (await tx.sale.findUnique({ where: { id: saleId } })) as {
+            paymentDay?: number | null
+          } | null
+
           // Calculate new due date: 30 days from now, or use paymentDay if configured
           const now = new Date()
           let newDueDate = new Date(now)
           newDueDate.setDate(newDueDate.getDate() + 30)
-          
+
           // If sale has a specific payment day configured, use it
           if (sale?.paymentDay) {
             newDueDate = new Date(now)
             newDueDate.setMonth(newDueDate.getMonth() + 1)
             newDueDate.setDate(sale.paymentDay)
           }
-          
+
           // Update the next pending receivable's due date
           const nextPending = pendingReceivables.sort((a, b) => a.installment - b.installment)[0]
           await tx.receivable.update({
@@ -325,7 +331,7 @@ export const receivableService = {
         where: { id: saleId },
         data: {
           paidAmount: totalPaidFromReceivables,
-          ...(allReceivablesPaid && { status: "COMPLETED" }),
+          ...(allReceivablesPaid && { status: 'COMPLETED' }),
         },
       })
 
@@ -340,10 +346,7 @@ export const receivableService = {
       where: { saleId },
     })
 
-    const totalPaid = receivables.reduce(
-      (sum, r) => sum + Number(r.paidAmount),
-      0
-    )
+    const totalPaid = receivables.reduce((sum, r) => sum + Number(r.paidAmount), 0)
 
     await prisma.sale.update({
       where: { id: saleId },
@@ -351,12 +354,7 @@ export const receivableService = {
     })
   },
 
-  async createForSale(
-    saleId: string,
-    total: number,
-    installmentPlan: number,
-    dueDate: Date
-  ) {
+  async createForSale(saleId: string, total: number, installmentPlan: number, dueDate: Date) {
     const installmentAmount = total / installmentPlan
 
     const receivables = Array.from({ length: installmentPlan }, (_, i) => {
@@ -378,7 +376,7 @@ export const receivableService = {
     const receivables = await prisma.receivable.findMany({
       where: {
         sale: { clientId },
-        status: { in: ["PENDING", "PARTIAL"] },
+        status: { in: ['PENDING', 'PARTIAL'] },
       },
     })
 
@@ -387,9 +385,7 @@ export const receivableService = {
       0
     )
 
-    const overdueCount = receivables.filter(
-      (r) => new Date(r.dueDate) < new Date()
-    ).length
+    const overdueCount = receivables.filter((r) => new Date(r.dueDate) < new Date()).length
 
     return {
       totalDue,
@@ -400,12 +396,14 @@ export const receivableService = {
 
   async getDashboardSummary(startDate?: Date, endDate?: Date) {
     // Use SQL aggregation for better performance - single query for all totals
-    const summaryResult = await prisma.$queryRaw<{
-      totalDue: string | null
-      totalOverdue: string | null
-      pendingCount: string
-      overdueCount: string
-    }[]>`
+    const summaryResult = await prisma.$queryRaw<
+      {
+        totalDue: string | null
+        totalOverdue: string | null
+        pendingCount: string
+        overdueCount: string
+      }[]
+    >`
       SELECT 
         COALESCE(SUM(r."amount" - r."paidAmount"), 0)::text as "totalDue",
         COALESCE(SUM(CASE WHEN r."dueDate" < NOW() THEN r."amount" - r."paidAmount" ELSE 0 END), 0)::text as "totalOverdue",
@@ -418,10 +416,11 @@ export const receivableService = {
     // Fetch only top 10 receivables for display (lightweight query with select)
     const receivables = await prisma.receivable.findMany({
       where: {
-        status: { in: ["PENDING", "PARTIAL"] },
-        ...(startDate && endDate && {
-          dueDate: { gte: startDate, lte: endDate },
-        }),
+        status: { in: ['PENDING', 'PARTIAL'] },
+        ...(startDate &&
+          endDate && {
+            dueDate: { gte: startDate, lte: endDate },
+          }),
       },
       select: {
         id: true,
@@ -438,11 +437,16 @@ export const receivableService = {
           },
         },
       },
-      orderBy: { dueDate: "asc" },
+      orderBy: { dueDate: 'asc' },
       take: 10,
     })
 
-    const summary = summaryResult[0] || { totalDue: '0', totalOverdue: '0', pendingCount: '0', overdueCount: '0' }
+    const summary = summaryResult[0] || {
+      totalDue: '0',
+      totalOverdue: '0',
+      pendingCount: '0',
+      overdueCount: '0',
+    }
 
     return {
       totalDue: Number(summary.totalDue || 0),
@@ -456,20 +460,20 @@ export const receivableService = {
   async listSalesWithPendingReceivables(limit?: number) {
     const sales = await prisma.sale.findMany({
       where: {
-        status: "PENDING",
+        status: 'PENDING',
         receivables: {
           some: {
-            status: { in: ["PENDING", "PARTIAL"] },
+            status: { in: ['PENDING', 'PARTIAL'] },
           },
         },
       },
       include: {
         client: true,
         receivables: {
-          orderBy: { installment: "asc" },
+          orderBy: { installment: 'asc' },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: limit || 100,
     })
 

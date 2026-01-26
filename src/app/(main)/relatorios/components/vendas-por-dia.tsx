@@ -1,11 +1,30 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from "recharts"
-import { Calendar, TrendingUp, TrendingDown, DollarSign, Activity, Clock } from "lucide-react"
+import { Calendar, TrendingUp, TrendingDown, DollarSign, Activity, Clock } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Area,
+  AreaChart,
+} from 'recharts'
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface DiaData {
   data: string
@@ -29,7 +48,7 @@ export function VendasPorDia() {
         const data = await response.json()
         setDados(data)
       } catch (error) {
-        console.error("Erro ao buscar dados:", error)
+        console.error('Erro ao buscar dados:', error)
       } finally {
         setLoading(false)
       }
@@ -45,9 +64,9 @@ export function VendasPorDia() {
   })
 
   const formatMes = (mes: string) => {
-    const [ano, mesNum] = mes.split("-")
+    const [ano, mesNum] = mes.split('-')
     const date = new Date(parseInt(ano), parseInt(mesNum) - 1)
-    return date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })
+    return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
   }
 
   if (loading) {
@@ -58,9 +77,7 @@ export function VendasPorDia() {
             <Calendar className="h-5 w-5" />
             Vendas por Dia
           </CardTitle>
-          <CardDescription>
-            Análise detalhada de vendas diárias
-          </CardDescription>
+          <CardDescription>Análise detalhada de vendas diárias</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -76,19 +93,19 @@ export function VendasPorDia() {
     )
   }
 
-  const chartData = dados.map(dia => ({
+  const chartData = dados.map((dia) => ({
     name: new Date(dia.data).getDate(),
     vendas: dia.total,
     quantidade: dia.vendas,
   }))
 
-  const chartDataVariacao = dados.map(dia => ({
+  const chartDataVariacao = dados.map((dia) => ({
     name: new Date(dia.data).getDate(),
     variacao: dia.variacao,
   }))
 
-  const melhorDia = dados.reduce((max, dia) => dia.total > max.total ? dia : max, dados[0])
-  const piorDia = dados.reduce((min, dia) => dia.total < min.total ? dia : min, dados[0])
+  const melhorDia = dados.reduce((max, dia) => (dia.total > max.total ? dia : max), dados[0])
+  const piorDia = dados.reduce((min, dia) => (dia.total < min.total ? dia : min), dados[0])
 
   return (
     <div className="space-y-6">
@@ -104,7 +121,7 @@ export function VendasPorDia() {
             <SelectValue placeholder="Selecione o mês" />
           </SelectTrigger>
           <SelectContent>
-            {meses.map(mes => (
+            {meses.map((mes) => (
               <SelectItem key={mes} value={mes}>
                 {formatMes(mes)}
               </SelectItem>
@@ -117,9 +134,7 @@ export function VendasPorDia() {
         <Card>
           <CardHeader>
             <CardTitle>Total de Vendas Diárias</CardTitle>
-            <CardDescription>
-              Valor total vendido por dia
-            </CardDescription>
+            <CardDescription>Valor total vendido por dia</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -127,12 +142,14 @@ export function VendasPorDia() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip 
-                  formatter={(value: number | undefined) => 
-                    value ? value.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    }) : "R$ 0,00"
+                <Tooltip
+                  formatter={(value: number | undefined) =>
+                    value
+                      ? value.toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        })
+                      : 'R$ 0,00'
                   }
                   labelFormatter={(label) => `Dia ${label}`}
                 />
@@ -145,9 +162,7 @@ export function VendasPorDia() {
         <Card>
           <CardHeader>
             <CardTitle>Quantidade de Vendas</CardTitle>
-            <CardDescription>
-              Número de vendas realizadas por dia
-            </CardDescription>
+            <CardDescription>Número de vendas realizadas por dia</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -155,16 +170,19 @@ export function VendasPorDia() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip 
-                  formatter={(value: number | undefined) => [value ? `${value} vendas` : "0 vendas", "Quantidade"]}
+                <Tooltip
+                  formatter={(value: number | undefined) => [
+                    value ? `${value} vendas` : '0 vendas',
+                    'Quantidade',
+                  ]}
                   labelFormatter={(label) => `Dia ${label}`}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="quantidade" 
-                  stroke="#8884d8" 
+                <Line
+                  type="monotone"
+                  dataKey="quantidade"
+                  stroke="#8884d8"
                   strokeWidth={2}
-                  dot={{ fill: "#8884d8" }}
+                  dot={{ fill: '#8884d8' }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -175,9 +193,7 @@ export function VendasPorDia() {
       <Card>
         <CardHeader>
           <CardTitle>Variação Diária</CardTitle>
-          <CardDescription>
-            Percentual de variação dia a dia
-          </CardDescription>
+          <CardDescription>Percentual de variação dia a dia</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -185,15 +201,18 @@ export function VendasPorDia() {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Tooltip 
-                formatter={(value: number | undefined) => [value ? `${value.toFixed(1)}%` : "0%", "Variação"]}
+              <Tooltip
+                formatter={(value: number | undefined) => [
+                  value ? `${value.toFixed(1)}%` : '0%',
+                  'Variação',
+                ]}
                 labelFormatter={(label) => `Dia ${label}`}
               />
-              <Area 
-                type="monotone" 
-                dataKey="variacao" 
-                stroke="#8884d8" 
-                fill="#8884d8" 
+              <Area
+                type="monotone"
+                dataKey="variacao"
+                stroke="#8884d8"
+                fill="#8884d8"
                 fillOpacity={0.6}
               />
             </AreaChart>
@@ -209,13 +228,13 @@ export function VendasPorDia() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {melhorDia?.total.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }) || "-"}
+              {melhorDia?.total.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              }) || '-'}
             </div>
             <p className="text-xs text-muted-foreground">
-              {melhorDia ? new Date(melhorDia.data).toLocaleDateString("pt-BR") : "-"}
+              {melhorDia ? new Date(melhorDia.data).toLocaleDateString('pt-BR') : '-'}
             </p>
           </CardContent>
         </Card>
@@ -227,13 +246,13 @@ export function VendasPorDia() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {piorDia?.total.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }) || "-"}
+              {piorDia?.total.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              }) || '-'}
             </div>
             <p className="text-xs text-muted-foreground">
-              {piorDia ? new Date(piorDia.data).toLocaleDateString("pt-BR") : "-"}
+              {piorDia ? new Date(piorDia.data).toLocaleDateString('pt-BR') : '-'}
             </p>
           </CardContent>
         </Card>
@@ -245,14 +264,17 @@ export function VendasPorDia() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dados.length > 0 ? (dados.reduce((sum, d) => sum + d.total, 0) / dados.length).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }) : "-"}
+              {dados.length > 0
+                ? (dados.reduce((sum, d) => sum + d.total, 0) / dados.length).toLocaleString(
+                    'pt-BR',
+                    {
+                      style: 'currency',
+                      currency: 'BRL',
+                    }
+                  )
+                : '-'}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Média de vendas por dia
-            </p>
+            <p className="text-xs text-muted-foreground">Média de vendas por dia</p>
           </CardContent>
         </Card>
       </div>
@@ -264,12 +286,8 @@ export function VendasPorDia() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {dados.filter(d => d.total > 0).length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              de {dados.length} dias no mês
-            </p>
+            <div className="text-2xl font-bold">{dados.filter((d) => d.total > 0).length}</div>
+            <p className="text-xs text-muted-foreground">de {dados.length} dias no mês</p>
           </CardContent>
         </Card>
 
@@ -280,14 +298,17 @@ export function VendasPorDia() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dados.length > 0 ? (dados.reduce((sum, d) => sum + d.ticketMedio, 0) / dados.length).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }) : "-"}
+              {dados.length > 0
+                ? (dados.reduce((sum, d) => sum + d.ticketMedio, 0) / dados.length).toLocaleString(
+                    'pt-BR',
+                    {
+                      style: 'currency',
+                      currency: 'BRL',
+                    }
+                  )
+                : '-'}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Média por venda
-            </p>
+            <p className="text-xs text-muted-foreground">Média por venda</p>
           </CardContent>
         </Card>
 
@@ -297,12 +318,8 @@ export function VendasPorDia() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {dados.length > 0 ? dados[0].horaPico : "-"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Horário com mais vendas
-            </p>
+            <div className="text-2xl font-bold">{dados.length > 0 ? dados[0].horaPico : '-'}</div>
+            <p className="text-xs text-muted-foreground">Horário com mais vendas</p>
           </CardContent>
         </Card>
 
@@ -313,14 +330,14 @@ export function VendasPorDia() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dados.reduce((sum, d) => sum + d.total, 0).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
+              {dados
+                .reduce((sum, d) => sum + d.total, 0)
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                })}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Soma de todas as vendas
-            </p>
+            <p className="text-xs text-muted-foreground">Soma de todas as vendas</p>
           </CardContent>
         </Card>
       </div>

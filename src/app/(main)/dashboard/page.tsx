@@ -1,34 +1,35 @@
-"use client"
+'use client'
 
-import { useMemo, useState } from "react"
-import { PageHeader } from "@/components/layout/page-header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ChartContainer } from "@/components/ui/chart-container"
-import { PieChart } from "@/components/charts/pie-chart"
-import { BarChart } from "@/components/charts/bar-chart"
-import { FilterBar } from "@/components/ui/filter-bar"
-import { Button } from "@/components/ui/button"
-import { SaleForm } from "@/components/sales/sale-form"
-import { useFilters } from "@/hooks/use-filters"
-import { DollarSign, Package, Users, TrendingUp, AlertTriangle, Plus } from "lucide-react"
-import { ReceivablesCard } from "@/components/dashboard/receivables-card"
-import { CollectionCard } from "@/components/dashboard/collection-card"
-import { FiadoTable } from "@/components/dashboard/fiado-table"
-import { useDashboard } from "@/hooks/use-dashboard"
-import { useReportByProduct, useTopClientes } from "@/hooks/use-reports"
-import { formatCurrency, formatDate, getDateRange } from "@/lib/utils"
+import { DollarSign, Users, TrendingUp, AlertTriangle, Plus } from 'lucide-react'
+import { useMemo, useState } from 'react'
+
+import { BarChart } from '@/components/charts/bar-chart'
+import { PieChart as _PieChart } from '@/components/charts/pie-chart'
+import { CollectionCard } from '@/components/dashboard/collection-card'
+import { FiadoTable } from '@/components/dashboard/fiado-table'
+import { ReceivablesCard } from '@/components/dashboard/receivables-card'
+import { PageHeader } from '@/components/layout/page-header'
+import { SaleForm } from '@/components/sales/sale-form'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ChartContainer } from '@/components/ui/chart-container'
+import { FilterBar } from '@/components/ui/filter-bar'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useDashboard } from '@/hooks/use-dashboard'
+import { useFilters } from '@/hooks/use-filters'
+import { useReportByProduct, useTopClientes } from '@/hooks/use-reports'
+import { formatCurrency, formatDate, getDateRange } from '@/lib/utils'
 
 const periodOptions = [
-  { value: "today", label: "Hoje" },
-  { value: "week", label: "7 dias" },
-  { value: "month", label: "Mês" },
+  { value: 'today', label: 'Hoje' },
+  { value: 'week', label: '7 dias' },
+  { value: 'month', label: 'Mês' },
 ]
 
 export default function DashboardPage() {
   const { filters, setFilter } = useFilters({
-    initialValues: { period: "month" },
+    initialValues: { period: 'month' },
   })
 
   const [saleFormOpen, setSaleFormOpen] = useState(false)
@@ -37,21 +38,21 @@ export default function DashboardPage() {
 
   const { data, isLoading } = useDashboard()
   // Carregar reports apenas depois do dashboard para evitar sobrecarga
-  const { data: productReport } = useReportByProduct({ 
-    ...dateRange, 
+  const { data: productReport } = useReportByProduct({
+    ...dateRange,
     limit: 5,
-    enabled: !isLoading 
+    enabled: !isLoading,
   })
   const { data: topClientes } = useTopClientes({
     ...dateRange,
     limit: 5,
-    enabled: !isLoading
+    enabled: !isLoading,
   })
 
   const topProductsData = useMemo(
     () =>
       productReport?.products.map((p) => ({
-        name: p.productName.length > 15 ? p.productName.slice(0, 15) + "..." : p.productName,
+        name: p.productName.length > 15 ? p.productName.slice(0, 15) + '...' : p.productName,
         value: p.totalRevenue,
       })) || [],
     [productReport]
@@ -60,7 +61,7 @@ export default function DashboardPage() {
   const topClientesData = useMemo(
     () =>
       topClientes?.map((c) => ({
-        name: c.nome.length > 15 ? c.nome.slice(0, 15) + "..." : c.nome,
+        name: c.nome.length > 15 ? c.nome.slice(0, 15) + '...' : c.nome,
         value: c.totalCompras,
       })) || [],
     [topClientes]
@@ -88,9 +89,7 @@ export default function DashboardPage() {
             Nova Venda
           </Button>
           <FilterBar
-            filters={[
-              { type: "toggle", name: "period", toggleOptions: periodOptions },
-            ]}
+            filters={[{ type: 'toggle', name: 'period', toggleOptions: periodOptions }]}
             values={filters}
             onChange={(name, value) => setFilter(name as keyof typeof filters, value)}
           />
@@ -128,9 +127,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <CollectionCard 
-          period={filters.period as "today" | "week" | "month"} 
-        />
+        <CollectionCard period={filters.period as 'today' | 'week' | 'month'} />
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -161,27 +158,18 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {!data?.recentSales?.length ? (
-              <p className="text-sm text-muted-foreground">
-                Nenhuma venda realizada ainda.
-              </p>
+              <p className="text-sm text-muted-foreground">Nenhuma venda realizada ainda.</p>
             ) : (
               <div className="space-y-3">
                 {data.recentSales.map((sale: any) => (
-                  <div
-                    key={sale.id}
-                    className="flex items-center justify-between text-sm"
-                  >
+                  <div key={sale.id} className="flex items-center justify-between text-sm">
                     <div>
-                      <p className="font-medium">
-                        {sale.client?.name || "Cliente não informado"}
-                      </p>
+                      <p className="font-medium">{sale.client?.name || 'Cliente não informado'}</p>
                       <p className="text-xs text-muted-foreground">
                         {formatDate(new Date(sale.createdAt))}
                       </p>
                     </div>
-                    <span className="font-medium">
-                      {formatCurrency(Number(sale.total))}
-                    </span>
+                    <span className="font-medium">{formatCurrency(Number(sale.total))}</span>
                   </div>
                 ))}
               </div>
@@ -189,10 +177,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <ReceivablesCard
-          startDate={dateRange.startDate}
-          endDate={dateRange.endDate}
-        />
+        <ReceivablesCard startDate={dateRange.startDate} endDate={dateRange.endDate} />
 
         <Card>
           <CardHeader>
@@ -203,16 +188,11 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {!data?.lowStockProducts?.length ? (
-              <p className="text-sm text-muted-foreground">
-                Nenhum produto com estoque baixo.
-              </p>
+              <p className="text-sm text-muted-foreground">Nenhum produto com estoque baixo.</p>
             ) : (
               <div className="space-y-3">
                 {data.lowStockProducts.map((product: any) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center justify-between text-sm"
-                  >
+                  <div key={product.id} className="flex items-center justify-between text-sm">
                     <span className="font-medium">{product.name}</span>
                     <Badge variant="destructive">{product.stock} un.</Badge>
                   </div>

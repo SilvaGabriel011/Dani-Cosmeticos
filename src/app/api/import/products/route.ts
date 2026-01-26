@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { productImportSchema, ProductImportRow } from "@/schemas/import"
-import { Decimal } from "@prisma/client/runtime/library"
+import { Decimal } from '@prisma/client/runtime/library'
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
+import { productImportSchema } from '@/schemas/import'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,8 +22,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Dados inválidos",
+            code: 'VALIDATION_ERROR',
+            message: 'Dados inválidos',
             details: validation.error.flatten().fieldErrors,
           },
         },
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
         }
 
         const nameParts = [row.marca, row.linha, row.fragrancia].filter(Boolean)
-        const productName = nameParts.length > 0 ? nameParts.join(" - ") : `Produto ${rowNumber}`
+        const productName = nameParts.length > 0 ? nameParts.join(' - ') : `Produto ${rowNumber}`
 
         const salePrice = row.valor || 0
         const profitMargin = brandMargin
@@ -124,16 +125,16 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         result.errors.push({
           row: rowNumber,
-          message: error instanceof Error ? error.message : "Erro desconhecido",
+          message: error instanceof Error ? error.message : 'Erro desconhecido',
         })
       }
     }
 
     return NextResponse.json(result, { status: 201 })
   } catch (error) {
-    console.error("Error importing products:", error)
+    console.error('Error importing products:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao importar produtos" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao importar produtos' } },
       { status: 500 }
     )
   }

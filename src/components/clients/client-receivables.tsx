@@ -1,26 +1,29 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Skeleton } from "@/components/ui/skeleton"
+import { type Receivable, type Sale, type Client } from '@prisma/client'
+import { DollarSign } from 'lucide-react'
+import { useState } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -28,13 +31,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { useToast } from "@/components/ui/use-toast"
-import { useReceivablesByClient, usePayReceivable } from "@/hooks/use-receivables"
-import { formatCurrency, formatDate } from "@/lib/utils"
-import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
-import { DollarSign } from "lucide-react"
-import { Receivable, Sale, Client } from "@prisma/client"
+} from '@/components/ui/table'
+import { useToast } from '@/components/ui/use-toast'
+import { useReceivablesByClient, usePayReceivable } from '@/hooks/use-receivables'
+import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
+import { formatCurrency, formatDate } from '@/lib/utils'
 
 type ReceivableWithSale = Receivable & {
   sale: Sale & { client: Client | null }
@@ -45,17 +46,17 @@ interface ClientReceivablesProps {
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  PENDING: "Pendente",
-  PARTIAL: "Parcial",
-  PAID: "Pago",
-  OVERDUE: "Vencido",
+  PENDING: 'Pendente',
+  PARTIAL: 'Parcial',
+  PAID: 'Pago',
+  OVERDUE: 'Vencido',
 }
 
-const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  PENDING: "outline",
-  PARTIAL: "secondary",
-  PAID: "default",
-  OVERDUE: "destructive",
+const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  PENDING: 'outline',
+  PARTIAL: 'secondary',
+  PAID: 'default',
+  OVERDUE: 'destructive',
 }
 
 export function ClientReceivables({ clientId }: ClientReceivablesProps) {
@@ -67,19 +68,19 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
     open: boolean
     receivable: ReceivableWithSale | null
   }>({ open: false, receivable: null })
-  const [paymentAmount, setPaymentAmount] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "PIX" | "DEBIT" | "CREDIT">("CASH")
+  const [paymentAmount, setPaymentAmount] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'PIX' | 'DEBIT' | 'CREDIT'>('CASH')
 
-    const handleOpenPayment = (receivable: ReceivableWithSale) => {
-      const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
-      // Use fixedInstallmentAmount if set, but cap at remaining amount
-      const fixedAmount = receivable.sale?.fixedInstallmentAmount 
-        ? Math.min(Number(receivable.sale.fixedInstallmentAmount), remaining)
-        : remaining
-      setPaymentAmount(String(fixedAmount))
-      setPaymentMethod("CASH")
-      setPaymentDialog({ open: true, receivable })
-    }
+  const handleOpenPayment = (receivable: ReceivableWithSale) => {
+    const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
+    // Use fixedInstallmentAmount if set, but cap at remaining amount
+    const fixedAmount = receivable.sale?.fixedInstallmentAmount
+      ? Math.min(Number(receivable.sale.fixedInstallmentAmount), remaining)
+      : remaining
+    setPaymentAmount(String(fixedAmount))
+    setPaymentMethod('CASH')
+    setPaymentDialog({ open: true, receivable })
+  }
 
   const handlePayment = async () => {
     if (!paymentDialog.receivable || !paymentAmount) return
@@ -90,16 +91,16 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
         amount: Number(paymentAmount),
         paymentMethod,
       })
-      toast({ title: "Pagamento registrado com sucesso!" })
+      toast({ title: 'Pagamento registrado com sucesso!' })
       setPaymentDialog({ open: false, receivable: null })
-      setPaymentAmount("")
-      setPaymentMethod("CASH")
+      setPaymentAmount('')
+      setPaymentMethod('CASH')
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
       toast({
-        title: "Erro ao registrar pagamento",
+        title: 'Erro ao registrar pagamento',
         description: errorMessage,
-        variant: "destructive",
+        variant: 'destructive',
       })
     }
   }
@@ -117,9 +118,10 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
     )
   }
 
-  const pendingReceivables = (receivables as ReceivableWithSale[] | undefined)?.filter(
-    (r: ReceivableWithSale) => r.status !== "PAID"
-  ) || []
+  const pendingReceivables =
+    (receivables as ReceivableWithSale[] | undefined)?.filter(
+      (r: ReceivableWithSale) => r.status !== 'PAID'
+    ) || []
 
   const totalPending = pendingReceivables.reduce(
     (sum: number, r: ReceivableWithSale) => sum + Number(r.amount) - Number(r.paidAmount),
@@ -134,7 +136,10 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
             <CardTitle>Contas a Receber</CardTitle>
             {totalPending > 0 && (
               <p className="text-sm text-muted-foreground mt-1">
-                Total pendente: <span className="font-semibold text-foreground">{formatCurrency(totalPending)}</span>
+                Total pendente:{' '}
+                <span className="font-semibold text-foreground">
+                  {formatCurrency(totalPending)}
+                </span>
               </p>
             )}
           </div>
@@ -159,9 +164,11 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
               </TableHeader>
               <TableBody>
                 {(receivables as ReceivableWithSale[]).map((receivable: ReceivableWithSale) => {
-                  const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
-                  const isOverdue = new Date(receivable.dueDate) < new Date() && receivable.status !== "PAID"
-                  const displayStatus = isOverdue && receivable.status !== "PAID" ? "OVERDUE" : receivable.status
+                  const _remaining = Number(receivable.amount) - Number(receivable.paidAmount)
+                  const isOverdue =
+                    new Date(receivable.dueDate) < new Date() && receivable.status !== 'PAID'
+                  const displayStatus =
+                    isOverdue && receivable.status !== 'PAID' ? 'OVERDUE' : receivable.status
 
                   return (
                     <TableRow key={receivable.id}>
@@ -169,9 +176,7 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
                         {receivable.saleId.slice(0, 8)}...
                       </TableCell>
                       <TableCell>{receivable.installment}x</TableCell>
-                      <TableCell>
-                        {formatDate(new Date(receivable.dueDate))}
-                      </TableCell>
+                      <TableCell>{formatDate(new Date(receivable.dueDate))}</TableCell>
                       <TableCell className="text-right">
                         {formatCurrency(Number(receivable.amount))}
                       </TableCell>
@@ -184,7 +189,7 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        {receivable.status !== "PAID" && (
+                        {receivable.status !== 'PAID' && (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -216,19 +221,19 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
             {paymentDialog.receivable && (
               <div className="text-sm space-y-1">
                 <p>
-                  <span className="text-muted-foreground">Parcela:</span>{" "}
+                  <span className="text-muted-foreground">Parcela:</span>{' '}
                   {paymentDialog.receivable.installment}x
                 </p>
                 <p>
-                  <span className="text-muted-foreground">Valor da parcela:</span>{" "}
+                  <span className="text-muted-foreground">Valor da parcela:</span>{' '}
                   {formatCurrency(Number(paymentDialog.receivable.amount))}
                 </p>
                 <p>
-                  <span className="text-muted-foreground">Já pago:</span>{" "}
+                  <span className="text-muted-foreground">Já pago:</span>{' '}
                   {formatCurrency(Number(paymentDialog.receivable.paidAmount))}
                 </p>
                 <p>
-                  <span className="text-muted-foreground">Restante:</span>{" "}
+                  <span className="text-muted-foreground">Restante:</span>{' '}
                   <span className="font-semibold">
                     {formatCurrency(
                       Number(paymentDialog.receivable.amount) -
@@ -240,7 +245,10 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
             )}
             <div className="space-y-2">
               <Label>Forma de pagamento</Label>
-              <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as typeof paymentMethod)}>
+              <Select
+                value={paymentMethod}
+                onValueChange={(v) => setPaymentMethod(v as typeof paymentMethod)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -272,7 +280,7 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
               Cancelar
             </Button>
             <Button onClick={handlePayment} disabled={payReceivable.isPending}>
-              {payReceivable.isPending ? "Registrando..." : "Confirmar Pagamento"}
+              {payReceivable.isPending ? 'Registrando...' : 'Confirmar Pagamento'}
             </Button>
           </DialogFooter>
         </DialogContent>

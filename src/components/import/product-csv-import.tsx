@@ -1,17 +1,20 @@
-"use client"
+'use client'
 
-import { useState, useCallback } from "react"
-import { Upload, AlertTriangle, CheckCircle2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Upload, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { useState, useCallback } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Table,
   TableBody,
@@ -19,13 +22,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/components/ui/use-toast"
-import { useImportProducts } from "@/hooks/use-import"
-import { ProductImportRow } from "@/schemas/import"
-import { formatCurrency } from "@/lib/utils"
+} from '@/components/ui/table'
+import { useToast } from '@/components/ui/use-toast'
+import { useImportProducts } from '@/hooks/use-import'
+import { formatCurrency } from '@/lib/utils'
+import { type ProductImportRow } from '@/schemas/import'
 
 interface ProductCSVImportProps {
   open: boolean
@@ -38,11 +39,11 @@ interface ParsedRow extends ProductImportRow {
 }
 
 function parseMoneyValue(value: string): number {
-  if (!value || value.trim() === "") return 0
+  if (!value || value.trim() === '') return 0
   const cleaned = value
-    .replace(/R\$\s*/gi, "")
-    .replace(/\./g, "")
-    .replace(",", ".")
+    .replace(/R\$\s*/gi, '')
+    .replace(/\./g, '')
+    .replace(',', '.')
     .trim()
   const num = parseFloat(cleaned)
   return isNaN(num) ? 0 : num
@@ -70,8 +71,8 @@ function parseCSV(text: string): ParsedRow[] {
     const hasWarning = !categoria || valor <= 0
     const warningMessage = hasWarning
       ? !categoria
-        ? "Categoria não informada"
-        : "Valor inválido"
+        ? 'Categoria não informada'
+        : 'Valor inválido'
       : undefined
 
     rows.push({
@@ -97,21 +98,18 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
   const [isLoading, setIsLoading] = useState(false)
   const [defaultMargin, setDefaultMargin] = useState(35)
 
-  const handleFileChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0]
-      if (!file) return
+  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
 
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const text = e.target?.result as string
-        const parsed = parseCSV(text)
-        setParsedData(parsed)
-      }
-      reader.readAsText(file, "UTF-8")
-    },
-    []
-  )
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const text = e.target?.result as string
+      const parsed = parseCSV(text)
+      setParsedData(parsed)
+    }
+    reader.readAsText(file, 'UTF-8')
+  }, [])
 
   const handleImport = async () => {
     if (parsedData.length === 0) return
@@ -146,23 +144,23 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
 
       if (result.errors.length > 0) {
         toast({
-          title: "Importação parcial",
-          description: `${messages.join(", ")}. ${result.errors.length} erros`,
-          variant: "destructive",
+          title: 'Importação parcial',
+          description: `${messages.join(', ')}. ${result.errors.length} erros`,
+          variant: 'destructive',
         })
       } else {
         toast({
-          title: "Importação concluída",
-          description: messages.join(", "),
+          title: 'Importação concluída',
+          description: messages.join(', '),
         })
         onOpenChange(false)
         setParsedData([])
       }
     } catch (error) {
       toast({
-        title: "Erro na importação",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
-        variant: "destructive",
+        title: 'Erro na importação',
+        description: error instanceof Error ? error.message : 'Erro desconhecido',
+        variant: 'destructive',
       })
     } finally {
       setIsLoading(false)
@@ -202,8 +200,7 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
                 Clique para selecionar um arquivo CSV
               </span>
               <span className="text-xs text-muted-foreground">
-                Colunas: MARCA, LINHA, FRAGRANCIA, CATEGORIA, CAIXA/KIT/UNIDADE,
-                QTDE, VALOR
+                Colunas: MARCA, LINHA, FRAGRANCIA, CATEGORIA, CAIXA/KIT/UNIDADE, QTDE, VALOR
               </span>
             </label>
           </div>
@@ -227,9 +224,7 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
           {parsedData.length > 0 && (
             <>
               <div className="flex items-center gap-4 text-sm">
-                <Badge variant="secondary">
-                  {parsedData.length} produtos encontrados
-                </Badge>
+                <Badge variant="secondary">{parsedData.length} produtos encontrados</Badge>
                 {warningCount > 0 && (
                   <Badge variant="warning" className="bg-yellow-100 text-yellow-800">
                     <AlertTriangle className="h-3 w-3 mr-1" />
@@ -254,10 +249,7 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
                   </TableHeader>
                   <TableBody>
                     {parsedData.map((row, index) => (
-                      <TableRow
-                        key={index}
-                        className={row.hasWarning ? "bg-red-50" : ""}
-                      >
+                      <TableRow key={index} className={row.hasWarning ? 'bg-red-50' : ''}>
                         <TableCell>
                           {row.hasWarning ? (
                             <AlertTriangle className="h-4 w-4 text-red-500" />
@@ -266,10 +258,10 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
                           )}
                         </TableCell>
                         <TableCell className="font-medium">{row.marca}</TableCell>
-                        <TableCell>{row.linha || "-"}</TableCell>
-                        <TableCell>{row.fragrancia || "-"}</TableCell>
-                        <TableCell>{row.categoria || "-"}</TableCell>
-                        <TableCell>{row.tipoEmbalagem || "-"}</TableCell>
+                        <TableCell>{row.linha || '-'}</TableCell>
+                        <TableCell>{row.fragrancia || '-'}</TableCell>
+                        <TableCell>{row.categoria || '-'}</TableCell>
+                        <TableCell>{row.tipoEmbalagem || '-'}</TableCell>
                         <TableCell className="text-center">{row.quantidade}</TableCell>
                         <TableCell className="text-right">
                           {formatCurrency(row.valor ?? 0)}
@@ -287,11 +279,8 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
           <Button variant="outline" onClick={handleClose}>
             Cancelar
           </Button>
-          <Button
-            onClick={handleImport}
-            disabled={validCount === 0 || isLoading}
-          >
-            {isLoading ? "Importando..." : `Importar ${validCount} produtos`}
+          <Button onClick={handleImport} disabled={validCount === 0 || isLoading}>
+            {isLoading ? 'Importando...' : `Importar ${validCount} produtos`}
           </Button>
         </DialogFooter>
       </DialogContent>

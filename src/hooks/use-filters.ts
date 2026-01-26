@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { useState, useCallback } from "react"
+import { useState, useCallback } from 'react'
 
 interface UseFiltersOptions<T> {
   initialValues: T
@@ -20,7 +20,7 @@ export function useFilters<T extends Record<string, unknown>>({
   persistKey,
 }: UseFiltersOptions<T>): UseFiltersReturn<T> {
   const [filters, setFiltersState] = useState<T>(() => {
-    if (persistKey && typeof window !== "undefined") {
+    if (persistKey && typeof window !== 'undefined') {
       try {
         const saved = localStorage.getItem(persistKey)
         if (saved) return { ...initialValues, ...JSON.parse(saved) }

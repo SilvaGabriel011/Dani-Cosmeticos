@@ -1,19 +1,17 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { z } from "zod"
+import { type NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
 const stockAdjustmentSchema = z.object({
   quantity: z.number().int(),
-  type: z.enum(["ADJUSTMENT", "ENTRY"]),
+  type: z.enum(['ADJUSTMENT', 'ENTRY']),
   notes: z.string().optional(),
 })
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await request.json()
     const validation = stockAdjustmentSchema.safeParse(body)
@@ -22,8 +20,8 @@ export async function POST(
       return NextResponse.json(
         {
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Dados invalidos",
+            code: 'VALIDATION_ERROR',
+            message: 'Dados invalidos',
             details: validation.error.flatten().fieldErrors,
           },
         },
@@ -39,19 +37,18 @@ export async function POST(
 
     if (!product || product.deletedAt) {
       return NextResponse.json(
-        { error: { code: "NOT_FOUND", message: "Produto nao encontrado" } },
+        { error: { code: 'NOT_FOUND', message: 'Produto nao encontrado' } },
         { status: 404 }
       )
     }
 
     const previousStock = product.stock
-    const newStock = type === "ENTRY" 
-      ? previousStock + Math.abs(quantity)
-      : previousStock + quantity
+    const newStock =
+      type === 'ENTRY' ? previousStock + Math.abs(quantity) : previousStock + quantity
 
     if (newStock < 0) {
       return NextResponse.json(
-        { error: { code: "INVALID_STOCK", message: "Estoque nao pode ser negativo" } },
+        { error: { code: 'INVALID_STOCK', message: 'Estoque nao pode ser negativo' } },
         { status: 400 }
       )
     }
@@ -66,7 +63,7 @@ export async function POST(
         data: {
           productId: params.id,
           type,
-          quantity: type === "ENTRY" ? Math.abs(quantity) : quantity,
+          quantity: type === 'ENTRY' ? Math.abs(quantity) : quantity,
           previousStock,
           newStock,
           notes,
@@ -79,25 +76,22 @@ export async function POST(
       movement: stockMovement,
     })
   } catch (error) {
-    console.error("Error adjusting stock:", error)
+    console.error('Error adjusting stock:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao ajustar estoque" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao ajustar estoque' } },
       { status: 500 }
     )
   }
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get("limit") || "50")
+    const limit = parseInt(searchParams.get('limit') || '50')
 
     const movements = await prisma.stockMovement.findMany({
       where: { productId: params.id },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: limit,
       include: {
         sale: {
@@ -105,18 +99,18 @@ export async function GET(
             id: true,
             createdAt: true,
             client: {
-              select: { name: true }
-            }
-          }
-        }
-      }
+              select: { name: true },
+            },
+          },
+        },
+      },
     })
 
     return NextResponse.json(movements)
   } catch (error) {
-    console.error("Error fetching stock movements:", error)
+    console.error('Error fetching stock movements:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao buscar historico de estoque" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar historico de estoque' } },
       { status: 500 }
     )
   }

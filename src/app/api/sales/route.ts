@@ -1,29 +1,31 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { createSaleSchema } from "@/schemas/sale"
-import { Decimal } from "@prisma/client/runtime/library"
-import { handleApiError, AppError, ErrorCodes } from "@/lib/errors"
-import { cache, CACHE_KEYS } from "@/lib/cache"
+import { Decimal } from '@prisma/client/runtime/library'
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { cache, CACHE_KEYS } from '@/lib/cache'
+import { handleApiError } from "@/lib/errors"
+import { prisma } from '@/lib/prisma'
+import { createSaleSchema } from '@/schemas/sale'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get("page") || "1")
-    const limit = parseInt(searchParams.get("limit") || "20")
-    const status = searchParams.get("status")
-    const clientId = searchParams.get("clientId")
-    const startDate = searchParams.get("startDate")
-    const endDate = searchParams.get("endDate")
-    const categoryId = searchParams.get("categoryId")
-    const productId = searchParams.get("productId")
-    const paymentMethod = searchParams.get("paymentMethod")
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const status = searchParams.get('status')
+    const clientId = searchParams.get('clientId')
+    const startDate = searchParams.get('startDate')
+    const endDate = searchParams.get('endDate')
+    const categoryId = searchParams.get('categoryId')
+    const productId = searchParams.get('productId')
+    const paymentMethod = searchParams.get('paymentMethod')
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {}
 
     if (status) {
-      where.status = status as "COMPLETED" | "PENDING" | "CANCELLED"
+      where.status = status as 'COMPLETED' | 'PENDING' | 'CANCELLED'
     }
 
     if (clientId) {
@@ -40,7 +42,7 @@ export async function GET(request: NextRequest) {
     if (endDate) {
       where.createdAt = {
         ...where.createdAt,
-        lte: new Date(endDate + "T23:59:59.999Z"),
+        lte: new Date(endDate + 'T23:59:59.999Z'),
       }
     }
 
@@ -71,7 +73,7 @@ export async function GET(request: NextRequest) {
         },
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       }),
       prisma.sale.count({ where }),
     ])
@@ -87,10 +89,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     const { message, code, status } = handleApiError(error)
-    return NextResponse.json(
-      { error: { code, message } },
-      { status }
-    )
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }
 
@@ -103,8 +102,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Dados inválidos",
+            code: 'VALIDATION_ERROR',
+            message: 'Dados inválidos',
             details: validation.error.flatten().fieldErrors,
           },
         },
@@ -112,7 +111,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { items, payments, clientId, discountPercent, notes, paymentDay, installmentPlan, fixedInstallmentAmount } = validation.data
+    const {
+      items,
+      payments,
+      clientId,
+      discountPercent,
+      notes,
+      paymentDay,
+      installmentPlan,
+      fixedInstallmentAmount,
+    } = validation.data
 
     // Fetch products and validate stock
     const productIds = items.map((item) => item.productId)
@@ -122,7 +130,7 @@ export async function POST(request: NextRequest) {
 
     if (products.length !== productIds.length) {
       return NextResponse.json(
-        { error: { code: "INVALID_PRODUCT", message: "Produto inválido ou inativo" } },
+        { error: { code: 'INVALID_PRODUCT', message: 'Produto inválido ou inativo' } },
         { status: 400 }
       )
     }
@@ -134,7 +142,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: {
-              code: "INSUFFICIENT_STOCK",
+              code: 'INSUFFICIENT_STOCK',
               message: `Estoque insuficiente para ${product.name}`,
             },
           },
@@ -159,12 +167,13 @@ export async function POST(request: NextRequest) {
     let subtotal = 0
     const saleItems = items.map((item) => {
       const product = products.find((p) => p.id === item.productId)!
-      const total = Number(product.salePrice) * item.quantity
+      const unitPrice = item.unitPrice ?? Number(product.salePrice)
+      const total = unitPrice * item.quantity
       subtotal += total
       return {
         productId: item.productId,
         quantity: item.quantity,
-        unitPrice: product.salePrice,
+        unitPrice: new Decimal(unitPrice),
         costPrice: product.costPrice,
         total: new Decimal(total),
       }
@@ -178,7 +187,7 @@ export async function POST(request: NextRequest) {
     let paidAmount = 0
     const salePayments = payments.map((payment) => {
       const feeAmount = payment.amount * (payment.feePercent / 100)
-      if (payment.feeAbsorber === "SELLER") {
+      if (payment.feeAbsorber === 'SELLER') {
         totalFees += feeAmount
       }
       paidAmount += payment.amount
@@ -197,12 +206,17 @@ export async function POST(request: NextRequest) {
 
     // Determine sale status based on payment
     const isPaid = paidAmount >= total - 0.01
-    const saleStatus = (isPaid ? "COMPLETED" : "PENDING") as "COMPLETED" | "PENDING"
+    const saleStatus = (isPaid ? 'COMPLETED' : 'PENDING') as 'COMPLETED' | 'PENDING'
 
     // Fiado sales require a client
     if (!isPaid && !clientId) {
       return NextResponse.json(
-        { error: { code: "CLIENT_REQUIRED", message: "Vendas fiado precisam de um cliente vinculado" } },
+        {
+          error: {
+            code: 'CLIENT_REQUIRED',
+            message: 'Vendas fiado precisam de um cliente vinculado',
+          },
+        },
         { status: 400 }
       )
     }
@@ -210,24 +224,26 @@ export async function POST(request: NextRequest) {
     // Create sale in transaction
     const sale = await prisma.$transaction(async (tx) => {
       // Create sale
-            const newSale = await tx.sale.create({
-              data: {
-                ...(clientId && { client: { connect: { id: clientId } } }),
-                subtotal: new Decimal(subtotal),
-                discountPercent: new Decimal(finalDiscountPercent),
-                discountAmount: new Decimal(discountAmount),
-                totalFees: new Decimal(totalFees),
-                total: new Decimal(total),
-                netTotal: new Decimal(netTotal),
-                paidAmount: new Decimal(paidAmount),
-                status: saleStatus,
-                notes,
-                paymentDay: paymentDay || null,
-                installmentPlan: installmentPlan || 1,
-                fixedInstallmentAmount: fixedInstallmentAmount ? new Decimal(fixedInstallmentAmount) : null,
-                items: { create: saleItems },
-                payments: { create: salePayments.length > 0 ? salePayments : undefined },
-              },
+      const newSale = await tx.sale.create({
+        data: {
+          ...(clientId && { client: { connect: { id: clientId } } }),
+          subtotal: new Decimal(subtotal),
+          discountPercent: new Decimal(finalDiscountPercent),
+          discountAmount: new Decimal(discountAmount),
+          totalFees: new Decimal(totalFees),
+          total: new Decimal(total),
+          netTotal: new Decimal(netTotal),
+          paidAmount: new Decimal(paidAmount),
+          status: saleStatus,
+          notes,
+          paymentDay: paymentDay || null,
+          installmentPlan: installmentPlan || 1,
+          fixedInstallmentAmount: fixedInstallmentAmount
+            ? new Decimal(fixedInstallmentAmount)
+            : null,
+          items: { create: saleItems },
+          payments: { create: salePayments.length > 0 ? salePayments : undefined },
+        },
         include: {
           client: true,
           items: { include: { product: true } },
@@ -249,7 +265,7 @@ export async function POST(request: NextRequest) {
         await tx.stockMovement.create({
           data: {
             productId: item.productId,
-            type: "SALE",
+            type: 'SALE',
             quantity: -item.quantity,
             previousStock,
             newStock,
@@ -263,27 +279,27 @@ export async function POST(request: NextRequest) {
         const remainingAmount = total - paidAmount
         const numInstallments = installmentPlan && installmentPlan >= 1 ? installmentPlan : 1
         const installmentAmount = remainingAmount / numInstallments
-        
+
         // Calculate due dates based on paymentDay (day of month)
         const now = new Date()
         const day = paymentDay || 10 // Default to day 10 if not specified
-        
+
         const receivables = Array.from({ length: numInstallments }, (_, i) => {
           // Start from current month, but if the day has passed, start from next month
           let targetMonth = now.getMonth() + i
           let targetYear = now.getFullYear()
-          
+
           // If first installment and the day has already passed this month, start next month
           if (i === 0 && now.getDate() >= day) {
             targetMonth += 1
           }
-          
+
           // Handle year overflow
           while (targetMonth > 11) {
             targetMonth -= 12
             targetYear += 1
           }
-          
+
           // Create date, handling months with fewer days
           const dueDate = new Date(targetYear, targetMonth, day)
           // If the day doesn't exist in that month (e.g., Feb 30), it will roll over
@@ -313,9 +329,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(sale, { status: 201 })
   } catch (error) {
     const { message, code, status } = handleApiError(error)
-    return NextResponse.json(
-      { error: { code, message } },
-      { status }
-    )
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

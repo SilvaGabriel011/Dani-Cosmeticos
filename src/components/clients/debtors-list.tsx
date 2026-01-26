@@ -1,26 +1,28 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
+import { Search, Users } from 'lucide-react'
+import { useState } from 'react'
+
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useDebtors } from "@/hooks/use-debtors"
-import { DebtorCard } from "./debtor-card"
-import { useDebounce } from "@/hooks/use-debounce"
-import { Search, Users } from "lucide-react"
-import { formatCurrency } from "@/lib/utils"
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useDebounce } from '@/hooks/use-debounce'
+import { useDebtors } from '@/hooks/use-debtors'
+import { formatCurrency } from '@/lib/utils'
 
-type SortOption = "totalDebt" | "overdueAmount" | "oldestDueDate" | "name"
+import { DebtorCard } from './debtor-card'
+
+type SortOption = 'totalDebt' | 'overdueAmount' | 'oldestDueDate' | 'name'
 
 export function DebtorsList() {
-  const [search, setSearch] = useState("")
-  const [sortBy, setSortBy] = useState<SortOption>("totalDebt")
+  const [search, setSearch] = useState('')
+  const [sortBy, setSortBy] = useState<SortOption>('totalDebt')
   const debouncedSearch = useDebounce(search, 300)
 
   const { data: debtors, isLoading } = useDebtors({
@@ -60,9 +62,7 @@ export function DebtorsList() {
         </div>
         <div className="rounded-lg border bg-card p-4 border-destructive/50">
           <p className="text-sm text-destructive">Total Vencido</p>
-          <p className="text-2xl font-bold text-destructive mt-1">
-            {formatCurrency(totalOverdue)}
-          </p>
+          <p className="text-2xl font-bold text-destructive mt-1">{formatCurrency(totalOverdue)}</p>
         </div>
       </div>
 

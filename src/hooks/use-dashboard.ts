@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { useQuery } from "@tanstack/react-query"
+import { useQuery } from '@tanstack/react-query'
 
 interface DashboardData {
   sales: {
@@ -20,14 +20,14 @@ interface DashboardData {
 }
 
 async function fetchDashboard(): Promise<DashboardData> {
-  const res = await fetch("/api/dashboard")
-  if (!res.ok) throw new Error("Erro ao buscar dashboard")
+  const res = await fetch('/api/dashboard')
+  if (!res.ok) throw new Error('Erro ao buscar dashboard')
   return res.json()
 }
 
 export function useDashboard() {
   return useQuery({
-    queryKey: ["dashboard"],
+    queryKey: ['dashboard'],
     queryFn: fetchDashboard,
     staleTime: 2 * 60 * 1000, // 2 minutos - dados do dashboard mudam com menos frequência
     refetchInterval: 5 * 60 * 1000, // Refetch a cada 5 minutos (não 30s)

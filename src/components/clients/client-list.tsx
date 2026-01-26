@@ -1,9 +1,12 @@
-"use client"
+'use client'
 
-import { useState, useMemo, useCallback, memo } from "react"
-import { Pencil, Trash2, ShoppingCart } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Pencil, Trash2, ShoppingCart } from 'lucide-react'
+import { useState, useMemo, useCallback, memo } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { FilterBar, type FilterConfig } from '@/components/ui/filter-bar'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -11,20 +14,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useToast } from "@/components/ui/use-toast"
-import { FilterBar, FilterConfig } from "@/components/ui/filter-bar"
-import { useClients, useDeleteClient } from "@/hooks/use-clients"
-import { useFilters } from "@/hooks/use-filters"
-import { ClientForm } from "./client-form"
-import { Client } from "@/types"
-import { formatPercent } from "@/lib/utils"
+} from '@/components/ui/table'
+import { useToast } from '@/components/ui/use-toast'
+import { useClients, useDeleteClient } from '@/hooks/use-clients'
+import { useFilters } from '@/hooks/use-filters'
+import { formatPercent } from '@/lib/utils'
+import { type Client } from '@/types'
+
+import { ClientForm } from './client-form'
+
 
 const discountOptions = [
-  { value: "all", label: "Todos" },
-  { value: "with", label: "Com Desconto" },
-  { value: "without", label: "Sem Desconto" },
+  { value: 'all', label: 'Todos' },
+  { value: 'with', label: 'Com Desconto' },
+  { value: 'without', label: 'Sem Desconto' },
 ]
 
 interface ClientListProps {
@@ -37,14 +40,14 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
-      search: "",
-      discountFilter: "all",
+      search: '',
+      discountFilter: 'all',
     },
   })
 
   const filterConfigs: FilterConfig[] = [
-    { type: "search", name: "search", placeholder: "Buscar cliente..." },
-    { type: "select", name: "discountFilter", label: "Desconto", options: discountOptions },
+    { type: 'search', name: 'search', placeholder: 'Buscar cliente...' },
+    { type: 'select', name: 'discountFilter', label: 'Desconto', options: discountOptions },
   ]
 
   const { data, isLoading, error } = useClients({
@@ -55,9 +58,9 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
     if (!data?.data) return []
     let clients = data.data
 
-    if (filters.discountFilter === "with") {
+    if (filters.discountFilter === 'with') {
       clients = clients.filter((c) => Number(c.discount) > 0)
-    } else if (filters.discountFilter === "without") {
+    } else if (filters.discountFilter === 'without') {
       clients = clients.filter((c) => Number(c.discount) === 0)
     }
 
@@ -70,12 +73,12 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
     if (!confirm(`Excluir "${client.name}"?`)) return
     try {
       await deleteClient.mutateAsync(client.id)
-      toast({ title: "Cliente excluído com sucesso!" })
+      toast({ title: 'Cliente excluído com sucesso!' })
     } catch (error: any) {
       toast({
-        title: "Erro ao excluir",
+        title: 'Erro ao excluir',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       })
     }
   }
@@ -113,9 +116,7 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
     return (
       <div className="space-y-4">
         {filtersBar}
-        <div className="text-center py-8 text-destructive">
-          Erro ao carregar clientes
-        </div>
+        <div className="text-center py-8 text-destructive">Erro ao carregar clientes</div>
       </div>
     )
   }
@@ -149,14 +150,10 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
             <TableRow key={client.id}>
               <TableCell className="font-medium">{client.name}</TableCell>
               <TableCell>{client.phone}</TableCell>
-              <TableCell className="max-w-[200px] truncate">
-                {client.address}
-              </TableCell>
+              <TableCell className="max-w-[200px] truncate">{client.address}</TableCell>
               <TableCell className="text-center">
                 {Number(client.discount) > 0 ? (
-                  <Badge variant="secondary">
-                    {formatPercent(Number(client.discount))}
-                  </Badge>
+                  <Badge variant="secondary">{formatPercent(Number(client.discount))}</Badge>
                 ) : (
                   <span className="text-muted-foreground">-</span>
                 )}
@@ -173,18 +170,10 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
                       <ShoppingCart className="h-4 w-4 text-primary" />
                     </Button>
                   )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setEditingClient(client)}
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => setEditingClient(client)}>
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(client)}
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(client)}>
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>

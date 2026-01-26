@@ -1,9 +1,12 @@
-"use client"
+'use client'
 
-import { useState, useMemo, useCallback, memo } from "react"
-import { Pencil, Trash2, AlertTriangle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Pencil, Trash2, AlertTriangle } from 'lucide-react'
+import { useState, useMemo, useCallback, memo } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { FilterBar, type FilterConfig } from '@/components/ui/filter-bar'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -11,23 +14,23 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useToast } from "@/components/ui/use-toast"
-import { FilterBar, FilterConfig } from "@/components/ui/filter-bar"
-import { useProducts, useDeleteProduct } from "@/hooks/use-products"
-import { useCategories } from "@/hooks/use-categories"
-import { useBrands } from "@/hooks/use-brands"
-import { useFilters } from "@/hooks/use-filters"
-import { ProductForm } from "./product-form"
-import { Product } from "@/types"
-import { formatCurrency, getStockStatus } from "@/lib/utils"
+} from '@/components/ui/table'
+import { useToast } from '@/components/ui/use-toast'
+import { useBrands } from '@/hooks/use-brands'
+import { useCategories } from '@/hooks/use-categories'
+import { useFilters } from '@/hooks/use-filters'
+import { useProducts, useDeleteProduct } from '@/hooks/use-products'
+import { formatCurrency, getStockStatus } from '@/lib/utils'
+import { type Product } from '@/types'
+
+import { ProductForm } from './product-form'
+
 
 const stockStatusOptions = [
-  { value: "all", label: "Todos" },
-  { value: "baixo", label: "Estoque Baixo" },
-  { value: "medio", label: "Estoque Médio" },
-  { value: "bom", label: "Estoque Bom" },
+  { value: 'all', label: 'Todos' },
+  { value: 'baixo', label: 'Estoque Baixo' },
+  { value: 'medio', label: 'Estoque Médio' },
+  { value: 'bom', label: 'Estoque Bom' },
 ]
 
 export const ProductList = memo(function ProductList() {
@@ -36,10 +39,10 @@ export const ProductList = memo(function ProductList() {
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
-      search: "",
-      categoryId: "",
-      brandId: "",
-      stockStatus: "all",
+      search: '',
+      categoryId: '',
+      brandId: '',
+      stockStatus: 'all',
     },
   })
 
@@ -57,32 +60,32 @@ export const ProductList = memo(function ProductList() {
   )
 
   const filterConfigs: FilterConfig[] = [
-    { type: "search", name: "search", placeholder: "Buscar produto..." },
-    { type: "select", name: "categoryId", label: "Categoria", options: categoryOptions },
-    { type: "select", name: "brandId", label: "Marca", options: brandOptions },
-    { type: "select", name: "stockStatus", label: "Estoque", options: stockStatusOptions },
+    { type: 'search', name: 'search', placeholder: 'Buscar produto...' },
+    { type: 'select', name: 'categoryId', label: 'Categoria', options: categoryOptions },
+    { type: 'select', name: 'brandId', label: 'Marca', options: brandOptions },
+    { type: 'select', name: 'stockStatus', label: 'Estoque', options: stockStatusOptions },
   ]
 
-    const { data, isLoading, error } = useProducts({
-      search: filters.search || undefined,
-      categoryId: filters.categoryId || undefined,
-      brandId: filters.brandId || undefined,
-    })
+  const { data, isLoading, error } = useProducts({
+    search: filters.search || undefined,
+    categoryId: filters.categoryId || undefined,
+    brandId: filters.brandId || undefined,
+  })
 
-    const filteredProducts = useMemo(() => {
-      if (!data?.data) return []
-      let products = data.data
+  const filteredProducts = useMemo(() => {
+    if (!data?.data) return []
+    let products = data.data
 
-      if (filters.stockStatus === "baixo") {
-        products = products.filter((p) => p.stock <= p.minStock)
-      } else if (filters.stockStatus === "medio") {
-        products = products.filter((p) => p.stock > p.minStock && p.stock <= p.minStock * 2)
-      } else if (filters.stockStatus === "bom") {
-        products = products.filter((p) => p.stock > p.minStock * 2)
-      }
+    if (filters.stockStatus === 'baixo') {
+      products = products.filter((p) => p.stock <= p.minStock)
+    } else if (filters.stockStatus === 'medio') {
+      products = products.filter((p) => p.stock > p.minStock && p.stock <= p.minStock * 2)
+    } else if (filters.stockStatus === 'bom') {
+      products = products.filter((p) => p.stock > p.minStock * 2)
+    }
 
-      return products
-    }, [data, filters.stockStatus])
+    return products
+  }, [data, filters.stockStatus])
 
   const deleteProduct = useDeleteProduct()
 
@@ -90,12 +93,12 @@ export const ProductList = memo(function ProductList() {
     if (!confirm(`Excluir "${product.name}"?`)) return
     try {
       await deleteProduct.mutateAsync(product.id)
-      toast({ title: "Produto excluído com sucesso!" })
+      toast({ title: 'Produto excluído com sucesso!' })
     } catch (error: any) {
       toast({
-        title: "Erro ao excluir",
+        title: 'Erro ao excluir',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       })
     }
   }
@@ -133,9 +136,7 @@ export const ProductList = memo(function ProductList() {
     return (
       <div className="space-y-4">
         {filtersBar}
-        <div className="text-center py-8 text-destructive">
-          Erro ao carregar produtos
-        </div>
+        <div className="text-center py-8 text-destructive">Erro ao carregar produtos</div>
       </div>
     )
   }
@@ -173,19 +174,13 @@ export const ProductList = memo(function ProductList() {
             const stockStatus = getStockStatus(product.stock, product.minStock)
             return (
               <TableRow key={product.id}>
-                <TableCell className="font-mono text-sm">
-                  {product.code || "-"}
-                </TableCell>
+                <TableCell className="font-mono text-sm">{product.code || '-'}</TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>
-                  {product.category?.name || (
-                    <span className="text-muted-foreground">-</span>
-                  )}
+                  {product.category?.name || <span className="text-muted-foreground">-</span>}
                 </TableCell>
                 <TableCell>
-                  {product.brand?.name || (
-                    <span className="text-muted-foreground">-</span>
-                  )}
+                  {product.brand?.name || <span className="text-muted-foreground">-</span>}
                 </TableCell>
                 <TableCell className="text-right">
                   {formatCurrency(Number(product.costPrice))}
@@ -195,33 +190,21 @@ export const ProductList = memo(function ProductList() {
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex items-center justify-center gap-2">
-                    {stockStatus.status === "baixo" && (
+                    {stockStatus.status === 'baixo' && (
                       <AlertTriangle className="h-4 w-4 text-red-500" />
                     )}
-                    <Badge variant={stockStatus.color}>
-                      {product.stock}
-                    </Badge>
+                    <Badge variant={stockStatus.color}>{product.stock}</Badge>
                   </div>
                 </TableCell>
                 <TableCell className="text-center">
-                  <Badge variant={stockStatus.color}>
-                    {stockStatus.label}
-                  </Badge>
+                  <Badge variant={stockStatus.color}>{stockStatus.label}</Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditingProduct(product)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => setEditingProduct(product)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(product)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(product)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>

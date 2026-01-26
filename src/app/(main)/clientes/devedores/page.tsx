@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { PageHeader } from "@/components/layout/page-header"
-import { DebtorsList } from "@/components/clients/debtors-list"
+import { DebtorsList } from '@/components/clients/debtors-list'
+import { PageHeader } from '@/components/layout/page-header'
 
 export default function DevedoresPage() {
   return (

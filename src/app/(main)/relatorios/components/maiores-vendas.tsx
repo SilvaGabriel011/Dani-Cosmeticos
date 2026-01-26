@@ -1,11 +1,19 @@
-"use client"
+'use client'
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { TrendingUp, Package, DollarSign, Calendar } from "lucide-react"
+import { TrendingUp, Package, DollarSign, Calendar } from 'lucide-react'
+import { useEffect, useState } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 interface Venda {
   id: string
@@ -24,11 +32,11 @@ export function MaioresVendas() {
   useEffect(() => {
     async function fetchMaioresVendas() {
       try {
-        const response = await fetch("/api/relatorios/maiores-vendas")
+        const response = await fetch('/api/relatorios/maiores-vendas')
         const data = await response.json()
         setVendas(data)
       } catch (error) {
-        console.error("Erro ao buscar maiores vendas:", error)
+        console.error('Erro ao buscar maiores vendas:', error)
       } finally {
         setLoading(false)
       }
@@ -45,9 +53,7 @@ export function MaioresVendas() {
             <TrendingUp className="h-5 w-5" />
             Maiores Vendas
           </CardTitle>
-          <CardDescription>
-            Vendas de maior valor do período
-          </CardDescription>
+          <CardDescription>Vendas de maior valor do período</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -71,9 +77,7 @@ export function MaioresVendas() {
             <TrendingUp className="h-5 w-5 text-green-600" />
             Top 20 Maiores Vendas
           </CardTitle>
-          <CardDescription>
-            Vendas de maior valor dos últimos 30 dias
-          </CardDescription>
+          <CardDescription>Vendas de maior valor dos últimos 30 dias</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -94,18 +98,16 @@ export function MaioresVendas() {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {index < 3 && (
-                        <Badge variant={index === 0 ? "default" : index === 1 ? "secondary" : "outline"}>
+                        <Badge
+                          variant={index === 0 ? 'default' : index === 1 ? 'secondary' : 'outline'}
+                        >
                           {index + 1}º
                         </Badge>
                       )}
-                      {index >= 3 && (
-                        <span className="text-muted-foreground">{index + 1}º</span>
-                      )}
+                      {index >= 3 && <span className="text-muted-foreground">{index + 1}º</span>}
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">
-                    #{venda.idVenda}
-                  </TableCell>
+                  <TableCell className="font-medium">#{venda.idVenda}</TableCell>
                   <TableCell>{venda.nomeCliente}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -117,9 +119,9 @@ export function MaioresVendas() {
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-green-600" />
                       <span className="font-semibold text-green-600">
-                        {venda.total.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
+                        {venda.total.toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
                         })}
                       </span>
                     </div>
@@ -127,7 +129,7 @@ export function MaioresVendas() {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      {new Date(venda.data).toLocaleDateString("pt-BR")}
+                      {new Date(venda.data).toLocaleDateString('pt-BR')}
                     </div>
                   </TableCell>
                   <TableCell>{venda.vendedor}</TableCell>
@@ -146,14 +148,12 @@ export function MaioresVendas() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {vendas[0]?.total.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }) || "-"}
+              {vendas[0]?.total.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              }) || '-'}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Venda #{vendas[0]?.idVenda || "-"}
-            </p>
+            <p className="text-xs text-muted-foreground">Venda #{vendas[0]?.idVenda || '-'}</p>
           </CardContent>
         </Card>
 
@@ -165,15 +165,16 @@ export function MaioresVendas() {
           <CardContent>
             <div className="text-2xl font-bold">
               {vendas.length > 0
-                ? (vendas.reduce((sum, v) => sum + v.total, 0) / vendas.length).toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })
-                : "-"}
+                ? (vendas.reduce((sum, v) => sum + v.total, 0) / vendas.length).toLocaleString(
+                    'pt-BR',
+                    {
+                      style: 'currency',
+                      currency: 'BRL',
+                    }
+                  )
+                : '-'}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Média das top 20 vendas
-            </p>
+            <p className="text-xs text-muted-foreground">Média das top 20 vendas</p>
           </CardContent>
         </Card>
 
@@ -186,14 +187,12 @@ export function MaioresVendas() {
             <div className="text-2xl font-bold">
               {vendas
                 .reduce((sum, v) => sum + v.total, 0)
-                .toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
+                .toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
                 })}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Soma das top 20 vendas
-            </p>
+            <p className="text-xs text-muted-foreground">Soma das top 20 vendas</p>
           </CardContent>
         </Card>
       </div>

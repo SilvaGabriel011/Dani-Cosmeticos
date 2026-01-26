@@ -1,34 +1,35 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Plus, X, RefreshCw } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { useToast } from "@/components/ui/use-toast"
-import { useCategories, useCreateCategory } from "@/hooks/use-categories"
-import { useBrands, useCreateBrand } from "@/hooks/use-brands"
-import { Plus, X, RefreshCw } from "lucide-react"
-import { useCreateProduct, useUpdateProduct, useProducts } from "@/hooks/use-products"
-import { generateProductCode } from "@/lib/code-generator"
-import { createProductSchema, CreateProductInput } from "@/schemas/product"
-import { Product } from "@/types"
-import { formatCurrency, calculateProfitMargin, calculateProfit } from "@/lib/utils"
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useToast } from '@/components/ui/use-toast'
+import { useBrands, useCreateBrand } from '@/hooks/use-brands'
+import { useCategories, useCreateCategory } from '@/hooks/use-categories'
+import { useCreateProduct, useUpdateProduct, useProducts } from '@/hooks/use-products'
+import { generateProductCode } from '@/lib/code-generator'
+import { formatCurrency, calculateProfitMargin, calculateProfit } from '@/lib/utils'
+import { createProductSchema, type CreateProductInput } from '@/schemas/product'
+import { type Product } from '@/types'
 
 interface ProductFormProps {
   open: boolean
@@ -47,10 +48,10 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const createBrand = useCreateBrand()
   const isEditing = !!product
   const [isCreatingCategory, setIsCreatingCategory] = useState(false)
-  const [newCategoryName, setNewCategoryName] = useState("")
+  const [newCategoryName, setNewCategoryName] = useState('')
   const [isCreatingBrand, setIsCreatingBrand] = useState(false)
-  const [newBrandName, setNewBrandName] = useState("")
-  const [pricingMode, setPricingMode] = useState<"margin" | "salePrice">("margin")
+  const [newBrandName, setNewBrandName] = useState('')
+  const [pricingMode, setPricingMode] = useState<'margin' | 'salePrice'>('margin')
   const [inputSalePrice, setInputSalePrice] = useState(0)
 
   const {
@@ -64,7 +65,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
     resolver: zodResolver(createProductSchema),
     defaultValues: product
       ? {
-          code: product.code || "",
+          code: product.code || '',
           name: product.name,
           categoryId: product.categoryId,
           brandId: product.brandId,
@@ -74,8 +75,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           minStock: product.minStock,
         }
       : {
-          code: "",
-          name: "",
+          code: '',
+          name: '',
           categoryId: null,
           brandId: null,
           costPrice: 0,
@@ -85,83 +86,82 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
         },
   })
 
-    const costPrice = watch("costPrice")
-    const profitMargin = watch("profitMargin")
+  const costPrice = watch('costPrice')
+  const profitMargin = watch('profitMargin')
 
-    const calculatedSalePrice = pricingMode === "margin"
-      ? costPrice * (1 + profitMargin / 100)
-      : inputSalePrice
+  const calculatedSalePrice =
+    pricingMode === 'margin' ? costPrice * (1 + profitMargin / 100) : inputSalePrice
 
-    const calculatedMargin = pricingMode === "salePrice"
-      ? calculateProfitMargin(costPrice, inputSalePrice)
-      : profitMargin
+  const calculatedMargin =
+    pricingMode === 'salePrice' ? calculateProfitMargin(costPrice, inputSalePrice) : profitMargin
 
-    const profit = calculateProfit(costPrice, calculatedSalePrice)
+  const profit = calculateProfit(costPrice, calculatedSalePrice)
 
-    const handleGenerateCode = () => {
-      const name = watch("name")
-      if (!name) {
-        toast({ title: "Digite o nome do produto primeiro", variant: "destructive" })
-        return
-      }
-      const existingCodes = productsData?.data?.map(p => p.code).filter((c): c is string => !!c) || []
-      const code = generateProductCode(name, existingCodes)
-      setValue("code", code)
-      toast({ title: "Codigo gerado!", description: code })
+  const handleGenerateCode = () => {
+    const name = watch('name')
+    if (!name) {
+      toast({ title: 'Digite o nome do produto primeiro', variant: 'destructive' })
+      return
     }
+    const existingCodes =
+      productsData?.data?.map((p) => p.code).filter((c): c is string => !!c) || []
+    const code = generateProductCode(name, existingCodes)
+    setValue('code', code)
+    toast({ title: 'Codigo gerado!', description: code })
+  }
 
-    useEffect(() => {
-      if (product) {
-        reset({
-          code: product.code || "",
-          name: product.name,
-          categoryId: product.categoryId,
-          brandId: product.brandId,
-          costPrice: Number(product.costPrice),
-          profitMargin: Number(product.profitMargin),
-          stock: product.stock,
-          minStock: product.minStock,
-        })
-        setInputSalePrice(Number(product.salePrice))
-        setPricingMode("margin")
-      } else {
-        reset({
-          code: "",
-          name: "",
-          categoryId: null,
-          brandId: null,
-          costPrice: 0,
-          profitMargin: 100,
-          stock: 0,
-          minStock: 5,
-        })
-        setInputSalePrice(0)
-        setPricingMode("margin")
-      }
-    }, [product, reset])
+  useEffect(() => {
+    if (product) {
+      reset({
+        code: product.code || '',
+        name: product.name,
+        categoryId: product.categoryId,
+        brandId: product.brandId,
+        costPrice: Number(product.costPrice),
+        profitMargin: Number(product.profitMargin),
+        stock: product.stock,
+        minStock: product.minStock,
+      })
+      setInputSalePrice(Number(product.salePrice))
+      setPricingMode('margin')
+    } else {
+      reset({
+        code: '',
+        name: '',
+        categoryId: null,
+        brandId: null,
+        costPrice: 0,
+        profitMargin: 100,
+        stock: 0,
+        minStock: 5,
+      })
+      setInputSalePrice(0)
+      setPricingMode('margin')
+    }
+  }, [product, reset])
 
   const onSubmit = async (data: CreateProductInput) => {
     try {
       const submitData = { ...data }
-      if (pricingMode === "salePrice") {
+      if (pricingMode === 'salePrice') {
         submitData.profitMargin = calculatedMargin
       }
 
       if (isEditing && product) {
         await updateProduct.mutateAsync({ id: product.id, data: submitData })
-        toast({ title: "Produto atualizado com sucesso!" })
+        toast({ title: 'Produto atualizado com sucesso!' })
       } else {
         await createProduct.mutateAsync(submitData)
-        toast({ title: "Produto criado com sucesso!" })
+        toast({ title: 'Produto criado com sucesso!' })
       }
       reset()
       onOpenChange(false)
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
       toast({
-        title: "Erro",
+        title: 'Erro',
         description: errorMessage,
-        variant: "destructive",
+        variant: 'destructive',
       })
     }
   }
@@ -170,32 +170,19 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] md:max-w-xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Editar Produto" : "Novo Produto"}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? 'Editar Produto' : 'Novo Produto'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nome *</Label>
-            <Input
-              id="name"
-              placeholder="Nome do produto"
-              {...register("name")}
-            />
-            {errors.name && (
-              <p className="text-sm text-destructive">{errors.name.message}</p>
-            )}
+            <Input id="name" placeholder="Nome do produto" {...register('name')} />
+            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="code">Codigo</Label>
             <div className="flex gap-2">
-              <Input
-                id="code"
-                placeholder="Ex: SHP15"
-                {...register("code")}
-                className="flex-1"
-              />
+              <Input id="code" placeholder="Ex: SHP15" {...register('code')} className="flex-1" />
               <Button
                 type="button"
                 variant="outline"
@@ -228,20 +215,20 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                   onClick={async () => {
                     try {
                       const category = await createCategory.mutateAsync(newCategoryName.trim())
-                      setValue("categoryId", category.id)
-                      setNewCategoryName("")
+                      setValue('categoryId', category.id)
+                      setNewCategoryName('')
                       setIsCreatingCategory(false)
-                      toast({ title: "Categoria criada!" })
+                      toast({ title: 'Categoria criada!' })
                     } catch (error: any) {
                       toast({
-                        title: "Erro ao criar categoria",
+                        title: 'Erro ao criar categoria',
                         description: error.message,
-                        variant: "destructive",
+                        variant: 'destructive',
                       })
                     }
                   }}
                 >
-                  {createCategory.isPending ? "..." : "Salvar"}
+                  {createCategory.isPending ? '...' : 'Salvar'}
                 </Button>
                 <Button
                   type="button"
@@ -249,7 +236,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                   variant="ghost"
                   onClick={() => {
                     setIsCreatingCategory(false)
-                    setNewCategoryName("")
+                    setNewCategoryName('')
                   }}
                 >
                   <X className="h-4 w-4" />
@@ -258,10 +245,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             ) : (
               <div className="flex gap-2">
                 <Select
-                  value={watch("categoryId") || ""}
-                  onValueChange={(value) =>
-                    setValue("categoryId", value || null)
-                  }
+                  value={watch('categoryId') || ''}
+                  onValueChange={(value) => setValue('categoryId', value || null)}
                 >
                   <SelectTrigger className="flex-1">
                     <SelectValue placeholder="Selecione uma categoria" />
@@ -304,20 +289,20 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                   onClick={async () => {
                     try {
                       const brand = await createBrand.mutateAsync(newBrandName.trim())
-                      setValue("brandId", brand.id)
-                      setNewBrandName("")
+                      setValue('brandId', brand.id)
+                      setNewBrandName('')
                       setIsCreatingBrand(false)
-                      toast({ title: "Marca criada!" })
+                      toast({ title: 'Marca criada!' })
                     } catch (error: any) {
                       toast({
-                        title: "Erro ao criar marca",
+                        title: 'Erro ao criar marca',
                         description: error.message,
-                        variant: "destructive",
+                        variant: 'destructive',
                       })
                     }
                   }}
                 >
-                  {createBrand.isPending ? "..." : "Salvar"}
+                  {createBrand.isPending ? '...' : 'Salvar'}
                 </Button>
                 <Button
                   type="button"
@@ -325,7 +310,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                   variant="ghost"
                   onClick={() => {
                     setIsCreatingBrand(false)
-                    setNewBrandName("")
+                    setNewBrandName('')
                   }}
                 >
                   <X className="h-4 w-4" />
@@ -334,10 +319,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             ) : (
               <div className="flex gap-2">
                 <Select
-                  value={watch("brandId") || ""}
-                  onValueChange={(value) =>
-                    setValue("brandId", value || null)
-                  }
+                  value={watch('brandId') || ''}
+                  onValueChange={(value) => setValue('brandId', value || null)}
                 >
                   <SelectTrigger className="flex-1">
                     <SelectValue placeholder="Selecione uma marca" />
@@ -370,12 +353,10 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
               type="number"
               step="0.01"
               min="0"
-              {...register("costPrice", { valueAsNumber: true })}
+              {...register('costPrice', { valueAsNumber: true })}
             />
             {errors.costPrice && (
-              <p className="text-sm text-destructive">
-                {errors.costPrice.message}
-              </p>
+              <p className="text-sm text-destructive">{errors.costPrice.message}</p>
             )}
           </div>
 
@@ -386,8 +367,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 <input
                   type="radio"
                   name="pricingMode"
-                  checked={pricingMode === "margin"}
-                  onChange={() => setPricingMode("margin")}
+                  checked={pricingMode === 'margin'}
+                  onChange={() => setPricingMode('margin')}
                   className="h-4 w-4"
                 />
                 <span className="text-sm">Definir Margem de Lucro</span>
@@ -396,8 +377,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 <input
                   type="radio"
                   name="pricingMode"
-                  checked={pricingMode === "salePrice"}
-                  onChange={() => setPricingMode("salePrice")}
+                  checked={pricingMode === 'salePrice'}
+                  onChange={() => setPricingMode('salePrice')}
                   className="h-4 w-4"
                 />
                 <span className="text-sm">Definir Preco de Venda</span>
@@ -405,7 +386,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             </div>
           </div>
 
-          {pricingMode === "margin" ? (
+          {pricingMode === 'margin' ? (
             <div className="space-y-2">
               <Label htmlFor="profitMargin">Margem de Lucro (%)</Label>
               <Input
@@ -413,7 +394,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 type="number"
                 step="0.1"
                 min="0"
-                {...register("profitMargin", { valueAsNumber: true })}
+                {...register('profitMargin', { valueAsNumber: true })}
               />
             </div>
           ) : (
@@ -439,15 +420,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Margem de Lucro:</span>
-              <span className="font-semibold text-foreground">
-                {calculatedMargin.toFixed(1)}%
-              </span>
+              <span className="font-semibold text-foreground">{calculatedMargin.toFixed(1)}%</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Lucro por unidade:</span>
-              <span className="font-semibold text-green-600">
-                {formatCurrency(profit || 0)}
-              </span>
+              <span className="font-semibold text-green-600">{formatCurrency(profit || 0)}</span>
             </div>
           </div>
 
@@ -458,7 +435,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 id="stock"
                 type="number"
                 min="0"
-                {...register("stock", { valueAsNumber: true })}
+                {...register('stock', { valueAsNumber: true })}
               />
             </div>
             <div className="space-y-2">
@@ -467,21 +444,17 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 id="minStock"
                 type="number"
                 min="0"
-                {...register("minStock", { valueAsNumber: true })}
+                {...register('minStock', { valueAsNumber: true })}
               />
             </div>
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Salvando..." : isEditing ? "Atualizar" : "Criar"}
+              {isSubmitting ? 'Salvando...' : isEditing ? 'Atualizar' : 'Criar'}
             </Button>
           </DialogFooter>
         </form>

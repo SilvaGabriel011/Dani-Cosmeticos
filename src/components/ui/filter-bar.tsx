@@ -1,21 +1,22 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Search, X } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Search, X } from 'lucide-react'
+import { useState, useEffect } from 'react'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Toggle } from "@/components/ui/toggle"
-import { useDebounce } from "@/hooks/use-debounce"
-import { cn } from "@/lib/utils"
+} from '@/components/ui/select'
+import { Toggle } from '@/components/ui/toggle'
+import { useDebounce } from '@/hooks/use-debounce'
+import { cn } from '@/lib/utils'
 
-type FilterType = "search" | "select" | "toggle"
+type FilterType = 'search' | 'select' | 'toggle'
 
 interface FilterOption {
   value: string
@@ -41,22 +42,16 @@ interface FilterBarProps {
   className?: string
 }
 
-export function FilterBar({
-  filters,
-  values,
-  onChange,
-  onReset,
-  className,
-}: FilterBarProps) {
-  const hasValues = Object.values(values).some((v) => v !== "")
+export function FilterBar({ filters, values, onChange, onReset, className }: FilterBarProps) {
+  const hasValues = Object.values(values).some((v) => v !== '')
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-2 mb-4", className)}>
+    <div className={cn('flex flex-wrap items-center gap-2 mb-4', className)}>
       {filters.map((filter) => (
         <FilterItem
           key={filter.name}
           config={filter}
-          value={values[filter.name] || ""}
+          value={values[filter.name] || ''}
           onChange={(v) => onChange(filter.name, v)}
         />
       ))}
@@ -77,11 +72,11 @@ interface FilterItemProps {
 
 function FilterItem({ config, value, onChange }: FilterItemProps) {
   switch (config.type) {
-    case "search":
+    case 'search':
       return <SearchFilter config={config} value={value} onChange={onChange} />
-    case "select":
+    case 'select':
       return <SelectFilter config={config} value={value} onChange={onChange} />
-    case "toggle":
+    case 'toggle':
       return <ToggleFilter config={config} value={value} onChange={onChange} />
     default:
       return null
@@ -106,7 +101,7 @@ function SearchFilter({ config, value, onChange }: FilterItemProps) {
     <div className="relative">
       <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
-        placeholder={config.placeholder || "Buscar..."}
+        placeholder={config.placeholder || 'Buscar...'}
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
         className="pl-8 w-48"
@@ -117,21 +112,21 @@ function SearchFilter({ config, value, onChange }: FilterItemProps) {
 
 function SelectFilter({ config, value, onChange }: FilterItemProps) {
   const handleChange = (newValue: string) => {
-    if (newValue === "__create__" && config.onCreateNew) {
+    if (newValue === '__create__' && config.onCreateNew) {
       config.onCreateNew()
       return
     }
-    onChange(newValue === "__all__" ? "" : newValue)
+    onChange(newValue === '__all__' ? '' : newValue)
   }
 
   return (
-    <Select value={value || "__all__"} onValueChange={handleChange}>
+    <Select value={value || '__all__'} onValueChange={handleChange}>
       <SelectTrigger className="w-40">
-        <SelectValue placeholder={config.label || "Selecione"} />
+        <SelectValue placeholder={config.label || 'Selecione'} />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="__all__">
-          {config.label ? `Todos (${config.label})` : "Todos"}
+          {config.label ? `Todos (${config.label})` : 'Todos'}
         </SelectItem>
         {config.options?.map((opt) => (
           <SelectItem key={opt.value} value={opt.value}>

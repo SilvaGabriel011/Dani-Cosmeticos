@@ -1,41 +1,41 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-import { format, subDays, startOfMonth } from "date-fns"
+import { type ClassValue, clsx } from 'clsx'
+import { format, subDays, startOfMonth } from 'date-fns'
+import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
 export function formatCurrency(value: number | string): string {
-  const num = typeof value === "string" ? parseFloat(value) : value
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
+  const num = typeof value === 'string' ? parseFloat(value) : value
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
   }).format(num)
 }
 
 export function formatPercent(value: number | string): string {
-  const num = typeof value === "string" ? parseFloat(value) : value
+  const num = typeof value === 'string' ? parseFloat(value) : value
   return `${num.toFixed(1)}%`
 }
 
 export function formatDate(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
+  const d = typeof date === 'string' ? new Date(date) : date
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   }).format(d)
 }
 
 export function formatDateTime(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  const d = typeof date === 'string' ? new Date(date) : date
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   }).format(d)
 }
 
@@ -45,7 +45,7 @@ export function calculateSalePrice(costPrice: number, profitMargin: number): num
 
 export function calculateProfitMargin(costPrice: number, salePrice: number): number {
   if (costPrice <= 0) return 0
-  return ((salePrice / costPrice) - 1) * 100
+  return (salePrice / costPrice - 1) * 100
 }
 
 export function calculateProfit(costPrice: number, salePrice: number): number {
@@ -58,56 +58,56 @@ export function calculateFeeAmount(amount: number, feePercent: number): number {
 
 export function getDateRange(period: string): { startDate: string; endDate: string } {
   const today = new Date()
-  
+
   switch (period) {
-    case "today":
+    case 'today':
       return {
-        startDate: format(today, "yyyy-MM-dd"),
-        endDate: format(today, "yyyy-MM-dd"),
+        startDate: format(today, 'yyyy-MM-dd'),
+        endDate: format(today, 'yyyy-MM-dd'),
       }
-    case "week":
+    case 'week':
       return {
-        startDate: format(subDays(today, 7), "yyyy-MM-dd"),
-        endDate: format(today, "yyyy-MM-dd"),
+        startDate: format(subDays(today, 7), 'yyyy-MM-dd'),
+        endDate: format(today, 'yyyy-MM-dd'),
       }
-    case "month":
+    case 'month':
       return {
-        startDate: format(startOfMonth(today), "yyyy-MM-dd"),
-        endDate: format(today, "yyyy-MM-dd"),
+        startDate: format(startOfMonth(today), 'yyyy-MM-dd'),
+        endDate: format(today, 'yyyy-MM-dd'),
       }
     default:
-      return { startDate: "", endDate: "" }
+      return { startDate: '', endDate: '' }
   }
 }
 
-export type StockStatus = "baixo" | "medio" | "bom"
+export type StockStatus = 'baixo' | 'medio' | 'bom'
 
 export interface StockStatusInfo {
   status: StockStatus
   label: string
-  color: "destructive" | "warning" | "info"
+  color: 'destructive' | 'warning' | 'info'
 }
 
 export function getStockStatus(stock: number, minStock: number): StockStatusInfo {
   if (stock <= minStock) {
     return {
-      status: "baixo",
-      label: "Baixo",
-      color: "destructive",
+      status: 'baixo',
+      label: 'Baixo',
+      color: 'destructive',
     }
   }
-  
+
   if (stock <= minStock * 2) {
     return {
-      status: "medio",
-      label: "Médio",
-      color: "warning",
+      status: 'medio',
+      label: 'Médio',
+      color: 'warning',
     }
   }
-  
+
   return {
-    status: "bom",
-    label: "Bom",
-    color: "info",
+    status: 'bom',
+    label: 'Bom',
+    color: 'info',
   }
 }

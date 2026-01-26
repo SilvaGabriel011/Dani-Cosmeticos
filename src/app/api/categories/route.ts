@@ -1,24 +1,25 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { z } from "zod"
+import { type NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
 const createCategorySchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
+  name: z.string().min(1, 'Nome é obrigatório'),
 })
 
 export async function GET() {
   try {
     const categories = await prisma.category.findMany({
-      orderBy: { name: "asc" },
+      orderBy: { name: 'asc' },
     })
 
     return NextResponse.json(categories)
   } catch (error) {
-    console.error("Error fetching categories:", error)
+    console.error('Error fetching categories:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao buscar categorias" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar categorias' } },
       { status: 500 }
     )
   }
@@ -33,8 +34,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Dados inválidos",
+            code: 'VALIDATION_ERROR',
+            message: 'Dados inválidos',
             details: validation.error.flatten().fieldErrors,
           },
         },
@@ -48,9 +49,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(category, { status: 201 })
   } catch (error) {
-    console.error("Error creating category:", error)
+    console.error('Error creating category:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao criar categoria" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao criar categoria' } },
       { status: 500 }
     )
   }

@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import {
   BarChart as RechartsBar,
@@ -10,10 +10,11 @@ import {
   ResponsiveContainer,
   LabelList,
   CartesianGrid,
-} from "recharts"
-import { CHART_COLORS } from "@/lib/chart-colors"
-import { formatCurrency } from "@/lib/utils"
-import { useChartContext } from "@/components/ui/chart-container"
+} from 'recharts'
+
+import { useChartContext } from '@/components/ui/chart-container'
+import { CHART_COLORS } from '@/lib/chart-colors'
+import { formatCurrency } from '@/lib/utils'
 
 interface BarChartData {
   name: string
@@ -33,7 +34,7 @@ interface BarChartProps {
 
 export function BarChart({
   data,
-  dataKey = "value",
+  dataKey = 'value',
   showLegend: showLegendProp,
   showValues: showValuesProp,
   horizontal = false,
@@ -57,23 +58,14 @@ export function BarChart({
     <ResponsiveContainer width="100%" height={height}>
       <RechartsBar
         data={data}
-        layout={horizontal ? "vertical" : "horizontal"}
+        layout={horizontal ? 'vertical' : 'horizontal'}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
         {horizontal ? (
           <>
-            <XAxis
-              type="number"
-              tickFormatter={(v) => valueFormatter(v)}
-              tick={{ fontSize: 11 }}
-            />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={120}
-              tick={{ fontSize: 11 }}
-            />
+            <XAxis type="number" tickFormatter={(v) => valueFormatter(v)} tick={{ fontSize: 11 }} />
+            <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
           </>
         ) : (
           <>
@@ -84,23 +76,18 @@ export function BarChart({
         <Tooltip
           formatter={(value) => valueFormatter(Number(value))}
           contentStyle={{
-            backgroundColor: "hsl(var(--popover))",
-            border: "1px solid hsl(var(--border))",
-            borderRadius: "6px",
+            backgroundColor: 'hsl(var(--popover))',
+            border: '1px solid hsl(var(--border))',
+            borderRadius: '6px',
           }}
         />
         {showLegend && keys.length > 1 && <Legend />}
         {keys.map((key, i) => (
-          <Bar
-            key={key}
-            dataKey={key}
-            fill={CHART_COLORS[i]}
-            radius={[4, 4, 0, 0]}
-          >
+          <Bar key={key} dataKey={key} fill={CHART_COLORS[i]} radius={[4, 4, 0, 0]}>
             {showValues && (
               <LabelList
                 dataKey={key}
-                position={horizontal ? "right" : "top"}
+                position={horizontal ? 'right' : 'top'}
                 formatter={(v) => valueFormatter(Number(v))}
                 fontSize={10}
               />

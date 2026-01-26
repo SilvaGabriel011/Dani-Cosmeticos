@@ -1,5 +1,6 @@
-import { prisma } from "../src/lib/prisma"
 import { Decimal } from "@prisma/client/runtime/library"
+
+import { prisma } from "../src/lib/prisma"
 
 async function fixImportedReceivables() {
   console.log("\n🔍 Verificando vendas importadas...\n")

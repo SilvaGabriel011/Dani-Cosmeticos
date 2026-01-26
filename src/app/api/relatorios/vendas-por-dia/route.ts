@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const mes = searchParams.get("mes") || new Date().toISOString().slice(0, 7)
+    const mes = searchParams.get('mes') || new Date().toISOString().slice(0, 7)
 
     const dados = await prisma.$queryRaw`
       WITH vendas_diarias AS (
@@ -55,22 +56,19 @@ export async function GET(request: NextRequest) {
     `
 
     // Converter valores para número
-    const dadosFormatados = (dados as any[]).map(item => ({
+    const dadosFormatados = (dados as any[]).map((item) => ({
       data: item.data,
       diaSemana: item.diaSemana,
       total: Number(item.total),
       vendas: Number(item.vendas),
       ticketMedio: Number(item.ticketMedio),
       variacao: Number(item.variacao),
-      horaPico: item.horaPico
+      horaPico: item.horaPico,
     }))
 
     return NextResponse.json(dadosFormatados)
   } catch (error) {
-    console.error("Erro ao buscar vendas por dia:", error)
-    return NextResponse.json(
-      { error: "Erro ao buscar dados" },
-      { status: 500 }
-    )
+    console.error('Erro ao buscar vendas por dia:', error)
+    return NextResponse.json({ error: 'Erro ao buscar dados' }, { status: 500 })
   }
 }

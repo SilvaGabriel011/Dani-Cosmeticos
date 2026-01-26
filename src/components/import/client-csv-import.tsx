@@ -1,15 +1,18 @@
-"use client"
+'use client'
 
-import { useState, useCallback } from "react"
-import { Upload, AlertTriangle, CheckCircle2, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Upload, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { useState, useCallback } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Table,
   TableBody,
@@ -17,13 +20,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/components/ui/use-toast"
-import { useImportClients } from "@/hooks/use-import"
-import { ClientImportRow } from "@/schemas/import"
-import { formatCurrency } from "@/lib/utils"
+} from '@/components/ui/table'
+import { useToast } from '@/components/ui/use-toast'
+import { useImportClients } from '@/hooks/use-import'
+import { formatCurrency } from '@/lib/utils'
+import { type ClientImportRow } from '@/schemas/import'
 
 interface ClientCSVImportProps {
   open: boolean
@@ -36,18 +37,18 @@ interface ParsedRow extends ClientImportRow {
 }
 
 function parseMoneyValue(value: string): number {
-  if (!value || value.trim() === "") return 0
+  if (!value || value.trim() === '') return 0
   const cleaned = value
-    .replace(/R\$\s*/gi, "")
-    .replace(/\./g, "")
-    .replace(",", ".")
+    .replace(/R\$\s*/gi, '')
+    .replace(/\./g, '')
+    .replace(',', '.')
     .trim()
   const num = parseFloat(cleaned)
   return isNaN(num) ? 0 : num
 }
 
 function parsePaymentDay(value: string): number | undefined {
-  if (!value || value.trim() === "") return undefined
+  if (!value || value.trim() === '') return undefined
   const match = value.match(/(\d+)/)
   if (match) {
     const day = parseInt(match[1], 10)
@@ -76,7 +77,7 @@ function parseCSV(text: string): ParsedRow[] {
 
     const hasWarning = !valorParcelas || !numeroParcelas || !pagamentoDia
     const warningMessage = hasWarning
-      ? "Dados incompletos: falta informação de parcelas ou dia de pagamento"
+      ? 'Dados incompletos: falta informação de parcelas ou dia de pagamento'
       : undefined
 
     rows.push({
@@ -100,21 +101,18 @@ export function ClientCSVImport({ open, onOpenChange }: ClientCSVImportProps) {
   const [parsedData, setParsedData] = useState<ParsedRow[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleFileChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0]
-      if (!file) return
+  const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
 
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const text = e.target?.result as string
-        const parsed = parseCSV(text)
-        setParsedData(parsed)
-      }
-      reader.readAsText(file, "UTF-8")
-    },
-    []
-  )
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const text = e.target?.result as string
+      const parsed = parseCSV(text)
+      setParsedData(parsed)
+    }
+    reader.readAsText(file, 'UTF-8')
+  }, [])
 
   const handleImport = async () => {
     if (parsedData.length === 0) return
@@ -134,13 +132,13 @@ export function ClientCSVImport({ open, onOpenChange }: ClientCSVImportProps) {
 
       if (result.errors.length > 0) {
         toast({
-          title: "Importação parcial",
+          title: 'Importação parcial',
           description: `${result.created} clientes importados, ${result.errors.length} erros`,
-          variant: "destructive",
+          variant: 'destructive',
         })
       } else {
         toast({
-          title: "Importação concluída",
+          title: 'Importação concluída',
           description: `${result.created} clientes importados com sucesso`,
         })
         onOpenChange(false)
@@ -148,9 +146,9 @@ export function ClientCSVImport({ open, onOpenChange }: ClientCSVImportProps) {
       }
     } catch (error) {
       toast({
-        title: "Erro na importação",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
-        variant: "destructive",
+        title: 'Erro na importação',
+        description: error instanceof Error ? error.message : 'Erro desconhecido',
+        variant: 'destructive',
       })
     } finally {
       setIsLoading(false)
@@ -180,17 +178,14 @@ export function ClientCSVImport({ open, onOpenChange }: ClientCSVImportProps) {
               className="hidden"
               id="csv-upload"
             />
-            <label
-              htmlFor="csv-upload"
-              className="cursor-pointer flex flex-col items-center gap-2"
-            >
+            <label htmlFor="csv-upload" className="cursor-pointer flex flex-col items-center gap-2">
               <Upload className="h-8 w-8 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
                 Clique para selecionar um arquivo CSV
               </span>
               <span className="text-xs text-muted-foreground">
-                Colunas: NOME, DEBITO ABERTO, pago, total em aberto, valor das
-                parcelas, numero de parcelas, pagamento dia
+                Colunas: NOME, DEBITO ABERTO, pago, total em aberto, valor das parcelas, numero de
+                parcelas, pagamento dia
               </span>
             </label>
           </div>
@@ -198,9 +193,7 @@ export function ClientCSVImport({ open, onOpenChange }: ClientCSVImportProps) {
           {parsedData.length > 0 && (
             <>
               <div className="flex items-center gap-4 text-sm">
-                <Badge variant="secondary">
-                  {parsedData.length} clientes encontrados
-                </Badge>
+                <Badge variant="secondary">{parsedData.length} clientes encontrados</Badge>
                 {warningCount > 0 && (
                   <Badge variant="warning" className="bg-yellow-100 text-yellow-800">
                     <AlertTriangle className="h-3 w-3 mr-1" />
@@ -225,10 +218,7 @@ export function ClientCSVImport({ open, onOpenChange }: ClientCSVImportProps) {
                   </TableHeader>
                   <TableBody>
                     {parsedData.map((row, index) => (
-                      <TableRow
-                        key={index}
-                        className={row.hasWarning ? "bg-yellow-50" : ""}
-                      >
+                      <TableRow key={index} className={row.hasWarning ? 'bg-yellow-50' : ''}>
                         <TableCell>
                           {row.hasWarning ? (
                             <AlertTriangle className="h-4 w-4 text-yellow-500" />
@@ -240,23 +230,15 @@ export function ClientCSVImport({ open, onOpenChange }: ClientCSVImportProps) {
                         <TableCell className="text-right">
                           {formatCurrency(row.debitoAberto)}
                         </TableCell>
-                        <TableCell className="text-right">
-                          {formatCurrency(row.pago)}
-                        </TableCell>
+                        <TableCell className="text-right">{formatCurrency(row.pago)}</TableCell>
                         <TableCell className="text-right">
                           {formatCurrency(row.debitoAberto - row.pago)}
                         </TableCell>
                         <TableCell className="text-right">
-                          {row.valorParcelas
-                            ? formatCurrency(row.valorParcelas)
-                            : "-"}
+                          {row.valorParcelas ? formatCurrency(row.valorParcelas) : '-'}
                         </TableCell>
-                        <TableCell className="text-center">
-                          {row.numeroParcelas || "-"}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {row.pagamentoDia || "-"}
-                        </TableCell>
+                        <TableCell className="text-center">{row.numeroParcelas || '-'}</TableCell>
+                        <TableCell className="text-center">{row.pagamentoDia || '-'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -270,11 +252,8 @@ export function ClientCSVImport({ open, onOpenChange }: ClientCSVImportProps) {
           <Button variant="outline" onClick={handleClose}>
             Cancelar
           </Button>
-          <Button
-            onClick={handleImport}
-            disabled={parsedData.length === 0 || isLoading}
-          >
-            {isLoading ? "Importando..." : `Importar ${parsedData.length} clientes`}
+          <Button onClick={handleImport} disabled={parsedData.length === 0 || isLoading}>
+            {isLoading ? 'Importando...' : `Importar ${parsedData.length} clientes`}
           </Button>
         </DialogFooter>
       </DialogContent>

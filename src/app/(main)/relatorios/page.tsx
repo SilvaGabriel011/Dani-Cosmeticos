@@ -1,14 +1,15 @@
-"use client"
+'use client'
 
-import { useMemo } from "react"
-import { PageHeader } from "@/components/layout/page-header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ChartContainer } from "@/components/ui/chart-container"
-import { BarChart } from "@/components/charts/bar-chart"
-import { FilterBar } from "@/components/ui/filter-bar"
-import { useFilters } from "@/hooks/use-filters"
+import { Wallet, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { useMemo } from 'react'
+
+import { BarChart } from '@/components/charts/bar-chart'
+import { PageHeader } from '@/components/layout/page-header'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ChartContainer } from '@/components/ui/chart-container'
+import { FilterBar } from '@/components/ui/filter-bar'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -16,26 +17,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from '@/components/ui/table'
+import { useFilters } from '@/hooks/use-filters'
 import {
   useReportSummary,
   useReportByProduct,
   useTopClientes,
   useCollection,
-} from "@/hooks/use-reports"
-import { formatCurrency, formatPercent, formatDate, getDateRange } from "@/lib/utils"
-import { Wallet, TrendingUp, TrendingDown, Minus } from "lucide-react"
-import { cn } from "@/lib/utils"
+} from '@/hooks/use-reports'
+import { formatCurrency, formatPercent, getDateRange } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
 const periodOptions = [
-  { value: "today", label: "Hoje" },
-  { value: "week", label: "7 dias" },
-  { value: "month", label: "Mês" },
+  { value: 'today', label: 'Hoje' },
+  { value: 'week', label: '7 dias' },
+  { value: 'month', label: 'Mês' },
 ]
 
 export default function RelatoriosPage() {
   const { filters: filterState, setFilter } = useFilters({
-    initialValues: { period: "month" },
+    initialValues: { period: 'month' },
   })
 
   const dateFilters = getDateRange(filterState.period)
@@ -50,13 +51,13 @@ export default function RelatoriosPage() {
     limit: 10,
   })
   const { data: collection, isLoading: loadingCollection } = useCollection({
-    period: filterState.period as "today" | "week" | "month",
+    period: filterState.period as 'today' | 'week' | 'month',
   })
 
   const topProductsData = useMemo(
     () =>
       productReport?.products.map((p) => ({
-        name: p.productName.length > 15 ? p.productName.slice(0, 15) + "..." : p.productName,
+        name: p.productName.length > 15 ? p.productName.slice(0, 15) + '...' : p.productName,
         value: p.totalRevenue,
       })) || [],
     [productReport]
@@ -65,7 +66,7 @@ export default function RelatoriosPage() {
   const topClientesData = useMemo(
     () =>
       topClientes?.map((c) => ({
-        name: c.nome.length > 15 ? c.nome.slice(0, 15) + "..." : c.nome,
+        name: c.nome.length > 15 ? c.nome.slice(0, 15) + '...' : c.nome,
         value: c.totalCompras,
       })) || [],
     [topClientes]
@@ -73,14 +74,9 @@ export default function RelatoriosPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Relatórios"
-        description="Análise de vendas e desempenho"
-      >
+      <PageHeader title="Relatórios" description="Análise de vendas e desempenho">
         <FilterBar
-          filters={[
-            { type: "toggle", name: "period", toggleOptions: periodOptions },
-          ]}
+          filters={[{ type: 'toggle', name: 'period', toggleOptions: periodOptions }]}
           values={filterState}
           onChange={(name, value) => setFilter(name as keyof typeof filterState, value)}
         />
@@ -102,9 +98,7 @@ export default function RelatoriosPage() {
                 <div className="text-2xl font-bold">
                   {formatCurrency(summary?.totalRevenue || 0)}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {summary?.totalSales || 0} vendas
-                </p>
+                <p className="text-xs text-muted-foreground">{summary?.totalSales || 0} vendas</p>
               </CardContent>
             </Card>
 
@@ -205,21 +199,23 @@ export default function RelatoriosPage() {
                 <div className="rounded-lg border p-4">
                   <p className="text-sm text-muted-foreground">vs Período Anterior</p>
                   <div className="flex items-center gap-2">
-                    {collection?.comparison.trend === "up" ? (
+                    {collection?.comparison.trend === 'up' ? (
                       <TrendingUp className="h-5 w-5 text-green-600" />
-                    ) : collection?.comparison.trend === "down" ? (
+                    ) : collection?.comparison.trend === 'down' ? (
                       <TrendingDown className="h-5 w-5 text-red-600" />
                     ) : (
                       <Minus className="h-5 w-5 text-muted-foreground" />
                     )}
-                    <span className={cn(
-                      "text-2xl font-bold",
-                      collection?.comparison.trend === "up" && "text-green-600",
-                      collection?.comparison.trend === "down" && "text-red-600"
-                    )}>
-                      {collection?.comparison.change ? (
-                        `${collection.comparison.change > 0 ? "+" : ""}${collection.comparison.change.toFixed(1)}%`
-                      ) : "0%"}
+                    <span
+                      className={cn(
+                        'text-2xl font-bold',
+                        collection?.comparison.trend === 'up' && 'text-green-600',
+                        collection?.comparison.trend === 'down' && 'text-red-600'
+                      )}
+                    >
+                      {collection?.comparison.change
+                        ? `${collection.comparison.change > 0 ? '+' : ''}${collection.comparison.change.toFixed(1)}%`
+                        : '0%'}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -234,19 +230,29 @@ export default function RelatoriosPage() {
                   <p className="text-sm font-medium mb-3">Por Forma de Pagamento</p>
                   <div className="grid gap-2 md:grid-cols-4">
                     {collection.byMethod.map((method) => (
-                      <div key={method.method} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                      <div
+                        key={method.method}
+                        className="flex items-center justify-between p-2 bg-muted/50 rounded"
+                      >
                         <div>
                           <Badge variant="outline" className="mb-1">
-                            {method.method === "CASH" ? "Dinheiro" :
-                             method.method === "PIX" ? "PIX" :
-                             method.method === "DEBIT" ? "Débito" :
-                             method.method === "CREDIT" ? "Crédito" : method.method}
+                            {method.method === 'CASH'
+                              ? 'Dinheiro'
+                              : method.method === 'PIX'
+                                ? 'PIX'
+                                : method.method === 'DEBIT'
+                                  ? 'Débito'
+                                  : method.method === 'CREDIT'
+                                    ? 'Crédito'
+                                    : method.method}
                           </Badge>
                           <p className="text-xs text-muted-foreground">{method.count} pagamentos</p>
                         </div>
                         <div className="text-right">
                           <p className="font-medium">{formatCurrency(method.total)}</p>
-                          <p className="text-xs text-muted-foreground">{method.percentage.toFixed(1)}%</p>
+                          <p className="text-xs text-muted-foreground">
+                            {method.percentage.toFixed(1)}%
+                          </p>
                         </div>
                       </div>
                     ))}

@@ -1,34 +1,35 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { type Receivable, type Sale, type Client } from '@prisma/client'
+import { type Decimal } from '@prisma/client/runtime/library'
+import { useState, useEffect } from 'react'
+
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
-import { usePaySaleReceivables } from "@/hooks/use-receivables"
-import { formatCurrency } from "@/lib/utils"
-import { PAYMENT_METHOD_LABELS } from "@/lib/constants"
-import { Receivable, Sale, Client } from "@prisma/client"
-import { Decimal } from "@prisma/client/runtime/library"
+} from '@/components/ui/select'
+import { useToast } from '@/components/ui/use-toast'
+import { usePaySaleReceivables } from '@/hooks/use-receivables'
+import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
+import { formatCurrency } from '@/lib/utils'
 
 type ReceivableWithSale = Receivable & {
-  sale: Sale & { 
-    client: Client | null;
-    fixedInstallmentAmount?: Decimal | null;
+  sale: Sale & {
+    client: Client | null
+    fixedInstallmentAmount?: Decimal | null
   }
 }
 
@@ -38,40 +39,40 @@ interface ReceivablePaymentModalProps {
   receivable: ReceivableWithSale | null
 }
 
-export function ReceivablePaymentModal({ 
-  open, 
-  onOpenChange, 
-  receivable 
+export function ReceivablePaymentModal({
+  open,
+  onOpenChange,
+  receivable,
 }: ReceivablePaymentModalProps) {
   const { toast } = useToast()
   const paySaleReceivables = usePaySaleReceivables()
 
   const [amount, setAmount] = useState(0)
-  const [paidAt, setPaidAt] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "PIX" | "DEBIT" | "CREDIT">("PIX")
+  const [paidAt, setPaidAt] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'PIX' | 'DEBIT' | 'CREDIT'>('PIX')
 
-    // Pre-fill with today's date and fixed installment amount (or remaining) when modal opens
-    useEffect(() => {
-      if (open && receivable) {
-        const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
-        // Use fixedInstallmentAmount if set, but cap at remaining amount
-        const fixedAmount = receivable.sale?.fixedInstallmentAmount 
-          ? Math.min(Number(receivable.sale.fixedInstallmentAmount), remaining)
-          : remaining
-        setAmount(fixedAmount)
-        setPaidAt(new Date().toISOString().split('T')[0])
-        setPaymentMethod("PIX")
-      }
-    }, [open, receivable])
+  // Pre-fill with today's date and fixed installment amount (or remaining) when modal opens
+  useEffect(() => {
+    if (open && receivable) {
+      const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
+      // Use fixedInstallmentAmount if set, but cap at remaining amount
+      const fixedAmount = receivable.sale?.fixedInstallmentAmount
+        ? Math.min(Number(receivable.sale.fixedInstallmentAmount), remaining)
+        : remaining
+      setAmount(fixedAmount)
+      setPaidAt(new Date().toISOString().split('T')[0])
+      setPaymentMethod('PIX')
+    }
+  }, [open, receivable])
 
   if (!receivable) return null
 
   const remaining = Number(receivable.amount) - Number(receivable.paidAmount)
-  const clientName = receivable.sale?.client?.name || "Cliente nao informado"
+  const clientName = receivable.sale?.client?.name || 'Cliente nao informado'
 
   const handleSubmit = async () => {
     if (amount <= 0) {
-      toast({ title: "Informe um valor valido", variant: "destructive" })
+      toast({ title: 'Informe um valor valido', variant: 'destructive' })
       return
     }
 
@@ -83,18 +84,18 @@ export function ReceivablePaymentModal({
         paidAt: paidAt ? new Date(paidAt).toISOString() : undefined,
       })
 
-      toast({ 
-        title: "Pagamento registrado!",
-        description: "O pagamento foi distribuido entre as parcelas pendentes."
+      toast({
+        title: 'Pagamento registrado!',
+        description: 'O pagamento foi distribuido entre as parcelas pendentes.',
       })
 
       onOpenChange(false)
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
       toast({
-        title: "Erro ao registrar pagamento",
+        title: 'Erro ao registrar pagamento',
         description: errorMessage,
-        variant: "destructive",
+        variant: 'destructive',
       })
     }
   }
@@ -122,7 +123,9 @@ export function ReceivablePaymentModal({
             </div>
             <div className="flex justify-between text-sm">
               <span>Ja Pago:</span>
-              <span className="text-green-600">{formatCurrency(Number(receivable.paidAmount))}</span>
+              <span className="text-green-600">
+                {formatCurrency(Number(receivable.paidAmount))}
+              </span>
             </div>
             <div className="flex justify-between text-sm font-semibold">
               <span>Saldo Restante:</span>
@@ -141,19 +144,19 @@ export function ReceivablePaymentModal({
               onChange={(e) => setAmount(Number(e.target.value))}
             />
             <div className="flex gap-2">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 size="sm"
                 onClick={() => setAmount(remaining)}
               >
                 Valor Total
               </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 size="sm"
-                onClick={() => setAmount(Math.round(remaining / 2 * 100) / 100)}
+                onClick={() => setAmount(Math.round((remaining / 2) * 100) / 100)}
               >
                 Metade
               </Button>
@@ -162,16 +165,15 @@ export function ReceivablePaymentModal({
 
           <div className="space-y-2">
             <Label>Data do Pagamento</Label>
-            <Input
-              type="date"
-              value={paidAt}
-              onChange={(e) => setPaidAt(e.target.value)}
-            />
+            <Input type="date" value={paidAt} onChange={(e) => setPaidAt(e.target.value)} />
           </div>
 
           <div className="space-y-2">
             <Label>Forma de Pagamento</Label>
-            <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as typeof paymentMethod)}>
+            <Select
+              value={paymentMethod}
+              onValueChange={(v) => setPaymentMethod(v as typeof paymentMethod)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -191,7 +193,7 @@ export function ReceivablePaymentModal({
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={paySaleReceivables.isPending}>
-            {paySaleReceivables.isPending ? "Registrando..." : "Confirmar"}
+            {paySaleReceivables.isPending ? 'Registrando...' : 'Confirmar'}
           </Button>
         </DialogFooter>
       </DialogContent>

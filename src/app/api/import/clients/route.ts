@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { clientImportSchema, ClientImportRow } from "@/schemas/import"
-import { Decimal } from "@prisma/client/runtime/library"
+import { Decimal } from '@prisma/client/runtime/library'
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
+import { clientImportSchema, type ClientImportRow } from '@/schemas/import'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,8 +20,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: {
-            code: "VALIDATION_ERROR",
-            message: "Dados inválidos",
+            code: 'VALIDATION_ERROR',
+            message: 'Dados inválidos',
             details: validation.error.flatten().fieldErrors,
           },
         },
@@ -42,30 +43,23 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         result.errors.push({
           row: rowNumber,
-          message: error instanceof Error ? error.message : "Erro desconhecido",
+          message: error instanceof Error ? error.message : 'Erro desconhecido',
         })
       }
     }
 
     return NextResponse.json(result, { status: 201 })
   } catch (error) {
-    console.error("Error importing clients:", error)
+    console.error('Error importing clients:', error)
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Erro ao importar clientes" } },
+      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao importar clientes' } },
       { status: 500 }
     )
   }
 }
 
 async function importClient(row: ClientImportRow, importDate: Date) {
-  const {
-    nome,
-    debitoAberto,
-    pago,
-    valorParcelas,
-    numeroParcelas,
-    pagamentoDia,
-  } = row
+  const { nome, debitoAberto, pago, valorParcelas, numeroParcelas, pagamentoDia } = row
 
   const totalEmAberto = debitoAberto - pago
   const numInstallments = numeroParcelas && numeroParcelas > 0 ? numeroParcelas : 1
@@ -93,8 +87,8 @@ async function importClient(row: ClientImportRow, importDate: Date) {
         total: new Decimal(debitoAberto),
         netTotal: new Decimal(debitoAberto),
         paidAmount: new Decimal(pago),
-        status: "PENDING",
-        notes: `Importado via CSV em ${importDate.toLocaleDateString("pt-BR")}`,
+        status: 'PENDING',
+        notes: `Importado via CSV em ${importDate.toLocaleDateString('pt-BR')}`,
         paymentDay: paymentDay,
         installmentPlan: numInstallments,
         fixedInstallmentAmount: valorParcelas ? new Decimal(valorParcelas) : null,
@@ -105,11 +99,11 @@ async function importClient(row: ClientImportRow, importDate: Date) {
       await tx.payment.create({
         data: {
           saleId: sale.id,
-          method: "CASH",
+          method: 'CASH',
           amount: new Decimal(pago),
           feePercent: new Decimal(0),
           feeAmount: new Decimal(0),
-          feeAbsorber: "SELLER",
+          feeAbsorber: 'SELLER',
           installments: 1,
           paidAt: importDate,
         },

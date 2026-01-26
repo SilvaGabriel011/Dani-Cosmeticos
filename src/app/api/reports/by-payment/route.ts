@@ -1,26 +1,25 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { startOfDay, endOfDay, parseISO } from "date-fns"
+import { startOfDay, endOfDay, parseISO } from 'date-fns'
+import { type NextRequest, NextResponse } from 'next/server'
+
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const startDateParam = searchParams.get("startDate")
-    const endDateParam = searchParams.get("endDate")
+    const startDateParam = searchParams.get('startDate')
+    const endDateParam = searchParams.get('endDate')
 
     const startDate = startDateParam
       ? startOfDay(parseISO(startDateParam))
       : startOfDay(new Date(new Date().setDate(1)))
-    const endDate = endDateParam
-      ? endOfDay(parseISO(endDateParam))
-      : endOfDay(new Date())
+    const endDate = endDateParam ? endOfDay(parseISO(endDateParam)) : endOfDay(new Date())
 
     const payments = await prisma.payment.findMany({
       where: {
         sale: {
-          status: { not: "CANCELLED" },
+          status: { not: 'CANCELLED' },
           createdAt: {
             gte: startDate,
             lte: endDate,
@@ -61,9 +60,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const methods = Array.from(methodMap.values()).sort(
-      (a, b) => b.totalAmount - a.totalAmount
-    )
+    const methods = Array.from(methodMap.values()).sort((a, b) => b.totalAmount - a.totalAmount)
 
     const totalAmount = methods.reduce((sum, m) => sum + m.totalAmount, 0)
 
@@ -79,10 +76,7 @@ export async function GET(request: NextRequest) {
       totalAmount,
     })
   } catch (error) {
-    console.error("Error fetching payment report:", error)
-    return NextResponse.json(
-      { error: "Erro ao gerar relatório por pagamento" },
-      { status: 500 }
-    )
+    console.error('Error fetching payment report:', error)
+    return NextResponse.json({ error: 'Erro ao gerar relatório por pagamento' }, { status: 500 })
   }
 }

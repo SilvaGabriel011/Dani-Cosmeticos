@@ -1,22 +1,20 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Plus } from "lucide-react"
-import { PageHeader } from "@/components/layout/page-header"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { SaleList } from "@/components/sales/sale-list"
-import { SaleForm } from "@/components/sales/sale-form"
+import { Plus } from 'lucide-react'
+import { useState } from 'react'
+
+import { PageHeader } from '@/components/layout/page-header'
+import { SaleForm } from '@/components/sales/sale-form'
+import { SaleList } from '@/components/sales/sale-list'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 
 export default function VendasPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Vendas"
-        description="Histórico de vendas"
-      >
+      <PageHeader title="Vendas" description="Histórico de vendas">
         <Button onClick={() => setIsFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Nova Venda
