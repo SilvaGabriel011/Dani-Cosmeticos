@@ -38,9 +38,9 @@ model Product {
   updatedAt      DateTime        @updatedAt
   deletedAt      DateTime?
   brandId        String?
-  packagingType  String?
-  linha          String?
   fragrancia     String?
+  linha          String?
+  packagingType  String?
   brand          Brand?          @relation(fields: [brandId], references: [id])
   category       Category?       @relation(fields: [categoryId], references: [id])
   saleItems      SaleItem[]

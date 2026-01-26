@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
       paymentDay,
       installmentPlan,
       fixedInstallmentAmount,
+      createdAt: customCreatedAt,
     } = validation.data
 
     // Fetch products and validate stock
@@ -281,16 +282,17 @@ export async function POST(request: NextRequest) {
         const installmentAmount = remainingAmount / numInstallments
 
         // Calculate due dates based on paymentDay (day of month)
-        const now = new Date()
+        // Use customCreatedAt if provided (for imports), otherwise use current date
+        const referenceDate = customCreatedAt ? new Date(customCreatedAt) : new Date()
         const day = paymentDay || 10 // Default to day 10 if not specified
 
         const receivables = Array.from({ length: numInstallments }, (_, i) => {
           // Start from current month, but if the day has passed, start from next month
-          let targetMonth = now.getMonth() + i
-          let targetYear = now.getFullYear()
+          let targetMonth = referenceDate.getMonth() + i
+          let targetYear = referenceDate.getFullYear()
 
           // If first installment and the day has already passed this month, start next month
-          if (i === 0 && now.getDate() >= day) {
+          if (i === 0 && referenceDate.getDate() >= day) {
             targetMonth += 1
           }
 
