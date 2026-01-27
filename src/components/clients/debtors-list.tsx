@@ -30,10 +30,13 @@ export function DebtorsList() {
     sortBy,
   })
 
+  // Mostrar skeleton apenas no carregamento inicial (sem dados)
+  const showSkeleton = isLoading && !debtors
+
   const totalDebt = debtors?.reduce((sum, d) => sum + d.totalDebt, 0) || 0
   const totalOverdue = debtors?.reduce((sum, d) => sum + d.overdueAmount, 0) || 0
 
-  if (isLoading) {
+  if (showSkeleton) {
     return (
       <div className="space-y-4">
         <div className="flex gap-4">
@@ -73,6 +76,11 @@ export function DebtorsList() {
             placeholder="Buscar cliente..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+              }
+            }}
             className="pl-9"
           />
         </div>

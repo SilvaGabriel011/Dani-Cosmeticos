@@ -141,6 +141,40 @@ async function importClient(row: ClientImportRow, importDate: Date) {
 
     await tx.receivable.createMany({ data: receivables })
 
+    // Distribute the paid amount across receivables
+    if (pago > 0) {
+      let remainingPaid = pago
+      const createdReceivables = await tx.receivable.findMany({
+        where: { saleId: sale.id },
+        orderBy: { installment: 'asc' },
+      })
+
+      for (const receivable of createdReceivables) {
+        if (remainingPaid <= 0.01) break
+
+        const amount = Number(receivable.amount)
+        const paymentForThis = Math.min(remainingPaid, amount)
+
+        let newStatus: 'PENDING' | 'PARTIAL' | 'PAID' = 'PENDING'
+        if (paymentForThis >= amount - 0.01) {
+          newStatus = 'PAID'
+        } else if (paymentForThis > 0) {
+          newStatus = 'PARTIAL'
+        }
+
+        await tx.receivable.update({
+          where: { id: receivable.id },
+          data: {
+            paidAmount: new Decimal(paymentForThis),
+            status: newStatus,
+            paidAt: newStatus === 'PAID' ? importDate : null,
+          },
+        })
+
+        remainingPaid -= paymentForThis
+      }
+    }
+
     return client
   })
 }

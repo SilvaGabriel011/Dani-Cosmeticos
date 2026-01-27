@@ -68,6 +68,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [clientId, setClientId] = useState<string>(defaultClientId || '')
   const [discountPercent, setDiscountPercent] = useState(0)
   const [productSearch, setProductSearch] = useState('')
+  const [clientSearch, setClientSearch] = useState('')
+  const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false)
+  const clientInputRef = useRef<HTMLInputElement>(null)
   const [visibleProductsCount, setVisibleProductsCount] = useState(20)
   const productListRef = useRef<HTMLDivElement>(null)
   const [isInstallment, setIsInstallment] = useState(false)
@@ -86,13 +89,17 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const pendingSales = pendingSalesData?.pendingSales || []
 
   const products = useMemo(() => productsData?.data || [], [productsData?.data])
-  const clients = clientsData?.data || []
+  const clients = useMemo(() => clientsData?.data || [], [clientsData?.data])
 
   useEffect(() => {
     if (open && defaultClientId) {
       setClientId(defaultClientId)
+      const client = clients.find((c) => c.id === defaultClientId)
+      if (client) {
+        setClientSearch(client.name)
+      }
     }
-  }, [open, defaultClientId])
+  }, [open, defaultClientId, clients])
 
   // Reset sale mode when client changes
   useEffect(() => {
@@ -145,6 +152,19 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   }, [productSearch])
 
   const selectedClient = clients.find((c) => c.id === clientId)
+
+  // Filtered clients for autocomplete
+  const filteredClients = useMemo(() => {
+    if (!clientSearch.trim()) return clients
+    return fuzzySearch(clients, clientSearch, (c) => [c.name, c.phone || ''])
+  }, [clients, clientSearch])
+
+  // Update search text when client is selected
+  useEffect(() => {
+    if (selectedClient) {
+      setClientSearch(selectedClient.name)
+    }
+  }, [selectedClient])
   const [hasManualDiscount, setHasManualDiscount] = useState(false)
   const effectiveDiscount = hasManualDiscount
     ? discountPercent
@@ -394,6 +414,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setItems([])
     setPayments([])
     setClientId('')
+    setClientSearch('')
     setDiscountPercent(0)
     setHasManualDiscount(false)
     setIsInstallment(false)
@@ -607,22 +628,51 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Label>Cliente {isFiado && <span className="text-destructive">*</span>}</Label>
-                  <Select value={clientId} onValueChange={setClientId}>
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          clients.length > 0 ? 'Selecione um cliente' : 'Nenhum cliente cadastrado'
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {clients.map((client) => (
-                        <SelectItem key={client.id} value={client.id}>
-                          {client.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      ref={clientInputRef}
+                      placeholder={
+                        clients.length > 0 ? 'Buscar cliente...' : 'Nenhum cliente cadastrado'
+                      }
+                      value={clientSearch}
+                      onChange={(e) => {
+                        setClientSearch(e.target.value)
+                        setClientId('')
+                        setIsClientDropdownOpen(true)
+                      }}
+                      onFocus={() => setIsClientDropdownOpen(true)}
+                      onBlur={() => {
+                        setTimeout(() => setIsClientDropdownOpen(false), 150)
+                      }}
+                      className="pl-9"
+                    />
+                    {isClientDropdownOpen && !clientId && (
+                      <div className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto border rounded-md bg-white shadow-lg">
+                        {filteredClients.length === 0 ? (
+                          <p className="px-3 py-2 text-sm text-muted-foreground">
+                            Nenhum cliente encontrado
+                          </p>
+                        ) : (
+                          filteredClients.slice(0, 20).map((client) => (
+                            <button
+                              key={client.id}
+                              type="button"
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-primary/10 focus:outline-none focus:bg-primary/10"
+                              onMouseDown={(e) => {
+                                e.preventDefault()
+                                setClientId(client.id)
+                                setClientSearch(client.name)
+                                setIsClientDropdownOpen(false)
+                              }}
+                            >
+                              {client.name}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Multiple purchases feature - add to existing account */}
@@ -894,21 +944,18 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             </div>
                             <div className="space-y-1">
                               <Label className="text-xs">Número de parcelas</Label>
-                              <Select
-                                value={String(installmentPlan)}
-                                onValueChange={(v) => setInstallmentPlan(Number(v))}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {[1, 2, 3, 4, 5, 6, 12].map((n) => (
-                                    <SelectItem key={n} value={String(n)}>
-                                      {n}x
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              <Input
+                                type="number"
+                                min="1"
+                                max="48"
+                                value={installmentPlan}
+                                onChange={(e) => {
+                                  const value = Math.max(1, Math.min(48, Number(e.target.value) || 1))
+                                  setInstallmentPlan(value)
+                                }}
+                                className="text-center"
+                                placeholder="Ex: 3"
+                              />
                             </div>
                           </div>
 

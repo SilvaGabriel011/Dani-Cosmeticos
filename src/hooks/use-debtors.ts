@@ -72,5 +72,6 @@ export function useDebtors(filters: DebtorFilters = {}) {
     queryFn: () => fetchDebtors(filters),
     staleTime: 3 * 60 * 1000, // 3 minutos - dados de devedores não mudam frequentemente
     refetchOnWindowFocus: false,
+    placeholderData: (previousData) => previousData, // Mantém dados anteriores durante busca
   })
 }
