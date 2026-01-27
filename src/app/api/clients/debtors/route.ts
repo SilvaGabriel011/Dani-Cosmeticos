@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       }[sortBy] || 'ORDER BY total_debt_num DESC'
 
     // Single optimized query with aggregations
-    // Note: We calculate numeric values for sorting, then cast to text for output
+    // Calculate total debt from Sale (total - paidAmount), not from receivables
     const debtorsSummary = await prisma.$queryRawUnsafe<DebtorSummary[]>(`
       SELECT 
         c."id" as "clientId",
@@ -53,19 +53,18 @@ export async function GET(request: NextRequest) {
         c."phone" as "clientPhone",
         c."address" as "clientAddress",
         c."discount"::text as "clientDiscount",
-        COALESCE(SUM(r."amount" - r."paidAmount"), 0)::text as "totalDebt",
-        COALESCE(SUM(r."amount" - r."paidAmount"), 0) as total_debt_num,
-        COALESCE(SUM(CASE WHEN r."dueDate" < NOW() THEN r."amount" - r."paidAmount" ELSE 0 END), 0)::text as "overdueAmount",
-        COALESCE(SUM(CASE WHEN r."dueDate" < NOW() THEN r."amount" - r."paidAmount" ELSE 0 END), 0) as overdue_amount_num,
+        COALESCE(SUM(s."total" - s."paidAmount"), 0)::text as "totalDebt",
+        COALESCE(SUM(s."total" - s."paidAmount"), 0) as total_debt_num,
+        COALESCE(SUM(CASE WHEN s."dueDate" < NOW() THEN s."total" - s."paidAmount" ELSE 0 END), 0)::text as "overdueAmount",
+        COALESCE(SUM(CASE WHEN s."dueDate" < NOW() THEN s."total" - s."paidAmount" ELSE 0 END), 0) as overdue_amount_num,
         COUNT(DISTINCT s."id")::text as "salesCount",
-        MIN(r."dueDate") as "oldestDueDate"
+        MIN(s."dueDate") as "oldestDueDate"
       FROM "Client" c
       INNER JOIN "Sale" s ON s."clientId" = c."id" AND s."status" = 'PENDING'
-      INNER JOIN "Receivable" r ON r."saleId" = s."id" AND r."status" IN ('PENDING', 'PARTIAL')
       WHERE c."deletedAt" IS NULL
       ${searchFilter}
       GROUP BY c."id", c."name", c."phone", c."address", c."discount"
-      HAVING SUM(r."amount" - r."paidAmount") > 0
+      HAVING SUM(s."total" - s."paidAmount") > 0
       ${orderByClause}
       LIMIT 100
     `)
