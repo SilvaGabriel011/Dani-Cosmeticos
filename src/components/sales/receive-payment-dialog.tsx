@@ -1,5 +1,6 @@
 'use client'
 
+import { Loader2, Receipt } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -143,26 +144,31 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-[95vw] md:max-w-lg max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Receber Pagamento</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <div className="p-2 rounded-full bg-green-100">
+              <Receipt className="h-5 w-5 text-green-600" />
+            </div>
+            Receber Pagamento
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="rounded-md bg-muted p-3 space-y-1">
+          <div className="rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 p-4 space-y-2 border border-primary/20">
             <div className="flex justify-between text-sm">
-              <span>Cliente:</span>
-              <span className="font-medium">{sale.client?.name || '—'}</span>
+              <span className="text-muted-foreground">Cliente:</span>
+              <span className="font-semibold">{sale.client?.name || '—'}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span>Total da Venda:</span>
-              <span>{formatCurrency(total)}</span>
+              <span className="text-muted-foreground">Total da Venda:</span>
+              <span className="font-medium">{formatCurrency(total)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span>Já Pago:</span>
-              <span className="text-green-600">{formatCurrency(paidAmount)}</span>
+              <span className="text-muted-foreground">Já Pago:</span>
+              <span className="text-green-600 font-semibold">{formatCurrency(paidAmount)}</span>
             </div>
-            <div className="flex justify-between text-sm font-semibold">
+            <div className="flex justify-between text-base font-bold pt-2 border-t border-primary/20">
               <span>Saldo Devedor:</span>
-              <span className="text-amber-600">{formatCurrency(remaining)}</span>
+              <span className="text-amber-600 text-lg">{formatCurrency(remaining)}</span>
             </div>
           </div>
 
@@ -191,6 +197,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
               max={remaining}
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
+              className="text-lg font-semibold transition-all duration-200 focus:ring-2 focus:ring-primary/20"
             />
             <div className="flex gap-2">
               <Button
@@ -198,6 +205,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
                 variant="outline"
                 size="sm"
                 onClick={() => setAmount(remaining)}
+                className="transition-all duration-200 hover:bg-green-50 hover:text-green-700 hover:border-green-300"
               >
                 Valor Total
               </Button>
@@ -206,6 +214,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
                 variant="outline"
                 size="sm"
                 onClick={() => setAmount(Math.round((remaining / 2) * 100) / 100)}
+                className="transition-all duration-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
               >
                 Metade
               </Button>
@@ -252,12 +261,25 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="transition-all duration-200 hover:bg-gray-100"
+          >
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={addPayment.isPending}>
-            {addPayment.isPending ? 'Registrando...' : 'Registrar Pagamento'}
+          <Button 
+            onClick={handleSubmit} 
+            disabled={addPayment.isPending}
+            className="min-w-[160px] transition-all duration-200 bg-green-600 hover:bg-green-700"
+          >
+            {addPayment.isPending ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Registrando...
+              </span>
+            ) : 'Registrar Pagamento'}
           </Button>
         </DialogFooter>
       </DialogContent>

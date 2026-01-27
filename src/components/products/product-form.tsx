@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, X, RefreshCw } from 'lucide-react'
+import { Plus, X, RefreshCw, Loader2, Package } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -168,9 +168,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] md:max-w-xl max-h-[90vh]">
+      <DialogContent className="max-w-[95vw] md:max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar Produto' : 'Novo Produto'}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <div className="p-2 rounded-full bg-primary/10">
+              <Package className="h-5 w-5 text-primary" />
+            </div>
+            {isEditing ? 'Editar Produto' : 'Novo Produto'}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
@@ -411,10 +416,10 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             </div>
           )}
 
-          <div className="rounded-md bg-muted p-3 space-y-1">
+          <div className="rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 p-4 space-y-2 border border-primary/20">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Preco de Venda:</span>
-              <span className="font-semibold text-foreground">
+              <span className="text-muted-foreground">Preço de Venda:</span>
+              <span className="font-bold text-lg text-primary">
                 {formatCurrency(calculatedSalePrice || 0)}
               </span>
             </div>
@@ -424,7 +429,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Lucro por unidade:</span>
-              <span className="font-semibold text-green-600">{formatCurrency(profit || 0)}</span>
+              <span className="font-bold text-green-600">{formatCurrency(profit || 0)}</span>
             </div>
           </div>
 
@@ -449,12 +454,26 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             </div>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className="transition-all duration-200 hover:bg-gray-100"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Salvando...' : isEditing ? 'Atualizar' : 'Criar'}
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="min-w-[100px] transition-all duration-200"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Salvando...
+                </span>
+              ) : isEditing ? 'Atualizar' : 'Criar'}
             </Button>
           </DialogFooter>
         </form>

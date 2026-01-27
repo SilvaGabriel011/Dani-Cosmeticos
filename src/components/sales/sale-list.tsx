@@ -1,6 +1,6 @@
 'use client'
 
-import { XCircle, Banknote } from 'lucide-react'
+import { XCircle, Banknote, ShoppingBag } from 'lucide-react'
 import { useMemo, useState, useCallback, memo } from 'react'
 
 import { ReceivePaymentDialog } from '@/components/sales/receive-payment-dialog'
@@ -149,8 +149,16 @@ export const SaleList = memo(function SaleList() {
     return (
       <div className="space-y-4">
         {filtersBar}
-        <div className="text-center py-8 text-muted-foreground">
-          Nenhuma venda encontrada para os filtros selecionados
+        <div className="flex flex-col items-center justify-center py-12 px-4">
+          <div className="p-4 rounded-full bg-muted/50 mb-4">
+            <ShoppingBag className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <p className="text-sm font-medium text-muted-foreground">
+            Nenhuma venda encontrada
+          </p>
+          <p className="text-xs text-muted-foreground/70 mt-1">
+            Ajuste os filtros ou registre uma nova venda
+          </p>
         </div>
       </div>
     )
@@ -173,7 +181,7 @@ export const SaleList = memo(function SaleList() {
         </TableHeader>
         <TableBody>
           {data.data.map((sale) => (
-            <TableRow key={sale.id}>
+            <TableRow key={sale.id} className="transition-colors duration-150 hover:bg-muted/50">
               <TableCell>{formatDate(new Date(sale.createdAt))}</TableCell>
               <TableCell>
                 {sale.client?.name || <span className="text-muted-foreground">Não informado</span>}
@@ -216,6 +224,8 @@ export const SaleList = memo(function SaleList() {
                       size="icon"
                       onClick={() => setPaymentSale(sale)}
                       title="Receber pagamento"
+                      className="h-8 w-8 transition-all duration-150 hover:bg-green-50 hover:text-green-700"
+                      aria-label="Receber pagamento"
                     >
                       <Banknote className="h-4 w-4 text-green-600" />
                     </Button>
@@ -227,6 +237,8 @@ export const SaleList = memo(function SaleList() {
                       onClick={() => handleCancel(sale.id)}
                       disabled={cancelSale.isPending}
                       title="Cancelar venda"
+                      className="h-8 w-8 transition-all duration-150 hover:bg-red-50 hover:text-red-700"
+                      aria-label="Cancelar venda"
                     >
                       <XCircle className="h-4 w-4 text-destructive" />
                     </Button>

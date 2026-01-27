@@ -73,8 +73,18 @@ export function useProducts(filters: ProductFilters = {}) {
   return useQuery({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
-    staleTime: 2 * 60 * 1000, // 2 minutos - produtos não mudam tão frequentemente
+    staleTime: 2 * 60 * 1000,
     refetchOnWindowFocus: false,
+  })
+}
+
+export function useProductsOnDemand(search: string, enabled = true) {
+  return useQuery({
+    queryKey: ['products', 'on-demand', search],
+    queryFn: () => fetchProducts({ search, limit: 50 }),
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
+    enabled: enabled && search.length >= 2,
   })
 }
 

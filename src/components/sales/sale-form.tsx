@@ -1,7 +1,7 @@
 'use client'
 
-import { Plus, Minus, Trash2, Search } from 'lucide-react'
-import { useState, useMemo, useEffect } from 'react'
+import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart } from 'lucide-react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -68,6 +68,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [clientId, setClientId] = useState<string>(defaultClientId || '')
   const [discountPercent, setDiscountPercent] = useState(0)
   const [productSearch, setProductSearch] = useState('')
+  const [visibleProductsCount, setVisibleProductsCount] = useState(20)
+  const productListRef = useRef<HTMLDivElement>(null)
   const [isInstallment, setIsInstallment] = useState(false)
   const [paymentDay, setPaymentDay] = useState<number>(new Date().getDate()) // Default to current day of month
   const [installmentPlan, setInstallmentPlan] = useState(1)
@@ -124,6 +126,23 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
     return fuzzySearch(inStock, productSearch, (p) => [p.name, p.code || ''])
   }, [products, productSearch])
+
+  const visibleProducts = useMemo(() => {
+    return filteredProducts.slice(0, visibleProductsCount)
+  }, [filteredProducts, visibleProductsCount])
+
+  const hasMoreProducts = visibleProductsCount < filteredProducts.length
+
+  const handleProductListScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
+    if (scrollHeight - scrollTop - clientHeight < 50 && hasMoreProducts) {
+      setVisibleProductsCount(prev => Math.min(prev + 20, filteredProducts.length))
+    }
+  }, [hasMoreProducts, filteredProducts.length])
+
+  useEffect(() => {
+    setVisibleProductsCount(20)
+  }, [productSearch])
 
   const selectedClient = clients.find((c) => c.id === clientId)
   const [hasManualDiscount, setHasManualDiscount] = useState(false)
@@ -427,24 +446,36 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                 </div>
 
                 {(productSearch || filteredProducts.length > 0) && (
-                  <div className="max-h-40 overflow-y-auto border rounded-md">
+                  <div 
+                    ref={productListRef}
+                    className="max-h-60 overflow-y-auto border rounded-md"
+                    onScroll={handleProductListScroll}
+                  >
                     {filteredProducts.length === 0 ? (
                       <p className="px-3 py-2 text-sm text-muted-foreground">
                         Nenhum produto encontrado
                       </p>
                     ) : (
-                      filteredProducts.slice(0, 10).map((product) => (
-                        <button
-                          key={product.id}
-                          className="w-full px-3 py-2 text-left hover:bg-muted flex justify-between items-center text-sm"
-                          onClick={() => addItem(product)}
-                        >
-                          <span>{product.name}</span>
-                          <span className="text-muted-foreground">
-                            {formatCurrency(Number(product.salePrice))}
-                          </span>
-                        </button>
-                      ))
+                      <>
+                        {visibleProducts.map((product) => (
+                          <button
+                            key={product.id}
+                            className="w-full px-3 py-2 text-left text-sm flex justify-between items-center transition-all duration-200 hover:bg-primary/10 hover:pl-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-primary/20 active:scale-[0.99]"
+                            onClick={() => addItem(product)}
+                          >
+                            <span className="font-medium">{product.name}</span>
+                            <span className="text-muted-foreground font-semibold">
+                              {formatCurrency(Number(product.salePrice))}
+                            </span>
+                          </button>
+                        ))}
+                        {hasMoreProducts && (
+                          <div className="px-3 py-2 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            Role para carregar mais ({filteredProducts.length - visibleProductsCount} restantes)
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
@@ -452,21 +483,30 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                 <Separator />
 
                 {items.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    Nenhum produto adicionado
-                  </p>
+                  <div className="flex flex-col items-center justify-center py-8 px-4">
+                    <div className="p-4 rounded-full bg-muted/50 mb-4">
+                      <ShoppingCart className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Carrinho vazio
+                    </p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">
+                      Busque e adicione produtos acima
+                    </p>
+                  </div>
                 ) : (
                   <div className="space-y-3">
                     {items.map((item) => (
-                      <div key={item.product.id} className="p-3 border rounded-lg bg-gray-50/50 space-y-3">
+                      <div key={item.product.id} className="p-3 border rounded-lg bg-gray-50/50 space-y-3 animate-in fade-in slide-in-from-left-2 duration-300">
                         {/* Header: Nome + Remover */}
                         <div className="flex items-start justify-between gap-2">
                           <span className="font-medium text-sm leading-tight">{item.product.name}</span>
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 shrink-0 hover:bg-red-50"
+                            className="h-8 w-8 shrink-0 rounded-lg hover:bg-red-50 hover:text-red-600 active:scale-95 transition-all duration-150"
                             onClick={() => removeItem(item.product.id)}
+                            aria-label={`Remover ${item.product.name} do carrinho`}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
@@ -475,23 +515,27 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                         {/* Controles: Quantidade + Preço Unitário */}
                         <div className="flex items-center justify-between gap-3">
                           {/* Quantidade */}
-                          <div className="flex items-center gap-2 bg-white rounded-lg border px-2 py-1">
+                          <div className="flex items-center gap-1 bg-white rounded-xl border-2 border-gray-100 p-1">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 hover:bg-gray-100"
+                              className="h-10 w-10 rounded-lg hover:bg-red-50 hover:text-red-600 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                               onClick={() => updateQuantity(item.product.id, -1)}
+                              disabled={item.quantity <= 1}
+                              aria-label="Diminuir quantidade"
                             >
-                              <Minus className="h-4 w-4" />
+                              <Minus className="h-5 w-5" />
                             </Button>
-                            <span className="w-8 text-center font-semibold text-lg">{item.quantity}</span>
+                            <span className="w-12 text-center font-bold text-xl tabular-nums">{item.quantity}</span>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 hover:bg-gray-100"
+                              className="h-10 w-10 rounded-lg hover:bg-green-50 hover:text-green-600 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                               onClick={() => updateQuantity(item.product.id, 1)}
+                              disabled={item.quantity >= item.product.stock}
+                              aria-label="Aumentar quantidade"
                             >
-                              <Plus className="h-4 w-4" />
+                              <Plus className="h-5 w-5" />
                             </Button>
                           </div>
 
@@ -499,17 +543,24 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           <div className="flex flex-col items-end gap-1">
                             <div className="flex items-center gap-1">
                               <span className="text-xs text-muted-foreground">Valor un.:</span>
-                              <div className="relative">
-                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
+                              <div className="relative group">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
                                 <Input
                                   type="number"
                                   min="0"
                                   step="0.01"
-                                  className="w-28 h-10 pl-8 text-right text-base font-medium border-2 border-blue-200 focus:border-blue-500 bg-white rounded-lg shadow-sm"
+                                  className={`w-32 h-11 pl-9 pr-3 text-right text-base font-medium border-2 rounded-lg transition-all duration-200 hover:border-gray-300 focus:ring-2 focus:ring-primary/20 ${
+                                    item.unitPrice !== item.originalPrice
+                                      ? item.unitPrice < item.originalPrice
+                                        ? 'border-green-300 bg-green-50/50 focus:border-green-500'
+                                        : 'border-orange-300 bg-orange-50/50 focus:border-orange-500'
+                                      : 'border-gray-200 bg-white focus:border-primary'
+                                  }`}
                                   value={item.unitPrice}
                                   onChange={(e) =>
                                     updateItemPrice(item.product.id, Number(e.target.value))
                                   }
+                                  aria-label={`Preço unitário de ${item.product.name}`}
                                 />
                               </div>
                             </div>
@@ -659,16 +710,16 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Resumo do valor */}
-                <div className="bg-blue-50 p-4 rounded-lg text-center">
-                  <p className="text-sm text-muted-foreground">Total da compra</p>
-                  <p className="text-2xl font-bold text-blue-600">{formatCurrency(total)}</p>
+                <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-4 rounded-xl text-center border border-primary/20">
+                  <p className="text-sm text-muted-foreground font-medium">Total da compra</p>
+                  <p className="text-3xl font-bold text-primary mt-1">{formatCurrency(total)}</p>
                 </div>
 
                 {/* Escolha principal: Pagar Agora vs Fiado */}
                 <div className="grid gap-3">
                   <Button
                     variant={!isFiadoMode ? 'default' : 'outline'}
-                    className="h-16 text-lg justify-start"
+                    className={`h-auto py-4 px-5 justify-start transition-all duration-200 ${!isFiadoMode ? 'ring-2 ring-primary ring-offset-2' : 'hover:bg-primary/5'}`}
                     onClick={() => {
                       setIsFiadoMode(false)
                       if (payments.length === 0) {
@@ -676,28 +727,32 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       }
                     }}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">💰</span>
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2.5 rounded-full ${!isFiadoMode ? 'bg-primary-foreground/20' : 'bg-muted'}`}>
+                        <Wallet className="h-6 w-6" />
+                      </div>
                       <div className="flex-1 text-left">
-                        <div className="font-medium">Pagar Agora</div>
-                        <div className="text-sm opacity-70">Dinheiro, PIX ou cartão</div>
+                        <div className="font-semibold text-base">Pagar Agora</div>
+                        <div className="text-sm opacity-70 font-normal">Dinheiro, PIX ou cartão</div>
                       </div>
                     </div>
                   </Button>
 
                   <Button
                     variant={isFiadoMode ? 'default' : 'outline'}
-                    className="h-16 text-lg justify-start"
+                    className={`h-auto py-4 px-5 justify-start transition-all duration-200 ${isFiadoMode ? 'ring-2 ring-primary ring-offset-2' : 'hover:bg-primary/5'}`}
                     onClick={() => {
                       setIsFiadoMode(true)
-                      setPayments([]) // Clear payments when switching to fiado mode
+                      setPayments([])
                     }}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">🤝</span>
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2.5 rounded-full ${isFiadoMode ? 'bg-primary-foreground/20' : 'bg-muted'}`}>
+                        <Handshake className="h-6 w-6" />
+                      </div>
                       <div className="flex-1 text-left">
-                        <div className="font-medium">Fiado</div>
-                        <div className="text-sm opacity-70">Pagar depois em parcelas</div>
+                        <div className="font-semibold text-base">Fiado</div>
+                        <div className="text-sm opacity-70 font-normal">Pagar depois em parcelas</div>
                       </div>
                     </div>
                   </Button>
@@ -705,8 +760,11 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
                 {/* Campos específicos baseados na escolha */}
                 {!isFiadoMode ? (
-                  <div className="bg-green-50 p-4 rounded-lg space-y-3">
-                    <p className="font-medium text-green-800">💳 Forma de pagamento:</p>
+                  <div className="bg-green-50/80 p-4 rounded-xl space-y-3 border border-green-200">
+                    <p className="font-semibold text-green-800 flex items-center gap-2">
+                      <Wallet className="h-4 w-4" />
+                      Forma de pagamento:
+                    </p>
 
                     <div className="flex justify-end">
                       <Button variant="outline" size="sm" onClick={addPayment}>
@@ -786,9 +844,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     )}
                   </div>
                 ) : (
-                  <div className="bg-amber-50 p-4 rounded-lg space-y-4">
+                  <div className="bg-amber-50/80 p-4 rounded-xl space-y-4 border border-amber-200">
                     <div className="text-center">
-                      <p className="font-medium text-amber-800">📅 Como vai ser o fiado?</p>
+                      <p className="font-semibold text-amber-800 flex items-center justify-center gap-2">
+                        <Handshake className="h-4 w-4" />
+                        Como vai ser o fiado?
+                      </p>
                       <p className="text-sm text-amber-600 mt-1">
                         O valor total de <strong>{formatCurrency(total)}</strong> será registrado
                         como fiado.
@@ -893,21 +954,21 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="pt-4 space-y-2">
-                <div className="flex justify-between text-sm">
+            <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardContent className="pt-4 space-y-3">
+                <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Subtotal:</span>
-                  <span>{formatCurrency(subtotal)}</span>
+                  <span className="font-medium">{formatCurrency(subtotal)}</span>
                 </div>
                 {effectiveDiscount > 0 && (
-                  <div className="flex justify-between text-sm text-green-600">
-                    <span>Desconto ({effectiveDiscount}%):</span>
-                    <span>-{formatCurrency(discountAmount)}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-600 font-medium">Desconto ({effectiveDiscount}%):</span>
+                    <span className="text-green-600 font-semibold">-{formatCurrency(discountAmount)}</span>
                   </div>
                 )}
-                <Separator />
-                <div className="flex justify-between font-semibold">
-                  <span>Total:</span>
+                <Separator className="my-2" />
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold">Total:</span>
                   <div className="flex items-center gap-2">
                     {manualTotal !== null && (
                       <Button
@@ -915,10 +976,11 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                         variant="ghost"
                         size="sm"
                         onClick={() => setManualTotal(null)}
-                        className="h-6 w-6 p-0"
+                        className="h-7 w-7 p-0 hover:bg-primary/10 rounded-full"
                         title="Usar valor calculado"
+                        aria-label="Restaurar valor calculado"
                       >
-                        ✏️
+                        <span className="text-xs">↩</span>
                       </Button>
                     )}
                     <Input
@@ -930,23 +992,24 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           setManualTotal(value)
                         }
                       }}
-                      className="w-32 text-right font-semibold"
+                      className="w-36 text-right text-xl font-bold text-primary border-2 border-primary/30 focus:border-primary rounded-lg"
                       step="0.01"
                       min="0"
                       placeholder={formatCurrency(calculatedTotal)}
+                      aria-label="Total da venda"
                     />
                   </div>
                 </div>
                 {(isFiadoMode || remaining > 0) && (
-                  <div className="flex justify-between text-sm text-amber-600">
-                    <span>Restante (Fiado):</span>
-                    <span>{formatCurrency(isFiadoMode ? total : remaining)}</span>
+                  <div className="flex justify-between text-sm bg-amber-50 p-2 rounded-lg border border-amber-200">
+                    <span className="text-amber-700 font-medium">Restante (Fiado):</span>
+                    <span className="text-amber-700 font-bold">{formatCurrency(isFiadoMode ? total : remaining)}</span>
                   </div>
                 )}
                 {remaining < 0 && (
-                  <div className="flex justify-between text-sm text-destructive">
-                    <span>Excedente:</span>
-                    <span>{formatCurrency(Math.abs(remaining))}</span>
+                  <div className="flex justify-between text-sm bg-red-50 p-2 rounded-lg border border-red-200">
+                    <span className="text-red-600 font-medium">Excedente:</span>
+                    <span className="text-red-600 font-bold">{formatCurrency(Math.abs(remaining))}</span>
                   </div>
                 )}
               </CardContent>
@@ -954,8 +1017,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="transition-all duration-200 hover:bg-gray-100"
+          >
             Cancelar
           </Button>
           <Button
@@ -967,14 +1034,20 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               (saleMode === 'existing' && !selectedPendingSaleId)
             }
             variant={saleMode === 'existing' ? 'default' : isFiado ? 'secondary' : 'default'}
+            className="min-w-[140px] transition-all duration-200 disabled:opacity-50"
           >
-            {createSale.isPending || addItemsToSale.isPending
-              ? 'Finalizando...'
-              : saleMode === 'existing'
-                ? 'Adicionar na Conta'
-                : isFiado
-                  ? 'Registrar Fiado'
-                  : 'Finalizar Venda'}
+            {createSale.isPending || addItemsToSale.isPending ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Finalizando...
+              </span>
+            ) : saleMode === 'existing' ? (
+              'Adicionar na Conta'
+            ) : isFiado ? (
+              'Registrar Fiado'
+            ) : (
+              'Finalizar Venda'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

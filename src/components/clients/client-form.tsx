@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2, User } from 'lucide-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -95,25 +96,57 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] md:max-w-xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar Cliente' : 'Novo Cliente'}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <div className="p-2 rounded-full bg-primary/10">
+              <User className="h-5 w-5 text-primary" />
+            </div>
+            {isEditing ? 'Editar Cliente' : 'Novo Cliente'}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nome *</Label>
-            <Input id="name" placeholder="Nome completo" {...register('name')} />
-            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+            <Input 
+              id="name" 
+              placeholder="Nome completo" 
+              {...register('name')} 
+              className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+            />
+            {errors.name && (
+              <p className="text-sm text-destructive animate-in fade-in slide-in-from-top-1 duration-200">
+                {errors.name.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone">Telefone</Label>
-            <Input id="phone" placeholder="(00) 00000-0000" {...register('phone')} />
-            {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
+            <Input 
+              id="phone" 
+              placeholder="(00) 00000-0000" 
+              {...register('phone')} 
+              className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+            />
+            {errors.phone && (
+              <p className="text-sm text-destructive animate-in fade-in slide-in-from-top-1 duration-200">
+                {errors.phone.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="address">Endereço</Label>
-            <Input id="address" placeholder="Rua, número, bairro" {...register('address')} />
-            {errors.address && <p className="text-sm text-destructive">{errors.address.message}</p>}
+            <Input 
+              id="address" 
+              placeholder="Rua, número, bairro" 
+              {...register('address')} 
+              className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+            />
+            {errors.address && (
+              <p className="text-sm text-destructive animate-in fade-in slide-in-from-top-1 duration-200">
+                {errors.address.message}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -125,18 +158,38 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
               max="100"
               step="0.1"
               {...register('discount', { valueAsNumber: true })}
+              className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
             />
+            <p className="text-xs text-muted-foreground">
+              Este desconto será aplicado automaticamente nas vendas para este cliente
+            </p>
             {errors.discount && (
-              <p className="text-sm text-destructive">{errors.discount.message}</p>
+              <p className="text-sm text-destructive animate-in fade-in slide-in-from-top-1 duration-200">
+                {errors.discount.message}
+              </p>
             )}
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className="transition-all duration-200 hover:bg-gray-100"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Salvando...' : isEditing ? 'Atualizar' : 'Criar'}
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="min-w-[100px] transition-all duration-200"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Salvando...
+                </span>
+              ) : isEditing ? 'Atualizar' : 'Criar'}
             </Button>
           </DialogFooter>
         </form>

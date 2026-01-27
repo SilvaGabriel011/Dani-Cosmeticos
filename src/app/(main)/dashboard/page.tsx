@@ -3,8 +3,7 @@
 import { DollarSign, Users, TrendingUp, AlertTriangle, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { BarChart } from '@/components/charts/bar-chart'
-import { PieChart as _PieChart } from '@/components/charts/pie-chart'
+import { LazyBarChart } from '@/components/charts/lazy-charts'
 import { CollectionCard } from '@/components/dashboard/collection-card'
 import { FiadoTable } from '@/components/dashboard/fiado-table'
 import { ReceivablesCard } from '@/components/dashboard/receivables-card'
@@ -143,11 +142,11 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <ChartContainer title="Top 5 Produtos">
-          <BarChart data={topProductsData} horizontal height={250} />
+          <LazyBarChart data={topProductsData} horizontal height={250} />
         </ChartContainer>
 
         <ChartContainer title="Top 5 Clientes">
-          <BarChart data={topClientesData} horizontal height={250} />
+          <LazyBarChart data={topClientesData} horizontal height={250} />
         </ChartContainer>
       </div>
 

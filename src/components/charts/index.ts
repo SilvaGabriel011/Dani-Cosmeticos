@@ -6,3 +6,5 @@ export type { BarChartData, BarChartProps } from './bar-chart'
 
 export { LineChart } from './line-chart'
 export type { LineChartData, LineConfig, LineChartProps } from './line-chart'
+
+export { LazyBarChart, LazyLineChart, LazyPieChart } from './lazy-charts'
