@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
       GROUP BY c."id", c."name", c."phone", c."address", c."discount"
       HAVING SUM(s."total" - s."paidAmount") > 0
       ${orderByClause}
-      LIMIT 100
+      LIMIT 500
     `)
 
     // Get client IDs for detailed data fetch
