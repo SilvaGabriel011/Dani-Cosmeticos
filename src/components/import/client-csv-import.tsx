@@ -69,8 +69,9 @@ function parseCSV(text: string): ParsedRow[] {
     if (values.length < 4 || !values[0]) continue
 
     const nome = values[0]
-    const debitoAberto = parseMoneyValue(values[1])
+    const valorTotalCompra = parseMoneyValue(values[1])
     const pago = parseMoneyValue(values[2])
+    const debitoAberto = valorTotalCompra - pago
     const valorParcelas = values[4] ? parseMoneyValue(values[4]) : undefined
     const numeroParcelas = values[5] ? parseInt(values[5], 10) || undefined : undefined
     const pagamentoDia = values[6] ? parsePaymentDay(values[6]) : undefined
@@ -121,6 +122,7 @@ export function ClientCSVImport({ open, onOpenChange }: ClientCSVImportProps) {
     try {
       const clientsToImport: ClientImportRow[] = parsedData.map((row) => ({
         nome: row.nome,
+        valorTotal: row.debitoAberto + row.pago,
         debitoAberto: row.debitoAberto,
         pago: row.pago,
         valorParcelas: row.valorParcelas,

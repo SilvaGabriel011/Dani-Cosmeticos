@@ -59,9 +59,10 @@ export async function POST(request: NextRequest) {
 }
 
 async function importClient(row: ClientImportRow, importDate: Date) {
-  const { nome, debitoAberto, pago, valorParcelas, numeroParcelas, pagamentoDia } = row
+  const { nome, valorTotal, debitoAberto, pago, valorParcelas, numeroParcelas, pagamentoDia } = row
 
-  const totalEmAberto = debitoAberto - pago
+  const valorTotalCompra = valorTotal || (debitoAberto + pago)
+  const totalEmAberto = debitoAberto
   const numInstallments = numeroParcelas && numeroParcelas > 0 ? numeroParcelas : 1
   const paymentDay = pagamentoDia || 10
 
@@ -80,12 +81,12 @@ async function importClient(row: ClientImportRow, importDate: Date) {
     const sale = await tx.sale.create({
       data: {
         clientId: client.id,
-        subtotal: new Decimal(debitoAberto),
+        subtotal: new Decimal(valorTotalCompra),
         discountPercent: new Decimal(0),
         discountAmount: new Decimal(0),
         totalFees: new Decimal(0),
-        total: new Decimal(debitoAberto),
-        netTotal: new Decimal(debitoAberto),
+        total: new Decimal(valorTotalCompra),
+        netTotal: new Decimal(valorTotalCompra),
         paidAmount: new Decimal(pago),
         status: 'PENDING',
         notes: `Importado via CSV em ${importDate.toLocaleDateString('pt-BR')}`,

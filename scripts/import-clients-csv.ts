@@ -27,7 +27,7 @@ function parseMoneyValue(value: string): number {
 }
 
 function extractPaymentDay(value: string): number {
-  if (!value || value.trim() === "") return 1 // Default to day 1 as requested
+  if (!value || value.trim() === "") return 10 // Default to day 10
   
   const cleaned = value.toLowerCase().trim()
   
@@ -51,7 +51,7 @@ function extractPaymentDay(value: string): number {
   const numMatch = cleaned.match(/(\d+)/)
   if (numMatch) return parseInt(numMatch[1])
   
-  return 1 // Default
+  return 10 // Default
 }
 
 function parseCSVLine(line: string): string[] {
@@ -77,7 +77,7 @@ function parseCSVLine(line: string): string[] {
 }
 
 async function importClients() {
-  const csvPath = path.join(__dirname, "..", "Dani Cosméticos - CLIENTES (1).csv")
+  const csvPath = path.join(__dirname, "..", "Dani Cosméticos - CLIENTES (2).csv")
   const content = fs.readFileSync(csvPath, "utf-8")
   const lines = content.split("\n").filter(line => line.trim())
   
@@ -102,9 +102,10 @@ async function importClients() {
     const nome = columns[0]?.trim()
     if (!nome) continue
     
-    const debitoAberto = parseMoneyValue(columns[1])
+    const valorTotalCompra = parseMoneyValue(columns[1])
     const pago = parseMoneyValue(columns[2])
-    const valorTotal = parseMoneyValue(columns[3])
+    const debitoAberto = valorTotalCompra - pago
+    const valorTotal = valorTotalCompra
     const valorParcelas = columns[4] ? parseMoneyValue(columns[4]) : null
     const numeroParcelas = columns[5] ? parseInt(columns[5]) : null
     const pagamentoDia = extractPaymentDay(columns[6] || "")
