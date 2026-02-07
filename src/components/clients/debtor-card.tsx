@@ -28,17 +28,17 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
   return (
     <Card className={debtor.isOverdue ? 'border-destructive/50' : ''}>
       <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-lg">{debtor.client.name}</h3>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-semibold text-base sm:text-lg">{debtor.client.name}</h3>
               {debtor.isOverdue && (
                 <Badge variant="destructive" className="text-sm">
                   Vencido
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground flex-wrap">
               <span className="flex items-center gap-1">
                 <Phone className="h-5 w-5" />
                 {debtor.client.phone}
@@ -63,9 +63,9 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
               )}
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Total Devido</p>
-            <p className="text-xl font-bold">{formatCurrency(debtor.totalDebt)}</p>
+          <div className="text-left sm:text-right shrink-0">
+            <p className="text-xs sm:text-sm text-muted-foreground">Total Devido</p>
+            <p className="text-lg sm:text-xl font-bold">{formatCurrency(debtor.totalDebt)}</p>
             {debtor.overdueAmount > 0 && (
               <p className="text-sm text-destructive">
                 Vencido: {formatCurrency(debtor.overdueAmount)}

@@ -1,7 +1,7 @@
 'use client'
 
 import { type Receivable, type Sale, type Client } from '@prisma/client'
-import { CreditCard, MessageCircle, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CreditCard, MessageCircle, Receipt, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -46,6 +46,7 @@ interface SaleReceivableSummary {
   paidInstallments: number
   totalAmount: number
   paidAmount: number
+  installmentAmount: number | null
   nextDueDate: Date | null
   nextReceivable: ReceivableWithSale | null
   isOverdue: boolean
@@ -94,6 +95,12 @@ export function FiadoTable() {
           ? { ...nextReceivable, sale: { ...sale, client: sale.client } }
           : null
 
+        const installmentAmount = sale.fixedInstallmentAmount
+          ? Number(sale.fixedInstallmentAmount)
+          : nextReceivable
+            ? Number(nextReceivable.amount)
+            : null
+
         return {
           saleId: sale.id,
           clientName: sale.client?.name || 'Cliente nao informado',
@@ -102,6 +109,7 @@ export function FiadoTable() {
           paidInstallments,
           totalAmount,
           paidAmount,
+          installmentAmount,
           nextDueDate,
           nextReceivable: nextReceivableWithSale,
           isOverdue,
@@ -223,9 +231,10 @@ export function FiadoTable() {
                   <TableHead>Nome</TableHead>
                   <TableHead className="text-center">Parcelas</TableHead>
                   <TableHead className="text-right">Valor Pago</TableHead>
+                  <TableHead className="text-right">Valor da Parcela</TableHead>
                   <TableHead className="text-right">Valor Restante</TableHead>
-                  <TableHead className="text-right">Valor Total</TableHead>
-                  <TableHead>Progresso</TableHead>
+                  <TableHead className="text-right hidden md:table-cell">Valor Total</TableHead>
+                  <TableHead className="hidden md:table-cell">Progresso</TableHead>
                   <TableHead>Prox. Pagamento</TableHead>
                   <TableHead className="text-center">Acao</TableHead>
                 </TableRow>
@@ -233,7 +242,7 @@ export function FiadoTable() {
               <TableBody>
                 {paginatedSummaries.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                       {saleSummaries.length === 0
                         ? 'Nenhuma venda fiado pendente.'
                         : 'Nenhum resultado encontrado para os filtros selecionados.'}
@@ -254,13 +263,18 @@ export function FiadoTable() {
                       <TableCell className="text-right text-green-600">
                         {formatCurrency(summary.paidAmount)}
                       </TableCell>
+                      <TableCell className="text-right font-medium text-amber-700">
+                        {summary.installmentAmount
+                          ? formatCurrency(summary.installmentAmount)
+                          : '-'}
+                      </TableCell>
                       <TableCell className="text-right text-amber-600">
                         {formatCurrency(summary.totalAmount - summary.paidAmount)}
                       </TableCell>
-                      <TableCell className="text-right font-medium">
+                      <TableCell className="text-right font-medium hidden md:table-cell">
                         {formatCurrency(summary.totalAmount)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         <div className="w-20">
                           <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                             <div
@@ -301,13 +315,13 @@ export function FiadoTable() {
                         <div className="flex items-center justify-center gap-1">
                           <Button
                             variant="outline"
-                            size="default"
+                            size="icon"
                             onClick={() => handleAddPayment(summary)}
                             disabled={!summary.nextReceivable}
-                            className="h-10 px-4 text-sm"
+                            className="h-9 w-9"
+                            title="Adicionar Pagamento"
                           >
-                            <Plus className="h-5 w-5 mr-1" />
-                            Pagamento
+                            <Receipt className="h-5 w-5" />
                           </Button>
                           {summary.clientPhone && (
                             <Button
