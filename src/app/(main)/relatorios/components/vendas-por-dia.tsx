@@ -74,7 +74,7 @@ export function VendasPorDia() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
+            <Calendar className="h-6 w-6" />
             Vendas por Dia
           </CardTitle>
           <CardDescription>Análise detalhada de vendas diárias</CardDescription>
@@ -224,7 +224,7 @@ export function VendasPorDia() {
         <Card className="border-green-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Melhor Dia</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
+            <TrendingUp className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
@@ -233,7 +233,7 @@ export function VendasPorDia() {
                 currency: 'BRL',
               }) || '-'}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {melhorDia ? new Date(melhorDia.data).toLocaleDateString('pt-BR') : '-'}
             </p>
           </CardContent>
@@ -242,7 +242,7 @@ export function VendasPorDia() {
         <Card className="border-red-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pior Dia</CardTitle>
-            <TrendingDown className="h-4 w-4 text-red-600" />
+            <TrendingDown className="h-5 w-5 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
@@ -251,7 +251,7 @@ export function VendasPorDia() {
                 currency: 'BRL',
               }) || '-'}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {piorDia ? new Date(piorDia.data).toLocaleDateString('pt-BR') : '-'}
             </p>
           </CardContent>
@@ -260,7 +260,7 @@ export function VendasPorDia() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Média Diária</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -274,7 +274,7 @@ export function VendasPorDia() {
                   )
                 : '-'}
             </div>
-            <p className="text-xs text-muted-foreground">Média de vendas por dia</p>
+            <p className="text-sm text-muted-foreground">Média de vendas por dia</p>
           </CardContent>
         </Card>
       </div>
@@ -283,18 +283,18 @@ export function VendasPorDia() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Dias com Vendas</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <Calendar className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{dados.filter((d) => d.total > 0).length}</div>
-            <p className="text-xs text-muted-foreground">de {dados.length} dias no mês</p>
+            <p className="text-sm text-muted-foreground">de {dados.length} dias no mês</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Ticket Médio</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -308,25 +308,25 @@ export function VendasPorDia() {
                   )
                 : '-'}
             </div>
-            <p className="text-xs text-muted-foreground">Média por venda</p>
+            <p className="text-sm text-muted-foreground">Média por venda</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Hora de Pico</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <Clock className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{dados.length > 0 ? dados[0].horaPico : '-'}</div>
-            <p className="text-xs text-muted-foreground">Horário com mais vendas</p>
+            <p className="text-sm text-muted-foreground">Horário com mais vendas</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total do Mês</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <Activity className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -337,7 +337,7 @@ export function VendasPorDia() {
                   currency: 'BRL',
                 })}
             </div>
-            <p className="text-xs text-muted-foreground">Soma de todas as vendas</p>
+            <p className="text-sm text-muted-foreground">Soma de todas as vendas</p>
           </CardContent>
         </Card>
       </div>

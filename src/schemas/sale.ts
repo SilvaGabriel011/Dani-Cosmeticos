@@ -4,6 +4,7 @@ export const saleItemSchema = z.object({
   productId: z.string().uuid(),
   quantity: z.number().int().positive('Quantidade deve ser positiva'),
   unitPrice: z.number().positive('Preço deve ser positivo').optional(),
+  originalPrice: z.number().positive('Preço original deve ser positivo').optional(),
 })
 
 export const paymentSchema = z.object({
@@ -21,7 +22,7 @@ export const createSaleSchema = z.object({
   discountPercent: z.number().min(0).max(100).default(0),
   notes: z.string().optional(),
   paymentDay: z.number().int().min(1).max(31).optional().nullable(), // Day of month (1-31)
-  installmentPlan: z.number().int().min(1).max(12).default(1),
+  installmentPlan: z.number().int().min(1).max(48).default(1),
   fixedInstallmentAmount: z.number().positive().optional().nullable(), // Fixed amount for each payment
   createdAt: z.string().datetime().optional(), // For imports: use original sale date for receivable calculations
 })
@@ -37,6 +38,7 @@ export const addPaymentSchema = z.object({
 // Schema for adding items to an existing sale (multiple purchases feature)
 export const addItemsToSaleSchema = z.object({
   items: z.array(saleItemSchema).min(1, 'Pelo menos um item é obrigatório'),
+  fixedInstallmentAmount: z.number().positive().optional().nullable(),
 })
 
 // Schema for rescheduling sale receivables

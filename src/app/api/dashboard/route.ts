@@ -16,6 +16,7 @@ interface DashboardData {
   clients: { total: number }
   lowStockProducts: unknown[]
   recentSales: unknown[]
+  pendingBackorders: { count: number; items: unknown[] }
 }
 
 async function fetchDashboardData(): Promise<DashboardData> {
@@ -32,6 +33,7 @@ async function fetchDashboardData(): Promise<DashboardData> {
     totalProducts,
     totalClients,
     lowStockProducts,
+    pendingBackordersCount,
     recentSales,
     stockValue,
   ] = await Promise.all([
@@ -84,6 +86,14 @@ async function fetchDashboardData(): Promise<DashboardData> {
       LIMIT 5
     `,
 
+    // Pending backorders count
+    prisma.saleItem.count({
+      where: {
+        isBackorder: true,
+        backorderFulfilledAt: null,
+      },
+    }),
+
     // Recent sales - optimized includes
     prisma.sale.findMany({
       where: { status: 'COMPLETED' },
@@ -129,6 +139,10 @@ async function fetchDashboardData(): Promise<DashboardData> {
     },
     lowStockProducts: lowStockProducts as unknown[],
     recentSales: recentSales as unknown[],
+    pendingBackorders: {
+      count: pendingBackordersCount,
+      items: [],
+    },
   }
 }
 

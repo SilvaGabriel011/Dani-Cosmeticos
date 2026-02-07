@@ -51,7 +51,7 @@ export function TopClientes() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5" />
+            <Trophy className="h-6 w-6" />
             Top Clientes
           </CardTitle>
           <CardDescription>Clientes com maior volume de compras</CardDescription>
@@ -78,7 +78,7 @@ export function TopClientes() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-yellow-500" />
+            <Trophy className="h-6 w-6 text-yellow-500" />
             Top 10 Clientes
           </CardTitle>
           <CardDescription>
@@ -115,7 +115,7 @@ export function TopClientes() {
                   </TableCell>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
+                      <User className="h-5 w-5 text-muted-foreground" />
                       {cliente.nome}
                     </div>
                   </TableCell>
@@ -156,11 +156,11 @@ export function TopClientes() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Cliente #1</CardTitle>
-            <Trophy className="h-4 w-4 text-muted-foreground" />
+            <Trophy className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{clientes[0]?.nome || '-'}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {clientes[0]?.totalCompras.toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
@@ -173,7 +173,7 @@ export function TopClientes() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Ticket Médio Top</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -184,7 +184,7 @@ export function TopClientes() {
                   })
                 : '-'}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Maior ticket médio entre os top clientes
             </p>
           </CardContent>
@@ -193,7 +193,7 @@ export function TopClientes() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Top 10</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
+            <User className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -204,7 +204,7 @@ export function TopClientes() {
                   currency: 'BRL',
                 })}
             </div>
-            <p className="text-xs text-muted-foreground">Soma das compras dos top 10 clientes</p>
+            <p className="text-sm text-muted-foreground">Soma das compras dos top 10 clientes</p>
           </CardContent>
         </Card>
       </div>

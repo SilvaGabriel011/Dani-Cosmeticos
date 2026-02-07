@@ -17,3 +17,9 @@ export const SALE_STATUS_LABELS = {
 } as const
 
 export const DEFAULT_PAGE_SIZE = 20
+
+// Tolerância para comparação de valores monetários (arredondamento de centavos)
+export const PAYMENT_TOLERANCE = 0.01
+
+// Dia padrão de pagamento para vendas fiado quando não especificado
+export const DEFAULT_PAYMENT_DAY = 10

@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
+import { cache, CACHE_KEYS } from '@/lib/cache'
+import { handleApiError } from '@/lib/errors'
 import { payReceivableSchema } from '@/schemas/receivable'
 import { receivableService } from '@/services/receivable.service'
 
@@ -17,12 +19,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       paidAt ? new Date(paidAt) : undefined
     )
 
+    // Invalidate caches after payment
+    cache.invalidate(CACHE_KEYS.DASHBOARD)
+    cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+
     return NextResponse.json(data)
-  } catch (error: any) {
-    console.error('Error registering payment:', error)
-    return NextResponse.json(
-      { error: error.message || 'Erro ao registrar pagamento' },
-      { status: 400 }
-    )
+  } catch (error) {
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

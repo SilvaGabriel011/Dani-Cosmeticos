@@ -80,6 +80,22 @@ export function getDateRange(period: string): { startDate: string; endDate: stri
   }
 }
 
+export function formatWhatsAppUrl(phone: string): string | null {
+  let digits = phone.replace(/\D/g, '')
+
+  if (digits.startsWith('55') && digits.length >= 12) {
+    digits = digits.slice(2)
+  }
+
+  if (digits.length === 10) {
+    digits = digits.slice(0, 2) + '9' + digits.slice(2)
+  }
+
+  if (digits.length !== 11) return null
+
+  return `https://wa.me/55${digits}`
+}
+
 export type StockStatus = 'baixo' | 'medio' | 'bom'
 
 export interface StockStatusInfo {

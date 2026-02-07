@@ -24,19 +24,19 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-lg">{debtor.client.name}</h3>
               {debtor.isOverdue && (
-                <Badge variant="destructive" className="text-xs">
+                <Badge variant="destructive" className="text-sm">
                   Vencido
                 </Badge>
               )}
             </div>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
-                <Phone className="h-3 w-3" />
+                <Phone className="h-5 w-5" />
                 {debtor.client.phone}
               </span>
               {debtor.client.address && (
                 <span className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
+                  <MapPin className="h-5 w-5" />
                   {debtor.client.address}
                 </span>
               )}
@@ -61,12 +61,12 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
           <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
             {isExpanded ? (
               <>
-                <ChevronUp className="h-4 w-4 mr-1" />
+                <ChevronUp className="h-5 w-5 mr-1" />
                 Ocultar Detalhes
               </>
             ) : (
               <>
-                <ChevronDown className="h-4 w-4 mr-1" />
+                <ChevronDown className="h-5 w-5 mr-1" />
                 Ver Detalhes
               </>
             )}
@@ -84,7 +84,7 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
                 <div key={sale.id} className="rounded-md bg-muted/50 p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-muted-foreground" />
+                      <Package className="h-5 w-5 text-muted-foreground" />
                       <span className="font-medium">Compra {formatDate(sale.createdAt)}</span>
                       <span className="text-sm text-muted-foreground">
                         - {sale.items.length} {sale.items.length === 1 ? 'item' : 'itens'}

@@ -63,7 +63,7 @@ const PaymentRow = memo(function PaymentRow({
           className="w-28"
         />
         <Button variant="ghost" size="icon" onClick={() => onRemove(index)}>
-          <Trash2 className="h-4 w-4 text-destructive" />
+          <Trash2 className="h-5 w-5 text-destructive" />
         </Button>
       </div>
       {payment.method === 'CREDIT' && (
@@ -84,7 +84,7 @@ const PaymentRow = memo(function PaymentRow({
         </Select>
       )}
       {payment.feePercent > 0 && (
-        <p className="text-xs text-muted-foreground">Taxa: {payment.feePercent}%</p>
+        <p className="text-sm text-muted-foreground">Taxa: {payment.feePercent}%</p>
       )}
     </div>
   )
@@ -178,13 +178,13 @@ export function PaymentSection({
       {!isFiadoMode && (
         <div className="bg-green-50/80 p-4 rounded-xl space-y-3 border border-green-200">
           <p className="font-semibold text-green-800 flex items-center gap-2">
-            <Wallet className="h-4 w-4" />
+            <Wallet className="h-5 w-5" />
             Forma de pagamento:
           </p>
 
           <div className="flex justify-end">
             <Button variant="outline" size="sm" onClick={onAddPayment}>
-              <Plus className="h-4 w-4 mr-1" />
+              <Plus className="h-5 w-5 mr-1" />
               Adicionar Pagamento
             </Button>
           </div>

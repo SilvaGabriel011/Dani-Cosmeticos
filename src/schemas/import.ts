@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 export const clientImportRowSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
+  telefone: z.string().optional(),
   valorTotal: z.number().min(0, 'Valor total deve ser positivo').optional(),
   debitoAberto: z.number().min(0, 'Débito deve ser positivo'),
   pago: z.number().min(0, 'Valor pago deve ser positivo'),

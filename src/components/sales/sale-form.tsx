@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart } from 'lucide-react'
+import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,7 +26,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/components/ui/use-toast'
 import { useClients } from '@/hooks/use-clients'
-import { useProducts } from '@/hooks/use-products'
+import { useProducts, useCreateProduct } from '@/hooks/use-products'
 import { useCreateSale, useClientPendingSales, useAddItemsToSale } from '@/hooks/use-sales'
 import { useSettings } from '@/hooks/use-settings'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
@@ -57,11 +58,12 @@ interface SaleFormProps {
 
 export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps) {
   const { toast } = useToast()
-  const { data: productsData } = useProducts({ limit: 1000 })
-  const { data: clientsData } = useClients({ limit: 1000 })
+  const { data: productsData } = useProducts({ limit: 200 })
+  const { data: clientsData } = useClients({ limit: 200 })
   const { data: settings } = useSettings()
   const createSale = useCreateSale()
   const addItemsToSale = useAddItemsToSale()
+  const createProduct = useCreateProduct()
 
   const [items, setItems] = useState<CartItem[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
@@ -75,14 +77,23 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const productListRef = useRef<HTMLDivElement>(null)
   const [isInstallment, setIsInstallment] = useState(false)
   const [paymentDay, setPaymentDay] = useState<number>(new Date().getDate()) // Default to current day of month
-  const [installmentPlan, setInstallmentPlan] = useState(1)
+  const [installmentPlan, setInstallmentPlan] = useState<number | ''>('')
   const [isFiadoMode, setIsFiadoMode] = useState(false) // Toggle between fiado and normal payment modes
   const [fixedInstallmentAmount, setFixedInstallmentAmount] = useState<number | null>(null) // Fixed amount for each payment
-  const [manualTotal, setManualTotal] = useState<number | null>(null)
+
+  // Backorder confirmation
+  const [showBackorderConfirm, setShowBackorderConfirm] = useState(false)
+
+  // Quick product (item avulso)
+  const [showQuickProduct, setShowQuickProduct] = useState(false)
+  const [quickName, setQuickName] = useState('')
+  const [quickPrice, setQuickPrice] = useState<number | ''>('')
+  const [quickCost, setQuickCost] = useState<number | ''>(0)
 
   // Multiple purchases feature - add to existing account
   const [saleMode, setSaleMode] = useState<'new' | 'existing'>('new')
   const [selectedPendingSaleId, setSelectedPendingSaleId] = useState<string>('')
+  const [existingInstallmentAmount, setExistingInstallmentAmount] = useState<number | null>(null)
 
   // Fetch pending sales for the selected client
   const { data: pendingSalesData } = useClientPendingSales(clientId || null)
@@ -107,31 +118,17 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setSelectedPendingSaleId('')
   }, [clientId])
 
-  // Generate preview of payment dates based on day of month
-  const getPaymentDatesPreview = () => {
-    const dates: Date[] = []
-    const now = new Date()
-
-    for (let i = 0; i < installmentPlan; i++) {
-      const date = new Date(now.getFullYear(), now.getMonth() + i, paymentDay)
-      // If the day is in the past for the first month, start from next month
-      if (i === 0 && date <= now) {
-        date.setMonth(date.getMonth() + 1)
-      }
-      // Adjust for months with fewer days (e.g., Feb 30 -> Feb 28)
-      if (date.getDate() !== paymentDay) {
-        date.setDate(0) // Last day of previous month
-      }
-      dates.push(date)
-    }
-    return dates
-  }
 
   const filteredProducts = useMemo(() => {
-    const inStock = products.filter((p) => p.stock > 0)
-    if (!productSearch.trim()) return inStock
+    // Show all products, sorted: in-stock first, then out-of-stock
+    const sorted = [...products].sort((a, b) => {
+      if (a.stock > 0 && b.stock <= 0) return -1
+      if (a.stock <= 0 && b.stock > 0) return 1
+      return 0
+    })
+    if (!productSearch.trim()) return sorted
 
-    return fuzzySearch(inStock, productSearch, (p) => [p.name, p.code || ''])
+    return fuzzySearch(sorted, productSearch, (p) => [p.name, p.code || ''])
   }, [products, productSearch])
 
   const visibleProducts = useMemo(() => {
@@ -170,11 +167,44 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     ? discountPercent
     : Number(selectedClient?.discount || 0)
 
+  const subtotalOriginal = useMemo(() => items.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0), [items])
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.totalPrice, 0), [items])
+  const promoAmount = subtotalOriginal - subtotal
+  const hasCustomTotal = items.some((item) => item.unitPrice !== item.originalPrice)
 
   const discountAmount = subtotal * (effectiveDiscount / 100)
-  const calculatedTotal = subtotal - discountAmount
-  const total = manualTotal !== null ? manualTotal : calculatedTotal
+  const total = subtotal - discountAmount
+
+  const updateTotalAndRedistribute = (newTotal: number) => {
+    if (items.length === 0 || newTotal < 0) return
+    // The newTotal is post-discount, so we need to find the pre-discount subtotal
+    const targetSubtotal = effectiveDiscount > 0 ? newTotal / (1 - effectiveDiscount / 100) : newTotal
+    // Redistribute proportionally based on each item's original weight
+    const currentOriginalSubtotal = items.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0)
+    if (currentOriginalSubtotal === 0) return
+    setItems(
+      items.map((item) => {
+        const weight = (item.originalPrice * item.quantity) / currentOriginalSubtotal
+        const newItemTotal = targetSubtotal * weight
+        const newUnitPrice = Math.round((newItemTotal / item.quantity) * 100) / 100
+        return {
+          ...item,
+          unitPrice: newUnitPrice,
+          totalPrice: newUnitPrice * item.quantity,
+        }
+      })
+    )
+  }
+
+  const restoreOriginalPrices = () => {
+    setItems(
+      items.map((item) => ({
+        ...item,
+        unitPrice: item.originalPrice,
+        totalPrice: item.originalPrice * item.quantity,
+      }))
+    )
+  }
 
   const totalPayments = payments.reduce((sum, p) => sum + p.amount, 0)
   const remaining = total - totalPayments
@@ -184,7 +214,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     const originalPrice = Number(product.salePrice)
 
     if (existing) {
-      if (existing.quantity < product.stock) {
+      // For in-stock items, limit to stock. For backorder items, allow unlimited.
+      const canAdd = product.stock <= 0 || existing.quantity < product.stock
+      if (canAdd) {
         setItems(
           items.map((i) => {
             if (i.product.id === product.id) {
@@ -210,6 +242,13 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           totalPrice: originalPrice,
         },
       ])
+      // Notify user when adding a backorder item
+      if (product.stock <= 0) {
+        toast({
+          title: `📦 Encomenda: ${product.name}`,
+          description: 'Este produto está sem estoque e será registrado como encomenda.',
+        })
+      }
     }
     setProductSearch('')
   }
@@ -221,7 +260,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           if (item.product.id !== productId) return item
           const newQty = item.quantity + delta
           if (newQty <= 0) return null
-          if (newQty > item.product.stock) return item
+          // For in-stock items, limit to stock. For backorder items (stock=0), allow unlimited.
+          if (item.product.stock > 0 && newQty > item.product.stock) return item
           return {
             ...item,
             quantity: newQty,
@@ -300,16 +340,28 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
   const isFiado = isFiadoMode || remaining > 0.01
 
+  const backorderItems = useMemo(
+    () => items.filter((i) => i.product.stock <= 0 || i.quantity > i.product.stock),
+    [items]
+  )
+
   const handleSubmit = async () => {
     if (items.length === 0) {
       toast({ title: 'Adicione pelo menos um produto', variant: 'destructive' })
       return
     }
 
+    // If there are backorder items and user hasn't confirmed yet, show confirmation dialog
+    if (backorderItems.length > 0 && !showBackorderConfirm) {
+      setShowBackorderConfirm(true)
+      return
+    }
+    setShowBackorderConfirm(false)
+
     // Adding to existing sale
     if (saleMode === 'existing' && selectedPendingSaleId) {
       try {
-        await addItemsToSale.mutateAsync({
+        const updatedSale = await addItemsToSale.mutateAsync({
           saleId: selectedPendingSaleId,
           data: {
             items: items.map((i) => ({
@@ -317,13 +369,19 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               quantity: i.quantity,
               unitPrice: i.unitPrice,
             })),
+            fixedInstallmentAmount: existingInstallmentAmount || undefined,
           },
         })
 
-        const selectedSale = pendingSales.find((s) => s.id === selectedPendingSaleId)
+        const newTotal = Number(updatedSale.total || 0)
+        const saleWithRecv = updatedSale as typeof updatedSale & { receivables?: { status: string; amount: number }[] }
+        const pendingRecv = (saleWithRecv.receivables || []).filter(
+          (r: { status: string; amount: number }) => r.status === 'PENDING' || r.status === 'PARTIAL'
+        )
+        const nextInstallment = pendingRecv.length > 0 ? Number(pendingRecv[0].amount) : 0
         toast({
           title: 'Itens adicionados à conta!',
-          description: `Valor adicionado: ${formatCurrency(total)}. Total da conta: ${formatCurrency((selectedSale?.total || 0) + total)}`,
+          description: `Valor adicionado: ${formatCurrency(total)}. Total da conta: ${formatCurrency(newTotal)}${nextInstallment > 0 ? `. Parcela mensal: ${formatCurrency(nextInstallment)}` : ''}`,
         })
         resetForm()
         onOpenChange(false)
@@ -389,7 +447,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         })),
         discountPercent: effectiveDiscount,
         paymentDay: isInstallment ? paymentDay : null,
-        installmentPlan: isInstallment ? installmentPlan : 1,
+        installmentPlan: isInstallment ? (installmentPlan || 1) : 1,
         fixedInstallmentAmount:
           isFiadoMode && fixedInstallmentAmount ? fixedInstallmentAmount : null,
       })
@@ -419,36 +477,76 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setHasManualDiscount(false)
     setIsInstallment(false)
     setPaymentDay(new Date().getDate())
-    setInstallmentPlan(1)
+    setInstallmentPlan('')
     setIsFiadoMode(false)
     setFixedInstallmentAmount(null)
-    setManualTotal(null)
+    setShowBackorderConfirm(false)
+    setShowQuickProduct(false)
+    setQuickName('')
+    setQuickPrice('')
+    setQuickCost(0)
     setSaleMode('new')
     setSelectedPendingSaleId('')
+    setExistingInstallmentAmount(null)
+  }
+
+  const handleQuickProduct = async () => {
+    if (!quickName.trim() || !quickPrice || quickPrice <= 0) {
+      toast({ title: 'Preencha nome e preço de venda', variant: 'destructive' })
+      return
+    }
+
+    try {
+      const costPrice = Number(quickCost) || 0
+      const salePrice = Number(quickPrice)
+      const profitMargin = costPrice > 0 ? ((salePrice - costPrice) / costPrice) * 100 : 100
+
+      const newProduct = await createProduct.mutateAsync({
+        name: quickName.trim(),
+        costPrice,
+        profitMargin: Math.round(profitMargin * 100) / 100,
+        stock: 0,
+        minStock: 1,
+      })
+
+      addItem(newProduct as Product)
+      toast({
+        title: `Produto "${quickName.trim()}" criado e adicionado!`,
+        description: 'Aparecerá no estoque como item a comprar.',
+      })
+
+      setShowQuickProduct(false)
+      setQuickName('')
+      setQuickPrice('')
+      setQuickCost(0)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao criar produto'
+      toast({ title: 'Erro', description: errorMessage, variant: 'destructive' })
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] md:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+      <DialogContent className="max-w-[98vw] md:max-w-5xl lg:max-w-7xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle>Nova Venda - Carrinho</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full overflow-hidden">
           {/* Products Section */}
           <div className="space-y-4">
-            <Card>
+            <Card className={`transition-all duration-300 ${items.length > 0 ? 'border-2 border-green-400 shadow-sm shadow-green-100' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>Produtos</span>
                   <div className="flex items-center gap-2">
                     {items.length > 0 && (
-                      <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                      <span className="bg-primary text-primary-foreground text-sm px-2 py-1 rounded-full">
                         {items.reduce((sum, item) => sum + item.quantity, 0)} itens
                       </span>
                     )}
                     {products.length > 0 && (
-                      <span className="text-xs font-normal text-muted-foreground">
+                      <span className="text-sm font-normal text-muted-foreground">
                         {products.filter((p) => p.stock > 0).length} disponíveis
                       </span>
                     )}
@@ -457,7 +555,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Buscar produto..."
                     value={productSearch}
@@ -481,18 +579,30 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                         {visibleProducts.map((product) => (
                           <button
                             key={product.id}
-                            className="w-full px-3 py-2 text-left text-sm flex justify-between items-center transition-all duration-200 hover:bg-primary/10 hover:pl-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-primary/20 active:scale-[0.99]"
+                            className={`w-full px-3 py-2 text-left text-sm flex justify-between items-center transition-all duration-200 hover:pl-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-primary/20 active:scale-[0.99] ${
+                              product.stock <= 0
+                                ? 'bg-amber-50/60 hover:bg-amber-100/60 dark:bg-amber-950/20 dark:hover:bg-amber-950/40'
+                                : 'hover:bg-primary/10'
+                            }`}
                             onClick={() => addItem(product)}
                           >
-                            <span className="font-medium">{product.name}</span>
+                            <span className="flex items-center gap-1.5">
+                              <span className="font-medium">{product.name}</span>
+                              {product.stock <= 0 && (
+                                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1.5 py-0.5 rounded-full shrink-0">
+                                  <Package className="h-2.5 w-2.5" />
+                                  Encomenda
+                                </span>
+                              )}
+                            </span>
                             <span className="text-muted-foreground font-semibold">
                               {formatCurrency(Number(product.salePrice))}
                             </span>
                           </button>
                         ))}
                         {hasMoreProducts && (
-                          <div className="px-3 py-2 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-                            <Loader2 className="h-3 w-3 animate-spin" />
+                          <div className="px-3 py-2 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+                            <Loader2 className="h-5 w-5 animate-spin" />
                             Role para carregar mais ({filteredProducts.length - visibleProductsCount} restantes)
                           </div>
                         )}
@@ -501,112 +611,102 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                   </div>
                 )}
 
-                <Separator />
-
-                {items.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8 px-4">
-                    <div className="p-4 rounded-full bg-muted/50 mb-4">
-                      <ShoppingCart className="h-8 w-8 text-muted-foreground" />
+                {/* Item Avulso - Quick product creation */}
+                {showQuickProduct ? (
+                  <div className="border border-dashed border-amber-300 bg-amber-50/50 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-amber-800 flex items-center gap-1.5">
+                        <Package className="h-4 w-4" />
+                        Item Avulso
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() => {
+                          setShowQuickProduct(false)
+                          setQuickName('')
+                          setQuickPrice('')
+                          setQuickCost(0)
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Carrinho vazio
-                    </p>
-                    <p className="text-xs text-muted-foreground/70 mt-1">
-                      Busque e adicione produtos acima
-                    </p>
+                    <Input
+                      placeholder="Nome do produto"
+                      value={quickName}
+                      onChange={(e) => setQuickName(e.target.value)}
+                      autoFocus
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Preço de venda *</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          placeholder="0,00"
+                          value={quickPrice}
+                          onChange={(e) => setQuickPrice(e.target.value ? Number(e.target.value) : '')}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Custo (opcional)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0,00"
+                          value={quickCost}
+                          onChange={(e) => setQuickCost(e.target.value ? Number(e.target.value) : '')}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                      onClick={handleQuickProduct}
+                      disabled={createProduct.isPending}
+                    >
+                      {createProduct.isPending ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Criando...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Plus className="h-4 w-4" />
+                          Criar e Adicionar
+                        </span>
+                      )}
+                    </Button>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {items.map((item) => (
-                      <div key={item.product.id} className="p-3 border rounded-lg bg-gray-50/50 space-y-3 animate-in fade-in slide-in-from-left-2 duration-300">
-                        {/* Header: Nome + Remover */}
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="font-medium text-sm leading-tight">{item.product.name}</span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0 rounded-lg hover:bg-red-50 hover:text-red-600 active:scale-95 transition-all duration-150"
-                            onClick={() => removeItem(item.product.id)}
-                            aria-label={`Remover ${item.product.name} do carrinho`}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-dashed border-amber-300 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
+                    onClick={() => {
+                      setShowQuickProduct(true)
+                      if (productSearch.trim() && filteredProducts.length === 0) {
+                        setQuickName(productSearch.trim())
+                      }
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-1.5" />
+                    Item Avulso (sem cadastro)
+                  </Button>
+                )}
 
-                        {/* Controles: Quantidade + Preço Unitário */}
-                        <div className="flex items-center justify-between gap-3">
-                          {/* Quantidade */}
-                          <div className="flex items-center gap-1 bg-white rounded-xl border-2 border-gray-100 p-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-10 w-10 rounded-lg hover:bg-red-50 hover:text-red-600 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-                              onClick={() => updateQuantity(item.product.id, -1)}
-                              disabled={item.quantity <= 1}
-                              aria-label="Diminuir quantidade"
-                            >
-                              <Minus className="h-5 w-5" />
-                            </Button>
-                            <span className="w-12 text-center font-bold text-xl tabular-nums">{item.quantity}</span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-10 w-10 rounded-lg hover:bg-green-50 hover:text-green-600 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-                              onClick={() => updateQuantity(item.product.id, 1)}
-                              disabled={item.quantity >= item.product.stock}
-                              aria-label="Aumentar quantidade"
-                            >
-                              <Plus className="h-5 w-5" />
-                            </Button>
-                          </div>
-
-                          {/* Preço Unitário - Editável */}
-                          <div className="flex flex-col items-end gap-1">
-                            <div className="flex items-center gap-1">
-                              <span className="text-xs text-muted-foreground">Valor un.:</span>
-                              <div className="relative group">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  step="0.01"
-                                  className={`w-32 h-11 pl-9 pr-3 text-right text-base font-medium border-2 rounded-lg transition-all duration-200 hover:border-gray-300 focus:ring-2 focus:ring-primary/20 ${
-                                    item.unitPrice !== item.originalPrice
-                                      ? item.unitPrice < item.originalPrice
-                                        ? 'border-green-300 bg-green-50/50 focus:border-green-500'
-                                        : 'border-orange-300 bg-orange-50/50 focus:border-orange-500'
-                                      : 'border-gray-200 bg-white focus:border-primary'
-                                  }`}
-                                  value={item.unitPrice}
-                                  onChange={(e) =>
-                                    updateItemPrice(item.product.id, Number(e.target.value))
-                                  }
-                                  aria-label={`Preço unitário de ${item.product.name}`}
-                                />
-                              </div>
-                            </div>
-                            {item.unitPrice !== item.originalPrice && (
-                              <span className={`text-xs font-medium ${item.unitPrice < item.originalPrice ? 'text-green-600' : 'text-orange-600'}`}>
-                                {item.unitPrice < item.originalPrice 
-                                  ? `-${((1 - item.unitPrice / item.originalPrice) * 100).toFixed(0)}% desc.`
-                                  : `+${((item.unitPrice / item.originalPrice - 1) * 100).toFixed(0)}% acrés.`
-                                }
-                                <span className="text-muted-foreground ml-1">(era {formatCurrency(item.originalPrice)})</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Total do Item */}
-                        <div className="flex items-center justify-end pt-2 border-t border-dashed">
-                          <span className="text-xs text-muted-foreground mr-2">Total:</span>
-                          <span className="text-lg font-bold text-primary">
-                            {formatCurrency(item.totalPrice)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                {items.length > 0 && (
+                  <>
+                    <Separator />
+                    <div className="flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground">
+                      <ShoppingCart className="h-4 w-4" />
+                      <span>{items.reduce((sum, item) => sum + item.quantity, 0)} itens no carrinho — edite preços no resumo ao lado</span>
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
@@ -614,12 +714,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
           {/* Payment Section */}
           <div className="space-y-4">
-            <Card>
+            <Card className={`transition-all duration-300 ${selectedClient ? 'border-2 border-green-400 shadow-sm shadow-green-100' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>Cliente e Desconto</span>
                   {clients.length > 0 && (
-                    <span className="text-xs font-normal text-muted-foreground">
+                    <span className="text-sm font-normal text-muted-foreground">
                       {clients.length} clientes
                     </span>
                   )}
@@ -629,7 +729,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                 <div className="space-y-2">
                   <Label>Cliente {isFiado && <span className="text-destructive">*</span>}</Label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       ref={clientInputRef}
                       placeholder={
@@ -707,7 +807,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
                     {saleMode === 'existing' && (
                       <div className="space-y-2">
-                        <Label className="text-xs">Selecione a conta</Label>
+                        <Label className="text-sm">Selecione a conta</Label>
                         <Select
                           value={selectedPendingSaleId}
                           onValueChange={setSelectedPendingSaleId}
@@ -727,12 +827,34 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             ))}
                           </SelectContent>
                         </Select>
-                        {selectedPendingSaleId && (
-                          <p className="text-xs text-blue-600">
-                            Os itens serao adicionados a esta conta e novas parcelas serao criadas
-                            automaticamente.
-                          </p>
-                        )}
+                        {selectedPendingSaleId && (() => {
+                          const selectedSale = pendingSales.find((s) => s.id === selectedPendingSaleId)
+                          const currentInstallment = selectedSale?.fixedInstallmentAmount || (selectedSale ? selectedSale.total / selectedSale.installmentPlan : 0)
+                          const newRemaining = (selectedSale?.remaining || 0) + total
+                          const previewAmount = existingInstallmentAmount || currentInstallment
+                          const previewInstallments = previewAmount > 0 ? Math.ceil(newRemaining / previewAmount) : 0
+                          return (
+                            <div className="space-y-2">
+                              <Label className="text-sm">Valor da parcela mensal (R$)</Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                placeholder={currentInstallment > 0 ? `Atual: ${currentInstallment.toFixed(2)}` : '0,00'}
+                                value={existingInstallmentAmount ?? ''}
+                                onChange={(e) => {
+                                  const val = e.target.value ? Number(e.target.value) : null
+                                  setExistingInstallmentAmount(val && val > 0 ? val : null)
+                                }}
+                              />
+                              <p className="text-sm text-blue-600">
+                                {previewAmount > 0 && newRemaining > 0
+                                  ? `${previewInstallments}x de ${formatCurrency(previewAmount)} (saldo: ${formatCurrency(newRemaining)})`
+                                  : 'Os itens serão adicionados a esta conta e as parcelas serão recalculadas.'}
+                              </p>
+                            </div>
+                          )
+                        })()}
                       </div>
                     )}
                   </div>
@@ -754,15 +876,196 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               </CardContent>
             </Card>
 
+            <Card className={`border-2 bg-gradient-to-br from-primary/5 to-transparent transition-all duration-300 ${items.length > 0 ? 'border-green-400 shadow-sm shadow-green-100' : 'border-primary/20'}`}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <ShoppingCart className="h-4 w-4" />
+                    Resumo da Venda
+                  </span>
+                  {hasCustomTotal && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => restoreOriginalPrices()}
+                      className="h-7 px-2 text-xs hover:bg-primary/10 rounded-md"
+                      title="Restaurar preços originais"
+                    >
+                      ↩ Restaurar preços
+                    </Button>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 space-y-3">
+                {/* Lista de itens do carrinho com preço editável */}
+                {items.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
+                    <ShoppingCart className="h-8 w-8 mb-2 opacity-50" />
+                    <p className="text-sm">Carrinho vazio</p>
+                    <p className="text-xs opacity-70">Adicione produtos na lista ao lado</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {items.map((item) => (
+                      <div
+                        key={item.product.id}
+                        className={`p-2 border rounded-lg animate-in fade-in duration-200 ${
+                          item.unitPrice !== item.originalPrice
+                            ? item.unitPrice < item.originalPrice
+                              ? 'border-green-200 bg-green-50/30'
+                              : 'border-orange-200 bg-orange-50/30'
+                            : 'bg-gray-50/50'
+                        }`}
+                      >
+                        {/* Linha 1: Nome + Remover */}
+                        <div className="flex items-center justify-between gap-1 mb-1.5">
+                          <span className="font-medium text-sm leading-tight truncate flex-1">{item.product.name}</span>
+                          {(item.product.stock <= 0 || item.quantity > item.product.stock) && (
+                            <span className="inline-flex items-center gap-0.5 text-[9px] font-medium text-amber-700 bg-amber-100 px-1 py-0.5 rounded-full shrink-0">
+                              <Package className="h-2 w-2" />
+                              Enc.
+                            </span>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 shrink-0 hover:bg-red-50 hover:text-red-600"
+                            onClick={() => removeItem(item.product.id)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
+                        </div>
+                        {/* Linha 2: Qty + Preço editável + Total */}
+                        <div className="flex items-center gap-2">
+                          {/* Quantidade compacta */}
+                          <div className="flex items-center gap-0.5 shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 rounded hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+                              onClick={() => updateQuantity(item.product.id, -1)}
+                              disabled={item.quantity <= 1}
+                            >
+                              <Minus className="h-3.5 w-3.5" />
+                            </Button>
+                            <span className="w-6 text-center font-bold text-sm tabular-nums">{item.quantity}</span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 rounded hover:bg-green-50 hover:text-green-600 disabled:opacity-40"
+                              onClick={() => updateQuantity(item.product.id, 1)}
+                              disabled={item.product.stock > 0 && item.quantity >= item.product.stock}
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                          {/* Preço editável */}
+                          <div className="flex-1 flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground">×</span>
+                            <div className="relative flex-1">
+                              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">R$</span>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                className={`h-8 pl-7 pr-2 text-right text-sm font-medium border rounded transition-all ${
+                                  item.unitPrice !== item.originalPrice
+                                    ? item.unitPrice < item.originalPrice
+                                      ? 'border-green-300 bg-green-50/50 focus:border-green-500'
+                                      : 'border-orange-300 bg-orange-50/50 focus:border-orange-500'
+                                    : 'border-gray-200 bg-white focus:border-primary'
+                                }`}
+                                value={item.unitPrice}
+                                onChange={(e) => updateItemPrice(item.product.id, Number(e.target.value))}
+                              />
+                            </div>
+                          </div>
+                          {/* Total do item */}
+                          <span className="text-sm font-bold text-primary shrink-0 min-w-[70px] text-right">
+                            {formatCurrency(item.totalPrice)}
+                          </span>
+                        </div>
+                        {/* Indicador de promoção */}
+                        {item.unitPrice !== item.originalPrice && (
+                          <div className={`text-xs font-medium mt-1 ${item.unitPrice < item.originalPrice ? 'text-green-600' : 'text-orange-600'}`}>
+                            {item.unitPrice < item.originalPrice
+                              ? `Promoção: -${((1 - item.unitPrice / item.originalPrice) * 100).toFixed(0)}%`
+                              : `Acréscimo: +${((item.unitPrice / item.originalPrice - 1) * 100).toFixed(0)}%`}
+                            <span className="text-muted-foreground ml-1">(era {formatCurrency(item.originalPrice)})</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <Separator />
+
+                {/* Totais */}
+                {promoAmount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-purple-600 font-medium">Promoção:</span>
+                    <span className="text-purple-600 font-semibold">-{formatCurrency(promoAmount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>Subtotal:</span>
+                  <span className="font-medium">{formatCurrency(subtotal)}</span>
+                </div>
+                {effectiveDiscount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-600 font-medium">Desconto ({effectiveDiscount}%):</span>
+                    <span className="text-green-600 font-semibold">-{formatCurrency(discountAmount)}</span>
+                  </div>
+                )}
+                <Separator className="my-2" />
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold">Total:</span>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      value={total}
+                      onChange={(e) => {
+                        const value = Number(e.target.value)
+                        if (value >= 0) {
+                          updateTotalAndRedistribute(value)
+                        }
+                      }}
+                      className="w-36 text-right text-xl font-bold text-primary border-2 border-primary/30 focus:border-primary rounded-lg"
+                      step="0.01"
+                      min="0"
+                      aria-label="Total da venda"
+                    />
+                  </div>
+                </div>
+                {(isFiadoMode || remaining > 0) && (
+                  <div className="flex justify-between text-sm bg-amber-50 p-2 rounded-lg border border-amber-200">
+                    <span className="text-amber-700 font-medium">Restante (Fiado):</span>
+                    <span className="text-amber-700 font-bold">{formatCurrency(isFiadoMode ? total : remaining)}</span>
+                  </div>
+                )}
+                {remaining < 0 && (
+                  <div className="flex justify-between text-sm bg-red-50 p-2 rounded-lg border border-red-200">
+                    <span className="text-red-600 font-medium">Excedente:</span>
+                    <span className="text-red-600 font-bold">{formatCurrency(Math.abs(remaining))}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Payment Section */}
+          <div className="space-y-4">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Forma de Pagamento</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Resumo do valor */}
-                <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-4 rounded-xl text-center border border-primary/20">
+                <div className={`p-4 rounded-xl text-center border ${isFiadoMode ? 'bg-gradient-to-br from-amber-100 to-amber-50 border-amber-300' : 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20'}`}>
                   <p className="text-sm text-muted-foreground font-medium">Total da compra</p>
-                  <p className="text-3xl font-bold text-primary mt-1">{formatCurrency(total)}</p>
+                  <p className={`text-3xl font-bold mt-1 ${isFiadoMode ? 'text-amber-700' : 'text-primary'}`}>{formatCurrency(total)}</p>
                 </div>
 
                 {/* Escolha principal: Pagar Agora vs Fiado */}
@@ -790,14 +1093,14 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
                   <Button
                     variant={isFiadoMode ? 'default' : 'outline'}
-                    className={`h-auto py-4 px-5 justify-start transition-all duration-200 ${isFiadoMode ? 'ring-2 ring-primary ring-offset-2' : 'hover:bg-primary/5'}`}
+                    className={`h-auto py-4 px-5 justify-start transition-all duration-200 ${isFiadoMode ? 'bg-amber-600 hover:bg-amber-700 ring-2 ring-amber-500 ring-offset-2 text-white' : 'hover:bg-amber-50'}`}
                     onClick={() => {
                       setIsFiadoMode(true)
                       setPayments([])
                     }}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`p-2.5 rounded-full ${isFiadoMode ? 'bg-primary-foreground/20' : 'bg-muted'}`}>
+                      <div className={`p-2.5 rounded-full ${isFiadoMode ? 'bg-white/20' : 'bg-muted'}`}>
                         <Handshake className="h-6 w-6" />
                       </div>
                       <div className="flex-1 text-left">
@@ -812,13 +1115,13 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                 {!isFiadoMode ? (
                   <div className="bg-green-50/80 p-4 rounded-xl space-y-3 border border-green-200">
                     <p className="font-semibold text-green-800 flex items-center gap-2">
-                      <Wallet className="h-4 w-4" />
+                      <Wallet className="h-5 w-5" />
                       Forma de pagamento:
                     </p>
 
                     <div className="flex justify-end">
                       <Button variant="outline" size="sm" onClick={addPayment}>
-                        <Plus className="h-4 w-4 mr-1" />
+                        <Plus className="h-5 w-5 mr-1" />
                         Adicionar Pagamento
                       </Button>
                     </div>
@@ -862,7 +1165,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                               size="icon"
                               onClick={() => removePayment(index)}
                             >
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 className="h-5 w-5 text-destructive" />
                             </Button>
                           </div>
                           {payment.method === 'CREDIT' && (
@@ -885,7 +1188,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             </Select>
                           )}
                           {payment.feePercent > 0 && (
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-sm text-muted-foreground">
                               Taxa: {payment.feePercent}%
                             </p>
                           )}
@@ -894,169 +1197,14 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     )}
                   </div>
                 ) : (
-                  <div className="bg-amber-50/80 p-4 rounded-xl space-y-4 border border-amber-200">
-                    <div className="text-center">
-                      <p className="font-semibold text-amber-800 flex items-center justify-center gap-2">
-                        <Handshake className="h-4 w-4" />
-                        Como vai ser o fiado?
-                      </p>
-                      <p className="text-sm text-amber-600 mt-1">
-                        O valor total de <strong>{formatCurrency(total)}</strong> será registrado
-                        como fiado.
-                      </p>
-                    </div>
-
-                    {/* Configurações do fiado */}
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          id="installment-toggle-simple"
-                          checked={isInstallment}
-                          onChange={(e) => setIsInstallment(e.target.checked)}
-                          className="h-4 w-4 rounded border-gray-300"
-                        />
-                        <Label htmlFor="installment-toggle-simple" className="cursor-pointer">
-                          Dividir em parcelas mensais
-                        </Label>
-                      </div>
-
-                      {isInstallment && (
-                        <div className="space-y-3 pl-6">
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1">
-                              <Label className="text-xs">Dia do pagamento</Label>
-                              <Select
-                                value={String(paymentDay)}
-                                onValueChange={(v) => setPaymentDay(Number(v))}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Dia" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
-                                    <SelectItem key={day} value={String(day)}>
-                                      Todo dia {day}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-1">
-                              <Label className="text-xs">Número de parcelas</Label>
-                              <Input
-                                type="number"
-                                min="1"
-                                max="48"
-                                value={installmentPlan}
-                                onChange={(e) => {
-                                  const value = Math.max(1, Math.min(48, Number(e.target.value) || 1))
-                                  setInstallmentPlan(value)
-                                }}
-                                className="text-center"
-                                placeholder="Ex: 3"
-                              />
-                            </div>
-                          </div>
-
-                          {total > 0 && (
-                            <div className="bg-white p-3 rounded-md border border-amber-200">
-                              <p className="text-sm font-medium text-amber-800">
-                                {installmentPlan}x de {formatCurrency(total / installmentPlan)}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Primeiro pagamento:{' '}
-                                {getPaymentDatesPreview()[0]?.toLocaleDateString('pt-BR')}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="space-y-2">
-                        <Label className="text-sm">Valor fixo da parcela (opcional)</Label>
-                        <Input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          placeholder={
-                            total > 0 && installmentPlan > 0
-                              ? formatCurrency(total / installmentPlan)
-                              : 'Ex: 50.00'
-                          }
-                          value={fixedInstallmentAmount || ''}
-                          onChange={(e) =>
-                            setFixedInstallmentAmount(
-                              e.target.value ? Number(e.target.value) : null
-                            )
-                          }
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          💡 Este valor será sugerido ao registrar pagamentos
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-              <CardContent className="pt-4 space-y-3">
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Subtotal:</span>
-                  <span className="font-medium">{formatCurrency(subtotal)}</span>
-                </div>
-                {effectiveDiscount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-green-600 font-medium">Desconto ({effectiveDiscount}%):</span>
-                    <span className="text-green-600 font-semibold">-{formatCurrency(discountAmount)}</span>
-                  </div>
-                )}
-                <Separator className="my-2" />
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold">Total:</span>
-                  <div className="flex items-center gap-2">
-                    {manualTotal !== null && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setManualTotal(null)}
-                        className="h-7 w-7 p-0 hover:bg-primary/10 rounded-full"
-                        title="Usar valor calculado"
-                        aria-label="Restaurar valor calculado"
-                      >
-                        <span className="text-xs">↩</span>
-                      </Button>
-                    )}
-                    <Input
-                      type="number"
-                      value={manualTotal !== null ? manualTotal : calculatedTotal}
-                      onChange={(e) => {
-                        const value = Number(e.target.value)
-                        if (value >= 0) {
-                          setManualTotal(value)
-                        }
-                      }}
-                      className="w-36 text-right text-xl font-bold text-primary border-2 border-primary/30 focus:border-primary rounded-lg"
-                      step="0.01"
-                      min="0"
-                      placeholder={formatCurrency(calculatedTotal)}
-                      aria-label="Total da venda"
-                    />
-                  </div>
-                </div>
-                {(isFiadoMode || remaining > 0) && (
-                  <div className="flex justify-between text-sm bg-amber-50 p-2 rounded-lg border border-amber-200">
-                    <span className="text-amber-700 font-medium">Restante (Fiado):</span>
-                    <span className="text-amber-700 font-bold">{formatCurrency(isFiadoMode ? total : remaining)}</span>
-                  </div>
-                )}
-                {remaining < 0 && (
-                  <div className="flex justify-between text-sm bg-red-50 p-2 rounded-lg border border-red-200">
-                    <span className="text-red-600 font-medium">Excedente:</span>
-                    <span className="text-red-600 font-bold">{formatCurrency(Math.abs(remaining))}</span>
+                  <div className="bg-amber-50/80 p-3 rounded-xl border border-amber-200 text-center">
+                    <p className="font-semibold text-amber-800 flex items-center justify-center gap-2">
+                      <Handshake className="h-5 w-5" />
+                      Fiado selecionado
+                    </p>
+                    <p className="text-sm text-amber-600 mt-1">
+                      <strong>{formatCurrency(total)}</strong> será registrado como fiado.
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -1064,40 +1212,207 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           </div>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button 
-            variant="outline" 
-            onClick={() => onOpenChange(false)}
-            className="transition-all duration-200 hover:bg-gray-100"
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={
-              createSale.isPending ||
-              addItemsToSale.isPending ||
-              items.length === 0 ||
-              (saleMode === 'existing' && !selectedPendingSaleId)
-            }
-            variant={saleMode === 'existing' ? 'default' : isFiado ? 'secondary' : 'default'}
-            className="min-w-[140px] transition-all duration-200 disabled:opacity-50"
-          >
-            {createSale.isPending || addItemsToSale.isPending ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Finalizando...
-              </span>
-            ) : saleMode === 'existing' ? (
-              'Adicionar na Conta'
-            ) : isFiado ? (
-              'Registrar Fiado'
+        <div className="border-t pt-4 mt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            {isFiado ? (
+              <div className="flex flex-wrap items-center gap-4 text-base w-full sm:w-auto bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="footer-installment-toggle"
+                    checked={isInstallment}
+                    onChange={(e) => {
+                      setIsInstallment(e.target.checked)
+                      if (e.target.checked) {
+                        setIsFiadoMode(true)
+                        setPayments([])
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <Label htmlFor="footer-installment-toggle" className="cursor-pointer text-base font-semibold whitespace-nowrap">
+                    Dividir em parcelas
+                  </Label>
+                </div>
+                {isInstallment && (
+                  <>
+                    <div className="flex items-center gap-1.5">
+                      <Label className="text-base text-muted-foreground whitespace-nowrap">Parcelas:</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="48"
+                        value={installmentPlan}
+                        onChange={(e) => {
+                          const raw = e.target.value
+                          if (raw === '') {
+                            setInstallmentPlan('')
+                            setFixedInstallmentAmount(null)
+                            return
+                          }
+                          const value = Math.min(48, Number(raw) || 0)
+                          setInstallmentPlan(value)
+                          if (value > 0 && total > 0) {
+                            setFixedInstallmentAmount(Number((total / value).toFixed(2)))
+                          }
+                        }}
+                        onBlur={() => {
+                          if (!installmentPlan || installmentPlan < 1) setInstallmentPlan(1)
+                        }}
+                        className="w-18 h-9 text-center text-base"
+                        placeholder="3"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Label className="text-base text-muted-foreground whitespace-nowrap">Dia:</Label>
+                      <Select
+                        value={String(paymentDay)}
+                        onValueChange={(v) => setPaymentDay(Number(v))}
+                      >
+                        <SelectTrigger className="w-24 h-9 text-base">
+                          <SelectValue placeholder="Dia" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
+                            <SelectItem key={day} value={String(day)}>
+                              Dia {day}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Label className="text-base text-muted-foreground whitespace-nowrap">Valor fixo:</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder={total > 0 && Number(installmentPlan) > 0 ? String((total / Number(installmentPlan)).toFixed(2)) : '0'}
+                        value={fixedInstallmentAmount || ''}
+                        onChange={(e) =>
+                          setFixedInstallmentAmount(e.target.value ? Number(e.target.value) : null)
+                        }
+                        className="w-28 h-9 text-base"
+                      />
+                    </div>
+                    {total > 0 && Number(installmentPlan) > 0 && (
+                      <span className="text-base text-amber-700 font-semibold whitespace-nowrap">
+                        {installmentPlan}x de {formatCurrency(fixedInstallmentAmount || total / Number(installmentPlan))}
+                      </span>
+                    )}
+                    {Number(installmentPlan) > 0 && (
+                      <div className="w-full flex flex-wrap items-center gap-1.5 text-sm text-amber-700 mt-1">
+                        <span className="font-medium">Vencimentos:</span>
+                        {Array.from({ length: Math.min(Number(installmentPlan), 6) }, (_, i) => {
+                          const now = new Date()
+                          const date = new Date(now.getFullYear(), now.getMonth() + i, paymentDay)
+                          if (i === 0 && date <= now) {
+                            date.setMonth(date.getMonth() + 1)
+                          }
+                          if (date.getDate() !== paymentDay) {
+                            date.setDate(0)
+                          }
+                          return (
+                            <span key={i} className="bg-amber-100 px-1.5 py-0.5 rounded text-xs font-medium">
+                              {date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                            </span>
+                          )
+                        })}
+                        {Number(installmentPlan) > 6 && (
+                          <span className="text-xs text-amber-600">+{Number(installmentPlan) - 6} mais</span>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             ) : (
-              'Finalizar Venda'
+              <div />
             )}
-          </Button>
-        </DialogFooter>
+            <div className="flex gap-2 shrink-0 w-full sm:w-auto justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+                className="transition-all duration-200 hover:bg-gray-100"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={
+                  createSale.isPending ||
+                  addItemsToSale.isPending ||
+                  items.length === 0 ||
+                  (saleMode === 'existing' && !selectedPendingSaleId)
+                }
+                className={`min-w-[160px] transition-all duration-200 disabled:opacity-50 ${
+                  isFiado
+                    ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                    : ''
+                }`}
+              >
+                {createSale.isPending || addItemsToSale.isPending ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Finalizando...
+                  </span>
+                ) : saleMode === 'existing' ? (
+                  'Adicionar na Conta'
+                ) : isFiado ? (
+                  <span className="flex items-center gap-2">
+                    <Handshake className="h-5 w-5" />
+                    Registrar Fiado
+                  </span>
+                ) : (
+                  'Finalizar Venda'
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
       </DialogContent>
+
+      {/* Backorder confirmation dialog */}
+      <Dialog open={showBackorderConfirm} onOpenChange={setShowBackorderConfirm}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+              </div>
+              <DialogTitle>Itens sem estoque</DialogTitle>
+            </div>
+            <DialogDescription className="pt-2">
+              {backorderItems.length === 1
+                ? 'O seguinte item está sem estoque e será registrado como encomenda:'
+                : `Os seguintes ${backorderItems.length} itens estão sem estoque e serão registrados como encomenda:`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 max-h-40 overflow-y-auto">
+            {backorderItems.map((item) => (
+              <div
+                key={item.product.id}
+                className="flex items-center justify-between text-sm bg-amber-50 border border-amber-200 rounded-lg px-3 py-2"
+              >
+                <span className="font-medium">{item.product.name}</span>
+                <span className="text-amber-700 font-semibold">{item.quantity} un.</span>
+              </div>
+            ))}
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowBackorderConfirm(false)}>
+              Voltar
+            </Button>
+            <Button
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+              onClick={handleSubmit}
+            >
+              <Package className="h-4 w-4 mr-2" />
+              Confirmar Encomenda
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   )
 }

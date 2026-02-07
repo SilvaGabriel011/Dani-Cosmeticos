@@ -40,7 +40,7 @@ const CartItemRow = memo(function CartItemRow({
           onClick={() => onRemove(item.product.id)}
           aria-label={`Remover ${item.product.name} do carrinho`}
         >
-          <Trash2 className="h-4 w-4 text-destructive" />
+          <Trash2 className="h-5 w-5 text-destructive" />
         </Button>
       </div>
 
@@ -71,7 +71,7 @@ const CartItemRow = memo(function CartItemRow({
 
         <div className="flex flex-col items-end gap-1">
           <div className="flex items-center gap-1">
-            <span className="text-xs text-muted-foreground">Valor un.:</span>
+            <span className="text-sm text-muted-foreground">Valor un.:</span>
             <div className="relative group">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
               <Input
@@ -92,7 +92,7 @@ const CartItemRow = memo(function CartItemRow({
             </div>
           </div>
           {item.unitPrice !== item.originalPrice && (
-            <span className={`text-xs font-medium ${item.unitPrice < item.originalPrice ? 'text-green-600' : 'text-orange-600'}`}>
+            <span className={`text-sm font-medium ${item.unitPrice < item.originalPrice ? 'text-green-600' : 'text-orange-600'}`}>
               {item.unitPrice < item.originalPrice
                 ? `-${((1 - item.unitPrice / item.originalPrice) * 100).toFixed(0)}% desc.`
                 : `+${((item.unitPrice / item.originalPrice - 1) * 100).toFixed(0)}% acrés.`}
@@ -103,7 +103,7 @@ const CartItemRow = memo(function CartItemRow({
       </div>
 
       <div className="flex items-center justify-end pt-2 border-t border-dashed">
-        <span className="text-xs text-muted-foreground mr-2">Total:</span>
+        <span className="text-sm text-muted-foreground mr-2">Total:</span>
         <span className="text-lg font-bold text-primary">
           {formatCurrency(item.totalPrice)}
         </span>
@@ -124,12 +124,12 @@ export function CartItems({ items, onUpdateQuantity, onUpdatePrice, onRemove }: 
     return (
       <div className="flex flex-col items-center justify-center py-8 px-4">
         <div className="p-4 rounded-full bg-muted/50 mb-4">
-          <ShoppingCart className="h-8 w-8 text-muted-foreground" />
+          <ShoppingCart className="h-10 w-10 text-muted-foreground" />
         </div>
         <p className="text-sm font-medium text-muted-foreground">
           Carrinho vazio
         </p>
-        <p className="text-xs text-muted-foreground/70 mt-1">
+        <p className="text-sm text-muted-foreground/70 mt-1">
           Busque e adicione produtos acima
         </p>
       </div>

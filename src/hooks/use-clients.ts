@@ -9,6 +9,8 @@ interface ClientFilters {
   page?: number
   limit?: number
   search?: string
+  hasDebt?: boolean
+  missingPhone?: boolean
 }
 
 async function fetchClients(filters: ClientFilters): Promise<PaginatedResult<Client>> {
@@ -16,6 +18,8 @@ async function fetchClients(filters: ClientFilters): Promise<PaginatedResult<Cli
   if (filters.page) params.set('page', filters.page.toString())
   if (filters.limit) params.set('limit', filters.limit.toString())
   if (filters.search) params.set('search', filters.search)
+  if (filters.hasDebt) params.set('hasDebt', 'true')
+  if (filters.missingPhone) params.set('missingPhone', 'true')
 
   const res = await fetch(`/api/clients?${params}`)
   if (!res.ok) throw new Error('Erro ao buscar clientes')

@@ -50,7 +50,7 @@ export function MaioresVendas() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
+            <TrendingUp className="h-6 w-6" />
             Maiores Vendas
           </CardTitle>
           <CardDescription>Vendas de maior valor do período</CardDescription>
@@ -74,7 +74,7 @@ export function MaioresVendas() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
+            <TrendingUp className="h-6 w-6 text-green-600" />
             Top 20 Maiores Vendas
           </CardTitle>
           <CardDescription>Vendas de maior valor dos últimos 30 dias</CardDescription>
@@ -111,13 +111,13 @@ export function MaioresVendas() {
                   <TableCell>{venda.nomeCliente}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-muted-foreground" />
+                      <Package className="h-5 w-5 text-muted-foreground" />
                       {venda.produtos}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-green-600" />
+                      <DollarSign className="h-5 w-5 text-green-600" />
                       <span className="font-semibold text-green-600">
                         {venda.total.toLocaleString('pt-BR', {
                           style: 'currency',
@@ -128,7 +128,7 @@ export function MaioresVendas() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
                       {new Date(venda.data).toLocaleDateString('pt-BR')}
                     </div>
                   </TableCell>
@@ -144,7 +144,7 @@ export function MaioresVendas() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Maior Venda</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -153,14 +153,14 @@ export function MaioresVendas() {
                 currency: 'BRL',
               }) || '-'}
             </div>
-            <p className="text-xs text-muted-foreground">Venda #{vendas[0]?.idVenda || '-'}</p>
+            <p className="text-sm text-muted-foreground">Venda #{vendas[0]?.idVenda || '-'}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Ticket Médio</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -174,14 +174,14 @@ export function MaioresVendas() {
                   )
                 : '-'}
             </div>
-            <p className="text-xs text-muted-foreground">Média das top 20 vendas</p>
+            <p className="text-sm text-muted-foreground">Média das top 20 vendas</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Top 20</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <Package className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -192,7 +192,7 @@ export function MaioresVendas() {
                   currency: 'BRL',
                 })}
             </div>
-            <p className="text-xs text-muted-foreground">Soma das top 20 vendas</p>
+            <p className="text-sm text-muted-foreground">Soma das top 20 vendas</p>
           </CardContent>
         </Card>
       </div>

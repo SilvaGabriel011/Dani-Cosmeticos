@@ -160,7 +160,7 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
               {...register('discount', { valueAsNumber: true })}
               className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Este desconto será aplicado automaticamente nas vendas para este cliente
             </p>
             {errors.discount && (
@@ -186,7 +186,7 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                   Salvando...
                 </span>
               ) : isEditing ? 'Atualizar' : 'Criar'}

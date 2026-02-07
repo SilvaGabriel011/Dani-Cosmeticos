@@ -1,6 +1,8 @@
+import { Prisma } from '@prisma/client'
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { cache, CACHE_TTL } from '@/lib/cache'
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
@@ -17,6 +19,15 @@ interface DebtorSummary {
   oldestDueDate: Date | null
 }
 
+type ValidSortBy = 'totalDebt' | 'overdueAmount' | 'oldestDueDate' | 'name'
+
+const ORDER_BY_MAP: Record<ValidSortBy, Prisma.Sql> = {
+  totalDebt: Prisma.sql`ORDER BY total_debt_num DESC`,
+  overdueAmount: Prisma.sql`ORDER BY overdue_amount_num DESC`,
+  oldestDueDate: Prisma.sql`ORDER BY "oldestDueDate" ASC NULLS LAST`,
+  name: Prisma.sql`ORDER BY "clientName" ASC`,
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -27,27 +38,23 @@ export async function GET(request: NextRequest) {
     const cacheKey = `debtors:${search}:${sortBy}`
     const cached = cache.get(cacheKey)
     if (cached && !search) {
-      // Only use cache for non-search queries
       return NextResponse.json(cached)
     }
 
-    // Use SQL aggregation to calculate totals in database
+    // Safe parameterized search filter
     const searchFilter = search
-      ? `AND (c."name" ILIKE '%${search.replace(/'/g, "''")}%' OR c."phone" ILIKE '%${search.replace(/'/g, "''")}%')`
-      : ''
+      ? Prisma.sql`AND (c."name" ILIKE ${'%' + search + '%'} OR c."phone" ILIKE ${'%' + search + '%'})`
+      : Prisma.empty
 
-    const orderByClause =
-      {
-        totalDebt: 'ORDER BY total_debt_num DESC',
-        overdueAmount: 'ORDER BY overdue_amount_num DESC',
-        oldestDueDate: 'ORDER BY "oldestDueDate" ASC NULLS LAST',
-        name: 'ORDER BY "clientName" ASC',
-      }[sortBy] || 'ORDER BY total_debt_num DESC'
+    // Validate sortBy to prevent injection
+    const validSortBy = (Object.keys(ORDER_BY_MAP) as ValidSortBy[]).includes(sortBy as ValidSortBy)
+      ? (sortBy as ValidSortBy)
+      : 'totalDebt'
+    const orderByClause = ORDER_BY_MAP[validSortBy]
 
-    // Single optimized query with aggregations
-    // Calculate total debt from Sale (total - paidAmount), not from receivables
-    const debtorsSummary = await prisma.$queryRawUnsafe<DebtorSummary[]>(`
-      SELECT 
+    // Single optimized query with safe parameterized inputs
+    const debtorsSummary = await prisma.$queryRaw<DebtorSummary[]>`
+      SELECT
         c."id" as "clientId",
         c."name" as "clientName",
         c."phone" as "clientPhone",
@@ -67,7 +74,7 @@ export async function GET(request: NextRequest) {
       HAVING SUM(s."total" - s."paidAmount") > 0
       ${orderByClause}
       LIMIT 500
-    `)
+    `
 
     // Get client IDs for detailed data fetch
     const clientIds = debtorsSummary.map((d) => d.clientId)
@@ -157,10 +164,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result)
   } catch (error) {
-    console.error('Error fetching debtors:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar devedores' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

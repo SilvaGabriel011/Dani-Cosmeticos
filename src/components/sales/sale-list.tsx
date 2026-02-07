@@ -1,11 +1,19 @@
 'use client'
 
-import { XCircle, Banknote, ShoppingBag } from 'lucide-react'
+import { XCircle, Banknote, ShoppingBag, AlertTriangle } from 'lucide-react'
 import { useMemo, useState, useCallback, memo } from 'react'
 
 import { ReceivePaymentDialog } from '@/components/sales/receive-payment-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { FilterBar, type FilterConfig } from '@/components/ui/filter-bar'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -35,7 +43,6 @@ const periodOptions = [
 const statusOptions = [
   { value: 'COMPLETED', label: 'Concluída' },
   { value: 'PENDING', label: 'Fiado' },
-  { value: 'CANCELLED', label: 'Cancelada' },
 ]
 
 const paymentOptions = [
@@ -45,9 +52,16 @@ const paymentOptions = [
   { value: 'DEBIT', label: 'Cartão Débito' },
 ]
 
-export const SaleList = memo(function SaleList() {
+export type SaleTab = 'todas' | 'fiado' | 'concluidas'
+
+interface SaleListProps {
+  tab?: SaleTab
+}
+
+export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps) {
   const { toast } = useToast()
   const [paymentSale, setPaymentSale] = useState<Sale | null>(null)
+  const [cancelSaleId, setCancelSaleId] = useState<string | null>(null)
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
@@ -76,14 +90,16 @@ export const SaleList = memo(function SaleList() {
 
   const filterConfigs: FilterConfig[] = [
     { type: 'toggle', name: 'period', toggleOptions: periodOptions },
-    { type: 'select', name: 'status', label: 'Status', options: statusOptions },
+    ...(tab === 'todas' ? [{ type: 'select' as const, name: 'status', label: 'Status', options: statusOptions }] : []),
     { type: 'select', name: 'categoryId', label: 'Categoria', options: categoryOptions },
     { type: 'select', name: 'productId', label: 'Produto', options: productOptions },
     { type: 'select', name: 'paymentMethod', label: 'Pagamento', options: paymentOptions },
   ]
 
+  const tabStatus = tab === 'fiado' ? 'PENDING' : tab === 'concluidas' ? 'COMPLETED' : undefined
+
   const { data, isLoading, error } = useSales({
-    status: filters.status as 'COMPLETED' | 'PENDING' | 'CANCELLED' | '' | undefined,
+    status: (tabStatus || filters.status) as 'COMPLETED' | 'PENDING' | '' | undefined,
     categoryId: filters.categoryId || undefined,
     productId: filters.productId || undefined,
     paymentMethod: filters.paymentMethod || undefined,
@@ -93,10 +109,10 @@ export const SaleList = memo(function SaleList() {
 
   const cancelSale = useCancelSale()
 
-  const handleCancel = async (saleId: string) => {
-    if (!confirm('Cancelar esta venda? O estoque será restaurado.')) return
+  const handleCancelConfirm = async () => {
+    if (!cancelSaleId) return
     try {
-      await cancelSale.mutateAsync(saleId)
+      await cancelSale.mutateAsync(cancelSaleId)
       toast({ title: 'Venda cancelada com sucesso!' })
     } catch (error: any) {
       toast({
@@ -104,6 +120,8 @@ export const SaleList = memo(function SaleList() {
         description: error.message,
         variant: 'destructive',
       })
+    } finally {
+      setCancelSaleId(null)
     }
   }
 
@@ -151,12 +169,12 @@ export const SaleList = memo(function SaleList() {
         {filtersBar}
         <div className="flex flex-col items-center justify-center py-12 px-4">
           <div className="p-4 rounded-full bg-muted/50 mb-4">
-            <ShoppingBag className="h-8 w-8 text-muted-foreground" />
+            <ShoppingBag className="h-10 w-10 text-muted-foreground" />
           </div>
           <p className="text-sm font-medium text-muted-foreground">
             Nenhuma venda encontrada
           </p>
-          <p className="text-xs text-muted-foreground/70 mt-1">
+          <p className="text-sm text-muted-foreground/70 mt-1">
             Ajuste os filtros ou registre uma nova venda
           </p>
         </div>
@@ -194,7 +212,7 @@ export const SaleList = memo(function SaleList() {
               <TableCell>
                 <div className="flex flex-wrap gap-1">
                   {sale.payments.map((p, i) => (
-                    <Badge key={i} variant="outline" className="text-xs">
+                    <Badge key={i} variant="outline" className="text-sm">
                       {PAYMENT_METHOD_LABELS[p.method as keyof typeof PAYMENT_METHOD_LABELS]}
                     </Badge>
                   ))}
@@ -227,20 +245,20 @@ export const SaleList = memo(function SaleList() {
                       className="h-8 w-8 transition-all duration-150 hover:bg-green-50 hover:text-green-700"
                       aria-label="Receber pagamento"
                     >
-                      <Banknote className="h-4 w-4 text-green-600" />
+                      <Banknote className="h-5 w-5 text-green-600" />
                     </Button>
                   )}
                   {(sale.status === 'COMPLETED' || sale.status === 'PENDING') && (
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleCancel(sale.id)}
+                      onClick={() => setCancelSaleId(sale.id)}
                       disabled={cancelSale.isPending}
                       title="Cancelar venda"
                       className="h-8 w-8 transition-all duration-150 hover:bg-red-50 hover:text-red-700"
                       aria-label="Cancelar venda"
                     >
-                      <XCircle className="h-4 w-4 text-destructive" />
+                      <XCircle className="h-5 w-5 text-destructive" />
                     </Button>
                   )}
                 </div>
@@ -255,6 +273,34 @@ export const SaleList = memo(function SaleList() {
         onOpenChange={(open) => !open && setPaymentSale(null)}
         sale={paymentSale}
       />
+
+      <Dialog open={!!cancelSaleId} onOpenChange={(open) => !open && setCancelSaleId(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              </div>
+              <DialogTitle>Cancelar venda</DialogTitle>
+            </div>
+            <DialogDescription className="pt-2">
+              Cancelar esta venda? O estoque será restaurado e a venda será removida permanentemente.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setCancelSaleId(null)}>
+              Voltar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleCancelConfirm}
+              disabled={cancelSale.isPending}
+            >
+              {cancelSale.isPending ? 'Cancelando...' : 'Confirmar cancelamento'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 })

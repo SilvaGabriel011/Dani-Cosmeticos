@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || ''
     const categoryId = searchParams.get('categoryId')
     const brandId = searchParams.get('brandId')
+    const priceStatus = searchParams.get('priceStatus')
 
     const where = {
       deletedAt: null,
@@ -25,6 +26,7 @@ export async function GET(request: NextRequest) {
       }),
       ...(categoryId && { categoryId }),
       ...(brandId && { brandId }),
+      ...(priceStatus === 'no-price' && { salePrice: { equals: 0 } }),
     }
 
     const [products, total] = await Promise.all([

@@ -7,7 +7,7 @@ import { Toaster } from '@/components/ui/toaster'
 
 import { Providers } from './providers'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
 export const metadata: Metadata = {
   title: 'Dani Cosméticos',

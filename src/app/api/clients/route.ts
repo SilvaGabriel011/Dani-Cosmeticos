@@ -1,3 +1,4 @@
+import { type Prisma } from '@prisma/client'
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { prisma } from '@/lib/prisma'
@@ -11,14 +12,26 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
     const search = searchParams.get('search') || ''
+    const hasDebt = searchParams.get('hasDebt')
+    const missingPhone = searchParams.get('missingPhone')
 
-    const where = {
+    const where: Prisma.ClientWhereInput = {
       deletedAt: null,
       ...(search && {
         OR: [
           { name: { contains: search, mode: 'insensitive' as const } },
           { phone: { contains: search, mode: 'insensitive' as const } },
         ],
+      }),
+      ...(hasDebt === 'true' && {
+        sales: {
+          some: {
+            status: 'PENDING' as const,
+          },
+        },
+      }),
+      ...(missingPhone === 'true' && {
+        AND: [{ OR: [{ phone: null }, { phone: '' }] }],
       }),
     }
 

@@ -58,7 +58,7 @@ export const FiadoConfig = memo(function FiadoConfig({
     <div className="bg-amber-50/80 p-4 rounded-xl space-y-4 border border-amber-200">
       <div className="text-center">
         <p className="font-semibold text-amber-800 flex items-center justify-center gap-2">
-          <Handshake className="h-4 w-4" />
+          <Handshake className="h-5 w-5" />
           Como vai ser o fiado?
         </p>
         <p className="text-sm text-amber-600 mt-1">
@@ -84,7 +84,7 @@ export const FiadoConfig = memo(function FiadoConfig({
           <div className="space-y-3 pl-6 border-l-2 border-amber-200">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">Número de parcelas</Label>
+                <Label className="text-sm">Número de parcelas</Label>
                 <Select
                   value={installmentPlan.toString()}
                   onValueChange={(v) => onInstallmentPlanChange(Number(v))}
@@ -102,7 +102,7 @@ export const FiadoConfig = memo(function FiadoConfig({
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Dia do pagamento</Label>
+                <Label className="text-sm">Dia do pagamento</Label>
                 <Select
                   value={paymentDay.toString()}
                   onValueChange={(v) => onPaymentDayChange(Number(v))}
@@ -122,7 +122,7 @@ export const FiadoConfig = memo(function FiadoConfig({
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs">Valor fixo por parcela (opcional)</Label>
+              <Label className="text-sm">Valor fixo por parcela (opcional)</Label>
               <Input
                 type="number"
                 min="0"
@@ -134,12 +134,12 @@ export const FiadoConfig = memo(function FiadoConfig({
                   onFixedInstallmentAmountChange(value)
                 }}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Se não informado, será {formatCurrency(total / installmentPlan)} por parcela
               </p>
             </div>
 
-            <div className="bg-white p-2 rounded border text-xs">
+            <div className="bg-white p-2 rounded border text-sm">
               <p className="font-medium mb-1">Previsão de pagamentos:</p>
               <div className="space-y-1">
                 {getPaymentDatesPreview().map((date, i) => (

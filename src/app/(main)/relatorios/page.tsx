@@ -3,7 +3,8 @@
 import { Wallet, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { useMemo } from 'react'
 
-import { BarChart } from '@/components/charts/bar-chart'
+import { LazyBarChart as BarChart } from '@/components/charts/lazy-charts'
+import { ReceivablesCard } from '@/components/dashboard/receivables-card'
 import { PageHeader } from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useDashboard } from '@/hooks/use-dashboard'
 import { useFilters } from '@/hooks/use-filters'
 import {
   useReportSummary,
@@ -25,7 +27,7 @@ import {
   useTopClientes,
   useCollection,
 } from '@/hooks/use-reports'
-import { formatCurrency, formatPercent, getDateRange } from '@/lib/utils'
+import { formatCurrency, formatPercent, formatDate, getDateRange } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 const periodOptions = [
@@ -98,7 +100,7 @@ export default function RelatoriosPage() {
                 <div className="text-2xl font-bold">
                   {formatCurrency(summary?.totalRevenue || 0)}
                 </div>
-                <p className="text-xs text-muted-foreground">{summary?.totalSales || 0} vendas</p>
+                <p className="text-sm text-muted-foreground">{summary?.totalSales || 0} vendas</p>
               </CardContent>
             </Card>
 
@@ -112,7 +114,7 @@ export default function RelatoriosPage() {
                 <div className="text-2xl font-bold text-green-600">
                   {formatCurrency(summary?.totalProfit || 0)}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Margem: {formatPercent(summary?.profitMargin || 0)}
                 </p>
               </CardContent>
@@ -128,7 +130,7 @@ export default function RelatoriosPage() {
                 <div className="text-2xl font-bold text-green-600">
                   {formatCurrency(summary?.netProfit || 0)}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   Taxas: -{formatCurrency(summary?.totalFees || 0)}
                 </p>
               </CardContent>
@@ -144,7 +146,7 @@ export default function RelatoriosPage() {
                 <div className="text-2xl font-bold">
                   {formatCurrency(summary?.averageTicket || 0)}
                 </div>
-                <p className="text-xs text-muted-foreground">por venda</p>
+                <p className="text-sm text-muted-foreground">por venda</p>
               </CardContent>
             </Card>
           </>
@@ -155,7 +157,7 @@ export default function RelatoriosPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Wallet className="h-5 w-5" />
+            <Wallet className="h-6 w-6" />
             Arrecadação (Fluxo de Caixa Real)
           </CardTitle>
           <p className="text-sm text-muted-foreground">
@@ -177,7 +179,7 @@ export default function RelatoriosPage() {
                   <p className="text-2xl font-bold text-primary">
                     {formatCurrency(collection?.totalCollection || 0)}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {collection?.paymentCount || 0} pagamentos
                   </p>
                 </div>
@@ -186,7 +188,7 @@ export default function RelatoriosPage() {
                   <p className="text-2xl font-bold text-green-600">
                     {formatCurrency(collection?.netCollection || 0)}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     Taxas: -{formatCurrency(collection?.totalFees || 0)}
                   </p>
                 </div>
@@ -218,7 +220,7 @@ export default function RelatoriosPage() {
                         : '0%'}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     Anterior: {formatCurrency(collection?.comparison.previousCollection || 0)}
                   </p>
                 </div>
@@ -246,11 +248,11 @@ export default function RelatoriosPage() {
                                     ? 'Crédito'
                                     : method.method}
                           </Badge>
-                          <p className="text-xs text-muted-foreground">{method.count} pagamentos</p>
+                          <p className="text-sm text-muted-foreground">{method.count} pagamentos</p>
                         </div>
                         <div className="text-right">
                           <p className="font-medium">{formatCurrency(method.total)}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm text-muted-foreground">
                             {method.percentage.toFixed(1)}%
                           </p>
                         </div>
@@ -281,6 +283,13 @@ export default function RelatoriosPage() {
             <BarChart data={topClientesData} horizontal height={250} />
           )}
         </ChartContainer>
+      </div>
+
+      {/* Contas a Receber + Últimas Vendas */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <ReceivablesCard startDate={dateFilters.startDate} endDate={dateFilters.endDate} />
+
+        <RecentSalesCard />
       </div>
 
       {/* Detail Tables */}
@@ -380,5 +389,38 @@ export default function RelatoriosPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+function RecentSalesCard() {
+  const { data, isLoading } = useDashboard()
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Últimas Vendas</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <Skeleton className="h-[180px]" />
+        ) : !data?.recentSales?.length ? (
+          <p className="text-sm text-muted-foreground">Nenhuma venda realizada ainda.</p>
+        ) : (
+          <div className="space-y-3">
+            {data.recentSales.map((sale: any) => (
+              <div key={sale.id} className="flex items-center justify-between text-sm">
+                <div>
+                  <p className="font-medium">{sale.client?.name || 'Cliente não informado'}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDate(new Date(sale.createdAt))}
+                  </p>
+                </div>
+                <span className="font-medium">{formatCurrency(Number(sale.total))}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }

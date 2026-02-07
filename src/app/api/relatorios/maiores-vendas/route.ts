@@ -11,15 +11,13 @@ export async function GET() {
         c.name as "nomeCliente",
         COUNT(DISTINCT si."productId") as produtos,
         s.total,
-        s."createdAt" as data,
-        u.name as vendedor
+        s."createdAt" as data
       FROM "Sale" s
       JOIN "Client" c ON s."clientId" = c.id
       JOIN "SaleItem" si ON s.id = si."saleId"
-      LEFT JOIN "User" u ON s."userId" = u.id
       WHERE s."createdAt" >= CURRENT_DATE - INTERVAL '30 days'
       AND s.status = 'COMPLETED'
-      GROUP BY s.id, c.name, s.total, s."createdAt", u.name
+      GROUP BY s.id, c.name, s.total, s."createdAt"
       ORDER BY s.total DESC
       LIMIT 20
     `

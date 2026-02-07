@@ -16,7 +16,9 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "csv:normalize": "tsx scripts/normalize-csv.ts",
+    "csv:import": "tsx scripts/import-products.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

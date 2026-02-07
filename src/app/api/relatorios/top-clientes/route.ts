@@ -21,8 +21,8 @@ export async function GET() {
       WHERE s."createdAt" >= CURRENT_DATE - INTERVAL '12 months'
       AND s.status = 'COMPLETED'
       GROUP BY c.id, c.name
-      HAVING "totalCompras" > 0
-      ORDER BY "totalCompras" DESC
+      HAVING COALESCE(SUM(s.total), 0) > 0
+      ORDER BY COALESCE(SUM(s.total), 0) DESC
       LIMIT 10
     `
 

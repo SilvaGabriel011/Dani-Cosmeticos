@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Pencil, ShoppingCart, Phone, MapPin, Percent } from 'lucide-react'
+import { ArrowLeft, MessageCircle, Pencil, ShoppingCart, Phone, MapPin, Percent } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useClient } from '@/hooks/use-clients'
-import { formatDate, formatPercent } from '@/lib/utils'
+import { formatDate, formatPercent, formatWhatsAppUrl } from '@/lib/utils'
 
 export default function ClientDetailPage() {
   const params = useParams()
@@ -39,7 +39,7 @@ export default function ClientDetailPage() {
       <div className="space-y-6">
         <PageHeader title="Cliente não encontrado" />
         <Button variant="outline" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="h-5 w-5 mr-2" />
           Voltar
         </Button>
       </div>
@@ -51,17 +51,33 @@ export default function ClientDetailPage() {
       <PageHeader title={client.name} description="Detalhes e histórico do cliente">
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-5 w-5 mr-2" />
             Voltar
           </Button>
           <Button variant="outline" onClick={() => setEditOpen(true)}>
-            <Pencil className="h-4 w-4 mr-2" />
+            <Pencil className="h-5 w-5 mr-2" />
             Editar
           </Button>
           <Button onClick={() => setSaleOpen(true)}>
-            <ShoppingCart className="h-4 w-4 mr-2" />
+            <ShoppingCart className="h-5 w-5 mr-2" />
             Nova Venda
           </Button>
+          {client.phone && (
+            <Button
+              variant="outline"
+              className="text-green-600 border-green-600 hover:bg-green-50"
+              asChild
+            >
+              <a
+                href={formatWhatsAppUrl(client.phone!) || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="h-5 w-5 mr-2" />
+                WhatsApp
+              </a>
+            </Button>
+          )}
         </div>
       </PageHeader>
 

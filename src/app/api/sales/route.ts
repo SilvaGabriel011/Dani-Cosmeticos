@@ -1,8 +1,10 @@
+import { Prisma, type PaymentMethod } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/library'
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { cache, CACHE_KEYS } from '@/lib/cache'
-import { handleApiError } from "@/lib/errors"
+import { PAYMENT_TOLERANCE, DEFAULT_PAYMENT_DAY } from '@/lib/constants'
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { createSaleSchema } from '@/schemas/sale'
 
@@ -21,8 +23,7 @@ export async function GET(request: NextRequest) {
     const productId = searchParams.get('productId')
     const paymentMethod = searchParams.get('paymentMethod')
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {}
+    const where: Prisma.SaleWhereInput = {}
 
     if (status) {
       where.status = status as 'COMPLETED' | 'PENDING' | 'CANCELLED'
@@ -32,18 +33,11 @@ export async function GET(request: NextRequest) {
       where.clientId = clientId
     }
 
-    if (startDate) {
-      where.createdAt = {
-        ...where.createdAt,
-        gte: new Date(startDate),
-      }
-    }
-
-    if (endDate) {
-      where.createdAt = {
-        ...where.createdAt,
-        lte: new Date(endDate + 'T23:59:59.999Z'),
-      }
+    if (startDate || endDate) {
+      const createdAtFilter: Prisma.DateTimeFilter = {}
+      if (startDate) createdAtFilter.gte = new Date(startDate)
+      if (endDate) createdAtFilter.lte = new Date(endDate + 'T23:59:59.999Z')
+      where.createdAt = createdAtFilter
     }
 
     if (categoryId || productId) {
@@ -59,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     if (paymentMethod) {
       where.payments = {
-        some: { method: paymentMethod },
+        some: { method: paymentMethod as PaymentMethod },
       }
     }
 
@@ -68,7 +62,7 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           client: { select: { id: true, name: true } },
-          items: { select: { id: true, quantity: true, unitPrice: true, total: true } },
+          items: { select: { id: true, quantity: true, unitPrice: true, originalPrice: true, total: true } },
           payments: { select: { method: true, amount: true } },
         },
         skip: (page - 1) * limit,
@@ -136,22 +130,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check stock
-    for (const item of items) {
-      const product = products.find((p) => p.id === item.productId)!
-      if (product.stock < item.quantity) {
-        return NextResponse.json(
-          {
-            error: {
-              code: 'INSUFFICIENT_STOCK',
-              message: `Estoque insuficiente para ${product.name}`,
-            },
-          },
-          { status: 400 }
-        )
-      }
-    }
-
     // Get client discount if any
     let clientDiscount = 0
     if (clientId) {
@@ -168,15 +146,19 @@ export async function POST(request: NextRequest) {
     let subtotal = 0
     const saleItems = items.map((item) => {
       const product = products.find((p) => p.id === item.productId)!
-      const unitPrice = item.unitPrice ?? Number(product.salePrice)
+      const originalPrice = Number(product.salePrice)
+      const unitPrice = item.unitPrice ?? originalPrice
       const total = unitPrice * item.quantity
+      const isBackorder = product.stock < item.quantity
       subtotal += total
       return {
         productId: item.productId,
         quantity: item.quantity,
         unitPrice: new Decimal(unitPrice),
+        originalPrice: new Decimal(originalPrice),
         costPrice: product.costPrice,
         total: new Decimal(total),
+        isBackorder,
       }
     })
 
@@ -206,7 +188,7 @@ export async function POST(request: NextRequest) {
     const netTotal = total - totalFees
 
     // Determine sale status based on payment
-    const isPaid = paidAmount >= total - 0.01
+    const isPaid = paidAmount >= total - PAYMENT_TOLERANCE
     const saleStatus = (isPaid ? 'COMPLETED' : 'PENDING') as 'COMPLETED' | 'PENDING'
 
     // Fiado sales require a client
@@ -256,23 +238,49 @@ export async function POST(request: NextRequest) {
       for (const item of items) {
         const product = products.find((p) => p.id === item.productId)!
         const previousStock = product.stock
-        const newStock = previousStock - item.quantity
+        const isBackorder = product.stock < item.quantity
 
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
-        })
+        if (isBackorder) {
+          // Backorder: decrement only available stock (to 0), rest is backorder
+          const availableToDecrement = Math.max(0, product.stock)
+          if (availableToDecrement > 0) {
+            await tx.product.update({
+              where: { id: item.productId },
+              data: { stock: { decrement: availableToDecrement } },
+            })
+          }
 
-        await tx.stockMovement.create({
-          data: {
-            productId: item.productId,
-            type: 'SALE',
-            quantity: -item.quantity,
-            previousStock,
-            newStock,
-            saleId: newSale.id,
-          },
-        })
+          await tx.stockMovement.create({
+            data: {
+              productId: item.productId,
+              type: 'BACKORDER',
+              quantity: -item.quantity,
+              previousStock,
+              newStock: Math.max(0, previousStock - item.quantity),
+              saleId: newSale.id,
+              notes: `Encomenda: ${item.quantity - availableToDecrement} un. pendente(s)`,
+            },
+          })
+        } else {
+          // Normal sale: decrement full quantity
+          const newStock = previousStock - item.quantity
+
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { decrement: item.quantity } },
+          })
+
+          await tx.stockMovement.create({
+            data: {
+              productId: item.productId,
+              type: 'SALE',
+              quantity: -item.quantity,
+              previousStock,
+              newStock,
+              saleId: newSale.id,
+            },
+          })
+        }
       }
 
       // Create receivables for fiado sales (always, even without installments)
@@ -284,7 +292,7 @@ export async function POST(request: NextRequest) {
         // Calculate due dates based on paymentDay (day of month)
         // Use customCreatedAt if provided (for imports), otherwise use current date
         const referenceDate = customCreatedAt ? new Date(customCreatedAt) : new Date()
-        const day = paymentDay || 10 // Default to day 10 if not specified
+        const day = paymentDay || DEFAULT_PAYMENT_DAY
 
         const receivables = Array.from({ length: numInstallments }, (_, i) => {
           // Start from current month, but if the day has passed, start from next month
@@ -302,13 +310,9 @@ export async function POST(request: NextRequest) {
             targetYear += 1
           }
 
-          // Create date, handling months with fewer days
-          const dueDate = new Date(targetYear, targetMonth, day)
-          // If the day doesn't exist in that month (e.g., Feb 30), it will roll over
-          // So we need to check and adjust to last day of month if needed
-          if (dueDate.getDate() !== day) {
-            dueDate.setDate(0) // Last day of previous month
-          }
+          // Create date, handling months with fewer days (e.g., day=30 in Feb → Feb 28)
+          const lastDayOfMonth = new Date(targetYear, targetMonth + 1, 0).getDate()
+          const dueDate = new Date(targetYear, targetMonth, Math.min(day, lastDayOfMonth))
 
           return {
             saleId: newSale.id,

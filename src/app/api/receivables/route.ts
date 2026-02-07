@@ -1,5 +1,7 @@
+import { type ReceivableStatus } from '@prisma/client'
 import { type NextRequest, NextResponse } from 'next/server'
 
+import { handleApiError } from '@/lib/errors'
 import { listReceivablesSchema } from '@/schemas/receivable'
 import { receivableService } from '@/services/receivable.service'
 
@@ -39,12 +41,10 @@ export async function GET(request: NextRequest) {
         limit: filters.limit,
       })
     } else {
-      // Handle status as array or single value
-      const statusFilter = filters.status
       data = await receivableService.list({
         clientId: filters.clientId,
         saleId: filters.saleId,
-        status: statusFilter as any,
+        status: filters.status as ReceivableStatus | ReceivableStatus[] | undefined,
         startDate: filters.startDate ? new Date(filters.startDate) : undefined,
         endDate: filters.endDate ? new Date(filters.endDate) : undefined,
         limit: filters.limit,
@@ -52,11 +52,8 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(data)
-  } catch (error: any) {
-    console.error('Error fetching receivables:', error)
-    return NextResponse.json(
-      { error: error.message || 'Erro ao buscar contas a receber' },
-      { status: 400 }
-    )
+  } catch (error) {
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

@@ -57,7 +57,7 @@ export function FilterBar({ filters, values, onChange, onReset, className }: Fil
       ))}
       {onReset && hasValues && (
         <Button variant="ghost" size="sm" onClick={onReset}>
-          <X className="h-4 w-4 mr-1" /> Limpar
+          <X className="h-5 w-5 mr-1" /> Limpar
         </Button>
       )}
     </div>
@@ -99,7 +99,7 @@ function SearchFilter({ config, value, onChange }: FilterItemProps) {
 
   return (
     <div className="relative">
-      <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
       <Input
         placeholder={config.placeholder || 'Buscar...'}
         value={localValue}

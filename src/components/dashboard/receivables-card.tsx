@@ -27,7 +27,7 @@ export function ReceivablesCard({ startDate, endDate }: ReceivablesCardProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 text-orange-500" />
+            <AlertCircle className="h-6 w-6 text-orange-500" />
             Contas a Receber
           </CardTitle>
         </CardHeader>
@@ -46,7 +46,7 @@ export function ReceivablesCard({ startDate, endDate }: ReceivablesCardProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 text-orange-500" />
+          <AlertCircle className="h-6 w-6 text-orange-500" />
           Contas a Receber
         </CardTitle>
       </CardHeader>
@@ -78,14 +78,14 @@ export function ReceivablesCard({ startDate, endDate }: ReceivablesCardProps) {
                     <p className="font-medium">
                       {receivable.sale?.client?.name || 'Cliente não informado'}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       Vence: {formatDate(new Date(receivable.dueDate))}
                     </p>
                   </div>
                   <div className="text-right flex items-center gap-2">
                     <span className="font-medium">{formatCurrency(remaining)}</span>
                     {isOverdue && (
-                      <Badge variant="destructive" className="text-xs">
+                      <Badge variant="destructive" className="text-sm">
                         Vencido
                       </Badge>
                     )}

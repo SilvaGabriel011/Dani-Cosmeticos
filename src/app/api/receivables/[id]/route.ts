@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
+import { cache, CACHE_KEYS } from '@/lib/cache'
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { updateReceivableSchema } from '@/schemas/sale'
 import { receivableService } from '@/services/receivable.service'
@@ -12,14 +14,16 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const data = await receivableService.getById(id)
 
     if (!data) {
-      return NextResponse.json({ error: 'Parcela não encontrada' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'NOT_FOUND', message: 'Parcela não encontrada' } },
+        { status: 404 }
+      )
     }
 
     return NextResponse.json(data)
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Erro ao buscar parcela'
-    console.error('Error fetching receivable:', error)
-    return NextResponse.json({ error: errorMessage }, { status: 400 })
+  } catch (error) {
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }
 
@@ -56,6 +60,13 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json(
         { error: { code: 'NOT_FOUND', message: 'Parcela não encontrada' } },
         { status: 404 }
+      )
+    }
+
+    if (receivable.status === 'CANCELLED') {
+      return NextResponse.json(
+        { error: { code: 'RECEIVABLE_CANCELLED', message: 'Não é possível alterar parcela cancelada' } },
+        { status: 400 }
       )
     }
 
@@ -103,12 +114,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       },
     })
 
+    // Invalidate cache after modifying receivable
+    cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+
     return NextResponse.json(updatedReceivable)
   } catch (error) {
-    console.error('Error updating receivable:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao atualizar parcela' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

@@ -4,6 +4,7 @@ import { type ClientImportRow, type ProductImportRow } from '@/schemas/import'
 
 interface ClientImportResult {
   created: number
+  salesCreated: number
   errors: Array<{ row: number; message: string }>
 }
 

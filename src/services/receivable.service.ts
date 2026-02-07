@@ -1,5 +1,6 @@
 import { type ReceivableStatus } from '@prisma/client'
 
+import { PAYMENT_TOLERANCE } from '@/lib/constants'
 import { prisma } from '@/lib/prisma'
 
 interface ListFilters {
@@ -15,11 +16,18 @@ export const receivableService = {
   async list(filters: ListFilters = {}) {
     const { clientId, saleId, status, startDate, endDate, limit = 50 } = filters
 
+    // Exclude CANCELLED by default when no status filter is provided
+    const statusFilter = status
+      ? Array.isArray(status)
+        ? { status: { in: status } }
+        : { status }
+      : { status: { not: 'CANCELLED' as const } }
+
     return prisma.receivable.findMany({
       where: {
         ...(saleId && { saleId }),
         ...(clientId && { sale: { clientId } }),
-        ...(status && (Array.isArray(status) ? { status: { in: status } } : { status })),
+        ...statusFilter,
         ...(startDate &&
           endDate && {
             dueDate: {
@@ -44,6 +52,7 @@ export const receivableService = {
     return prisma.receivable.findMany({
       where: {
         sale: { clientId },
+        status: { not: 'CANCELLED' },
         ...(filters?.startDate &&
           filters?.endDate && {
             dueDate: {
@@ -62,7 +71,6 @@ export const receivableService = {
   },
 
   async listPending(filters?: { startDate?: Date; endDate?: Date; limit?: number }) {
-    const _now = new Date()
     return prisma.receivable.findMany({
       where: {
         status: { in: ['PENDING', 'PARTIAL'] },
@@ -123,6 +131,8 @@ export const receivableService = {
       include: { sale: true },
     })
     if (!receivable) throw new Error('Parcela não encontrada')
+    if (receivable.status === 'CANCELLED') throw new Error('Não é possível registrar pagamento em parcela cancelada')
+    if (receivable.status === 'PAID') throw new Error('Parcela já foi paga')
 
     const newPaidAmount = Number(receivable.paidAmount) + amount
     const expectedAmount = Number(receivable.amount)
@@ -164,9 +174,9 @@ export const receivableService = {
         },
       })
 
-      // Update sale paidAmount
+      // Update sale paidAmount (exclude CANCELLED receivables)
       const allReceivables = await tx.receivable.findMany({
-        where: { saleId: receivable.saleId },
+        where: { saleId: receivable.saleId, status: { not: 'CANCELLED' } },
       })
 
       const totalPaidFromReceivables = allReceivables.reduce(
@@ -174,19 +184,6 @@ export const receivableService = {
         0
       )
 
-      // Get existing payments that were made at sale creation time
-      const _existingPayments = await tx.payment.findMany({
-        where: { saleId: receivable.saleId },
-      })
-
-      // Calculate total paid (initial payments + receivable payments)
-      // Note: We need to be careful not to double count - the payment we just created
-      // is for the receivable, so we use totalPaidFromReceivables as the source of truth
-      const sale = await tx.sale.findUnique({ where: { id: receivable.saleId } })
-      const saleTotal = Number(sale?.total || 0)
-
-      // Check if sale is fully paid
-      const _isFullyPaid = totalPaidFromReceivables >= saleTotal - 0.01
       const allReceivablesPaid = allReceivables.every((r) =>
         r.id === id ? newStatus === 'PAID' : r.status === 'PAID'
       )
@@ -231,7 +228,7 @@ export const receivableService = {
       0
     )
 
-    if (amount > totalRemaining + 0.01) {
+    if (amount > totalRemaining + PAYMENT_TOLERANCE) {
       throw new Error(`Valor excede o saldo devedor total. Maximo: R$ ${totalRemaining.toFixed(2)}`)
     }
 
@@ -241,14 +238,14 @@ export const receivableService = {
       const updatedReceivables = []
 
       for (const receivable of receivables) {
-        if (remainingPayment <= 0.01) break
+        if (remainingPayment <= PAYMENT_TOLERANCE) break
 
         const receivableRemaining = Number(receivable.amount) - Number(receivable.paidAmount)
         const paymentForThis = Math.min(remainingPayment, receivableRemaining)
 
         const newPaidAmount = Number(receivable.paidAmount) + paymentForThis
         let newStatus: ReceivableStatus = 'PENDING'
-        if (newPaidAmount >= Number(receivable.amount) - 0.01) {
+        if (newPaidAmount >= Number(receivable.amount) - PAYMENT_TOLERANCE) {
           newStatus = 'PAID'
         } else if (newPaidAmount > 0) {
           newStatus = 'PARTIAL'
@@ -281,9 +278,9 @@ export const receivableService = {
         },
       })
 
-      // Update sale paidAmount
+      // Update sale paidAmount (exclude CANCELLED receivables)
       const allReceivables = await tx.receivable.findMany({
-        where: { saleId },
+        where: { saleId, status: { not: 'CANCELLED' } },
       })
 
       const totalPaidFromReceivables = allReceivables.reduce(
@@ -343,7 +340,7 @@ export const receivableService = {
 
   async updateSalePaidAmount(saleId: string) {
     const receivables = await prisma.receivable.findMany({
-      where: { saleId },
+      where: { saleId, status: { not: 'CANCELLED' } },
     })
 
     const totalPaid = receivables.reduce((sum, r) => sum + Number(r.paidAmount), 0)

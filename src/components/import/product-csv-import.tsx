@@ -36,6 +36,7 @@ interface ProductCSVImportProps {
 interface ParsedRow extends ProductImportRow {
   hasWarning: boolean
   warningMessage?: string
+  hasNoPrice: boolean
 }
 
 function parseMoneyValue(value: string): number {
@@ -68,12 +69,11 @@ function parseCSV(text: string): ParsedRow[] {
     const quantidade = parseInt(values[5], 10) || 0
     const valor = parseMoneyValue(values[6])
 
-    const hasWarning = !categoria || valor <= 0
+    const hasWarning = !categoria
     const warningMessage = hasWarning
-      ? !categoria
-        ? 'Categoria não informada'
-        : 'Valor inválido'
+      ? 'Categoria não informada'
       : undefined
+    const hasNoPrice = valor <= 0
 
     rows.push({
       marca,
@@ -85,6 +85,7 @@ function parseCSV(text: string): ParsedRow[] {
       valor,
       hasWarning,
       warningMessage,
+      hasNoPrice,
     })
   }
 
@@ -173,6 +174,7 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
   }
 
   const warningCount = parsedData.filter((r) => r.hasWarning).length
+  const noPriceCount = parsedData.filter((r) => !r.hasWarning && r.hasNoPrice).length
   const validCount = parsedData.length - warningCount
 
   return (
@@ -195,11 +197,11 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
               htmlFor="product-csv-upload"
               className="cursor-pointer flex flex-col items-center gap-2"
             >
-              <Upload className="h-8 w-8 text-muted-foreground" />
+              <Upload className="h-10 w-10 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
                 Clique para selecionar um arquivo CSV
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 Colunas: MARCA, LINHA, FRAGRANCIA, CATEGORIA, CAIXA/KIT/UNIDADE, QTDE, VALOR
               </span>
             </label>
@@ -225,9 +227,14 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
             <>
               <div className="flex items-center gap-4 text-sm">
                 <Badge variant="secondary">{parsedData.length} produtos encontrados</Badge>
+                {noPriceCount > 0 && (
+                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                    {noPriceCount} sem preço (poderá definir depois)
+                  </Badge>
+                )}
                 {warningCount > 0 && (
-                  <Badge variant="warning" className="bg-yellow-100 text-yellow-800">
-                    <AlertTriangle className="h-3 w-3 mr-1" />
+                  <Badge variant="warning" className="bg-red-100 text-red-800">
+                    <AlertTriangle className="h-5 w-5 mr-1" />
                     {warningCount} com problemas (serão ignorados)
                   </Badge>
                 )}
@@ -252,9 +259,9 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
                       <TableRow key={index} className={row.hasWarning ? 'bg-red-50' : ''}>
                         <TableCell>
                           {row.hasWarning ? (
-                            <AlertTriangle className="h-4 w-4 text-red-500" />
+                            <AlertTriangle className="h-5 w-5 text-red-500" />
                           ) : (
-                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                            <CheckCircle2 className="h-5 w-5 text-green-500" />
                           )}
                         </TableCell>
                         <TableCell className="font-medium">{row.marca}</TableCell>
@@ -264,7 +271,13 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
                         <TableCell>{row.tipoEmbalagem || '-'}</TableCell>
                         <TableCell className="text-center">{row.quantidade}</TableCell>
                         <TableCell className="text-right">
-                          {formatCurrency(row.valor ?? 0)}
+                          {row.hasNoPrice ? (
+                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs">
+                              Sem preço
+                            </Badge>
+                          ) : (
+                            formatCurrency(row.valor ?? 0)
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

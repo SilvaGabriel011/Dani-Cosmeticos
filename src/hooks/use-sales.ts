@@ -27,7 +27,7 @@ interface PendingSale {
 interface SaleFilters {
   page?: number
   limit?: number
-  status?: 'COMPLETED' | 'PENDING' | 'CANCELLED' | ''
+  status?: 'COMPLETED' | 'PENDING' | ''
   clientId?: string
   startDate?: string
   endDate?: string
@@ -72,7 +72,7 @@ async function createSale(data: CreateSaleInput): Promise<Sale> {
   return res.json()
 }
 
-async function cancelSale(id: string): Promise<Sale> {
+async function cancelSale(id: string): Promise<{ success: boolean; message: string }> {
   const res = await fetch(`/api/sales/${id}/cancel`, { method: 'POST' })
   if (!res.ok) {
     const error = await res.json()
@@ -125,10 +125,13 @@ export function useCreateSale() {
     onSuccess: (newSale) => {
       // Update otimista
       queryClient.setQueryData(['sale', newSale.id], newSale)
-      // Invalida apenas vendas e produtos (estoque mudou)
+      // Invalida vendas, produtos (estoque mudou), dashboard e receivables
       queryClient.invalidateQueries({ queryKey: ['sales'] })
       queryClient.invalidateQueries({ queryKey: ['products'] })
-      // Dashboard será atualizado no próximo ciclo automático
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['receivables'] })
+      queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
+      queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
     },
   })
 }
@@ -137,10 +140,13 @@ export function useCancelSale() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: cancelSale,
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] })
       queryClient.invalidateQueries({ queryKey: ['products'] })
-      queryClient.setQueryData(['sale', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['receivables'] })
+      queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
+      queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
     },
   })
 }

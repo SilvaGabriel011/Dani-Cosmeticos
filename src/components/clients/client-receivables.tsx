@@ -172,7 +172,7 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
 
                   return (
                     <TableRow key={receivable.id}>
-                      <TableCell className="font-mono text-xs">
+                      <TableCell className="font-mono text-sm">
                         {receivable.saleId.slice(0, 8)}...
                       </TableCell>
                       <TableCell>{receivable.installment}x</TableCell>
@@ -195,7 +195,7 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
                             size="sm"
                             onClick={() => handleOpenPayment(receivable)}
                           >
-                            <DollarSign className="h-4 w-4 mr-1" />
+                            <DollarSign className="h-5 w-5 mr-1" />
                             Pagar
                           </Button>
                         )}

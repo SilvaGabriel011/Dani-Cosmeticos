@@ -100,28 +100,61 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        const linhaVal = row.linha || null
+        const fragVal = row.fragrancia || null
+        const packVal = row.tipoEmbalagem || null
+
         const nameParts = [row.marca, row.linha, row.fragrancia].filter(Boolean)
         const productName = nameParts.length > 0 ? nameParts.join(' - ') : `Produto ${rowNumber}`
 
         const salePrice = row.valor || 0
         const profitMargin = brandMargin
-        const costPrice = salePrice > 0 ? salePrice / (1 + profitMargin / 100) : 0
+        const costPrice = 0
+        const stock = row.quantidade || 0
 
-        await prisma.product.create({
-          data: {
-            name: productName,
+        // Check if product with same unique combo already exists
+        const existing = await prisma.product.findFirst({
+          where: {
             brandId: brandId,
+            linha: linhaVal,
+            fragrancia: fragVal,
             categoryId: categoryId,
-            salePrice: new Decimal(salePrice),
-            costPrice: new Decimal(costPrice),
-            profitMargin: new Decimal(profitMargin),
-            stock: row.quantidade || 0,
-            minStock: 5,
-            packagingType: row.tipoEmbalagem || null,
+            packagingType: packVal,
+            deletedAt: null,
           },
         })
 
-        result.created++
+        if (existing) {
+          // Update: add stock, update price if new price is higher
+          const newSalePrice = salePrice > Number(existing.salePrice) ? salePrice : Number(existing.salePrice)
+          const newCostPrice = newSalePrice > 0 ? newSalePrice / (1 + profitMargin / 100) : 0
+          await prisma.product.update({
+            where: { id: existing.id },
+            data: {
+              stock: { increment: stock },
+              salePrice: new Decimal(newSalePrice),
+              costPrice: new Decimal(newCostPrice),
+            },
+          })
+          result.created++
+        } else {
+          await prisma.product.create({
+            data: {
+              name: productName,
+              brandId: brandId,
+              categoryId: categoryId,
+              linha: linhaVal,
+              fragrancia: fragVal,
+              salePrice: new Decimal(salePrice),
+              costPrice: new Decimal(costPrice),
+              profitMargin: new Decimal(profitMargin),
+              stock,
+              minStock: 5,
+              packagingType: packVal,
+            },
+          })
+          result.created++
+        }
       } catch (error) {
         result.errors.push({
           row: rowNumber,

@@ -1,7 +1,7 @@
 'use client'
 
 import { type Receivable, type Sale, type Client } from '@prisma/client'
-import { CreditCard, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CreditCard, MessageCircle, Plus, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -25,7 +25,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useSalesWithPendingReceivables } from '@/hooks/use-receivables'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency, formatDate, formatWhatsAppUrl } from '@/lib/utils'
 
 import { ReceivablePaymentModal } from './receivable-payment-modal'
 
@@ -41,6 +41,7 @@ type ReceivableWithSale = Receivable & {
 interface SaleReceivableSummary {
   saleId: string
   clientName: string
+  clientPhone: string | null
   totalInstallments: number
   paidInstallments: number
   totalAmount: number
@@ -96,6 +97,7 @@ export function FiadoTable() {
         return {
           saleId: sale.id,
           clientName: sale.client?.name || 'Cliente nao informado',
+          clientPhone: sale.client?.phone || null,
           totalInstallments,
           paidInstallments,
           totalAmount,
@@ -164,7 +166,7 @@ export function FiadoTable() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-amber-500" />
+            <CreditCard className="h-6 w-6 text-amber-500" />
             Vendas Fiado
           </CardTitle>
         </CardHeader>
@@ -180,7 +182,7 @@ export function FiadoTable() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-amber-500" />
+            <CreditCard className="h-6 w-6 text-amber-500" />
             Vendas Fiado
             <Badge variant="secondary" className="ml-2">
               {filteredSummaries.length}
@@ -191,7 +193,7 @@ export function FiadoTable() {
           {/* Filtros */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 placeholder="Buscar cliente..."
                 value={search}
@@ -239,7 +241,10 @@ export function FiadoTable() {
                   </TableRow>
                 ) : (
                   paginatedSummaries.map((summary) => (
-                    <TableRow key={summary.saleId}>
+                    <TableRow
+                      key={summary.saleId}
+                      className={summary.isOverdue ? 'bg-red-50/60 dark:bg-red-950/20' : ''}
+                    >
                       <TableCell className="font-medium">{summary.clientName}</TableCell>
                       <TableCell className="text-center">
                         <span className="font-mono">
@@ -271,7 +276,7 @@ export function FiadoTable() {
                               <div className="w-1/4 border-r border-gray-400/50" />
                             </div>
                           </div>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-sm text-muted-foreground">
                             {Math.round((summary.paidAmount / summary.totalAmount) * 100)}%
                           </span>
                         </div>
@@ -283,7 +288,7 @@ export function FiadoTable() {
                               {formatDate(summary.nextDueDate)}
                             </span>
                             {summary.isOverdue && (
-                              <Badge variant="destructive" className="text-xs">
+                              <Badge variant="destructive" className="text-sm">
                                 Vencido
                               </Badge>
                             )}
@@ -293,15 +298,35 @@ export function FiadoTable() {
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleAddPayment(summary)}
-                          disabled={!summary.nextReceivable}
-                        >
-                          <Plus className="h-4 w-4 mr-1" />
-                          Pagamento
-                        </Button>
+                        <div className="flex items-center justify-center gap-1">
+                          <Button
+                            variant="outline"
+                            size="default"
+                            onClick={() => handleAddPayment(summary)}
+                            disabled={!summary.nextReceivable}
+                            className="h-10 px-4 text-sm"
+                          >
+                            <Plus className="h-5 w-5 mr-1" />
+                            Pagamento
+                          </Button>
+                          {summary.clientPhone && (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-10 w-10 p-0 text-green-600 border-green-600 hover:bg-green-50 dark:hover:bg-green-950/30"
+                              asChild
+                            >
+                              <a
+                                href={formatWhatsAppUrl(summary.clientPhone) || '#'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Abrir WhatsApp"
+                              >
+                                <MessageCircle className="h-5 w-5" />
+                              </a>
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -325,7 +350,7 @@ export function FiadoTable() {
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-5 w-5" />
                 </Button>
                 <span className="text-sm font-medium px-2">
                   {currentPage} / {totalPages}
@@ -336,7 +361,7 @@ export function FiadoTable() {
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-5 w-5" />
                 </Button>
               </div>
             </div>

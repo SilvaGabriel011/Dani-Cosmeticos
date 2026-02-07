@@ -1,10 +1,11 @@
 'use client'
 
-import { Pencil, Trash2, ShoppingCart } from 'lucide-react'
+import { MessageCircle, Pencil, Trash2, ShoppingCart } from 'lucide-react'
 import { useState, useMemo, useCallback, memo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { FilterBar, type FilterConfig } from '@/components/ui/filter-bar'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -18,7 +19,7 @@ import {
 import { useToast } from '@/components/ui/use-toast'
 import { useClients, useDeleteClient } from '@/hooks/use-clients'
 import { useFilters } from '@/hooks/use-filters'
-import { formatPercent } from '@/lib/utils'
+import { formatPercent, formatWhatsAppUrl } from '@/lib/utils'
 import { type Client } from '@/types'
 
 import { ClientForm } from './client-form'
@@ -30,13 +31,17 @@ const discountOptions = [
   { value: 'without', label: 'Sem Desconto' },
 ]
 
+export type ClientTab = 'todos' | 'devedores' | 'sem-telefone'
+
 interface ClientListProps {
   onNewSale?: (client: Client) => void
+  tab?: ClientTab
 }
 
-export const ClientList = memo(function ClientList({ onNewSale }: ClientListProps) {
+export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }: ClientListProps) {
   const { toast } = useToast()
   const [editingClient, setEditingClient] = useState<Client | null>(null)
+  const [deletingClient, setDeletingClient] = useState<Client | null>(null)
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
@@ -52,6 +57,8 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
 
   const { data, isLoading, error } = useClients({
     search: filters.search || undefined,
+    ...(tab === 'devedores' && { hasDebt: true }),
+    ...(tab === 'sem-telefone' && { missingPhone: true }),
   })
 
   const filteredClients = useMemo(() => {
@@ -69,10 +76,10 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
 
   const deleteClient = useDeleteClient()
 
-  const handleDelete = async (client: Client) => {
-    if (!confirm(`Excluir "${client.name}"?`)) return
+  const handleDelete = async () => {
+    if (!deletingClient) return
     try {
-      await deleteClient.mutateAsync(client.id)
+      await deleteClient.mutateAsync(deletingClient.id)
       toast({ title: 'Cliente excluído com sucesso!' })
     } catch (error: any) {
       toast({
@@ -80,6 +87,8 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
         description: error.message,
         variant: 'destructive',
       })
+    } finally {
+      setDeletingClient(null)
     }
   }
 
@@ -160,6 +169,22 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
+                  {client.phone && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      title="Abrir WhatsApp"
+                    >
+                      <a
+                        href={formatWhatsAppUrl(client.phone!) || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MessageCircle className="h-5 w-5 text-green-600" />
+                      </a>
+                    </Button>
+                  )}
                   {onNewSale && (
                     <Button
                       variant="ghost"
@@ -167,14 +192,14 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
                       onClick={() => onNewSale(client)}
                       title="Nova venda"
                     >
-                      <ShoppingCart className="h-4 w-4 text-primary" />
+                      <ShoppingCart className="h-5 w-5 text-primary" />
                     </Button>
                   )}
                   <Button variant="ghost" size="icon" onClick={() => setEditingClient(client)}>
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-5 w-5" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(client)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                  <Button variant="ghost" size="icon" onClick={() => setDeletingClient(client)}>
+                    <Trash2 className="h-5 w-5 text-destructive" />
                   </Button>
                 </div>
               </TableCell>
@@ -187,6 +212,15 @@ export const ClientList = memo(function ClientList({ onNewSale }: ClientListProp
         open={!!editingClient}
         onOpenChange={(open) => !open && setEditingClient(null)}
         client={editingClient}
+      />
+
+      <ConfirmDialog
+        open={!!deletingClient}
+        onOpenChange={(open) => !open && setDeletingClient(null)}
+        title="Excluir cliente"
+        description={`Tem certeza que deseja excluir "${deletingClient?.name}"? Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        onConfirm={handleDelete}
       />
     </div>
   )

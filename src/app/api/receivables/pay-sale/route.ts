@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { cache, CACHE_KEYS } from '@/lib/cache'
+import { handleApiError } from '@/lib/errors'
 import { receivableService } from '@/services/receivable.service'
 
 export const dynamic = 'force-dynamic'
@@ -30,9 +31,8 @@ export async function POST(request: NextRequest) {
     cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
 
     return NextResponse.json(data)
-  } catch (error: unknown) {
-    console.error('Error registering payment:', error)
-    const message = error instanceof Error ? error.message : 'Erro ao registrar pagamento'
-    return NextResponse.json({ error: message }, { status: 400 })
+  } catch (error) {
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

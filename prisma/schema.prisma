@@ -101,20 +101,24 @@ model Sale {
 }
 
 model SaleItem {
-  id        String   @id @default(uuid())
-  saleId    String
-  productId String
-  quantity  Int
-  unitPrice Decimal  @db.Decimal(10, 2)
-  costPrice Decimal  @db.Decimal(10, 2)
-  total     Decimal  @db.Decimal(10, 2)
-  addedAt   DateTime @default(now())
-  product   Product  @relation(fields: [productId], references: [id])
-  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  id                   String    @id @default(uuid())
+  saleId               String
+  productId            String
+  quantity             Int
+  unitPrice            Decimal   @db.Decimal(10, 2)
+  originalPrice        Decimal?  @db.Decimal(10, 2)
+  costPrice            Decimal   @db.Decimal(10, 2)
+  total                Decimal   @db.Decimal(10, 2)
+  addedAt              DateTime  @default(now())
+  isBackorder          Boolean   @default(false)
+  backorderFulfilledAt DateTime?
+  product              Product   @relation(fields: [productId], references: [id])
+  sale                 Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@index([saleId])
   @@index([productId])
   @@index([addedAt])
+  @@index([isBackorder])
 }
 
 model Payment {
@@ -181,6 +185,21 @@ model StockMovement {
   @@index([saleId])
 }
 
+model CancelledSaleLog {
+  id             String   @id @default(uuid())
+  originalSaleId String
+  clientName     String?
+  total          Decimal  @db.Decimal(10, 2)
+  itemCount      Int
+  itemsSummary   String?
+  paymentMethods String?
+  cancelledAt    DateTime @default(now())
+  saleCreatedAt  DateTime
+  notes          String?
+
+  @@index([cancelledAt])
+}
+
 enum PaymentMethod {
   CASH
   PIX
@@ -204,6 +223,7 @@ enum ReceivableStatus {
   PARTIAL
   PAID
   OVERDUE
+  CANCELLED
 }
 
 enum StockMovementType {
@@ -211,4 +231,5 @@ enum StockMovementType {
   CANCELLATION
   ADJUSTMENT
   ENTRY
+  BACKORDER
 }

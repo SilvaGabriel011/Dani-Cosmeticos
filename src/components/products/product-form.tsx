@@ -42,7 +42,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const { data: categories } = useCategories()
   const createProduct = useCreateProduct()
   const updateProduct = useUpdateProduct()
-  const { data: productsData } = useProducts({ limit: 1000 })
+  const { data: productsData } = useProducts({ limit: 200 })
   const createCategory = useCreateCategory()
   const { data: brands } = useBrands()
   const createBrand = useCreateBrand()
@@ -51,7 +51,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const [newCategoryName, setNewCategoryName] = useState('')
   const [isCreatingBrand, setIsCreatingBrand] = useState(false)
   const [newBrandName, setNewBrandName] = useState('')
-  const [pricingMode, setPricingMode] = useState<'margin' | 'salePrice'>('margin')
+  const [pricingMode, setPricingMode] = useState<'margin' | 'salePrice'>('salePrice')
   const [inputSalePrice, setInputSalePrice] = useState(0)
 
   const {
@@ -123,7 +123,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
         minStock: product.minStock,
       })
       setInputSalePrice(Number(product.salePrice))
-      setPricingMode('margin')
+      setPricingMode('salePrice')
     } else {
       reset({
         code: '',
@@ -136,7 +136,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
         minStock: 5,
       })
       setInputSalePrice(0)
-      setPricingMode('margin')
+      setPricingMode('salePrice')
     }
   }, [product, reset])
 
@@ -172,7 +172,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <div className="p-2 rounded-full bg-primary/10">
-              <Package className="h-5 w-5 text-primary" />
+              <Package className="h-6 w-6 text-primary" />
             </div>
             {isEditing ? 'Editar Produto' : 'Novo Produto'}
           </DialogTitle>
@@ -194,11 +194,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 onClick={handleGenerateCode}
                 title="Gerar codigo automaticamente"
               >
-                <RefreshCw className="h-4 w-4 mr-1" />
+                <RefreshCw className="h-5 w-5 mr-1" />
                 Gerar
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Clique em &quot;Gerar&quot; para criar um codigo baseado no nome do produto
             </p>
           </div>
@@ -244,7 +244,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     setNewCategoryName('')
                   }}
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </Button>
               </div>
             ) : (
@@ -271,7 +271,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                   onClick={() => setIsCreatingCategory(true)}
                   title="Criar nova categoria"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-5 w-5" />
                 </Button>
               </div>
             )}
@@ -318,7 +318,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                     setNewBrandName('')
                   }}
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </Button>
               </div>
             ) : (
@@ -345,14 +345,14 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                   onClick={() => setIsCreatingBrand(true)}
                   title="Criar nova marca"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-5 w-5" />
                 </Button>
               </div>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="costPrice">Valor Produto (Custo) *</Label>
+            <Label htmlFor="costPrice">Valor Produto (Custo)</Label>
             <Input
               id="costPrice"
               type="number"
@@ -372,21 +372,21 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                 <input
                   type="radio"
                   name="pricingMode"
-                  checked={pricingMode === 'margin'}
-                  onChange={() => setPricingMode('margin')}
-                  className="h-4 w-4"
-                />
-                <span className="text-sm">Definir Margem de Lucro</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="pricingMode"
                   checked={pricingMode === 'salePrice'}
                   onChange={() => setPricingMode('salePrice')}
                   className="h-4 w-4"
                 />
                 <span className="text-sm">Definir Preco de Venda</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="pricingMode"
+                  checked={pricingMode === 'margin'}
+                  onChange={() => setPricingMode('margin')}
+                  className="h-4 w-4"
+                />
+                <span className="text-sm">Definir Margem de Lucro</span>
               </label>
             </div>
           </div>
@@ -470,7 +470,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                   Salvando...
                 </span>
               ) : isEditing ? 'Atualizar' : 'Criar'}

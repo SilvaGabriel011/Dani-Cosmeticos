@@ -54,7 +54,7 @@ export function DebtorsList() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="rounded-lg border bg-card p-4">
           <div className="flex items-center gap-2 text-muted-foreground">
-            <Users className="h-4 w-4" />
+            <Users className="h-5 w-5" />
             <span className="text-sm">Total de Devedores</span>
           </div>
           <p className="text-2xl font-bold mt-1">{debtors?.length || 0}</p>
@@ -71,7 +71,7 @@ export function DebtorsList() {
 
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             placeholder="Buscar cliente..."
             value={search}
@@ -105,7 +105,7 @@ export function DebtorsList() {
         </div>
       ) : (
         <div className="text-center py-12 text-muted-foreground">
-          <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <Users className="h-14 w-14 mx-auto mb-4 opacity-50" />
           <p>Nenhum cliente devedor encontrado.</p>
         </div>
       )}

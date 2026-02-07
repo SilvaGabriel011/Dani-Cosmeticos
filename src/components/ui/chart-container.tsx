@@ -54,7 +54,7 @@ export function ChartContainer({
                   setShowLegend(v)
                   onLegendChange?.(v)
                 }}
-                className="text-xs"
+                className="text-sm"
               >
                 Legenda
               </Toggle>
@@ -67,7 +67,7 @@ export function ChartContainer({
                   setShowValues(v)
                   onValuesChange?.(v)
                 }}
-                className="text-xs"
+                className="text-sm"
               >
                 Valores
               </Toggle>

@@ -17,6 +17,10 @@ interface DashboardData {
   }
   lowStockProducts: any[]
   recentSales: any[]
+  pendingBackorders: {
+    count: number
+    items: any[]
+  }
 }
 
 async function fetchDashboard(): Promise<DashboardData> {

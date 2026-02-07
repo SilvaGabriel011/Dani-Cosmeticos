@@ -35,13 +35,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     }
 
-    const { items } = validation.data
+    const { items, fixedInstallmentAmount: customInstallmentAmount } = validation.data
 
-    // Find the sale with all necessary fields
+    // Find the sale with all receivables for recalculation
     const sale = (await prisma.sale.findUnique({
       where: { id },
       include: {
-        receivables: { orderBy: { installment: 'desc' }, take: 1 },
+        receivables: { orderBy: { installment: 'asc' } },
         items: true,
       },
     })) as SaleWithRelations | null
@@ -78,94 +78,163 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     }
 
-    // Check stock
-    for (const item of items) {
-      const product = products.find((p) => p.id === item.productId)!
-      if (product.stock < item.quantity) {
-        return NextResponse.json(
-          {
-            error: {
-              code: 'INSUFFICIENT_STOCK',
-              message: `Estoque insuficiente para ${product.name}`,
-            },
-          },
-          { status: 400 }
-        )
-      }
-    }
-
     // Calculate new items total
     let newItemsTotal = 0
     const newSaleItems = items.map((item) => {
       const product = products.find((p) => p.id === item.productId)!
-      const unitPrice = item.unitPrice ?? Number(product.salePrice)
+      const originalPrice = Number(product.salePrice)
+      const unitPrice = item.unitPrice ?? originalPrice
       const total = unitPrice * item.quantity
+      const isBackorder = product.stock < item.quantity
       newItemsTotal += total
       return {
         saleId: id,
         productId: item.productId,
         quantity: item.quantity,
         unitPrice: new Decimal(unitPrice),
+        originalPrice: new Decimal(originalPrice),
         costPrice: product.costPrice,
         total: new Decimal(total),
         addedAt: new Date(),
+        isBackorder,
       }
     })
 
-    // Calculate new receivables needed
-    const installmentAmount = sale.fixedInstallmentAmount
-      ? Number(sale.fixedInstallmentAmount)
-      : Number(sale.total) / sale.installmentPlan
-
-    const newInstallmentsNeeded = Math.ceil(newItemsTotal / installmentAmount)
-
-    // Get last receivable info
-    const lastReceivable = sale.receivables[0]
+    // Separate receivables into paid and pending
+    const pendingReceivables = sale.receivables.filter(
+      (r) => r.status === 'PENDING' || r.status === 'PARTIAL'
+    )
+    const lastReceivable = sale.receivables[sale.receivables.length - 1]
     const lastInstallmentNumber = lastReceivable?.installment || 0
-    const lastDueDate = lastReceivable?.dueDate || new Date()
-    const paymentDay = sale.paymentDay || lastDueDate.getDate()
+    const paymentDay = sale.paymentDay || (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate).getDate() : new Date().getDate())
 
-    // Create new receivables
-    const newReceivables = Array.from({ length: newInstallmentsNeeded }, (_, i) => {
-      const dueDate = new Date(lastDueDate)
-      dueDate.setMonth(dueDate.getMonth() + i + 1)
-      dueDate.setDate(paymentDay)
+    // Calculate new totals
+    const newTotal = Number(sale.total) + newItemsTotal
+    const newSubtotal = Number(sale.subtotal) + newItemsTotal
+    const newNetTotal = Number(sale.netTotal) + newItemsTotal
 
-      // Handle months with fewer days
-      if (dueDate.getDate() !== paymentDay) {
-        dueDate.setDate(0) // Last day of previous month
-      }
+    // Calculate new remaining balance (what's still owed after adding new items)
+    const alreadyPaid = Number(sale.paidAmount)
+    const newRemainingBalance = newTotal - alreadyPaid
 
-      return {
-        saleId: id,
-        installment: lastInstallmentNumber + i + 1,
-        amount: new Decimal(installmentAmount),
-        dueDate,
-      }
-    })
+    // Determine the effective installment amount
+    // Priority: user-provided custom amount > sale's existing fixedInstallmentAmount > redistribute evenly
+    const effectiveFixedAmount = customInstallmentAmount
+      ? customInstallmentAmount
+      : sale.fixedInstallmentAmount
+        ? Number(sale.fixedInstallmentAmount)
+        : null
+
+    // Recalculate receivables
+    let updatedInstallmentPlan = sale.installmentPlan
+    let updatedFixedInstallmentAmount = sale.fixedInstallmentAmount
 
     // Execute in transaction
     const updatedSale = await prisma.$transaction(async (tx) => {
       // Add new items
       await tx.saleItem.createMany({ data: newSaleItems })
 
-      // Create new receivables
-      if (newReceivables.length > 0) {
-        await tx.receivable.createMany({ data: newReceivables })
+      if (customInstallmentAmount) {
+        // User wants to set/change the installment amount
+        // Delete all pending receivables and recreate with the new amount
+        const pendingIds = pendingReceivables.map((r) => r.id)
+        if (pendingIds.length > 0) {
+          await tx.receivable.deleteMany({ where: { id: { in: pendingIds } } })
+        }
+
+        // Calculate how many installments are needed for the new remaining balance
+        const numNewInstallments = Math.ceil(newRemainingBalance / customInstallmentAmount)
+        const paidReceivablesCount = sale.receivables.length - pendingReceivables.length
+
+        // Determine the start date for new receivables
+        const firstPendingDueDate = pendingReceivables.length > 0
+          ? new Date(pendingReceivables[0].dueDate)
+          : (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date())
+
+        const newReceivables = Array.from({ length: numNewInstallments }, (_, i) => {
+          const dueDate = new Date(firstPendingDueDate)
+          dueDate.setMonth(dueDate.getMonth() + i)
+          const targetDay = paymentDay
+          const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
+          dueDate.setDate(Math.min(targetDay, lastDayOfMonth))
+
+          // Last installment may be smaller to avoid overpaying
+          const remainingForThis = newRemainingBalance - (customInstallmentAmount * i)
+          const amount = Math.min(customInstallmentAmount, remainingForThis)
+
+          return {
+            saleId: id,
+            installment: paidReceivablesCount + i + 1,
+            amount: new Decimal(Math.max(0.01, amount)),
+            dueDate,
+          }
+        })
+
+        if (newReceivables.length > 0) {
+          await tx.receivable.createMany({ data: newReceivables })
+        }
+
+        updatedInstallmentPlan = paidReceivablesCount + numNewInstallments
+        updatedFixedInstallmentAmount = customInstallmentAmount
+      } else if (effectiveFixedAmount) {
+        // Sale already has a fixed amount, keep it and add extra installments as needed
+        const currentPendingTotal = pendingReceivables.reduce(
+          (sum, r) => sum + (Number(r.amount) - Number(r.paidAmount)),
+          0
+        )
+        const extraNeeded = newRemainingBalance - currentPendingTotal
+        const extraInstallments = Math.ceil(extraNeeded / effectiveFixedAmount)
+
+        if (extraInstallments > 0) {
+          const lastPendingDueDate = pendingReceivables.length > 0
+            ? new Date(pendingReceivables[pendingReceivables.length - 1].dueDate)
+            : (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date())
+
+          const newReceivables = Array.from({ length: extraInstallments }, (_, i) => {
+            const dueDate = new Date(lastPendingDueDate)
+            dueDate.setMonth(dueDate.getMonth() + i + 1)
+            const targetDay = paymentDay
+            const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
+            dueDate.setDate(Math.min(targetDay, lastDayOfMonth))
+
+            return {
+              saleId: id,
+              installment: lastInstallmentNumber + i + 1,
+              amount: new Decimal(effectiveFixedAmount),
+              dueDate,
+            }
+          })
+
+          await tx.receivable.createMany({ data: newReceivables })
+          updatedInstallmentPlan = sale.installmentPlan + extraInstallments
+        }
+      } else {
+        // Variable mode: redistribute the new remaining balance across existing pending receivables
+        for (const receivable of pendingReceivables) {
+          const alreadyPaidOnThis = Number(receivable.paidAmount)
+          const newAmount = alreadyPaidOnThis + (newRemainingBalance / pendingReceivables.length)
+          await tx.receivable.update({
+            where: { id: receivable.id },
+            data: {
+              amount: new Decimal(newAmount),
+            },
+          })
+        }
       }
 
       // Update sale totals
-      const newTotal = Number(sale.total) + newItemsTotal
-      const newSubtotal = Number(sale.subtotal) + newItemsTotal
-      const newNetTotal = Number(sale.netTotal) + newItemsTotal
-
       const updated = await tx.sale.update({
         where: { id },
         data: {
           subtotal: new Decimal(newSubtotal),
           total: new Decimal(newTotal),
           netTotal: new Decimal(newNetTotal),
-          installmentPlan: lastInstallmentNumber + newInstallmentsNeeded,
+          installmentPlan: updatedInstallmentPlan,
+          ...(updatedFixedInstallmentAmount !== sale.fixedInstallmentAmount && {
+            fixedInstallmentAmount: updatedFixedInstallmentAmount
+              ? new Decimal(updatedFixedInstallmentAmount)
+              : undefined,
+          }),
         },
         include: {
           client: true,
@@ -182,24 +251,48 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       for (const item of items) {
         const product = products.find((p) => p.id === item.productId)!
         const previousStock = product.stock
-        const newStock = previousStock - item.quantity
+        const isBackorder = product.stock < item.quantity
 
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
-        })
+        if (isBackorder) {
+          const availableToDecrement = Math.max(0, product.stock)
+          if (availableToDecrement > 0) {
+            await tx.product.update({
+              where: { id: item.productId },
+              data: { stock: { decrement: availableToDecrement } },
+            })
+          }
 
-        await tx.stockMovement.create({
-          data: {
-            productId: item.productId,
-            type: 'SALE',
-            quantity: -item.quantity,
-            previousStock,
-            newStock,
-            saleId: id,
-            notes: 'Item adicionado a venda existente',
-          },
-        })
+          await tx.stockMovement.create({
+            data: {
+              productId: item.productId,
+              type: 'BACKORDER',
+              quantity: -item.quantity,
+              previousStock,
+              newStock: Math.max(0, previousStock - item.quantity),
+              saleId: id,
+              notes: `Encomenda: ${item.quantity - availableToDecrement} un. pendente(s) (adicionado a venda existente)`,
+            },
+          })
+        } else {
+          const newStock = previousStock - item.quantity
+
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { decrement: item.quantity } },
+          })
+
+          await tx.stockMovement.create({
+            data: {
+              productId: item.productId,
+              type: 'SALE',
+              quantity: -item.quantity,
+              previousStock,
+              newStock,
+              saleId: id,
+              notes: 'Item adicionado a venda existente',
+            },
+          })
+        }
       }
 
       return updated
@@ -212,7 +305,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({
       sale: updatedSale,
       addedItemsTotal: newItemsTotal,
-      newReceivablesCount: newInstallmentsNeeded,
+      newInstallmentPlan: updatedInstallmentPlan,
     })
   } catch (error) {
     console.error('Error adding items to sale:', error)

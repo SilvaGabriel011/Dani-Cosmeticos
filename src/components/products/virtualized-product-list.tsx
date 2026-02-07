@@ -6,6 +6,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { FilterBar, type FilterConfig } from '@/components/ui/filter-bar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/use-toast'
@@ -28,6 +29,7 @@ const stockStatusOptions = [
 export function VirtualizedProductList() {
   const { toast } = useToast()
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null)
   const parentRef = useRef<HTMLDivElement>(null)
 
   const { filters, setFilter, resetFilters } = useFilters({
@@ -63,7 +65,7 @@ export function VirtualizedProductList() {
     search: filters.search || undefined,
     categoryId: filters.categoryId || undefined,
     brandId: filters.brandId || undefined,
-    limit: 1000,
+    limit: 200,
   })
 
   const filteredProducts = useMemo(() => {
@@ -90,10 +92,10 @@ export function VirtualizedProductList() {
 
   const deleteProduct = useDeleteProduct()
 
-  const handleDelete = useCallback(async (product: Product) => {
-    if (!confirm(`Excluir "${product.name}"?`)) return
+  const handleDelete = useCallback(async () => {
+    if (!deletingProduct) return
     try {
-      await deleteProduct.mutateAsync(product.id)
+      await deleteProduct.mutateAsync(deletingProduct.id)
       toast({ title: 'Produto excluído com sucesso!' })
     } catch (error: any) {
       toast({
@@ -101,8 +103,10 @@ export function VirtualizedProductList() {
         description: error.message,
         variant: 'destructive',
       })
+    } finally {
+      setDeletingProduct(null)
     }
-  }, [deleteProduct, toast])
+  }, [deleteProduct, toast, deletingProduct])
 
   const handleFilterChange = useCallback(
     (name: string, value: string) => {
@@ -202,7 +206,7 @@ export function VirtualizedProductList() {
                   }}
                   className="grid grid-cols-[80px_1fr_120px_120px_80px_80px_100px_80px_80px] gap-2 p-3 items-center text-sm border-b hover:bg-muted/30 transition-colors"
                 >
-                  <div className="font-mono text-xs truncate">{product.code || '-'}</div>
+                  <div className="font-mono text-sm truncate">{product.code || '-'}</div>
                   <div className="font-medium truncate">{product.name}</div>
                   <div className="truncate text-muted-foreground">
                     {product.category?.name || '-'}
@@ -218,14 +222,14 @@ export function VirtualizedProductList() {
                   </div>
                   <div className="flex items-center justify-center gap-1">
                     {stockStatus.status === 'baixo' && (
-                      <AlertTriangle className="h-3 w-3 text-red-500" />
+                      <AlertTriangle className="h-5 w-5 text-red-500" />
                     )}
-                    <Badge variant={stockStatus.color} className="text-xs">
+                    <Badge variant={stockStatus.color} className="text-sm">
                       {product.stock}
                     </Badge>
                   </div>
                   <div className="text-center">
-                    <Badge variant={stockStatus.color} className="text-xs">
+                    <Badge variant={stockStatus.color} className="text-sm">
                       {stockStatus.label}
                     </Badge>
                   </div>
@@ -236,15 +240,15 @@ export function VirtualizedProductList() {
                       className="h-7 w-7"
                       onClick={() => setEditingProduct(product)}
                     >
-                      <Pencil className="h-3 w-3" />
+                      <Pencil className="h-5 w-5" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7"
-                      onClick={() => handleDelete(product)}
+                      onClick={() => setDeletingProduct(product)}
                     >
-                      <Trash2 className="h-3 w-3 text-destructive" />
+                      <Trash2 className="h-5 w-5 text-destructive" />
                     </Button>
                   </div>
                 </div>
@@ -258,6 +262,15 @@ export function VirtualizedProductList() {
         open={!!editingProduct}
         onOpenChange={(open) => !open && setEditingProduct(null)}
         product={editingProduct}
+      />
+
+      <ConfirmDialog
+        open={!!deletingProduct}
+        onOpenChange={(open) => !open && setDeletingProduct(null)}
+        title="Excluir produto"
+        description={`Tem certeza que deseja excluir "${deletingProduct?.name}"? Esta ação não pode ser desfeita.`}
+        confirmLabel="Excluir"
+        onConfirm={handleDelete}
       />
     </div>
   )
