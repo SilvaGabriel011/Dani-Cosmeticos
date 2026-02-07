@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           client: { select: { id: true, name: true } },
-          items: { select: { id: true, quantity: true, unitPrice: true, originalPrice: true, total: true } },
+          items: { select: { id: true, quantity: true, unitPrice: true, originalPrice: true, total: true, addedAt: true, product: { select: { id: true, name: true } } } },
           payments: { select: { method: true, amount: true } },
         },
         skip: (page - 1) * limit,

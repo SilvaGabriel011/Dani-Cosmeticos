@@ -33,9 +33,10 @@ const stockStatusOptions = [
   { value: 'baixo', label: 'Estoque Baixo' },
   { value: 'medio', label: 'Estoque Médio' },
   { value: 'bom', label: 'Estoque Bom' },
+  { value: 'encomenda', label: 'Encomenda' },
 ]
 
-export type ProductTab = 'todos' | 'faltantes' | 'sem-valor'
+export type ProductTab = 'todos' | 'faltantes' | 'sem-valor' | 'encomendas'
 
 interface ProductListProps {
   tab?: ProductTab
@@ -99,6 +100,8 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
 
     if (tab === 'faltantes') {
       products = products.filter((p) => p.stock <= p.minStock)
+    } else if (tab === 'encomendas') {
+      products = products.filter((p) => backordersByProduct.has(p.id))
     }
 
     if (filters.stockStatus === 'baixo') {
@@ -107,6 +110,8 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
       products = products.filter((p) => p.stock > p.minStock && p.stock <= p.minStock * 2)
     } else if (filters.stockStatus === 'bom') {
       products = products.filter((p) => p.stock > p.minStock * 2)
+    } else if (filters.stockStatus === 'encomenda') {
+      products = products.filter((p) => backordersByProduct.has(p.id))
     }
 
     // Sort: products with pending backorders first

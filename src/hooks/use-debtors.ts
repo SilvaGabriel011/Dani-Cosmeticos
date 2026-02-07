@@ -34,6 +34,7 @@ interface DebtorSale {
   id: string
   createdAt: string
   total: string | number
+  fixedInstallmentAmount?: string | number | null
   items: DebtorSaleItem[]
   receivables: DebtorReceivable[]
 }

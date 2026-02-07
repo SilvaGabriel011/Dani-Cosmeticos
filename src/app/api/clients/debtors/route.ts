@@ -92,6 +92,7 @@ export async function GET(request: NextRequest) {
               clientId: true,
               createdAt: true,
               total: true,
+              fixedInstallmentAmount: true,
               items: {
                 select: {
                   id: true,
@@ -141,6 +142,7 @@ export async function GET(request: NextRequest) {
         id: sale.id,
         createdAt: sale.createdAt,
         total: sale.total,
+        fixedInstallmentAmount: sale.fixedInstallmentAmount,
         items: sale.items.map((item) => ({
           id: item.id,
           quantity: item.quantity,

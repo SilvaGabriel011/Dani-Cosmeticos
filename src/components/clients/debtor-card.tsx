@@ -1,11 +1,12 @@
 'use client'
 
-import { ChevronDown, ChevronUp, Phone, MapPin, Package, MessageCircle } from 'lucide-react'
+import { ChevronDown, ChevronUp, Phone, MapPin, Package, MessageCircle, DollarSign, Eye } from 'lucide-react'
 import { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { PaymentHistoryDialog } from '@/components/clients/payment-history-dialog'
 import { type Debtor } from '@/hooks/use-debtors'
 import { formatCurrency, formatDate, formatWhatsAppUrl } from '@/lib/utils'
 
@@ -15,6 +16,14 @@ interface DebtorCardProps {
 
 export function DebtorCard({ debtor }: DebtorCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [showPaymentHistory, setShowPaymentHistory] = useState(false)
+
+  const monthlyExpected = debtor.sales.reduce((sum, sale) => {
+    if (sale.fixedInstallmentAmount) return sum + Number(sale.fixedInstallmentAmount)
+    const nextReceivable = sale.receivables.find((r) => r.status !== 'PAID')
+    if (nextReceivable) return sum + (Number(nextReceivable.amount) - Number(nextReceivable.paidAmount))
+    return sum
+  }, 0)
 
   return (
     <Card className={debtor.isOverdue ? 'border-destructive/50' : ''}>
@@ -66,23 +75,41 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
         </div>
 
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">
-            {debtor.salesCount} {debtor.salesCount === 1 ? 'compra' : 'compras'} pendente
-            {debtor.salesCount !== 1 ? 's' : ''}
-          </span>
-          <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
-            {isExpanded ? (
-              <>
-                <ChevronUp className="h-5 w-5 mr-1" />
-                Ocultar Detalhes
-              </>
-            ) : (
-              <>
-                <ChevronDown className="h-5 w-5 mr-1" />
-                Ver Detalhes
-              </>
+          <div className="space-y-1">
+            <span className="text-sm text-muted-foreground">
+              {debtor.salesCount} {debtor.salesCount === 1 ? 'compra' : 'compras'} pendente
+              {debtor.salesCount !== 1 ? 's' : ''}
+            </span>
+            {monthlyExpected > 0 && (
+              <div className="flex items-center gap-1 text-sm font-medium text-amber-700">
+                <DollarSign className="h-4 w-4" />
+                Cobrar: {formatCurrency(monthlyExpected)}/mês
+              </div>
             )}
-          </Button>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPaymentHistory(true)}
+              title="Histórico de pagamentos"
+            >
+              <Eye className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="h-5 w-5 mr-1" />
+                  Ocultar Detalhes
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-5 w-5 mr-1" />
+                  Ver Detalhes
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
         {isExpanded && (
@@ -116,26 +143,42 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
                     ))}
                   </div>
 
-                  <div className="pl-6 pt-2 border-t border-muted">
+                  <div className="pl-6 pt-2 border-t border-muted space-y-1">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">
                         Parcelas: {paidInstallments}/{sale.receivables.length} pagas
                       </span>
                       <span className="text-green-600">Pago: {formatCurrency(totalPaid)}</span>
                     </div>
+                    {sale.fixedInstallmentAmount && (
+                      <div className="flex items-center gap-1 text-sm font-medium text-amber-700">
+                        <DollarSign className="h-3.5 w-3.5" />
+                        Valor combinado: {formatCurrency(Number(sale.fixedInstallmentAmount))}/mês
+                      </div>
+                    )}
                     {sale.receivables
                       .filter((r) => r.status !== 'PAID')
                       .slice(0, 1)
                       .map((r) => {
                         const isOverdue = new Date(r.dueDate) < new Date()
                         const remaining = Number(r.amount) - Number(r.paidAmount)
+                        const expectedAmount = sale.fixedInstallmentAmount
+                          ? Number(sale.fixedInstallmentAmount)
+                          : null
+                        const paidLessThanExpected =
+                          expectedAmount && Number(r.paidAmount) > 0 && remaining > expectedAmount
                         return (
                           <div
                             key={r.id}
-                            className={`text-sm mt-1 ${isOverdue ? 'text-destructive' : ''}`}
+                            className={`text-sm ${isOverdue ? 'text-destructive' : ''}`}
                           >
-                            Prox: {formatDate(r.dueDate)} ({formatCurrency(remaining)})
+                            Próx: {formatDate(r.dueDate)} — restam {formatCurrency(remaining)}
                             {isOverdue && ' - VENCIDO'}
+                            {paidLessThanExpected && (
+                              <span className="text-amber-600 ml-1">
+                                (acumulado)
+                              </span>
+                            )}
                           </div>
                         )
                       })}
@@ -146,6 +189,13 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
           </div>
         )}
       </CardContent>
+
+      <PaymentHistoryDialog
+        clientId={debtor.client.id}
+        clientName={debtor.client.name}
+        open={showPaymentHistory}
+        onOpenChange={setShowPaymentHistory}
+      />
     </Card>
   )
 }

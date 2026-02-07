@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useBackorders } from '@/hooks/use-backorders'
 import { useProducts } from '@/hooks/use-products'
 
 export default function EstoquePage() {
@@ -27,6 +28,9 @@ export default function EstoquePage() {
   }, [allProducts])
 
   const semValorCount = noPriceProducts?.pagination?.total ?? 0
+
+  const { data: backordersData } = useBackorders()
+  const encomendasCount = backordersData?.byProduct?.length ?? 0
 
   return (
     <div className="space-y-6">
@@ -62,6 +66,14 @@ export default function EstoquePage() {
               </Badge>
             )}
           </TabsTrigger>
+          <TabsTrigger value="encomendas" className="gap-1.5">
+            Encomendas
+            {encomendasCount > 0 && (
+              <Badge variant="secondary" className="ml-1 bg-amber-100 text-amber-700 text-xs px-1.5 py-0">
+                {encomendasCount}
+              </Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="todos">
@@ -84,6 +96,14 @@ export default function EstoquePage() {
           <Card>
             <CardContent className="p-6">
               <ProductList tab="sem-valor" />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="encomendas">
+          <Card>
+            <CardContent className="p-6">
+              <ProductList tab="encomendas" />
             </CardContent>
           </Card>
         </TabsContent>

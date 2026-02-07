@@ -1,6 +1,6 @@
 'use client'
 
-import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle } from 'lucide-react'
+import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import { useMemo, useState, useCallback, memo } from 'react'
 
 import { ReceivePaymentDialog } from '@/components/sales/receive-payment-dialog'
@@ -62,6 +62,19 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
   const { toast } = useToast()
   const [paymentSale, setPaymentSale] = useState<Sale | null>(null)
   const [cancelSaleId, setCancelSaleId] = useState<string | null>(null)
+  const [expandedSaleIds, setExpandedSaleIds] = useState<Set<string>>(new Set())
+
+  const toggleExpanded = useCallback((saleId: string) => {
+    setExpandedSaleIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(saleId)) {
+        next.delete(saleId)
+      } else {
+        next.add(saleId)
+      }
+      return next
+    })
+  }, [])
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
@@ -198,16 +211,60 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.data.map((sale) => (
+          {data.data.map((sale) => {
+            const isExpanded = expandedSaleIds.has(sale.id)
+            const saleItems = sale.items as unknown as Array<{
+              id: string
+              quantity: number
+              unitPrice: number | string
+              originalPrice: number | string | null
+              total: number | string
+              addedAt: string
+              product: { id: string; name: string }
+            }>
+
+            // Group items by addedAt date for multiple carts
+            const itemGroups = saleItems.reduce<
+              Array<{ label: string; date: string; items: typeof saleItems }>
+            >((groups, item) => {
+              const dateKey = new Date(item.addedAt).toISOString().slice(0, 16)
+              let group = groups.find((g) => g.date === dateKey)
+              if (!group) {
+                group = { label: '', date: dateKey, items: [] }
+                groups.push(group)
+              }
+              group.items.push(item)
+              return groups
+            }, [])
+
+            // Only label groups if there are multiple carts
+            const hasMultipleCarts = itemGroups.length > 1
+            if (hasMultipleCarts) {
+              itemGroups.forEach((g, i) => {
+                g.label = `Compra ${i + 1}`
+              })
+            }
+
+            return (
+            <>
             <TableRow key={sale.id} className="transition-colors duration-150 hover:bg-muted/50">
               <TableCell>{formatDate(new Date(sale.createdAt))}</TableCell>
               <TableCell>
                 {sale.client?.name || <span className="text-muted-foreground">Não informado</span>}
               </TableCell>
               <TableCell>
-                <span className="text-sm">
+                <button
+                  type="button"
+                  onClick={() => toggleExpanded(sale.id)}
+                  className="inline-flex items-center gap-1 text-sm hover:text-primary transition-colors cursor-pointer"
+                >
                   {sale.items.length} {sale.items.length === 1 ? 'item' : 'itens'}
-                </span>
+                  {isExpanded ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </button>
               </TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">
@@ -288,7 +345,54 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                 </div>
               </TableCell>
             </TableRow>
-          ))}
+            {isExpanded && (
+              <TableRow key={`${sale.id}-items`} className="bg-muted/30 hover:bg-muted/30">
+                <TableCell colSpan={7} className="p-0">
+                  <div className="px-6 py-3">
+                    {itemGroups.map((group, gi) => (
+                      <div key={gi} className={gi > 0 ? 'mt-3 pt-3 border-t border-border/50' : ''}>
+                        {hasMultipleCarts && (
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">
+                            {group.label} — {formatDate(new Date(group.date))}
+                          </p>
+                        )}
+                        <div className="space-y-1">
+                          {group.items.map((item) => {
+                            const unitPrice = Number(item.unitPrice)
+                            const originalPrice = item.originalPrice ? Number(item.originalPrice) : null
+                            const hasDiscount = originalPrice && originalPrice > unitPrice
+                            return (
+                              <div
+                                key={item.id}
+                                className="flex items-center justify-between text-sm py-1"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="font-medium truncate">{item.product.name}</span>
+                                  <span className="text-muted-foreground shrink-0">
+                                    {item.quantity}x {formatCurrency(unitPrice)}
+                                  </span>
+                                  {hasDiscount && (
+                                    <span className="text-xs text-muted-foreground/60 line-through shrink-0">
+                                      {formatCurrency(originalPrice)}
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="font-medium shrink-0 ml-4">
+                                  {formatCurrency(Number(item.total))}
+                                </span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+            </>
+            )
+          })}
         </TableBody>
       </Table>
 
