@@ -1,6 +1,6 @@
 'use client'
 
-import { XCircle, Banknote, ShoppingBag, AlertTriangle } from 'lucide-react'
+import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle } from 'lucide-react'
 import { useMemo, useState, useCallback, memo } from 'react'
 
 import { ReceivePaymentDialog } from '@/components/sales/receive-payment-dialog'
@@ -30,7 +30,7 @@ import { useFilters } from '@/hooks/use-filters'
 import { useProducts } from '@/hooks/use-products'
 import { useSales, useCancelSale } from '@/hooks/use-sales'
 import { SALE_STATUS_LABELS, PAYMENT_METHOD_LABELS } from '@/lib/constants'
-import { formatCurrency, formatDate, getDateRange } from '@/lib/utils'
+import { formatCurrency, formatDate, getDateRange, formatWhatsAppUrl } from '@/lib/utils'
 import { type Sale } from '@/types'
 
 const periodOptions = [
@@ -211,11 +211,17 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
               </TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">
-                  {sale.payments.map((p, i) => (
-                    <Badge key={i} variant="outline" className="text-sm">
-                      {PAYMENT_METHOD_LABELS[p.method as keyof typeof PAYMENT_METHOD_LABELS]}
+                  {sale.status === 'PENDING' && sale.payments.length === 0 ? (
+                    <Badge variant="outline" className="text-sm">
+                      Fiado{sale.installmentPlan > 1 ? ` · ${sale.installmentPlan}x` : ''}
                     </Badge>
-                  ))}
+                  ) : (
+                    sale.payments.map((p, i) => (
+                      <Badge key={i} variant="outline" className="text-sm">
+                        {PAYMENT_METHOD_LABELS[p.method as keyof typeof PAYMENT_METHOD_LABELS]}
+                      </Badge>
+                    ))
+                  )}
                 </div>
               </TableCell>
               <TableCell className="text-right font-medium">
@@ -236,16 +242,34 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
+                  {sale.client?.phone && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      title="Abrir WhatsApp"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-green-50 hover:text-green-700"
+                      aria-label="Abrir WhatsApp"
+                    >
+                      <a
+                        href={formatWhatsAppUrl(sale.client.phone) || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MessageCircle className="h-6 w-6 text-green-600" />
+                      </a>
+                    </Button>
+                  )}
                   {sale.status === 'PENDING' && (
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => setPaymentSale(sale)}
                       title="Receber pagamento"
-                      className="h-8 w-8 transition-all duration-150 hover:bg-green-50 hover:text-green-700"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-green-50 hover:text-green-700"
                       aria-label="Receber pagamento"
                     >
-                      <Banknote className="h-5 w-5 text-green-600" />
+                      <Banknote className="h-6 w-6 text-green-600" />
                     </Button>
                   )}
                   {(sale.status === 'COMPLETED' || sale.status === 'PENDING') && (
@@ -255,10 +279,10 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                       onClick={() => setCancelSaleId(sale.id)}
                       disabled={cancelSale.isPending}
                       title="Cancelar venda"
-                      className="h-8 w-8 transition-all duration-150 hover:bg-red-50 hover:text-red-700"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-red-50 hover:text-red-700"
                       aria-label="Cancelar venda"
                     >
-                      <XCircle className="h-5 w-5 text-destructive" />
+                      <XCircle className="h-6 w-6 text-destructive" />
                     </Button>
                   )}
                 </div>

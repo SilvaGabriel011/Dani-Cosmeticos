@@ -175,13 +175,14 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
                       size="icon"
                       asChild
                       title="Abrir WhatsApp"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-green-50 hover:text-green-700"
                     >
                       <a
                         href={formatWhatsAppUrl(client.phone!) || '#'}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <MessageCircle className="h-5 w-5 text-green-600" />
+                        <MessageCircle className="h-6 w-6 text-green-600" />
                       </a>
                     </Button>
                   )}
@@ -191,15 +192,16 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
                       size="icon"
                       onClick={() => onNewSale(client)}
                       title="Nova venda"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-primary/10"
                     >
-                      <ShoppingCart className="h-5 w-5 text-primary" />
+                      <ShoppingCart className="h-6 w-6 text-primary" />
                     </Button>
                   )}
-                  <Button variant="ghost" size="icon" onClick={() => setEditingClient(client)}>
-                    <Pencil className="h-5 w-5" />
+                  <Button variant="ghost" size="icon" className="h-10 w-10 transition-all duration-150" onClick={() => setEditingClient(client)}>
+                    <Pencil className="h-6 w-6" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => setDeletingClient(client)}>
-                    <Trash2 className="h-5 w-5 text-destructive" />
+                  <Button variant="ghost" size="icon" className="h-10 w-10 transition-all duration-150 hover:bg-red-50 hover:text-red-700" onClick={() => setDeletingClient(client)}>
+                    <Trash2 className="h-6 w-6 text-destructive" />
                   </Button>
                 </div>
               </TableCell>
