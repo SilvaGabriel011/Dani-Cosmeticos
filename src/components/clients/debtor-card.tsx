@@ -1,13 +1,13 @@
 'use client'
 
-import { ChevronDown, ChevronUp, Phone, MapPin, Package } from 'lucide-react'
+import { ChevronDown, ChevronUp, Phone, MapPin, Package, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { type Debtor } from '@/hooks/use-debtors'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency, formatDate, formatWhatsAppUrl } from '@/lib/utils'
 
 interface DebtorCardProps {
   debtor: Debtor
@@ -34,6 +34,18 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
                 <Phone className="h-5 w-5" />
                 {debtor.client.phone}
               </span>
+              {debtor.client.phone && formatWhatsAppUrl(debtor.client.phone) && (
+                <a
+                  href={formatWhatsAppUrl(debtor.client.phone)!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-green-600 hover:text-green-700 transition-colors"
+                  title="Abrir WhatsApp"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  <span>WhatsApp</span>
+                </a>
+              )}
               {debtor.client.address && (
                 <span className="flex items-center gap-1">
                   <MapPin className="h-5 w-5" />
