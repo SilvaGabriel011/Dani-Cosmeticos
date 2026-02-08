@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { FilterBar, type FilterConfig } from '@/components/ui/filter-bar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
@@ -267,18 +268,37 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                 </button>
               </TableCell>
               <TableCell>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap items-center gap-1">
                   {sale.status === 'PENDING' && sale.payments.length === 0 ? (
                     <Badge variant="outline" className="text-sm">
                       Fiado{sale.installmentPlan > 1 ? ` · ${sale.installmentPlan}x` : ''}
                     </Badge>
-                  ) : (
-                    sale.payments.map((p, i) => (
-                      <Badge key={i} variant="outline" className="text-sm">
-                        {PAYMENT_METHOD_LABELS[p.method as keyof typeof PAYMENT_METHOD_LABELS]}
+                  ) : sale.payments.length > 0 ? (
+                    <>
+                      <Badge variant="outline" className="text-sm">
+                        {PAYMENT_METHOD_LABELS[sale.payments[0].method as keyof typeof PAYMENT_METHOD_LABELS]}
                       </Badge>
-                    ))
-                  )}
+                      {sale.payments.length > 1 && (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors cursor-pointer">
+                              +{sale.payments.length - 1}
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-2" align="start">
+                            <div className="space-y-1">
+                              {sale.payments.slice(1).map((p, i) => (
+                                <div key={i} className="flex items-center justify-between gap-4 text-sm px-1">
+                                  <span>{PAYMENT_METHOD_LABELS[p.method as keyof typeof PAYMENT_METHOD_LABELS]}</span>
+                                  <span className="text-muted-foreground">{formatCurrency(Number(p.amount))}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      )}
+                    </>
+                  ) : null}
                 </div>
               </TableCell>
               <TableCell className="text-right font-medium">

@@ -1,6 +1,6 @@
 'use client'
 
-import { MessageCircle, Pencil, Trash2, ShoppingCart } from 'lucide-react'
+import { MessageCircle, Pencil, Receipt, Trash2, ShoppingCart } from 'lucide-react'
 import { useState, useMemo, useCallback, memo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +23,7 @@ import { formatPercent, formatWhatsAppUrl } from '@/lib/utils'
 import { type Client } from '@/types'
 
 import { ClientForm } from './client-form'
+import { ClientPurchasesModal } from './client-purchases-modal'
 
 
 const discountOptions = [
@@ -42,6 +43,7 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
   const { toast } = useToast()
   const [editingClient, setEditingClient] = useState<Client | null>(null)
   const [deletingClient, setDeletingClient] = useState<Client | null>(null)
+  const [purchasesClient, setPurchasesClient] = useState<Client | null>(null)
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
@@ -186,6 +188,15 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
                       </a>
                     </Button>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setPurchasesClient(client)}
+                    title="Ver compras"
+                    className="h-10 w-10 transition-all duration-150 hover:bg-blue-50 hover:text-blue-700"
+                  >
+                    <Receipt className="h-6 w-6 text-blue-600" />
+                  </Button>
                   {onNewSale && (
                     <Button
                       variant="ghost"
@@ -223,6 +234,13 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
         description={`Tem certeza que deseja excluir "${deletingClient?.name}"? Esta ação não pode ser desfeita.`}
         confirmLabel="Excluir"
         onConfirm={handleDelete}
+      />
+
+      <ClientPurchasesModal
+        open={!!purchasesClient}
+        onOpenChange={(open) => !open && setPurchasesClient(null)}
+        clientId={purchasesClient?.id || null}
+        clientName={purchasesClient?.name || ''}
       />
     </div>
   )

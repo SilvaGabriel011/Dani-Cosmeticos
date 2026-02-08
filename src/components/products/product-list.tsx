@@ -261,14 +261,16 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
                 <TableCell className="text-right">
                   {formatCurrency(Number(product.costPrice))}
                 </TableCell>
-                <TableCell className="text-right font-medium">
-                  {Number(product.salePrice) === 0 ? (
-                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs">
-                      Sem preço
-                    </Badge>
-                  ) : (
-                    formatCurrency(Number(product.salePrice))
-                  )}
+                <TableCell className="font-medium">
+                  <div className="flex justify-end">
+                    {Number(product.salePrice) === 0 ? (
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 text-xs">
+                        Sem preço
+                      </Badge>
+                    ) : (
+                      formatCurrency(Number(product.salePrice))
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex items-center justify-center gap-2">

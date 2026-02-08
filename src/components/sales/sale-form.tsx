@@ -695,12 +695,13 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[98vw] md:max-w-5xl lg:max-w-7xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
-        <DialogHeader>
+      <DialogContent className="max-w-[98vw] md:max-w-5xl lg:max-w-7xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Nova Venda - Carrinho</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full overflow-hidden">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
           {/* Products Section */}
           <div className="space-y-4">
             <Card className={`transition-all duration-300 ${items.length > 0 ? 'border-2 border-green-400 shadow-sm shadow-green-100' : ''}`}>
@@ -1471,7 +1472,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           </div>
         </div>
 
-        <div className="border-t pt-4 mt-4">
+        </div>
+
+        <div className="border-t pt-3 mt-0 shrink-0 bg-background">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             {isFiado ? (
               <div className="flex flex-wrap items-center gap-4 text-base w-full sm:w-auto bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">

@@ -1,11 +1,12 @@
 'use client'
 
-import { Plus, Package, CreditCard } from 'lucide-react'
+import { Plus, Package, CreditCard, Users } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { FiadoTable } from '@/components/dashboard/fiado-table'
 import { StockOverviewTable } from '@/components/dashboard/stock-overview-table'
 import { PageHeader } from '@/components/layout/page-header'
+import { ClientForm } from '@/components/clients/client-form'
 import { ProductForm } from '@/components/products/product-form'
 import { SaleForm } from '@/components/sales/sale-form'
 import { Badge } from '@/components/ui/badge'
@@ -20,6 +21,7 @@ type DashboardTab = 'estoque' | 'fiado'
 export default function DashboardPage() {
   const [saleFormOpen, setSaleFormOpen] = useState(false)
   const [productFormOpen, setProductFormOpen] = useState(false)
+  const [clientFormOpen, setClientFormOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<DashboardTab>('fiado')
 
   const { data: backordersData } = useBackorders()
@@ -61,6 +63,10 @@ export default function DashboardPage() {
             <Package className="h-5 w-5 mr-2" />
             Novo Item
           </Button>
+          <Button size="lg" variant="outline" onClick={() => setClientFormOpen(true)}>
+            <Users className="h-5 w-5 mr-2" />
+            Novo Cliente
+          </Button>
         </div>
       </PageHeader>
 
@@ -101,6 +107,7 @@ export default function DashboardPage() {
 
       <SaleForm open={saleFormOpen} onOpenChange={setSaleFormOpen} />
       <ProductForm open={productFormOpen} onOpenChange={setProductFormOpen} />
+      <ClientForm open={clientFormOpen} onOpenChange={setClientFormOpen} />
     </div>
   )
 }

@@ -1,8 +1,8 @@
 'use client'
 
 import { type Receivable, type Sale, type Client } from '@prisma/client'
-import { CreditCard, MessageCircle, Receipt, Search, ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { CreditCard, MessageCircle, Receipt, Search, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, ShoppingBag } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -25,10 +25,57 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useSalesWithPendingReceivables } from '@/hooks/use-receivables'
+import { useSale } from '@/hooks/use-sales'
 import { formatCurrency, formatDate, formatWhatsAppUrl } from '@/lib/utils'
 
 import { ReceivablePaymentModal } from './receivable-payment-modal'
-import { SaleItemsModal } from './sale-items-modal'
+
+function SaleItemsRow({ saleId, colSpan }: { saleId: string; colSpan: number }) {
+  const { data: sale, isLoading } = useSale(saleId)
+
+  return (
+    <TableRow className="bg-muted/30 hover:bg-muted/40">
+      <TableCell colSpan={colSpan} className="p-0">
+        <div className="px-4 py-3 space-y-2">
+          {isLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Skeleton className="h-4 w-4 rounded-full animate-spin" />
+              Carregando itens...
+            </div>
+          ) : sale?.items && sale.items.length > 0 ? (
+            <>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                <ShoppingBag className="h-3.5 w-3.5" />
+                Itens da venda
+              </p>
+              <div className="divide-y">
+                {sale.items.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between py-1.5 text-sm">
+                    <div className="flex-1 min-w-0">
+                      <span className="font-medium truncate">{item.product.name}</span>
+                      <span className="text-muted-foreground ml-2">
+                        {item.quantity}x {formatCurrency(Number(item.unitPrice))}
+                      </span>
+                    </div>
+                    <span className="font-semibold shrink-0 ml-3">
+                      {formatCurrency(Number(item.total))}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-between pt-2 border-t text-sm">
+                <span className="font-semibold">Total:</span>
+                <span className="font-bold">{formatCurrency(Number(sale.total))}</span>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">Nenhum item encontrado.</p>
+          )}
+        </div>
+      </TableCell>
+    </TableRow>
+  )
+}
 
 type SaleWithReceivables = Sale & {
   client: Client | null
@@ -60,8 +107,7 @@ export function FiadoTable() {
 
   const [selectedReceivable, setSelectedReceivable] = useState<ReceivableWithSale | null>(null)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
-  const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null)
-  const [itemsModalOpen, setItemsModalOpen] = useState(false)
+  const [expandedSaleId, setExpandedSaleId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -172,9 +218,8 @@ export function FiadoTable() {
     }
   }
 
-  const handleViewItems = (saleId: string) => {
-    setSelectedSaleId(saleId)
-    setItemsModalOpen(true)
+  const handleToggleItems = (saleId: string) => {
+    setExpandedSaleId((prev) => (prev === saleId ? null : saleId))
   }
 
   if (isLoading) {
@@ -258,8 +303,8 @@ export function FiadoTable() {
                   </TableRow>
                 ) : (
                   paginatedSummaries.map((summary) => (
+                    <React.Fragment key={summary.saleId}>
                     <TableRow
-                      key={summary.saleId}
                       className={summary.isOverdue ? 'bg-red-50/60 dark:bg-red-950/20' : ''}
                     >
                       <TableCell className="font-medium max-w-[120px] truncate" title={summary.clientName}>{summary.clientName}</TableCell>
@@ -320,13 +365,17 @@ export function FiadoTable() {
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-0.5">
                           <Button
-                            variant="outline"
+                            variant={expandedSaleId === summary.saleId ? 'default' : 'outline'}
                             size="icon"
-                            onClick={() => handleViewItems(summary.saleId)}
+                            onClick={() => handleToggleItems(summary.saleId)}
                             className="h-8 w-8"
                             title="Ver Itens"
                           >
-                            <ShoppingBag className="h-4 w-4" />
+                            {expandedSaleId === summary.saleId ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
                           </Button>
                           <Button
                             variant="outline"
@@ -358,6 +407,10 @@ export function FiadoTable() {
                         </div>
                       </TableCell>
                     </TableRow>
+                    {expandedSaleId === summary.saleId && (
+                      <SaleItemsRow saleId={summary.saleId} colSpan={9} />
+                    )}
+                    </React.Fragment>
                   ))
                 )}
               </TableBody>
@@ -404,11 +457,6 @@ export function FiadoTable() {
         receivable={selectedReceivable}
       />
 
-      <SaleItemsModal
-        open={itemsModalOpen}
-        onOpenChange={setItemsModalOpen}
-        saleId={selectedSaleId}
-      />
     </>
   )
 }
