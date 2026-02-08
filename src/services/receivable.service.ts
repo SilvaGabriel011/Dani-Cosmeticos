@@ -459,7 +459,7 @@ export const receivableService = {
       status: 'PENDING' as const,
       receivables: {
         some: {
-          status: { in: ['PENDING', 'PARTIAL'] as const[] },
+          status: { in: ['PENDING', 'PARTIAL'] as const },
         },
       },
     }
