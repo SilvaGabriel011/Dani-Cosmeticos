@@ -1,7 +1,7 @@
 'use client'
 
 import { type Receivable, type Sale, type Client } from '@prisma/client'
-import { CreditCard, MessageCircle, Receipt, Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CreditCard, MessageCircle, Receipt, Search, ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +28,7 @@ import { useSalesWithPendingReceivables } from '@/hooks/use-receivables'
 import { formatCurrency, formatDate, formatWhatsAppUrl } from '@/lib/utils'
 
 import { ReceivablePaymentModal } from './receivable-payment-modal'
+import { SaleItemsModal } from './sale-items-modal'
 
 type SaleWithReceivables = Sale & {
   client: Client | null
@@ -59,6 +60,8 @@ export function FiadoTable() {
 
   const [selectedReceivable, setSelectedReceivable] = useState<ReceivableWithSale | null>(null)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null)
+  const [itemsModalOpen, setItemsModalOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -167,6 +170,11 @@ export function FiadoTable() {
       setSelectedReceivable(summary.nextReceivable)
       setPaymentModalOpen(true)
     }
+  }
+
+  const handleViewItems = (saleId: string) => {
+    setSelectedSaleId(saleId)
+    setItemsModalOpen(true)
   }
 
   if (isLoading) {
@@ -314,6 +322,15 @@ export function FiadoTable() {
                           <Button
                             variant="outline"
                             size="icon"
+                            onClick={() => handleViewItems(summary.saleId)}
+                            className="h-8 w-8"
+                            title="Ver Itens"
+                          >
+                            <ShoppingBag className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
                             onClick={() => handleAddPayment(summary)}
                             disabled={!summary.nextReceivable}
                             className="h-8 w-8"
@@ -385,6 +402,12 @@ export function FiadoTable() {
         open={paymentModalOpen}
         onOpenChange={setPaymentModalOpen}
         receivable={selectedReceivable}
+      />
+
+      <SaleItemsModal
+        open={itemsModalOpen}
+        onOpenChange={setItemsModalOpen}
+        saleId={selectedSaleId}
       />
     </>
   )
