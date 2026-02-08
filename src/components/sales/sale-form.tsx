@@ -26,7 +26,9 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/components/ui/use-toast'
 import { useClients } from '@/hooks/use-clients'
-import { useProducts, useCreateProduct } from '@/hooks/use-products'
+import { useDebounce } from '@/hooks/use-debounce'
+import { useProducts, useProductsOnDemand, useCreateProduct } from '@/hooks/use-products'
+import { useRecentSelections } from '@/hooks/use-recent-selections'
 import { useCreateSale, useClientPendingSales, useAddItemsToSale } from '@/hooks/use-sales'
 import { useSettings } from '@/hooks/use-settings'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
@@ -58,7 +60,7 @@ interface SaleFormProps {
 
 export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps) {
   const { toast } = useToast()
-  const { data: productsData } = useProducts({ limit: 200 })
+  const { data: productsData } = useProducts({ limit: 500 })
   const { data: clientsData } = useClients({ limit: 200 })
   const { data: settings } = useSettings()
   const createSale = useCreateSale()
@@ -75,6 +77,10 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const clientInputRef = useRef<HTMLInputElement>(null)
   const [visibleProductsCount, setVisibleProductsCount] = useState(20)
   const productListRef = useRef<HTMLDivElement>(null)
+  const clientDropdownRef = useRef<HTMLDivElement>(null)
+  const [highlightedClientIndex, setHighlightedClientIndex] = useState(-1)
+  const [highlightedProductIndex, setHighlightedProductIndex] = useState(-1)
+  const { recentClientIds, recentProductIds, addRecentClient, addRecentProduct } = useRecentSelections()
   const [isInstallment, setIsInstallment] = useState(false)
   const [paymentDay, setPaymentDay] = useState<number>(new Date().getDate()) // Default to current day of month
   const [installmentPlan, setInstallmentPlan] = useState<number | ''>('')
@@ -119,6 +125,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   }, [clientId])
 
 
+  const debouncedProductSearch = useDebounce(productSearch, 200)
+  const { data: serverSearchData } = useProductsOnDemand(debouncedProductSearch, debouncedProductSearch.length >= 2)
+
   const filteredProducts = useMemo(() => {
     // Show all products, sorted: in-stock first, then out-of-stock
     const sorted = [...products].sort((a, b) => {
@@ -128,8 +137,16 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     })
     if (!productSearch.trim()) return sorted
 
-    return fuzzySearch(sorted, productSearch, (p) => [p.name, p.code || ''])
-  }, [products, productSearch])
+    // Client-side fuzzy search on loaded products
+    const localResults = fuzzySearch(sorted, productSearch, (p) => [p.name, p.code || '', p.brand?.name || '', p.category?.name || ''], 0.2)
+
+    // Merge server-side results (covers products beyond the loaded limit)
+    const serverResults = serverSearchData?.data || []
+    const localIds = new Set(localResults.map((p) => p.id))
+    const extra = serverResults.filter((p) => !localIds.has(p.id))
+
+    return [...localResults, ...extra]
+  }, [products, productSearch, serverSearchData])
 
   const visibleProducts = useMemo(() => {
     return filteredProducts.slice(0, visibleProductsCount)
@@ -155,6 +172,157 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     if (!clientSearch.trim()) return clients
     return fuzzySearch(clients, clientSearch, (c) => [c.name, c.phone || ''])
   }, [clients, clientSearch])
+
+  // Recent clients resolved from IDs
+  const recentClients = useMemo(() => {
+    if (clientSearch.trim()) return []
+    return recentClientIds
+      .map((id) => clients.find((c) => c.id === id))
+      .filter(Boolean) as typeof clients
+  }, [recentClientIds, clients, clientSearch])
+
+  // Recent products resolved from IDs
+  const recentProducts = useMemo(() => {
+    if (productSearch.trim()) return []
+    return recentProductIds
+      .map((id) => products.find((p) => p.id === id))
+      .filter(Boolean) as typeof products
+  }, [recentProductIds, products, productSearch])
+
+  // Reset highlighted index when filtered lists change
+  useEffect(() => { setHighlightedClientIndex(-1) }, [filteredClients])
+  useEffect(() => { setHighlightedProductIndex(-1) }, [filteredProducts])
+
+  // Word completions (autocomplete suggestions)
+  const removeAccentsSimple = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+  const productCompletions = useMemo(() => {
+    const search = productSearch.trim()
+    if (!search) return []
+    const lastWord = search.split(/\s+/).pop() || ''
+    if (lastWord.length < 2) return []
+    const normalizedLast = removeAccentsSimple(lastWord.toLowerCase())
+
+    // Build vocabulary from product names
+    const wordCounts = new Map<string, number>()
+    for (const p of products) {
+      const words = p.name.split(/[\s\-–]+/)
+      for (const w of words) {
+        if (w.length < 3) continue
+        const normalized = removeAccentsSimple(w.toLowerCase())
+        if (normalized.startsWith(normalizedLast) && normalized !== normalizedLast) {
+          wordCounts.set(w.toLowerCase(), (wordCounts.get(w.toLowerCase()) || 0) + 1)
+        }
+      }
+    }
+
+    return Array.from(wordCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([word]) => word)
+  }, [productSearch, products])
+
+  const clientCompletions = useMemo(() => {
+    const search = clientSearch.trim()
+    if (!search) return []
+    const lastWord = search.split(/\s+/).pop() || ''
+    if (lastWord.length < 2) return []
+    const normalizedLast = removeAccentsSimple(lastWord.toLowerCase())
+
+    const wordCounts = new Map<string, number>()
+    for (const c of clients) {
+      const words = c.name.split(/[\s\-–]+/)
+      for (const w of words) {
+        if (w.length < 3) continue
+        const normalized = removeAccentsSimple(w.toLowerCase())
+        if (normalized.startsWith(normalizedLast) && normalized !== normalizedLast) {
+          wordCounts.set(w.toLowerCase(), (wordCounts.get(w.toLowerCase()) || 0) + 1)
+        }
+      }
+    }
+
+    return Array.from(wordCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([word]) => word)
+  }, [clientSearch, clients])
+
+  const applyCompletion = (currentSearch: string, completion: string): string => {
+    const words = currentSearch.trim().split(/\s+/)
+    words[words.length - 1] = completion
+    return words.join(' ') + ' '
+  }
+
+  // Keyboard handler refs (to avoid stale closures with addItem defined later)
+  const handleClientKeyDownRef = useRef<(e: React.KeyboardEvent) => void>(() => {})
+  handleClientKeyDownRef.current = (e: React.KeyboardEvent) => {
+    const maxIndex = Math.min(filteredClients.length, 20) - 1
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setIsClientDropdownOpen(true)
+      setHighlightedClientIndex((prev) => (prev >= maxIndex ? 0 : prev + 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setHighlightedClientIndex((prev) => (prev <= 0 ? maxIndex : prev - 1))
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      const displayedClients = filteredClients.slice(0, 20)
+      if (highlightedClientIndex >= 0 && highlightedClientIndex < displayedClients.length) {
+        const client = displayedClients[highlightedClientIndex]
+        setClientId(client.id)
+        setClientSearch(client.name)
+        setIsClientDropdownOpen(false)
+        addRecentClient(client.id)
+        setHighlightedClientIndex(-1)
+      }
+    } else if (e.key === 'Escape') {
+      setIsClientDropdownOpen(false)
+      setHighlightedClientIndex(-1)
+    }
+  }
+  const handleClientKeyDown = useCallback((e: React.KeyboardEvent) => {
+    handleClientKeyDownRef.current(e)
+  }, [])
+
+  const handleProductKeyDownRef = useRef<(e: React.KeyboardEvent) => void>(() => {})
+  handleProductKeyDownRef.current = (e: React.KeyboardEvent) => {
+    const maxIndex = visibleProducts.length - 1
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setHighlightedProductIndex((prev) => (prev >= maxIndex ? 0 : prev + 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setHighlightedProductIndex((prev) => (prev <= 0 ? maxIndex : prev - 1))
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      if (highlightedProductIndex >= 0 && highlightedProductIndex < visibleProducts.length) {
+        addItem(visibleProducts[highlightedProductIndex])
+        addRecentProduct(visibleProducts[highlightedProductIndex].id)
+        setHighlightedProductIndex(-1)
+      }
+    } else if (e.key === 'Escape') {
+      setProductSearch('')
+      setHighlightedProductIndex(-1)
+    }
+  }
+  const handleProductKeyDown = useCallback((e: React.KeyboardEvent) => {
+    handleProductKeyDownRef.current(e)
+  }, [])
+
+  // Scroll highlighted items into view
+  useEffect(() => {
+    if (highlightedClientIndex >= 0 && clientDropdownRef.current) {
+      const items = clientDropdownRef.current.querySelectorAll('button')
+      items[highlightedClientIndex]?.scrollIntoView({ block: 'nearest' })
+    }
+  }, [highlightedClientIndex])
+
+  useEffect(() => {
+    if (highlightedProductIndex >= 0 && productListRef.current) {
+      const items = productListRef.current.querySelectorAll('button')
+      items[highlightedProductIndex]?.scrollIntoView({ block: 'nearest' })
+    }
+  }, [highlightedProductIndex])
 
   // Update search text when client is selected
   useEffect(() => {
@@ -560,31 +728,72 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     placeholder="Buscar produto..."
                     value={productSearch}
                     onChange={(e) => setProductSearch(e.target.value)}
-                    className="pl-9"
+                    onKeyDown={handleProductKeyDown}
+                    className="pl-9 h-11 text-base"
                   />
                 </div>
 
+                {productCompletions.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {productCompletions.map((word) => (
+                      <button
+                        key={word}
+                        type="button"
+                        className="text-sm bg-muted hover:bg-muted/80 text-muted-foreground rounded-full px-3 py-1.5 min-h-[36px] transition-colors"
+                        onClick={() => setProductSearch(applyCompletion(productSearch, word))}
+                      >
+                        {word}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 {(productSearch || filteredProducts.length > 0) && (
-                  <div 
+                  <div
                     ref={productListRef}
-                    className="max-h-60 overflow-y-auto border rounded-md"
+                    className="max-h-60 md:max-h-[50vh] overflow-y-auto border rounded-md"
                     onScroll={handleProductListScroll}
                   >
+                    {/* Recent products section */}
+                    {!productSearch.trim() && recentProducts.length > 0 && (
+                      <>
+                        <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide bg-muted/50">
+                          Recentes
+                        </div>
+                        {recentProducts.map((product) => (
+                          <button
+                            key={`recent-${product.id}`}
+                            className="w-full px-3 py-3 text-left text-sm flex justify-between items-center min-h-[44px] hover:bg-primary/10 focus:outline-none active:bg-primary/20"
+                            onClick={() => { addItem(product); addRecentProduct(product.id) }}
+                          >
+                            <span className="font-medium">{product.name}</span>
+                            <span className="text-muted-foreground font-semibold">
+                              {formatCurrency(Number(product.salePrice))}
+                            </span>
+                          </button>
+                        ))}
+                        <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide bg-muted/50">
+                          Todos
+                        </div>
+                      </>
+                    )}
                     {filteredProducts.length === 0 ? (
                       <p className="px-3 py-2 text-sm text-muted-foreground">
                         Nenhum produto encontrado
                       </p>
                     ) : (
                       <>
-                        {visibleProducts.map((product) => (
+                        {visibleProducts.map((product, index) => (
                           <button
                             key={product.id}
-                            className={`w-full px-3 py-2 text-left text-sm flex justify-between items-center transition-all duration-200 hover:pl-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-primary/20 active:scale-[0.99] ${
-                              product.stock <= 0
-                                ? 'bg-amber-50/60 hover:bg-amber-100/60 dark:bg-amber-950/20 dark:hover:bg-amber-950/40'
-                                : 'hover:bg-primary/10'
+                            className={`w-full px-3 py-3 text-left text-sm flex justify-between items-center min-h-[44px] transition-all duration-200 hover:pl-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-primary/20 active:scale-[0.99] ${
+                              index === highlightedProductIndex
+                                ? 'bg-primary/10 pl-4'
+                                : product.stock <= 0
+                                  ? 'bg-amber-50/60 hover:bg-amber-100/60 dark:bg-amber-950/20 dark:hover:bg-amber-950/40'
+                                  : 'hover:bg-primary/10'
                             }`}
-                            onClick={() => addItem(product)}
+                            onClick={() => { addItem(product); addRecentProduct(product.id) }}
                           >
                             <span className="flex items-center gap-1.5">
                               <span className="font-medium">{product.name}</span>
@@ -745,25 +954,75 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       onBlur={() => {
                         setTimeout(() => setIsClientDropdownOpen(false), 150)
                       }}
-                      className="pl-9"
+                      onKeyDown={handleClientKeyDown}
+                      className="pl-9 h-11 text-base"
                     />
+                    {clientCompletions.length > 0 && isClientDropdownOpen && !clientId && (
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {clientCompletions.map((word) => (
+                          <button
+                            key={word}
+                            type="button"
+                            className="text-sm bg-muted hover:bg-muted/80 text-muted-foreground rounded-full px-3 py-1.5 min-h-[36px] transition-colors"
+                            onMouseDown={(e) => {
+                              e.preventDefault()
+                              setClientSearch(applyCompletion(clientSearch, word))
+                            }}
+                          >
+                            {word}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     {isClientDropdownOpen && !clientId && (
-                      <div className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto border rounded-md bg-white shadow-lg">
+                      <div ref={clientDropdownRef} className="absolute z-50 w-full mt-1 max-h-48 md:max-h-72 overflow-y-auto border rounded-md bg-white shadow-lg">
+                        {/* Recent clients section */}
+                        {!clientSearch.trim() && recentClients.length > 0 && (
+                          <>
+                            <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide bg-muted/50">
+                              Recentes
+                            </div>
+                            {recentClients.map((client) => (
+                              <button
+                                key={`recent-${client.id}`}
+                                type="button"
+                                className="w-full px-3 py-3 text-left text-sm min-h-[44px] hover:bg-primary/10 focus:outline-none active:bg-primary/20"
+                                onMouseDown={(e) => {
+                                  e.preventDefault()
+                                  setClientId(client.id)
+                                  setClientSearch(client.name)
+                                  setIsClientDropdownOpen(false)
+                                  addRecentClient(client.id)
+                                }}
+                              >
+                                {client.name}
+                              </button>
+                            ))}
+                            <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide bg-muted/50">
+                              Todos
+                            </div>
+                          </>
+                        )}
                         {filteredClients.length === 0 ? (
                           <p className="px-3 py-2 text-sm text-muted-foreground">
                             Nenhum cliente encontrado
                           </p>
                         ) : (
-                          filteredClients.slice(0, 20).map((client) => (
+                          filteredClients.slice(0, 20).map((client, index) => (
                             <button
                               key={client.id}
                               type="button"
-                              className="w-full px-3 py-2 text-left text-sm hover:bg-primary/10 focus:outline-none focus:bg-primary/10"
+                              className={`w-full px-3 py-3 text-left text-sm min-h-[44px] focus:outline-none active:bg-primary/20 ${
+                                index === highlightedClientIndex
+                                  ? 'bg-primary/10'
+                                  : 'hover:bg-primary/10'
+                              }`}
                               onMouseDown={(e) => {
                                 e.preventDefault()
                                 setClientId(client.id)
                                 setClientSearch(client.name)
                                 setIsClientDropdownOpen(false)
+                                addRecentClient(client.id)
                               }}
                             >
                               {client.name}

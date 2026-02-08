@@ -46,7 +46,7 @@ export function FilterBar({ filters, values, onChange, onReset, className }: Fil
   const hasValues = Object.values(values).some((v) => v !== '')
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-2 mb-4', className)}>
+    <div className={cn('flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 mb-4', className)}>
       {filters.map((filter) => (
         <FilterItem
           key={filter.name}
@@ -99,12 +99,12 @@ function SearchFilter({ config, value, onChange }: FilterItemProps) {
 
   return (
     <div className="relative">
-      <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
       <Input
         placeholder={config.placeholder || 'Buscar...'}
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        className="pl-8 w-48"
+        className="pl-9 h-11 w-full sm:w-56 md:w-64 text-base"
       />
     </div>
   )
@@ -121,7 +121,7 @@ function SelectFilter({ config, value, onChange }: FilterItemProps) {
 
   return (
     <Select value={value || '__all__'} onValueChange={handleChange}>
-      <SelectTrigger className="w-40">
+      <SelectTrigger className="w-full sm:w-44 h-11 text-base">
         <SelectValue placeholder={config.label || 'Selecione'} />
       </SelectTrigger>
       <SelectContent>

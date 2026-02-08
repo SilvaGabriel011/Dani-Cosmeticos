@@ -1,6 +1,7 @@
-import { type Prisma } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { type NextRequest, NextResponse } from 'next/server'
 
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { createClientSchema } from '@/schemas/client'
 
@@ -15,14 +16,8 @@ export async function GET(request: NextRequest) {
     const hasDebt = searchParams.get('hasDebt')
     const missingPhone = searchParams.get('missingPhone')
 
-    const where: Prisma.ClientWhereInput = {
+    let where: Prisma.ClientWhereInput = {
       deletedAt: null,
-      ...(search && {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' as const } },
-          { phone: { contains: search, mode: 'insensitive' as const } },
-        ],
-      }),
       ...(hasDebt === 'true' && {
         sales: {
           some: {
@@ -33,6 +28,38 @@ export async function GET(request: NextRequest) {
       ...(missingPhone === 'true' && {
         AND: [{ OR: [{ phone: null }, { phone: '' }] }],
       }),
+    }
+
+    // Multi-word accent-insensitive search via unaccent()
+    if (search.trim()) {
+      const words = search.trim().split(/\s+/).filter(Boolean)
+      const wordConditions = words.map(
+        (word) =>
+          Prisma.sql`(
+            unaccent("name") ILIKE unaccent(${'%' + word + '%'})
+            OR unaccent(COALESCE("phone", '')) ILIKE unaccent(${'%' + word + '%'})
+          )`
+      )
+      const searchCondition = wordConditions.reduce((acc, condition) =>
+        Prisma.sql`${acc} AND ${condition}`
+      )
+      const matchingIds = await prisma.$queryRaw<{ id: string }[]>(
+        Prisma.sql`
+          SELECT "id" FROM "Client"
+          WHERE "deletedAt" IS NULL
+          AND ${searchCondition}
+        `
+      )
+      const ids = matchingIds.map((r) => r.id)
+
+      if (ids.length === 0) {
+        return NextResponse.json({
+          data: [],
+          pagination: { page, limit, total: 0, totalPages: 0 },
+        })
+      }
+
+      where = { ...where, id: { in: ids } }
     }
 
     const [clients, total] = await Promise.all([
@@ -55,11 +82,8 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error fetching clients:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar clientes' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }
 
@@ -87,10 +111,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(client, { status: 201 })
   } catch (error) {
-    console.error('Error creating client:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao criar cliente' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

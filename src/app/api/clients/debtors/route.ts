@@ -41,10 +41,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cached)
     }
 
-    // Safe parameterized search filter
-    const searchFilter = search
-      ? Prisma.sql`AND (c."name" ILIKE ${'%' + search + '%'} OR c."phone" ILIKE ${'%' + search + '%'})`
-      : Prisma.empty
+    // Multi-word accent-insensitive search via unaccent()
+    let searchClause = Prisma.empty
+    if (search.trim()) {
+      const words = search.trim().split(/\s+/).filter(Boolean)
+      const wordConditions = words.map(
+        (word) =>
+          Prisma.sql`(
+            unaccent(c."name") ILIKE unaccent(${'%' + word + '%'})
+            OR unaccent(COALESCE(c."phone", '')) ILIKE unaccent(${'%' + word + '%'})
+          )`
+      )
+      const combined = wordConditions.reduce((acc, condition) =>
+        Prisma.sql`${acc} AND ${condition}`
+      )
+      searchClause = Prisma.sql`AND ${combined}`
+    }
 
     // Validate sortBy to prevent injection
     const validSortBy = (Object.keys(ORDER_BY_MAP) as ValidSortBy[]).includes(sortBy as ValidSortBy)
@@ -69,7 +81,7 @@ export async function GET(request: NextRequest) {
       FROM "Client" c
       INNER JOIN "Sale" s ON s."clientId" = c."id" AND s."status" = 'PENDING'
       WHERE c."deletedAt" IS NULL
-      ${searchFilter}
+      ${searchClause}
       GROUP BY c."id", c."name", c."phone", c."address", c."discount"
       HAVING SUM(s."total" - s."paidAmount") > 0
       ${orderByClause}

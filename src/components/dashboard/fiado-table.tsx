@@ -225,18 +225,18 @@ export function FiadoTable() {
           </div>
 
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="text-sm">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead className="text-center">Parcelas</TableHead>
-                  <TableHead className="text-right">Valor Pago</TableHead>
-                  <TableHead className="text-right">Valor da Parcela</TableHead>
-                  <TableHead className="text-right">Valor Restante</TableHead>
-                  <TableHead className="text-right hidden md:table-cell">Valor Total</TableHead>
-                  <TableHead className="hidden md:table-cell">Progresso</TableHead>
-                  <TableHead>Prox. Pagamento</TableHead>
-                  <TableHead className="text-center">Acao</TableHead>
+                  <TableHead className="whitespace-nowrap">Nome</TableHead>
+                  <TableHead className="text-center whitespace-nowrap">Parc.</TableHead>
+                  <TableHead className="text-right whitespace-nowrap hidden sm:table-cell">Pago</TableHead>
+                  <TableHead className="text-right whitespace-nowrap hidden lg:table-cell">Parcela</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">Restante</TableHead>
+                  <TableHead className="text-right whitespace-nowrap hidden xl:table-cell">Total</TableHead>
+                  <TableHead className="hidden xl:table-cell">Progresso</TableHead>
+                  <TableHead className="whitespace-nowrap">Venc.</TableHead>
+                  <TableHead className="text-center">Ação</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -254,16 +254,16 @@ export function FiadoTable() {
                       key={summary.saleId}
                       className={summary.isOverdue ? 'bg-red-50/60 dark:bg-red-950/20' : ''}
                     >
-                      <TableCell className="font-medium">{summary.clientName}</TableCell>
+                      <TableCell className="font-medium max-w-[120px] truncate" title={summary.clientName}>{summary.clientName}</TableCell>
                       <TableCell className="text-center">
-                        <span className="font-mono">
+                        <span className="font-mono text-xs">
                           {summary.paidInstallments}/{summary.totalInstallments}
                         </span>
                       </TableCell>
-                      <TableCell className="text-right text-green-600">
+                      <TableCell className="text-right text-green-600 hidden sm:table-cell">
                         {formatCurrency(summary.paidAmount)}
                       </TableCell>
-                      <TableCell className="text-right font-medium text-amber-700">
+                      <TableCell className="text-right font-medium text-amber-700 hidden lg:table-cell">
                         {summary.installmentAmount
                           ? formatCurrency(summary.installmentAmount)
                           : '-'}
@@ -271,10 +271,10 @@ export function FiadoTable() {
                       <TableCell className="text-right text-amber-600">
                         {formatCurrency(summary.totalAmount - summary.paidAmount)}
                       </TableCell>
-                      <TableCell className="text-right font-medium hidden md:table-cell">
+                      <TableCell className="text-right font-medium hidden xl:table-cell">
                         {formatCurrency(summary.totalAmount)}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden xl:table-cell">
                         <div className="w-20">
                           <div className="relative h-2 bg-muted rounded-full overflow-hidden">
                             <div
@@ -297,14 +297,12 @@ export function FiadoTable() {
                       </TableCell>
                       <TableCell>
                         {summary.nextDueDate ? (
-                          <div className="flex items-center gap-2">
-                            <span className={summary.isOverdue ? 'text-destructive' : ''}>
+                          <div className="flex items-center gap-1">
+                            <span className={`text-xs sm:text-sm ${summary.isOverdue ? 'text-destructive font-medium' : ''}`}>
                               {formatDate(summary.nextDueDate)}
                             </span>
                             {summary.isOverdue && (
-                              <Badge variant="destructive" className="text-sm">
-                                Vencido
-                              </Badge>
+                              <span className="text-destructive text-xs" title="Vencido">!</span>
                             )}
                           </div>
                         ) : (
@@ -312,22 +310,22 @@ export function FiadoTable() {
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-1">
+                        <div className="flex items-center justify-center gap-0.5">
                           <Button
                             variant="outline"
                             size="icon"
                             onClick={() => handleAddPayment(summary)}
                             disabled={!summary.nextReceivable}
-                            className="h-9 w-9"
+                            className="h-8 w-8"
                             title="Adicionar Pagamento"
                           >
-                            <Receipt className="h-5 w-5" />
+                            <Receipt className="h-4 w-4" />
                           </Button>
                           {summary.clientPhone && (
                             <Button
                               variant="outline"
                               size="icon"
-                              className="h-10 w-10 p-0 text-green-600 border-green-600 hover:bg-green-50 dark:hover:bg-green-950/30"
+                              className="h-8 w-8 p-0 text-green-600 border-green-600 hover:bg-green-50 dark:hover:bg-green-950/30"
                               asChild
                             >
                               <a
@@ -336,7 +334,7 @@ export function FiadoTable() {
                                 rel="noopener noreferrer"
                                 title="Abrir WhatsApp"
                               >
-                                <MessageCircle className="h-5 w-5" />
+                                <MessageCircle className="h-4 w-4" />
                               </a>
                             </Button>
                           )}

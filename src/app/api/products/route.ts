@@ -1,5 +1,7 @@
+import { Prisma } from '@prisma/client'
 import { type NextRequest, NextResponse } from 'next/server'
 
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { calculateSalePrice } from '@/lib/utils'
 import { createProductSchema } from '@/schemas/product'
@@ -16,17 +18,48 @@ export async function GET(request: NextRequest) {
     const brandId = searchParams.get('brandId')
     const priceStatus = searchParams.get('priceStatus')
 
-    const where = {
+    let where: Prisma.ProductWhereInput = {
       deletedAt: null,
-      ...(search && {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' as const } },
-          { code: { contains: search, mode: 'insensitive' as const } },
-        ],
-      }),
       ...(categoryId && { categoryId }),
       ...(brandId && { brandId }),
       ...(priceStatus === 'no-price' && { salePrice: { equals: 0 } }),
+    }
+
+    // Multi-word accent-insensitive search via unaccent()
+    // Searches: product name, code, brand name, category name
+    if (search.trim()) {
+      const words = search.trim().split(/\s+/).filter(Boolean)
+      const wordConditions = words.map(
+        (word) =>
+          Prisma.sql`(
+            unaccent(p."name") ILIKE unaccent(${'%' + word + '%'})
+            OR unaccent(COALESCE(p."code", '')) ILIKE unaccent(${'%' + word + '%'})
+            OR unaccent(COALESCE(b."name", '')) ILIKE unaccent(${'%' + word + '%'})
+            OR unaccent(COALESCE(c."name", '')) ILIKE unaccent(${'%' + word + '%'})
+          )`
+      )
+      const searchCondition = wordConditions.reduce((acc, condition) =>
+        Prisma.sql`${acc} AND ${condition}`
+      )
+      const matchingIds = await prisma.$queryRaw<{ id: string }[]>(
+        Prisma.sql`
+          SELECT p."id" FROM "Product" p
+          LEFT JOIN "Brand" b ON p."brandId" = b."id"
+          LEFT JOIN "Category" c ON p."categoryId" = c."id"
+          WHERE p."deletedAt" IS NULL
+          AND ${searchCondition}
+        `
+      )
+      const ids = matchingIds.map((r) => r.id)
+
+      if (ids.length === 0) {
+        return NextResponse.json({
+          data: [],
+          pagination: { page, limit, total: 0, totalPages: 0 },
+        })
+      }
+
+      where = { ...where, id: { in: ids } }
     }
 
     const [products, total] = await Promise.all([
@@ -50,11 +83,8 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error fetching products:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar produtos' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }
 
@@ -91,10 +121,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(product, { status: 201 })
   } catch (error) {
-    console.error('Error creating product:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao criar produto' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }
