@@ -17,12 +17,17 @@ export async function GET(request: NextRequest) {
     const categoryId = searchParams.get('categoryId')
     const brandId = searchParams.get('brandId')
     const priceStatus = searchParams.get('priceStatus')
+    const stockStatus = searchParams.get('stockStatus')
 
     let where: Prisma.ProductWhereInput = {
       deletedAt: null,
       ...(categoryId && { categoryId }),
       ...(brandId && { brandId }),
       ...(priceStatus === 'no-price' && { salePrice: { equals: 0 } }),
+      ...(stockStatus === 'zeroed' && {
+        stock: { equals: 0 },
+        stockMovements: { some: { type: 'SALE' } },
+      }),
     }
 
     // Multi-word accent-insensitive search via unaccent()

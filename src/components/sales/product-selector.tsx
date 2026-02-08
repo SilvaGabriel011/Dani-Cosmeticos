@@ -125,8 +125,21 @@ export function ProductSelector({ products, isLoading, onSelect }: ProductSelect
                         </span>
                       )}
                     </span>
-                    <span className="text-muted-foreground font-semibold shrink-0">
-                      {formatCurrency(Number(product.salePrice))}
+                    <span className="flex items-center gap-2 shrink-0">
+                      {product.stock > 0 && (
+                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                          product.stock <= product.minStock
+                            ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400'
+                            : product.stock <= product.minStock * 2
+                              ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400'
+                              : 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
+                        }`}>
+                          {product.stock} un.
+                        </span>
+                      )}
+                      <span className="text-muted-foreground font-semibold">
+                        {formatCurrency(Number(product.salePrice))}
+                      </span>
                     </span>
                   </button>
                 )

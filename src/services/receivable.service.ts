@@ -455,14 +455,8 @@ export const receivableService = {
   },
 
   async listSalesWithPendingReceivables(limit?: number) {
-    const pendingStatuses: ReceivableStatus[] = ['PENDING', 'PARTIAL']
     const where = {
       status: 'PENDING' as const,
-      receivables: {
-        some: {
-          status: { in: pendingStatuses },
-        },
-      },
     }
 
     const [sales, total] = await Promise.all([

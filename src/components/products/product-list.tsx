@@ -36,7 +36,7 @@ const stockStatusOptions = [
   { value: 'encomenda', label: 'Encomenda' },
 ]
 
-export type ProductTab = 'todos' | 'faltantes' | 'sem-valor' | 'encomendas'
+export type ProductTab = 'todos' | 'faltantes' | 'sem-valor' | 'encomendas' | 'zerados'
 
 interface ProductListProps {
   tab?: ProductTab
@@ -85,6 +85,7 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
     brandId: filters.brandId || undefined,
     limit: 500,
     ...(tab === 'sem-valor' && { priceStatus: 'no-price' as const }),
+    ...(tab === 'zerados' && { stockStatus: 'zeroed' as const }),
   })
 
   const { data: backordersData } = useBackorders()

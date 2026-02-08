@@ -12,6 +12,7 @@ interface ProductFilters {
   categoryId?: string
   brandId?: string
   priceStatus?: 'no-price'
+  stockStatus?: 'zeroed'
 }
 
 async function fetchProducts(filters: ProductFilters): Promise<PaginatedResult<Product>> {
@@ -22,6 +23,7 @@ async function fetchProducts(filters: ProductFilters): Promise<PaginatedResult<P
   if (filters.categoryId) params.set('categoryId', filters.categoryId)
   if (filters.brandId) params.set('brandId', filters.brandId)
   if (filters.priceStatus) params.set('priceStatus', filters.priceStatus)
+  if (filters.stockStatus) params.set('stockStatus', filters.stockStatus)
 
   const res = await fetch(`/api/products?${params}`)
   if (!res.ok) throw new Error('Erro ao buscar produtos')

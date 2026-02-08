@@ -24,6 +24,7 @@ import { type Client } from '@/types'
 
 import { ClientForm } from './client-form'
 import { ClientPurchasesModal } from './client-purchases-modal'
+import { ClientReceivablesPopover } from './client-receivables-popover'
 
 
 const discountOptions = [
@@ -172,7 +173,12 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
         <TableBody>
           {paginatedClients.map((client) => (
             <TableRow key={client.id}>
-              <TableCell className="font-medium">{client.name}</TableCell>
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-1.5">
+                  {client.name}
+                  <ClientReceivablesPopover clientId={client.id} clientName={client.name} />
+                </div>
+              </TableCell>
               <TableCell>{client.phone}</TableCell>
               <TableCell className="max-w-[200px] truncate">{client.address}</TableCell>
               <TableCell className="text-center">

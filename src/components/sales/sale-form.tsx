@@ -804,8 +804,26 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             onClick={() => { addItem(product); addRecentProduct(product.id) }}
                           >
                             <span className="font-medium">{product.name}</span>
-                            <span className="text-muted-foreground font-semibold">
-                              {formatCurrency(Number(product.salePrice))}
+                            <span className="flex items-center gap-2">
+                              {product.stock > 0 ? (
+                                <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                                  product.stock <= product.minStock
+                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400'
+                                    : product.stock <= product.minStock * 2
+                                      ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400'
+                                      : 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
+                                }`}>
+                                  {product.stock} un.
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1.5 py-0.5 rounded-full">
+                                  <Package className="h-2.5 w-2.5" />
+                                  Enc.
+                                </span>
+                              )}
+                              <span className="text-muted-foreground font-semibold">
+                                {formatCurrency(Number(product.salePrice))}
+                              </span>
                             </span>
                           </button>
                         ))}
@@ -841,8 +859,21 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                                 </span>
                               )}
                             </span>
-                            <span className="text-muted-foreground font-semibold">
-                              {formatCurrency(Number(product.salePrice))}
+                            <span className="flex items-center gap-2">
+                              {product.stock > 0 && (
+                                <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${
+                                  product.stock <= product.minStock
+                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400'
+                                    : product.stock <= product.minStock * 2
+                                      ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400'
+                                      : 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
+                                }`}>
+                                  {product.stock} un.
+                                </span>
+                              )}
+                              <span className="text-muted-foreground font-semibold">
+                                {formatCurrency(Number(product.salePrice))}
+                              </span>
                             </span>
                           </button>
                         ))}

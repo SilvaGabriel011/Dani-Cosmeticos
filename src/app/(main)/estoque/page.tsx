@@ -21,6 +21,7 @@ export default function EstoquePage() {
 
   const { data: allProducts } = useProducts({ limit: 200 })
   const { data: noPriceProducts } = useProducts({ limit: 1, priceStatus: 'no-price' })
+  const { data: zeradosProducts } = useProducts({ limit: 1, stockStatus: 'zeroed' })
 
   const faltantesCount = useMemo(() => {
     if (!allProducts?.data) return 0
@@ -28,6 +29,7 @@ export default function EstoquePage() {
   }, [allProducts])
 
   const semValorCount = noPriceProducts?.pagination?.total ?? 0
+  const zeradosCount = zeradosProducts?.pagination?.total ?? 0
 
   const { data: backordersData } = useBackorders()
   const encomendasCount = backordersData?.byProduct?.length ?? 0
@@ -74,6 +76,14 @@ export default function EstoquePage() {
               </Badge>
             )}
           </TabsTrigger>
+          <TabsTrigger value="zerados" className="gap-1.5">
+            Itens Zerados
+            {zeradosCount > 0 && (
+              <Badge variant="secondary" className="ml-1 bg-gray-100 text-gray-700 text-xs px-1.5 py-0">
+                {zeradosCount}
+              </Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="todos">
@@ -104,6 +114,14 @@ export default function EstoquePage() {
           <Card>
             <CardContent className="p-6">
               <ProductList tab="encomendas" />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="zerados">
+          <Card>
+            <CardContent className="p-6">
+              <ProductList tab="zerados" />
             </CardContent>
           </Card>
         </TabsContent>
