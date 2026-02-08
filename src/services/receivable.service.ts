@@ -455,11 +455,12 @@ export const receivableService = {
   },
 
   async listSalesWithPendingReceivables(limit?: number) {
+    const pendingStatuses: ReceivableStatus[] = ['PENDING', 'PARTIAL']
     const where = {
       status: 'PENDING' as const,
       receivables: {
         some: {
-          status: { in: ['PENDING', 'PARTIAL'] },
+          status: { in: pendingStatuses },
         },
       },
     }
