@@ -377,12 +377,12 @@ export function FiadoTable() {
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-0.5">
+                        <div className="flex items-center justify-center gap-1">
                           <Button
                             variant={expandedSaleId === summary.saleId ? 'default' : 'outline'}
                             size="icon"
                             onClick={() => handleToggleItems(summary.saleId)}
-                            className="h-8 w-8"
+                            className={`h-9 w-9 ${expandedSaleId === summary.saleId ? '' : 'text-purple-600 border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/30'}`}
                             title="Ver Itens"
                           >
                             {expandedSaleId === summary.saleId ? (
@@ -396,7 +396,7 @@ export function FiadoTable() {
                             size="icon"
                             onClick={() => handleAddPayment(summary)}
                             disabled={!summary.nextReceivable}
-                            className="h-8 w-8"
+                            className="h-9 w-9 text-blue-600 border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                             title="Adicionar Pagamento"
                           >
                             <Receipt className="h-4 w-4" />
@@ -405,7 +405,7 @@ export function FiadoTable() {
                             <Button
                               variant="outline"
                               size="icon"
-                              className="h-8 w-8 p-0 text-green-600 border-green-600 hover:bg-green-50 dark:hover:bg-green-950/30"
+                              className="h-9 w-9 p-0 text-green-600 border-green-300 hover:bg-green-50 dark:hover:bg-green-950/30"
                               asChild
                             >
                               <a
