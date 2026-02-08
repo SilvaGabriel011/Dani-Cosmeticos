@@ -136,12 +136,26 @@ export function FiadoTable() {
           .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
 
         const nextReceivable = pendingReceivables[0] || null
-        const nextDueDate = nextReceivable ? new Date(nextReceivable.dueDate) : null
+        const remainingBalance = totalAmount - paidAmount
+
+        // If no pending receivable but sale still has balance, create a synthetic receivable
+        const effectiveReceivable = nextReceivable || (remainingBalance > 0 ? {
+          id: `synthetic-${sale.id}`,
+          saleId: sale.id,
+          installment: 1,
+          amount: remainingBalance,
+          paidAmount: 0,
+          dueDate: sale.dueDate || sale.createdAt,
+          status: 'PENDING' as const,
+          createdAt: sale.createdAt,
+        } : null)
+
+        const nextDueDate = effectiveReceivable ? new Date(effectiveReceivable.dueDate) : null
         const isOverdue = nextDueDate ? nextDueDate < now : false
 
         // Create a receivable with sale reference for the modal
-        const nextReceivableWithSale: ReceivableWithSale | null = nextReceivable
-          ? { ...nextReceivable, sale: { ...sale, client: sale.client } }
+        const nextReceivableWithSale: ReceivableWithSale | null = effectiveReceivable
+          ? { ...effectiveReceivable, sale: { ...sale, client: sale.client } } as ReceivableWithSale
           : null
 
         const installmentAmount = sale.fixedInstallmentAmount

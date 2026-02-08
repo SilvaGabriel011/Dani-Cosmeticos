@@ -219,7 +219,26 @@ export const receivableService = {
     })
 
     if (receivables.length === 0) {
-      throw new Error('Nenhuma parcela pendente encontrada para esta venda')
+      // Auto-create a receivable for sales with remaining balance but no pending receivables
+      const sale = await prisma.sale.findUnique({ where: { id: saleId } })
+      if (!sale) throw new Error('Venda não encontrada')
+
+      const saleRemaining = Number(sale.total) - Number(sale.paidAmount)
+      if (saleRemaining <= PAYMENT_TOLERANCE) {
+        throw new Error('Nenhuma parcela pendente encontrada para esta venda')
+      }
+
+      const created = await prisma.receivable.create({
+        data: {
+          saleId,
+          installment: 1,
+          amount: saleRemaining,
+          paidAmount: 0,
+          dueDate: sale.dueDate || new Date(),
+          status: 'PENDING',
+        },
+      })
+      receivables.push(created)
     }
 
     // Calculate total remaining for the sale
