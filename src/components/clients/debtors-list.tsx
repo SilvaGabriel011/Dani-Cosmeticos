@@ -1,8 +1,9 @@
 'use client'
 
-import { Search, Users } from 'lucide-react'
-import { useState } from 'react'
+import { Search, Users, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -20,9 +21,12 @@ import { DebtorCard } from './debtor-card'
 
 type SortOption = 'totalDebt' | 'overdueAmount' | 'oldestDueDate' | 'name'
 
+const ITEMS_PER_PAGE = 10
+
 export function DebtorsList() {
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<SortOption>('totalDebt')
+  const [currentPage, setCurrentPage] = useState(1)
   const debouncedSearch = useDebounce(search, 300)
 
   const { data: debtors, isLoading } = useDebtors({
@@ -35,6 +39,16 @@ export function DebtorsList() {
 
   const totalDebt = debtors?.reduce((sum, d) => sum + d.totalDebt, 0) || 0
   const totalOverdue = debtors?.reduce((sum, d) => sum + d.overdueAmount, 0) || 0
+
+  const totalPages = Math.max(1, Math.ceil((debtors?.length || 0) / ITEMS_PER_PAGE))
+  const paginatedDebtors = useMemo(
+    () => (debtors || []).slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [debtors, currentPage]
+  )
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearch, sortBy])
 
   if (showSkeleton) {
     return (
@@ -99,9 +113,55 @@ export function DebtorsList() {
 
       {debtors && debtors.length > 0 ? (
         <div className="space-y-4">
-          {debtors.map((debtor) => (
+          {paginatedDebtors.map((debtor) => (
             <DebtorCard key={debtor.client.id} debtor={debtor} />
           ))}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t pt-4">
+              <span className="text-sm text-muted-foreground">
+                {debtors.length} devedor{debtors.length !== 1 ? 'es' : ''} &middot; Página {currentPage} de {totalPages}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronsLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronsRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="text-center py-12 text-muted-foreground">

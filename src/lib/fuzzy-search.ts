@@ -121,7 +121,7 @@ export function fuzzyMatch(text: string, query: string): number {
   const density = totalMatches / textLower.length
   const consecutiveBonus = maxConsecutive / queryLower.length
 
-  return Math.min(0.8, (coverage * 0.4 + density * 0.3 + consecutiveBonus * 0.3))
+  return Math.min(0.45, (coverage * 0.25 + density * 0.25 + consecutiveBonus * 0.5))
 }
 
 /**

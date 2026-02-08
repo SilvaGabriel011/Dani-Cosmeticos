@@ -1,7 +1,7 @@
 'use client'
 
-import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react'
-import { useMemo, useState, useCallback, memo } from 'react'
+import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { useMemo, useState, useCallback, useEffect, memo } from 'react'
 
 import { ReceivePaymentDialog } from '@/components/sales/receive-payment-dialog'
 import { Badge } from '@/components/ui/badge'
@@ -59,11 +59,14 @@ interface SaleListProps {
   tab?: SaleTab
 }
 
+const ITEMS_PER_PAGE = 20
+
 export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps) {
   const { toast } = useToast()
   const [paymentSale, setPaymentSale] = useState<Sale | null>(null)
   const [cancelSaleId, setCancelSaleId] = useState<string | null>(null)
   const [expandedSaleIds, setExpandedSaleIds] = useState<Set<string>>(new Set())
+  const [currentPage, setCurrentPage] = useState(1)
 
   const toggleExpanded = useCallback((saleId: string) => {
     setExpandedSaleIds((prev) => {
@@ -120,6 +123,17 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
     startDate: dateRange.startDate || undefined,
     endDate: dateRange.endDate || undefined,
   })
+
+  const sales = useMemo(() => data?.data || [], [data])
+  const totalPages = Math.max(1, Math.ceil(sales.length / ITEMS_PER_PAGE))
+  const paginatedSales = useMemo(
+    () => sales.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [sales, currentPage]
+  )
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters.period, filters.status, filters.categoryId, filters.productId, filters.paymentMethod, tab])
 
   const cancelSale = useCancelSale()
 
@@ -212,7 +226,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.data.map((sale) => {
+          {paginatedSales.map((sale) => {
             const isExpanded = expandedSaleIds.has(sale.id)
             const saleItems = sale.items as unknown as Array<{
               id: string
@@ -415,6 +429,52 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
           })}
         </TableBody>
       </Table>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t pt-4">
+          <span className="text-sm text-muted-foreground">
+            {sales.length} venda{sales.length !== 1 ? 's' : ''} &middot; Página {currentPage} de {totalPages}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <ReceivePaymentDialog
         open={!!paymentSale}

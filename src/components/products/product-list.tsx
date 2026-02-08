@@ -1,7 +1,7 @@
 'use client'
 
-import { Pencil, Trash2, AlertTriangle, Package } from 'lucide-react'
-import { useState, useMemo, useCallback, memo } from 'react'
+import { Pencil, Trash2, AlertTriangle, Package, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { useState, useMemo, useCallback, useEffect, memo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -42,10 +42,13 @@ interface ProductListProps {
   tab?: ProductTab
 }
 
+const ITEMS_PER_PAGE = 20
+
 export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductListProps) {
   const { toast } = useToast()
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
@@ -161,6 +164,16 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
     })
   }, [data, filters.stockStatus, filters.search, backordersByProduct, backordersData?.byProduct, tab])
 
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE))
+  const paginatedProducts = useMemo(
+    () => filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [filteredProducts, currentPage]
+  )
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters.search, filters.categoryId, filters.brandId, filters.stockStatus, tab])
+
   const deleteProduct = useDeleteProduct()
 
   const handleDelete = async () => {
@@ -246,7 +259,7 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredProducts.map((product) => {
+          {paginatedProducts.map((product) => {
             const stockStatus = getStockStatus(product.stock, product.minStock)
             return (
               <TableRow key={product.id} className={backordersByProduct.has(product.id) ? 'bg-amber-50/50 dark:bg-amber-950/20' : ''}>
@@ -304,6 +317,52 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
           })}
         </TableBody>
       </Table>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t pt-4">
+          <span className="text-sm text-muted-foreground">
+            {filteredProducts.length} produto{filteredProducts.length !== 1 ? 's' : ''} &middot; Página {currentPage} de {totalPages}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <ProductForm
         open={!!editingProduct}

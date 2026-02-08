@@ -1,7 +1,7 @@
 'use client'
 
-import { MessageCircle, Pencil, Receipt, Trash2, ShoppingCart } from 'lucide-react'
-import { useState, useMemo, useCallback, memo } from 'react'
+import { MessageCircle, Pencil, Receipt, Trash2, ShoppingCart, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { useState, useMemo, useCallback, useEffect, memo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -39,11 +39,14 @@ interface ClientListProps {
   tab?: ClientTab
 }
 
+const ITEMS_PER_PAGE = 20
+
 export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }: ClientListProps) {
   const { toast } = useToast()
   const [editingClient, setEditingClient] = useState<Client | null>(null)
   const [deletingClient, setDeletingClient] = useState<Client | null>(null)
   const [purchasesClient, setPurchasesClient] = useState<Client | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
@@ -75,6 +78,16 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
 
     return clients
   }, [data, filters.discountFilter])
+
+  const totalPages = Math.max(1, Math.ceil(filteredClients.length / ITEMS_PER_PAGE))
+  const paginatedClients = useMemo(
+    () => filteredClients.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [filteredClients, currentPage]
+  )
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters.search, filters.discountFilter, tab])
 
   const deleteClient = useDeleteClient()
 
@@ -157,7 +170,7 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredClients.map((client) => (
+          {paginatedClients.map((client) => (
             <TableRow key={client.id}>
               <TableCell className="font-medium">{client.name}</TableCell>
               <TableCell>{client.phone}</TableCell>
@@ -220,6 +233,52 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
           ))}
         </TableBody>
       </Table>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t pt-4">
+          <span className="text-sm text-muted-foreground">
+            {filteredClients.length} cliente{filteredClients.length !== 1 ? 's' : ''} &middot; Página {currentPage} de {totalPages}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <ClientForm
         open={!!editingClient}

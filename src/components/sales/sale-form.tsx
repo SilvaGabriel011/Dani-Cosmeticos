@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle } from 'lucide-react'
+import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle, Pencil } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -32,7 +32,7 @@ import { useRecentSelections } from '@/hooks/use-recent-selections'
 import { useCreateSale, useClientPendingSales, useAddItemsToSale } from '@/hooks/use-sales'
 import { useSettings } from '@/hooks/use-settings'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
-import { fuzzySearch } from '@/lib/fuzzy-search'
+import Fuse from 'fuse.js'
 import { formatCurrency } from '@/lib/utils'
 import { type Product } from '@/types'
 
@@ -128,17 +128,36 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const debouncedProductSearch = useDebounce(productSearch, 200)
   const { data: serverSearchData } = useProductsOnDemand(debouncedProductSearch, debouncedProductSearch.length >= 2)
 
-  const filteredProducts = useMemo(() => {
-    // Show all products, sorted: in-stock first, then out-of-stock
-    const sorted = [...products].sort((a, b) => {
+  // Sort products: in-stock first, then out-of-stock
+  const sortedProducts = useMemo(() => {
+    return [...products].sort((a, b) => {
       if (a.stock > 0 && b.stock <= 0) return -1
       if (a.stock <= 0 && b.stock > 0) return 1
       return 0
     })
-    if (!productSearch.trim()) return sorted
+  }, [products])
 
-    // Client-side fuzzy search on loaded products
-    const localResults = fuzzySearch(sorted, productSearch, (p) => [p.name, p.code || '', p.brand?.name || '', p.category?.name || ''], 0.2)
+  // Fuse.js instance for products
+  const productFuse = useMemo(() => {
+    return new Fuse(sortedProducts, {
+      keys: [
+        { name: 'name', weight: 2 },
+        { name: 'code', weight: 1 },
+        { name: 'brand.name', weight: 0.7 },
+        { name: 'category.name', weight: 0.5 },
+      ],
+      threshold: 0.4,
+      includeScore: true,
+      ignoreLocation: true,
+      minMatchCharLength: 1,
+    })
+  }, [sortedProducts])
+
+  const filteredProducts = useMemo(() => {
+    if (!productSearch.trim()) return sortedProducts
+
+    // Client-side Fuse.js search on loaded products
+    const localResults = productFuse.search(productSearch, { limit: 100 }).map((r) => r.item)
 
     // Merge server-side results (covers products beyond the loaded limit)
     const serverResults = serverSearchData?.data || []
@@ -146,7 +165,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     const extra = serverResults.filter((p) => !localIds.has(p.id))
 
     return [...localResults, ...extra]
-  }, [products, productSearch, serverSearchData])
+  }, [sortedProducts, productSearch, productFuse, serverSearchData])
 
   const visibleProducts = useMemo(() => {
     return filteredProducts.slice(0, visibleProductsCount)
@@ -163,15 +182,32 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
   useEffect(() => {
     setVisibleProductsCount(20)
+    if (productListRef.current) {
+      productListRef.current.scrollTop = 0
+    }
   }, [productSearch])
 
   const selectedClient = clients.find((c) => c.id === clientId)
 
+  // Fuse.js instance for clients
+  const clientFuse = useMemo(() => {
+    return new Fuse(clients, {
+      keys: [
+        { name: 'name', weight: 2 },
+        { name: 'phone', weight: 1 },
+      ],
+      threshold: 0.4,
+      includeScore: true,
+      ignoreLocation: true,
+      minMatchCharLength: 1,
+    })
+  }, [clients])
+
   // Filtered clients for autocomplete
   const filteredClients = useMemo(() => {
     if (!clientSearch.trim()) return clients
-    return fuzzySearch(clients, clientSearch, (c) => [c.name, c.phone || ''])
-  }, [clients, clientSearch])
+    return clientFuse.search(clientSearch, { limit: 50 }).map((r) => r.item)
+  }, [clients, clientSearch, clientFuse])
 
   // Recent clients resolved from IDs
   const recentClients = useMemo(() => {
@@ -1196,8 +1232,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             <Trash2 className="h-3.5 w-3.5 text-destructive" />
                           </Button>
                         </div>
-                        {/* Linha 2: Qty + Preço editável + Total */}
-                        <div className="flex items-center gap-2">
+                        {/* Linha 2: Qty + Total */}
+                        <div className="flex items-center justify-between gap-2">
                           {/* Quantidade compacta */}
                           <div className="flex items-center gap-0.5 shrink-0">
                             <Button
@@ -1220,41 +1256,68 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                               <Plus className="h-3.5 w-3.5" />
                             </Button>
                           </div>
-                          {/* Preço editável */}
-                          <div className="flex-1 flex items-center gap-1">
-                            <span className="text-xs text-muted-foreground">×</span>
-                            <div className="relative flex-1">
-                              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">R$</span>
-                              <Input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                className={`h-8 pl-7 pr-2 text-right text-sm font-medium border rounded transition-all ${
-                                  item.unitPrice !== item.originalPrice
-                                    ? item.unitPrice < item.originalPrice
-                                      ? 'border-green-300 bg-green-50/50 focus:border-green-500'
-                                      : 'border-orange-300 bg-orange-50/50 focus:border-orange-500'
-                                    : 'border-gray-200 bg-white focus:border-primary'
-                                }`}
-                                value={item.unitPrice}
-                                onChange={(e) => updateItemPrice(item.product.id, Number(e.target.value))}
-                              />
-                            </div>
-                          </div>
                           {/* Total do item */}
                           <span className="text-sm font-bold text-primary shrink-0 min-w-[70px] text-right">
                             {formatCurrency(item.totalPrice)}
                           </span>
                         </div>
-                        {/* Indicador de promoção */}
-                        {item.unitPrice !== item.originalPrice && (
-                          <div className={`text-xs font-medium mt-1 ${item.unitPrice < item.originalPrice ? 'text-green-600' : 'text-orange-600'}`}>
-                            {item.unitPrice < item.originalPrice
-                              ? `Promoção: -${((1 - item.unitPrice / item.originalPrice) * 100).toFixed(0)}%`
-                              : `Acréscimo: +${((item.unitPrice / item.originalPrice - 1) * 100).toFixed(0)}%`}
-                            <span className="text-muted-foreground ml-1">(era {formatCurrency(item.originalPrice)})</span>
+                        {/* Bloco de preço editável - mini-card */}
+                        <div className={`mt-2 p-2.5 rounded-lg border-2 border-dashed transition-all ${
+                          item.unitPrice !== item.originalPrice
+                            ? item.unitPrice < item.originalPrice
+                              ? 'border-green-400 bg-green-50/60'
+                              : 'border-orange-400 bg-orange-50/60'
+                            : 'border-red-300 bg-red-50/40 hover:border-red-400 hover:bg-red-50/60'
+                        }`}>
+                          <div className="flex items-center justify-between gap-2">
+                            <label className={`text-xs font-semibold flex items-center gap-1 ${
+                              item.unitPrice !== item.originalPrice
+                                ? item.unitPrice < item.originalPrice ? 'text-green-700' : 'text-orange-700'
+                                : 'text-red-600'
+                            }`}>
+                              <Pencil className="h-3 w-3" />
+                              Preço unitário
+                            </label>
+                            {item.unitPrice !== item.originalPrice && (
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                                item.unitPrice < item.originalPrice
+                                  ? 'bg-green-200 text-green-800'
+                                  : 'bg-orange-200 text-orange-800'
+                              }`}>
+                                {item.unitPrice < item.originalPrice
+                                  ? `-${((1 - item.unitPrice / item.originalPrice) * 100).toFixed(0)}%`
+                                  : `+${((item.unitPrice / item.originalPrice - 1) * 100).toFixed(0)}%`}
+                              </span>
+                            )}
                           </div>
-                        )}
+                          <div className="relative mt-1.5 group/price">
+                            <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium ${
+                              item.unitPrice !== item.originalPrice
+                                ? item.unitPrice < item.originalPrice ? 'text-green-600' : 'text-orange-600'
+                                : 'text-red-400'
+                            }`}>R$</span>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              className={`h-10 pl-9 pr-3 text-right text-base font-bold rounded-md transition-all cursor-pointer border-2 ${
+                                item.unitPrice !== item.originalPrice
+                                  ? item.unitPrice < item.originalPrice
+                                    ? 'border-green-300 bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200'
+                                    : 'border-orange-300 bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
+                                  : 'border-red-200 bg-white hover:border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                              }`}
+                              value={item.unitPrice}
+                              onChange={(e) => updateItemPrice(item.product.id, Number(e.target.value))}
+                              title="Altere o preço para aplicar promoção"
+                            />
+                          </div>
+                          {item.unitPrice !== item.originalPrice && (
+                            <p className="text-[10px] text-muted-foreground mt-1">
+                              Preço original: {formatCurrency(item.originalPrice)}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
