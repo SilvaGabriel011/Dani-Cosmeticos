@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useSales } from '@/hooks/use-sales'
 
 export default function VendasPage() {
@@ -28,21 +29,43 @@ export default function VendasPage() {
         </Button>
       </PageHeader>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as SaleTab)}>
-        <TabsList>
-          <TabsTrigger value="todas">Todas</TabsTrigger>
-          <TabsTrigger value="fiado" className="gap-1.5">
-            Fiado
-            {fiadoCount > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-orange-100 text-orange-700 text-xs px-1.5 py-0">
-                {fiadoCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="concluidas">
-            Concluídas
-          </TabsTrigger>
-        </TabsList>
+      <TooltipProvider>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as SaleTab)}>
+          <TabsList>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="todas">Todas</TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Exibe todas as vendas realizadas, independente do status de pagamento</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="fiado" className="gap-1.5">
+                  Fiado
+                  {fiadoCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 bg-orange-100 text-orange-700 text-xs px-1.5 py-0">
+                      {fiadoCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Vendas a prazo com pagamento pendente ou parcial</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="concluidas">
+                  Concluídas
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Vendas com pagamento totalmente finalizado</p>
+              </TooltipContent>
+            </Tooltip>
+          </TabsList>
 
         <TabsContent value="todas">
           <Card>
@@ -60,14 +83,15 @@ export default function VendasPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="concluidas">
-          <Card>
-            <CardContent className="p-6">
-              <SaleList tab="concluidas" />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="concluidas">
+            <Card>
+              <CardContent className="p-6">
+                <SaleList tab="concluidas" />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </TooltipProvider>
 
       <SaleForm open={isFormOpen} onOpenChange={setIsFormOpen} />
     </div>

@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useClients } from '@/hooks/use-clients'
 import { type Client } from '@/types'
 
@@ -46,26 +47,48 @@ export default function ClientesPage() {
         </div>
       </PageHeader>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ClientTab)}>
-        <TabsList>
-          <TabsTrigger value="todos">Todos</TabsTrigger>
-          <TabsTrigger value="devedores" className="gap-1.5">
-            Devedores
-            {devedoresCount > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-xs px-1.5 py-0">
-                {devedoresCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="sem-telefone" className="gap-1.5">
-            Sem Telefone
-            {semTelefoneCount > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-yellow-100 text-yellow-800 text-xs px-1.5 py-0">
-                {semTelefoneCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
+      <TooltipProvider>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ClientTab)}>
+          <TabsList>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="todos">Todos</TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Exibe todos os clientes cadastrados no sistema</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="devedores" className="gap-1.5">
+                  Devedores
+                  {devedoresCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-xs px-1.5 py-0">
+                      {devedoresCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Clientes com débitos pendentes ou parcelas em aberto</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="sem-telefone" className="gap-1.5">
+                  Sem Telefone
+                  {semTelefoneCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 bg-yellow-100 text-yellow-800 text-xs px-1.5 py-0">
+                      {semTelefoneCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Clientes sem número de telefone cadastrado</p>
+              </TooltipContent>
+            </Tooltip>
+          </TabsList>
 
         <TabsContent value="todos">
           <Card>
@@ -83,14 +106,15 @@ export default function ClientesPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="sem-telefone">
-          <Card>
-            <CardContent className="p-6">
-              <ClientList onNewSale={handleNewSale} tab="sem-telefone" />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="sem-telefone">
+            <Card>
+              <CardContent className="p-6">
+                <ClientList onNewSale={handleNewSale} tab="sem-telefone" />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </TooltipProvider>
 
       <ClientForm open={isFormOpen} onOpenChange={setIsFormOpen} />
 

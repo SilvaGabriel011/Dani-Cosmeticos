@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useBackorders } from '@/hooks/use-backorders'
 import { useProducts } from '@/hooks/use-products'
 
@@ -49,42 +50,78 @@ export default function EstoquePage() {
         </div>
       </PageHeader>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProductTab)}>
-        <TabsList>
-          <TabsTrigger value="todos">Todos</TabsTrigger>
-          <TabsTrigger value="faltantes" className="gap-1.5">
-            Faltantes
-            {faltantesCount > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-xs px-1.5 py-0">
-                {faltantesCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="sem-valor" className="gap-1.5">
-            Sem Valor
-            {semValorCount > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-yellow-100 text-yellow-800 text-xs px-1.5 py-0">
-                {semValorCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="encomendas" className="gap-1.5">
-            Encomendas
-            {encomendasCount > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-amber-100 text-amber-700 text-xs px-1.5 py-0">
-                {encomendasCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="zerados" className="gap-1.5">
-            Itens Zerados
-            {zeradosCount > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-gray-100 text-gray-700 text-xs px-1.5 py-0">
-                {zeradosCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
+      <TooltipProvider>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ProductTab)}>
+          <TabsList>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="todos">Todos</TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Exibe todos os produtos cadastrados no sistema</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="faltantes" className="gap-1.5">
+                  Faltantes
+                  {faltantesCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-xs px-1.5 py-0">
+                      {faltantesCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Produtos com estoque atual abaixo ou igual ao estoque mínimo configurado</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="sem-valor" className="gap-1.5">
+                  Sem Valor
+                  {semValorCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 bg-yellow-100 text-yellow-800 text-xs px-1.5 py-0">
+                      {semValorCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Produtos que não possuem preço de venda cadastrado (R$ 0,00)</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="encomendas" className="gap-1.5">
+                  Encomendas
+                  {encomendasCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 bg-amber-100 text-amber-700 text-xs px-1.5 py-0">
+                      {encomendasCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Produtos com pedidos pendentes (backorders) aguardando reposição de estoque</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="zerados" className="gap-1.5">
+                  Itens Zerados
+                  {zeradosCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 bg-gray-100 text-gray-700 text-xs px-1.5 py-0">
+                      {zeradosCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Produtos com estoque zerado que já tiveram movimentação de vendas</p>
+              </TooltipContent>
+            </Tooltip>
+          </TabsList>
 
         <TabsContent value="todos">
           <Card>
@@ -118,14 +155,15 @@ export default function EstoquePage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="zerados">
-          <Card>
-            <CardContent className="p-6">
-              <ProductList tab="zerados" />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="zerados">
+            <Card>
+              <CardContent className="p-6">
+                <ProductList tab="zerados" />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </TooltipProvider>
 
       <ProductForm open={isFormOpen} onOpenChange={setIsFormOpen} />
       <ProductCSVImport open={isImportOpen} onOpenChange={setIsImportOpen} />

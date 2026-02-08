@@ -12,6 +12,7 @@ import { SaleForm } from '@/components/sales/sale-form'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useBackorders } from '@/hooks/use-backorders'
 import { useProductStats } from '@/hooks/use-products'
 import { useSalesWithPendingReceivables } from '@/hooks/use-receivables'
@@ -70,40 +71,56 @@ export default function DashboardPage() {
         </div>
       </PageHeader>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as DashboardTab)}>
-        <TabsList className="h-14 p-1">
-          <TabsTrigger value="fiado" className="gap-2 text-base px-6 py-3 h-12">
-            <CreditCard className="h-5 w-5" />
-            Fiado
-            {overdueCount > 0 ? (
-              <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-sm px-2 py-0.5">
-                {overdueCount} venc.
-              </Badge>
-            ) : fiadoCount > 0 ? (
-              <Badge variant="secondary" className="ml-1 text-sm px-2 py-0.5">
-                {fiadoCount}
-              </Badge>
-            ) : null}
-          </TabsTrigger>
-          <TabsTrigger value="estoque" className="gap-2 text-base px-6 py-3 h-12">
-            <Package className="h-5 w-5" />
-            Estoque
-            {stockAlertCount > 0 && (
-              <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-sm px-2 py-0.5">
-                {stockAlertCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
+      <TooltipProvider>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as DashboardTab)}>
+          <TabsList className="h-14 p-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="fiado" className="gap-2 text-base px-6 py-3 h-12">
+                  <CreditCard className="h-5 w-5" />
+                  Fiado
+                  {overdueCount > 0 ? (
+                    <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-sm px-2 py-0.5">
+                      {overdueCount} venc.
+                    </Badge>
+                  ) : fiadoCount > 0 ? (
+                    <Badge variant="secondary" className="ml-1 text-sm px-2 py-0.5">
+                      {fiadoCount}
+                    </Badge>
+                  ) : null}
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Vendas a prazo com pagamentos pendentes. Destaca vendas com parcelas vencidas</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsTrigger value="estoque" className="gap-2 text-base px-6 py-3 h-12">
+                  <Package className="h-5 w-5" />
+                  Estoque
+                  {stockAlertCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-sm px-2 py-0.5">
+                      {stockAlertCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Produtos com estoque baixo ou com pedidos pendentes aguardando reposição</p>
+              </TooltipContent>
+            </Tooltip>
+          </TabsList>
 
         <TabsContent value="fiado">
           <FiadoTable />
         </TabsContent>
 
-        <TabsContent value="estoque">
-          <StockOverviewTable />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="estoque">
+            <StockOverviewTable />
+          </TabsContent>
+        </Tabs>
+      </TooltipProvider>
 
       <SaleForm open={saleFormOpen} onOpenChange={setSaleFormOpen} />
       <ProductForm open={productFormOpen} onOpenChange={setProductFormOpen} />
