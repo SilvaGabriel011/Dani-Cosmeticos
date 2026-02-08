@@ -66,9 +66,9 @@ export function FiadoTable() {
 
   // Process sales data to create summaries with correct installment counts
   const saleSummaries = useMemo(() => {
-    if (!salesData) return []
+    if (!salesData?.data) return []
 
-    const sales = salesData as SaleWithReceivables[]
+    const sales = salesData.data as SaleWithReceivables[]
     const now = new Date()
 
     return sales

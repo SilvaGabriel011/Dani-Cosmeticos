@@ -156,12 +156,17 @@ export function usePaySaleReceivables() {
   })
 }
 
+interface SalesWithReceivablesResult {
+  data: unknown[]
+  total: number
+}
+
 export function useSalesWithPendingReceivables(limit?: number) {
   const params = new URLSearchParams()
   params.set('groupBySale', 'true')
   if (limit) params.set('limit', String(limit))
 
-  return useQuery({
+  return useQuery<SalesWithReceivablesResult>({
     queryKey: ['salesWithReceivables', limit],
     queryFn: async () => {
       const res = await fetch(`/api/receivables?${params}`)

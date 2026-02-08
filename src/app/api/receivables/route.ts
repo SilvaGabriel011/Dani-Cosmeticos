@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
 
     if (groupBySale) {
       const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 100
-      const data = await receivableService.listSalesWithPendingReceivables(limit)
-      return NextResponse.json(data)
+      const result = await receivableService.listSalesWithPendingReceivables(limit)
+      return NextResponse.json(result)
     }
 
     const rawStatus = searchParams.get('status') || undefined

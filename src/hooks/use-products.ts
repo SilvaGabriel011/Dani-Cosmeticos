@@ -132,3 +132,23 @@ export function useDeleteProduct() {
     },
   })
 }
+
+interface ProductStats {
+  lowStockCount: number
+  totalProducts: number
+}
+
+async function fetchProductStats(): Promise<ProductStats> {
+  const res = await fetch('/api/products/stats')
+  if (!res.ok) throw new Error('Erro ao buscar estatísticas de produtos')
+  return res.json()
+}
+
+export function useProductStats() {
+  return useQuery({
+    queryKey: ['products', 'stats'],
+    queryFn: fetchProductStats,
+    staleTime: 2 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+}

@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useBackorders } from '@/hooks/use-backorders'
-import { useProducts } from '@/hooks/use-products'
+import { useProductStats } from '@/hooks/use-products'
 import { useSalesWithPendingReceivables } from '@/hooks/use-receivables'
 
 type DashboardTab = 'estoque' | 'fiado'
@@ -23,25 +23,23 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<DashboardTab>('fiado')
 
   const { data: backordersData } = useBackorders()
-  const { data: productsData } = useProducts({ limit: 500 })
+  const { data: productStats } = useProductStats()
   const { data: salesData } = useSalesWithPendingReceivables(500)
 
   const stockAlertCount = useMemo(() => {
-    if (!productsData?.data) return 0
-    const lowStock = productsData.data.filter((p) => p.stock <= p.minStock).length
+    const lowStock = productStats?.lowStockCount || 0
     const pendingBackorders = backordersData?.totalPendingItems || 0
     return lowStock + pendingBackorders
-  }, [productsData, backordersData])
+  }, [productStats, backordersData])
 
   const fiadoCount = useMemo(() => {
-    if (!salesData) return 0
-    return (salesData as unknown[]).length
+    return salesData?.total || 0
   }, [salesData])
 
   const overdueCount = useMemo(() => {
-    if (!salesData) return 0
+    if (!salesData?.data) return 0
     const now = new Date()
-    return (salesData as { receivables: { status: string; dueDate: string }[] }[]).filter(
+    return (salesData.data as { receivables: { status: string; dueDate: string }[] }[]).filter(
       (sale) =>
         sale.receivables.some(
           (r) =>

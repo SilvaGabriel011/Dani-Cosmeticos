@@ -455,25 +455,30 @@ export const receivableService = {
   },
 
   async listSalesWithPendingReceivables(limit?: number) {
-    const sales = await prisma.sale.findMany({
-      where: {
-        status: 'PENDING',
-        receivables: {
-          some: {
-            status: { in: ['PENDING', 'PARTIAL'] },
+    const where = {
+      status: 'PENDING' as const,
+      receivables: {
+        some: {
+          status: { in: ['PENDING', 'PARTIAL'] as const[] },
+        },
+      },
+    }
+
+    const [sales, total] = await Promise.all([
+      prisma.sale.findMany({
+        where,
+        include: {
+          client: true,
+          receivables: {
+            orderBy: { installment: 'asc' },
           },
         },
-      },
-      include: {
-        client: true,
-        receivables: {
-          orderBy: { installment: 'asc' },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit || 100,
-    })
+        orderBy: { createdAt: 'desc' },
+        take: limit || 100,
+      }),
+      prisma.sale.count({ where }),
+    ])
 
-    return sales
+    return { data: sales, total }
   },
 }
