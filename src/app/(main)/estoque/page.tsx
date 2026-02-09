@@ -55,7 +55,7 @@ export default function EstoquePage() {
           <TabsList>
             <Tooltip>
               <TooltipTrigger asChild>
-                <TabsTrigger value="todos">Todos</TabsTrigger>
+                <div><TabsTrigger value="todos">Todos</TabsTrigger></div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Exibe todos os produtos cadastrados no sistema</p>
@@ -63,6 +63,7 @@ export default function EstoquePage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
+                <div>
                 <TabsTrigger value="faltantes" className="gap-1.5">
                   Faltantes
                   {faltantesCount > 0 && (
@@ -71,6 +72,7 @@ export default function EstoquePage() {
                     </Badge>
                   )}
                 </TabsTrigger>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Produtos com estoque atual abaixo ou igual ao estoque mínimo configurado</p>
@@ -78,6 +80,7 @@ export default function EstoquePage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
+                <div>
                 <TabsTrigger value="sem-valor" className="gap-1.5">
                   Sem Valor
                   {semValorCount > 0 && (
@@ -86,6 +89,7 @@ export default function EstoquePage() {
                     </Badge>
                   )}
                 </TabsTrigger>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Produtos que não possuem preço de venda cadastrado (R$ 0,00)</p>
@@ -93,6 +97,7 @@ export default function EstoquePage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
+                <div>
                 <TabsTrigger value="encomendas" className="gap-1.5">
                   Encomendas
                   {encomendasCount > 0 && (
@@ -101,6 +106,7 @@ export default function EstoquePage() {
                     </Badge>
                   )}
                 </TabsTrigger>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Produtos com pedidos pendentes (backorders) aguardando reposição de estoque</p>
@@ -108,6 +114,7 @@ export default function EstoquePage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
+                <div>
                 <TabsTrigger value="zerados" className="gap-1.5">
                   Itens Zerados
                   {zeradosCount > 0 && (
@@ -116,6 +123,7 @@ export default function EstoquePage() {
                     </Badge>
                   )}
                 </TabsTrigger>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Produtos com estoque zerado que já tiveram movimentação de vendas</p>

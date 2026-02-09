@@ -52,7 +52,7 @@ export default function ClientesPage() {
           <TabsList>
             <Tooltip>
               <TooltipTrigger asChild>
-                <TabsTrigger value="todos">Todos</TabsTrigger>
+                <div><TabsTrigger value="todos">Todos</TabsTrigger></div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Exibe todos os clientes cadastrados no sistema</p>
@@ -60,6 +60,7 @@ export default function ClientesPage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
+                <div>
                 <TabsTrigger value="devedores" className="gap-1.5">
                   Devedores
                   {devedoresCount > 0 && (
@@ -68,6 +69,7 @@ export default function ClientesPage() {
                     </Badge>
                   )}
                 </TabsTrigger>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Clientes com débitos pendentes ou parcelas em aberto</p>
@@ -75,6 +77,7 @@ export default function ClientesPage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
+                <div>
                 <TabsTrigger value="sem-telefone" className="gap-1.5">
                   Sem Telefone
                   {semTelefoneCount > 0 && (
@@ -83,6 +86,7 @@ export default function ClientesPage() {
                     </Badge>
                   )}
                 </TabsTrigger>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Clientes sem número de telefone cadastrado</p>

@@ -34,7 +34,7 @@ export default function VendasPage() {
           <TabsList>
             <Tooltip>
               <TooltipTrigger asChild>
-                <TabsTrigger value="todas">Todas</TabsTrigger>
+                <div><TabsTrigger value="todas">Todas</TabsTrigger></div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Exibe todas as vendas realizadas, independente do status de pagamento</p>
@@ -42,6 +42,7 @@ export default function VendasPage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
+                <div>
                 <TabsTrigger value="fiado" className="gap-1.5">
                   Fiado
                   {fiadoCount > 0 && (
@@ -50,6 +51,7 @@ export default function VendasPage() {
                     </Badge>
                   )}
                 </TabsTrigger>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Vendas a prazo com pagamento pendente ou parcial</p>
@@ -57,9 +59,11 @@ export default function VendasPage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
+                <div>
                 <TabsTrigger value="concluidas">
                   Concluídas
                 </TabsTrigger>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Vendas com pagamento totalmente finalizado</p>

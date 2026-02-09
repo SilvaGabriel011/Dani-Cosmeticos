@@ -76,6 +76,7 @@ export default function DashboardPage() {
           <TabsList className="h-14 p-1">
             <Tooltip>
               <TooltipTrigger asChild>
+                <div>
                 <TabsTrigger value="fiado" className="gap-2 text-base px-6 py-3 h-12">
                   <CreditCard className="h-5 w-5" />
                   Fiado
@@ -89,6 +90,7 @@ export default function DashboardPage() {
                     </Badge>
                   ) : null}
                 </TabsTrigger>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Vendas a prazo com pagamentos pendentes. Destaca vendas com parcelas vencidas</p>
@@ -96,6 +98,7 @@ export default function DashboardPage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
+                <div>
                 <TabsTrigger value="estoque" className="gap-2 text-base px-6 py-3 h-12">
                   <Package className="h-5 w-5" />
                   Estoque
@@ -105,6 +108,7 @@ export default function DashboardPage() {
                     </Badge>
                   )}
                 </TabsTrigger>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Produtos com estoque baixo ou com pedidos pendentes aguardando reposição</p>
