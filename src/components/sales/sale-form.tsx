@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle, Pencil } from 'lucide-react'
+import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle, Pencil, UserPlus } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/components/ui/use-toast'
-import { useClients } from '@/hooks/use-clients'
+import { useClients, useCreateClient } from '@/hooks/use-clients'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useProducts, useProductsOnDemand, useCreateProduct } from '@/hooks/use-products'
 import { useRecentSelections } from '@/hooks/use-recent-selections'
@@ -66,6 +66,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const createSale = useCreateSale()
   const addItemsToSale = useAddItemsToSale()
   const createProduct = useCreateProduct()
+  const createClient = useCreateClient()
 
   const [items, setItems] = useState<CartItem[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
@@ -95,6 +96,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [quickName, setQuickName] = useState('')
   const [quickPrice, setQuickPrice] = useState<number | ''>('')
   const [quickCost, setQuickCost] = useState<number | ''>(0)
+
+  // Quick client (cadastro rápido)
+  const [showQuickClient, setShowQuickClient] = useState(false)
+  const [quickClientName, setQuickClientName] = useState('')
+  const [quickClientPhone, setQuickClientPhone] = useState('')
+  const [quickClientAddress, setQuickClientAddress] = useState('')
 
   // Multiple purchases feature - add to existing account
   const [saleMode, setSaleMode] = useState<'new' | 'existing'>('new')
@@ -380,7 +387,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const total = subtotal - discountAmount
 
   const updateTotalAndRedistribute = (newTotal: number) => {
-    if (items.length === 0 || newTotal < 0) return
+    if (items.length === 0 || newTotal < 0.01) return
     // The newTotal is post-discount, so we need to find the pre-discount subtotal
     const targetSubtotal = effectiveDiscount > 0 ? newTotal / (1 - effectiveDiscount / 100) : newTotal
     // Redistribute proportionally based on each item's original weight
@@ -484,7 +491,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setItems(
       items.map((item) => {
         if (item.product.id !== productId) return item
-        const unitPrice = Math.max(0, newPrice)
+        const unitPrice = Math.max(0.01, newPrice)
         return {
           ...item,
           unitPrice,
@@ -630,6 +637,17 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       return
     }
 
+    // Validate item prices before submission
+    const invalidItems = items.filter((i) => !i.unitPrice || i.unitPrice <= 0)
+    if (invalidItems.length > 0) {
+      toast({
+        title: 'Preço inválido',
+        description: `O item "${invalidItems[0].product.name}" está com preço zerado ou inválido. Ajuste o preço antes de finalizar.`,
+        variant: 'destructive',
+      })
+      return
+    }
+
     try {
       // Filter out payments with 0 or negative amounts (they would fail validation)
       // In fiado mode, we may have no payments at all
@@ -663,6 +681,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       resetForm()
       onOpenChange(false)
     } catch (error: unknown) {
+      console.error('[SaleForm] Erro ao criar venda:', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro ao realizar venda'
       toast({
         title: 'Erro ao realizar venda',
@@ -692,6 +711,43 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setSaleMode('new')
     setSelectedPendingSaleId('')
     setExistingInstallmentAmount(null)
+    setShowQuickClient(false)
+    setQuickClientName('')
+    setQuickClientPhone('')
+    setQuickClientAddress('')
+  }
+
+  const handleQuickClient = async () => {
+    if (!quickClientName.trim()) {
+      toast({ title: 'Preencha o nome do cliente', variant: 'destructive' })
+      return
+    }
+
+    try {
+      const newClient = await createClient.mutateAsync({
+        name: quickClientName.trim(),
+        phone: quickClientPhone.trim() || null,
+        address: quickClientAddress.trim() || null,
+        discount: 0,
+      })
+
+      setClientId(newClient.id)
+      setClientSearch(newClient.name)
+      setIsClientDropdownOpen(false)
+      addRecentClient(newClient.id)
+      toast({
+        title: `Cliente "${newClient.name}" cadastrado!`,
+        description: 'Selecionado automaticamente para esta venda.',
+      })
+
+      setShowQuickClient(false)
+      setQuickClientName('')
+      setQuickClientPhone('')
+      setQuickClientAddress('')
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao cadastrar cliente'
+      toast({ title: 'Erro', description: errorMessage, variant: 'destructive' })
+    }
   }
 
   const handleQuickProduct = async () => {
@@ -1072,9 +1128,22 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           </>
                         )}
                         {filteredClients.length === 0 ? (
-                          <p className="px-3 py-2 text-sm text-muted-foreground">
-                            Nenhum cliente encontrado
-                          </p>
+                          <div className="px-3 py-2">
+                            <p className="text-sm text-muted-foreground">Nenhum cliente encontrado</p>
+                            <button
+                              type="button"
+                              className="w-full mt-1 px-3 py-2.5 text-left text-sm min-h-[44px] hover:bg-blue-50 focus:outline-none active:bg-blue-100 text-blue-700 font-medium flex items-center gap-2 rounded-md"
+                              onMouseDown={(e) => {
+                                e.preventDefault()
+                                setShowQuickClient(true)
+                                setQuickClientName(clientSearch.trim())
+                                setIsClientDropdownOpen(false)
+                              }}
+                            >
+                              <UserPlus className="h-4 w-4" />
+                              Cadastrar &ldquo;{clientSearch.trim()}&rdquo;
+                            </button>
+                          </div>
                         ) : (
                           filteredClients.slice(0, 20).map((client, index) => (
                             <button
@@ -1101,6 +1170,82 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     )}
                   </div>
                 </div>
+
+                {/* Quick client registration */}
+                {showQuickClient ? (
+                  <div className="border border-dashed border-blue-300 bg-blue-50/50 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-blue-800 flex items-center gap-1.5">
+                        <UserPlus className="h-4 w-4" />
+                        Novo Cliente
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() => {
+                          setShowQuickClient(false)
+                          setQuickClientName('')
+                          setQuickClientPhone('')
+                          setQuickClientAddress('')
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                    <Input
+                      placeholder="Nome do cliente *"
+                      value={quickClientName}
+                      onChange={(e) => setQuickClientName(e.target.value)}
+                      autoFocus
+                    />
+                    <Input
+                      placeholder="Telefone (opcional)"
+                      value={quickClientPhone}
+                      onChange={(e) => setQuickClientPhone(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Endereço (opcional)"
+                      value={quickClientAddress}
+                      onChange={(e) => setQuickClientAddress(e.target.value)}
+                    />
+                    <Button
+                      size="sm"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={handleQuickClient}
+                      disabled={createClient.isPending}
+                    >
+                      {createClient.isPending ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Cadastrando...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <UserPlus className="h-4 w-4" />
+                          Cadastrar e Selecionar
+                        </span>
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  !clientId && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full border-dashed border-blue-300 text-blue-700 hover:bg-blue-50 hover:text-blue-800"
+                      onClick={() => {
+                        setShowQuickClient(true)
+                        if (clientSearch.trim()) {
+                          setQuickClientName(clientSearch.trim())
+                        }
+                      }}
+                    >
+                      <UserPlus className="h-4 w-4 mr-1.5" />
+                      Novo Cliente
+                    </Button>
+                  )
+                )}
 
                 {/* Multiple purchases feature - add to existing account */}
                 {clientId && pendingSales.length > 0 && (
