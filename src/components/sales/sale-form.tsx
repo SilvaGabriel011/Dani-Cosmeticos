@@ -103,6 +103,15 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [quickClientPhone, setQuickClientPhone] = useState('')
   const [quickClientAddress, setQuickClientAddress] = useState('')
 
+  // Validation errors (visual feedback)
+  const [validationErrors, setValidationErrors] = useState<{
+    products?: string
+    client?: string
+    payment?: string
+    prices?: string
+  }>({})
+  const [shakeKey, setShakeKey] = useState(0)
+
   // Multiple purchases feature - add to existing account
   const [saleMode, setSaleMode] = useState<'new' | 'existing'>('new')
   const [selectedPendingSaleId, setSelectedPendingSaleId] = useState<string>('')
@@ -130,6 +139,28 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setSaleMode('new')
     setSelectedPendingSaleId('')
   }, [clientId])
+
+  // Auto-clear validation errors when conditions are resolved
+  useEffect(() => {
+    if (items.length > 0 && validationErrors.products) {
+      setValidationErrors((prev) => { const { products: _products, ...rest } = prev; return rest })
+    }
+  }, [items.length, validationErrors.products])
+  useEffect(() => {
+    if (clientId && validationErrors.client) {
+      setValidationErrors((prev) => { const { client: _client, ...rest } = prev; return rest })
+    }
+  }, [clientId, validationErrors.client])
+  useEffect(() => {
+    if (payments.length > 0 && validationErrors.payment) {
+      setValidationErrors((prev) => { const { payment: _payment, ...rest } = prev; return rest })
+    }
+  }, [payments.length, validationErrors.payment])
+  useEffect(() => {
+    if (!items.some((i) => !i.unitPrice || i.unitPrice <= 0) && validationErrors.prices) {
+      setValidationErrors((prev) => { const { prices: _prices, ...rest } = prev; return rest })
+    }
+  }, [items, validationErrors.prices])
 
 
   const debouncedProductSearch = useDebounce(productSearch, 200)
@@ -556,8 +587,14 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     [items]
   )
 
+  const triggerValidationError = (errors: typeof validationErrors) => {
+    setValidationErrors(errors)
+    setShakeKey((k) => k + 1)
+  }
+
   const handleSubmit = async () => {
     if (items.length === 0) {
+      triggerValidationError({ products: 'Adicione pelo menos um produto' })
       toast({ title: 'Adicione pelo menos um produto', variant: 'destructive' })
       return
     }
@@ -608,23 +645,30 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       }
     }
 
+    // Collect all validation errors at once
+    const errors: typeof validationErrors = {}
+
     // For fiado sales (fiado mode or partial payment), require a client
     if (isFiado && !clientId) {
-      toast({
-        title: 'Cliente obrigatório para fiado',
-        description: 'Selecione um cliente para vendas fiado',
-        variant: 'destructive',
-      })
-      return
+      errors.client = 'Selecione um cliente para venda fiado'
     }
 
     // For normal mode (not fiado), require at least one payment that covers the total
     if (!isFiadoMode && payments.length === 0 && total > 0) {
-      toast({
-        title: 'Adicione pelo menos um pagamento',
-        description: 'Ou ative o modo fiado para venda a prazo',
-        variant: 'destructive',
-      })
+      errors.payment = 'Adicione pelo menos um pagamento ou ative o modo fiado'
+    }
+
+    // Validate item prices
+    const invalidItems = items.filter((i) => !i.unitPrice || i.unitPrice <= 0)
+    if (invalidItems.length > 0) {
+      errors.prices = `"${invalidItems[0].product.name}" está com preço zerado`
+    }
+
+    if (Object.keys(errors).length > 0) {
+      triggerValidationError(errors)
+      // Show toast for the first error
+      const firstError = Object.values(errors)[0]
+      toast({ title: 'Falta informação para finalizar', description: firstError, variant: 'destructive' })
       return
     }
 
@@ -632,17 +676,6 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     if (remaining < -0.01) {
       toast({
         title: 'Pagamento excede o total',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    // Validate item prices before submission
-    const invalidItems = items.filter((i) => !i.unitPrice || i.unitPrice <= 0)
-    if (invalidItems.length > 0) {
-      toast({
-        title: 'Preço inválido',
-        description: `O item "${invalidItems[0].product.name}" está com preço zerado ou inválido. Ajuste o preço antes de finalizar.`,
         variant: 'destructive',
       })
       return
@@ -715,6 +748,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setQuickClientName('')
     setQuickClientPhone('')
     setQuickClientAddress('')
+    setValidationErrors({})
   }
 
   const handleQuickClient = async () => {
@@ -796,7 +830,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
           {/* Products Section */}
           <div className="space-y-4">
-            <Card className={`transition-all duration-300 ${items.length > 0 ? 'border-2 border-green-400 shadow-sm shadow-green-100' : ''}`}>
+            <Card key={`products-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.products ? 'border-2 border-red-400 shadow-sm shadow-red-100 animate-shake' : items.length > 0 ? 'border-2 border-green-400 shadow-sm shadow-green-100' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>Produtos</span>
@@ -838,6 +872,13 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                         {word}
                       </button>
                     ))}
+                  </div>
+                )}
+
+                {validationErrors.products && (
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    {validationErrors.products}
                   </div>
                 )}
 
@@ -1047,7 +1088,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
           {/* Payment Section */}
           <div className="space-y-4">
-            <Card className={`transition-all duration-300 ${selectedClient ? 'border-2 border-green-400 shadow-sm shadow-green-100' : ''}`}>
+            <Card key={`client-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.client ? 'border-2 border-red-400 shadow-sm shadow-red-100 animate-shake' : selectedClient ? 'border-2 border-green-400 shadow-sm shadow-green-100' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>Cliente e Desconto</span>
@@ -1059,6 +1100,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
+                {validationErrors.client && (
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    {validationErrors.client}
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label>Cliente {isFiado && <span className="text-destructive">*</span>}</Label>
                   <div className="relative">
@@ -1348,7 +1395,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               </CardContent>
             </Card>
 
-            <Card className={`border-2 bg-gradient-to-br from-primary/5 to-transparent transition-all duration-300 ${items.length > 0 ? 'border-green-400 shadow-sm shadow-green-100' : 'border-primary/20'}`}>
+            <Card key={`prices-${shakeKey}`} className={`border-2 bg-gradient-to-br from-primary/5 to-transparent transition-all duration-300 ${validationErrors.prices ? 'border-red-400 shadow-sm shadow-red-100 animate-shake' : items.length > 0 ? 'border-green-400 shadow-sm shadow-green-100' : 'border-primary/20'}`}>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center gap-2">
@@ -1556,11 +1603,18 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
           {/* Payment Section */}
           <div className="space-y-4">
-            <Card>
+            <Card key={`payment-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.payment ? 'border-2 border-red-400 shadow-sm shadow-red-100 animate-shake' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Forma de Pagamento</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {validationErrors.payment && (
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    {validationErrors.payment}
+                  </div>
+                )}
+
                 {/* Resumo do valor */}
                 <div className={`p-4 rounded-xl text-center border ${isFiadoMode ? 'bg-gradient-to-br from-amber-100 to-amber-50 border-amber-300' : 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20'}`}>
                   <p className="text-sm text-muted-foreground font-medium">Total da compra</p>
