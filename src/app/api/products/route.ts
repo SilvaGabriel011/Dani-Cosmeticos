@@ -46,16 +46,35 @@ export async function GET(request: NextRequest) {
       const searchCondition = wordConditions.reduce((acc, condition) =>
         Prisma.sql`${acc} AND ${condition}`
       )
-      const matchingIds = await prisma.$queryRaw<{ id: string }[]>(
+      
+      // Build ranking expression for relevance sorting
+      const firstWord = words[0]
+      const rankingExpr = Prisma.sql`
+        CASE
+          WHEN unaccent(p."name") ILIKE unaccent(${firstWord}) THEN 1
+          WHEN unaccent(p."code") ILIKE unaccent(${firstWord}) THEN 2
+          WHEN unaccent(p."name") ILIKE unaccent(${firstWord + '%'}) THEN 3
+          WHEN unaccent(p."code") ILIKE unaccent(${firstWord + '%'}) THEN 4
+          WHEN unaccent(p."name") ILIKE unaccent(${'%' + firstWord + '%'}) THEN 5
+          WHEN unaccent(b."name") ILIKE unaccent(${'%' + firstWord + '%'}) THEN 6
+          WHEN unaccent(c."name") ILIKE unaccent(${'%' + firstWord + '%'}) THEN 7
+          ELSE 8
+        END
+      `
+      
+      const matchingProducts = await prisma.$queryRaw<{ id: string; rank: number }[]>(
         Prisma.sql`
-          SELECT p."id" FROM "Product" p
+          SELECT p."id", ${rankingExpr} as rank
+          FROM "Product" p
           LEFT JOIN "Brand" b ON p."brandId" = b."id"
           LEFT JOIN "Category" c ON p."categoryId" = c."id"
           WHERE p."deletedAt" IS NULL
           AND ${searchCondition}
+          ORDER BY rank, unaccent(p."name")
+          LIMIT 100
         `
       )
-      const ids = matchingIds.map((r) => r.id)
+      const ids = matchingProducts.map((r) => r.id)
 
       if (ids.length === 0) {
         return NextResponse.json({
@@ -73,7 +92,7 @@ export async function GET(request: NextRequest) {
         include: { category: true, brand: true },
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { name: 'asc' },
+        orderBy: search.trim() ? { name: 'asc' } : { name: 'asc' },
       }),
       prisma.product.count({ where }),
     ])

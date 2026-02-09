@@ -32,17 +32,47 @@ export function ProductSelector({ products, isLoading, onSelect }: ProductSelect
 
   const fuse = useMemo(() => {
     return new Fuse(sortedProducts, {
-      keys: ['name', 'code'],
-      threshold: 0.3,
+      keys: [
+        { name: 'name', weight: 3 },
+        { name: 'code', weight: 2 },
+      ],
+      threshold: 0.2,
       includeScore: true,
-      minMatchCharLength: 1,
+      minMatchCharLength: 2,
     })
   }, [sortedProducts])
 
   const filteredProducts = useMemo(() => {
     if (!debouncedSearch.trim()) return sortedProducts
+
+    const search = debouncedSearch.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     const results = fuse.search(debouncedSearch, { limit: 100 })
-    return results.map((r) => r.item)
+
+    // Custom sorting by relevance
+    return results.sort((a, b) => {
+      const aName = a.item.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      const bName = b.item.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      const aCode = (a.item.code || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      const bCode = (b.item.code || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+      // 1. Exact match (name or code)
+      const aExact = aName === search || aCode === search ? 1 : 0
+      const bExact = bName === search || bCode === search ? 1 : 0
+      if (aExact !== bExact) return bExact - aExact
+
+      // 2. Starts with (name or code)
+      const aStarts = aName.startsWith(search) || aCode.startsWith(search) ? 1 : 0
+      const bStarts = bName.startsWith(search) || bCode.startsWith(search) ? 1 : 0
+      if (aStarts !== bStarts) return bStarts - aStarts
+
+      // 3. Contains in name
+      const aContains = aName.includes(search) ? 1 : 0
+      const bContains = bName.includes(search) ? 1 : 0
+      if (aContains !== bContains) return bContains - aContains
+
+      // 4. Fuse.js score (lower is better)
+      return (a.score || 1) - (b.score || 1)
+    }).map((r) => r.item)
   }, [fuse, debouncedSearch, sortedProducts])
 
   const virtualizer = useVirtualizer({

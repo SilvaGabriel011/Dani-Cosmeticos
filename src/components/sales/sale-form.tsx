@@ -179,30 +179,62 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const productFuse = useMemo(() => {
     return new Fuse(sortedProducts, {
       keys: [
-        { name: 'name', weight: 2 },
-        { name: 'code', weight: 1 },
-        { name: 'brand.name', weight: 0.7 },
-        { name: 'category.name', weight: 0.5 },
+        { name: 'name', weight: 3 },
+        { name: 'code', weight: 2 },
+        { name: 'brand.name', weight: 0.5 },
+        { name: 'category.name', weight: 0.3 },
       ],
-      threshold: 0.4,
+      threshold: 0.2,
       includeScore: true,
       ignoreLocation: true,
-      minMatchCharLength: 1,
+      minMatchCharLength: 2,
     })
   }, [sortedProducts])
 
   const filteredProducts = useMemo(() => {
     if (!productSearch.trim()) return sortedProducts
 
+    const search = productSearch.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
     // Client-side Fuse.js search on loaded products
-    const localResults = productFuse.search(productSearch, { limit: 100 }).map((r) => r.item)
+    const localResults = productFuse.search(productSearch, { limit: 100 })
 
     // Merge server-side results (covers products beyond the loaded limit)
     const serverResults = serverSearchData?.data || []
-    const localIds = new Set(localResults.map((p) => p.id))
+    const localIds = new Set(localResults.map((r) => r.item.id))
     const extra = serverResults.filter((p) => !localIds.has(p.id))
 
-    return [...localResults, ...extra]
+    // Combine and sort by relevance
+    const allResults = [
+      ...localResults.map((r) => ({ product: r.item, score: r.score || 1 })),
+      ...extra.map((p) => ({ product: p, score: 1 }))
+    ]
+
+    // Custom sorting by relevance
+    return allResults.sort((a, b) => {
+      const aName = a.product.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      const bName = b.product.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      const aCode = (a.product.code || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      const bCode = (b.product.code || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+      // 1. Exact match (name or code)
+      const aExact = aName === search || aCode === search ? 1 : 0
+      const bExact = bName === search || bCode === search ? 1 : 0
+      if (aExact !== bExact) return bExact - aExact
+
+      // 2. Starts with (name or code)
+      const aStarts = aName.startsWith(search) || aCode.startsWith(search) ? 1 : 0
+      const bStarts = bName.startsWith(search) || bCode.startsWith(search) ? 1 : 0
+      if (aStarts !== bStarts) return bStarts - aStarts
+
+      // 3. Contains in name
+      const aContains = aName.includes(search) ? 1 : 0
+      const bContains = bName.includes(search) ? 1 : 0
+      if (aContains !== bContains) return bContains - aContains
+
+      // 4. Fuse.js score (lower is better)
+      return (a.score || 1) - (b.score || 1)
+    }).map(({ product }) => product)
   }, [sortedProducts, productSearch, productFuse, serverSearchData])
 
   const visibleProducts = useMemo(() => {
