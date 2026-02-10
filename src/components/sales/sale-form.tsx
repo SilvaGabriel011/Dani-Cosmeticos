@@ -1169,25 +1169,25 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       onKeyDown={handleClientKeyDown}
                       className="pl-9 h-11 text-base"
                     />
-                    {clientCompletions.length > 0 && isClientDropdownOpen && !clientId && (
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {clientCompletions.map((word) => (
-                          <button
-                            key={word}
-                            type="button"
-                            className="text-sm bg-muted hover:bg-muted/80 text-muted-foreground rounded-full px-3 py-1.5 min-h-[36px] transition-colors"
-                            onMouseDown={(e) => {
-                              e.preventDefault()
-                              setClientSearch(applyCompletion(clientSearch, word))
-                            }}
-                          >
-                            {word}
-                          </button>
-                        ))}
-                      </div>
-                    )}
                     {isClientDropdownOpen && !clientId && (
                       <div ref={clientDropdownRef} className="absolute z-50 w-full mt-1 max-h-48 md:max-h-72 overflow-y-auto border rounded-md bg-white shadow-lg">
+                        {clientCompletions.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 px-3 py-2 border-b bg-muted/30">
+                            {clientCompletions.map((word) => (
+                              <button
+                                key={word}
+                                type="button"
+                                className="text-sm bg-background hover:bg-muted text-muted-foreground rounded-full px-3 py-1 border transition-colors"
+                                onMouseDown={(e) => {
+                                  e.preventDefault()
+                                  setClientSearch(applyCompletion(clientSearch, word))
+                                }}
+                              >
+                                {word}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                         {/* Recent clients section */}
                         {!clientSearch.trim() && recentClients.length > 0 && (
                           <>
