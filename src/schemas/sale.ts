@@ -63,6 +63,6 @@ export type SaleItemInput = z.infer<typeof saleItemSchema>
 export type PaymentInput = z.infer<typeof paymentSchema>
 export type CreateSaleInput = z.infer<typeof createSaleSchema>
 export type AddPaymentInput = z.infer<typeof addPaymentSchema>
-export type AddItemsToSaleInput = z.infer<typeof addItemsToSaleSchema>
+export type AddItemsToSaleInput = z.input<typeof addItemsToSaleSchema>
 export type RescheduleSaleInput = z.infer<typeof rescheduleSaleSchema>
 export type UpdateReceivableInput = z.infer<typeof updateReceivableSchema>

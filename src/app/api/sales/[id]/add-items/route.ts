@@ -212,7 +212,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
             if (i === pendingReceivables.length - 1) {
               // Last installment: correct rounding
-              const previousTotal = pendingReceivables.slice(0, i).reduce((sum, r) => {
+              const previousTotal = pendingReceivables.slice(0, i).reduce((sum, _r) => {
                 return sum + newAmountPerInstallment
               }, 0)
               newAmount = alreadyPaidOnThis + (newRemainingBalance - previousTotal)

@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle, Pencil, UserPlus } from 'lucide-react'
+import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle, Pencil, UserPlus, CalendarDays } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -87,6 +87,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [installmentPlan, setInstallmentPlan] = useState<number | ''>('')
   const [isFiadoMode, setIsFiadoMode] = useState(false) // Toggle between fiado and normal payment modes
   const [fixedInstallmentAmount, setFixedInstallmentAmount] = useState<number | null>(null) // Fixed amount for each payment
+  const [startMonth, setStartMonth] = useState<number | null>(null) // 1-12, null = auto
+  const [startYear, setStartYear] = useState<number | null>(null)
+  const [existingMode, setExistingMode] = useState<'increase_installments' | 'increase_value'>('increase_installments')
 
   // Backorder confirmation
   const [showBackorderConfirm, setShowBackorderConfirm] = useState(false)
@@ -650,6 +653,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               unitPrice: i.unitPrice,
             })),
             fixedInstallmentAmount: existingInstallmentAmount || undefined,
+            mode: existingMode,
           },
         })
 
@@ -737,6 +741,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         installmentPlan: isInstallment ? (installmentPlan || 1) : 1,
         fixedInstallmentAmount:
           isFiadoMode && fixedInstallmentAmount ? fixedInstallmentAmount : null,
+        startMonth: isInstallment && startMonth ? startMonth : null,
+        startYear: isInstallment && startYear ? startYear : null,
       })
 
       toast({
@@ -776,6 +782,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setSaleMode('new')
     setSelectedPendingSaleId('')
     setExistingInstallmentAmount(null)
+    setStartMonth(null)
+    setStartYear(null)
+    setExistingMode('increase_installments')
     setShowQuickClient(false)
     setQuickClientName('')
     setQuickClientPhone('')
@@ -1381,28 +1390,79 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                         {selectedPendingSaleId && (() => {
                           const selectedSale = pendingSales.find((s) => s.id === selectedPendingSaleId)
                           const currentInstallment = selectedSale?.fixedInstallmentAmount || (selectedSale ? selectedSale.total / selectedSale.installmentPlan : 0)
+                          const pendingCount = selectedSale?.pendingReceivablesCount || 0
+
+                          // Preview for increase_installments
+                          const installmentAmountForPreview = existingInstallmentAmount || currentInstallment
+                          const extraInstallments = installmentAmountForPreview > 0 ? Math.ceil(total / installmentAmountForPreview) : 0
+                          const lastExtraAmount = installmentAmountForPreview > 0 ? total - (installmentAmountForPreview * (extraInstallments - 1)) : 0
+
+                          // Preview for increase_value
                           const newRemaining = (selectedSale?.remaining || 0) + total
-                          const previewAmount = existingInstallmentAmount || currentInstallment
-                          const previewInstallments = previewAmount > 0 ? Math.ceil(newRemaining / previewAmount) : 0
+                          const newValuePerInstallment = pendingCount > 0 ? newRemaining / pendingCount : 0
+
                           return (
-                            <div className="space-y-2">
-                              <Label className="text-sm">Valor da parcela mensal (R$)</Label>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0.01"
-                                placeholder={currentInstallment > 0 ? `Atual: ${currentInstallment.toFixed(2)}` : '0,00'}
-                                value={existingInstallmentAmount ?? ''}
-                                onChange={(e) => {
-                                  const val = e.target.value ? Number(e.target.value) : null
-                                  setExistingInstallmentAmount(val && val > 0 ? val : null)
-                                }}
-                              />
-                              <p className="text-sm text-blue-600">
-                                {previewAmount > 0 && newRemaining > 0
-                                  ? `${previewInstallments}x de ${formatCurrency(previewAmount)} (saldo: ${formatCurrency(newRemaining)})`
-                                  : 'Os itens serão adicionados a esta conta e as parcelas serão recalculadas.'}
-                              </p>
+                            <div className="space-y-3">
+                              <Label className="text-sm font-semibold">Como adicionar à conta?</Label>
+                              <RadioGroup
+                                value={existingMode}
+                                onValueChange={(v) => setExistingMode(v as 'increase_installments' | 'increase_value')}
+                                className="space-y-2"
+                              >
+                                <div className={`flex items-start space-x-2 p-2.5 rounded-md border transition-colors ${existingMode === 'increase_installments' ? 'border-blue-400 bg-blue-50' : 'border-gray-200'}`}>
+                                  <RadioGroupItem value="increase_installments" id="mode-increase-installments" className="mt-0.5" />
+                                  <div className="flex-1">
+                                    <Label htmlFor="mode-increase-installments" className="cursor-pointer text-sm font-medium">
+                                      Aumentar parcelas (manter valor)
+                                    </Label>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                      Mantém parcela de {formatCurrency(currentInstallment)}, adiciona {extraInstallments > 0 ? extraInstallments : '?'} parcela(s) no fim
+                                    </p>
+                                    {existingMode === 'increase_installments' && extraInstallments > 0 && (
+                                      <p className="text-xs text-blue-700 font-semibold mt-1">
+                                        +{extraInstallments}x de {formatCurrency(installmentAmountForPreview)}
+                                        {lastExtraAmount > 0 && Math.abs(lastExtraAmount - installmentAmountForPreview) > 0.01 && (
+                                          <> (última: {formatCurrency(lastExtraAmount)})</>
+                                        )}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className={`flex items-start space-x-2 p-2.5 rounded-md border transition-colors ${existingMode === 'increase_value' ? 'border-blue-400 bg-blue-50' : 'border-gray-200'}`}>
+                                  <RadioGroupItem value="increase_value" id="mode-increase-value" className="mt-0.5" />
+                                  <div className="flex-1">
+                                    <Label htmlFor="mode-increase-value" className="cursor-pointer text-sm font-medium">
+                                      Aumentar valor da parcela (manter qtd)
+                                    </Label>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                      Mantém {pendingCount} parcela(s), aumenta valor de cada
+                                    </p>
+                                    {existingMode === 'increase_value' && pendingCount > 0 && (
+                                      <p className="text-xs text-blue-700 font-semibold mt-1">
+                                        {pendingCount}x de {formatCurrency(newValuePerInstallment)} (era {formatCurrency(currentInstallment)})
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </RadioGroup>
+
+                              {existingMode === 'increase_installments' && (
+                                <div className="space-y-1.5">
+                                  <Label className="text-xs text-muted-foreground">Valor da parcela (opcional, alterar)</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0.01"
+                                    placeholder={currentInstallment > 0 ? `Atual: ${currentInstallment.toFixed(2)}` : '0,00'}
+                                    value={existingInstallmentAmount ?? ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value ? Number(e.target.value) : null
+                                      setExistingInstallmentAmount(val && val > 0 ? val : null)
+                                    }}
+                                    className="h-9"
+                                  />
+                                </div>
+                              )}
                             </div>
                           )
                         })()}
@@ -1869,6 +1929,41 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       </Select>
                     </div>
                     <div className="flex items-center gap-1.5">
+                      <Label className="text-base text-muted-foreground whitespace-nowrap">Início:</Label>
+                      <Select
+                        value={startMonth && startYear ? `${startMonth}-${startYear}` : 'auto'}
+                        onValueChange={(v) => {
+                          if (v === 'auto') {
+                            setStartMonth(null)
+                            setStartYear(null)
+                          } else {
+                            const [m, y] = v.split('-').map(Number)
+                            setStartMonth(m)
+                            setStartYear(y)
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-32 h-9 text-base">
+                          <SelectValue placeholder="Auto" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="auto">Automático</SelectItem>
+                          {Array.from({ length: 12 }, (_, i) => {
+                            const d = new Date()
+                            d.setMonth(d.getMonth() + i)
+                            const m = d.getMonth() + 1
+                            const y = d.getFullYear()
+                            const label = d.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })
+                            return (
+                              <SelectItem key={`${m}-${y}`} value={`${m}-${y}`}>
+                                {label.charAt(0).toUpperCase() + label.slice(1)}
+                              </SelectItem>
+                            )
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-1.5">
                       <Label className="text-base text-muted-foreground whitespace-nowrap">Valor fixo:</Label>
                       <Input
                         type="number"
@@ -1889,15 +1984,24 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     )}
                     {Number(installmentPlan) > 0 && (
                       <div className="w-full flex flex-wrap items-center gap-1.5 text-sm text-amber-700 mt-1">
-                        <span className="font-medium">Vencimentos:</span>
+                        <span className="font-medium flex items-center gap-1">
+                          <CalendarDays className="h-3.5 w-3.5" />
+                          Vencimentos:
+                        </span>
                         {Array.from({ length: Math.min(Number(installmentPlan), 6) }, (_, i) => {
                           const now = new Date()
-                          const date = new Date(now.getFullYear(), now.getMonth() + i, paymentDay)
-                          if (i === 0 && date <= now) {
-                            date.setMonth(date.getMonth() + 1)
+                          let date: Date
+                          if (startMonth && startYear) {
+                            date = new Date(startYear, startMonth - 1 + i, paymentDay)
+                          } else {
+                            date = new Date(now.getFullYear(), now.getMonth() + i, paymentDay)
+                            if (i === 0 && date <= now) {
+                              date.setMonth(date.getMonth() + 1)
+                            }
                           }
-                          if (date.getDate() !== paymentDay) {
-                            date.setDate(0)
+                          const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+                          if (paymentDay > lastDay) {
+                            date.setDate(lastDay)
                           }
                           return (
                             <span key={i} className="bg-amber-100 px-1.5 py-0.5 rounded text-xs font-medium">
