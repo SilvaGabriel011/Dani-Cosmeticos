@@ -65,8 +65,7 @@ export async function GET(request: NextRequest) {
     const [clients, total] = await Promise.all([
       prisma.client.findMany({
         where,
-        skip: (page - 1) * limit,
-        take: limit,
+        ...(limit > 0 && { skip: (page - 1) * limit, take: limit }),
         orderBy: { name: 'asc' },
       }),
       prisma.client.count({ where }),

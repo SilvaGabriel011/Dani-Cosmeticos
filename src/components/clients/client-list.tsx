@@ -62,6 +62,7 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
   ]
 
   const { data, isLoading, error } = useClients({
+    limit: 0,
     search: filters.search || undefined,
     ...(tab === 'devedores' && { hasDebt: true }),
     ...(tab === 'sem-telefone' && { missingPhone: true }),

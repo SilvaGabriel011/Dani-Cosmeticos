@@ -25,6 +25,8 @@ export const createSaleSchema = z.object({
   installmentPlan: z.number().int().min(1).max(48).default(1),
   fixedInstallmentAmount: z.number().positive().optional().nullable(), // Fixed amount for each payment
   createdAt: z.string().datetime().optional(), // For imports: use original sale date for receivable calculations
+  startMonth: z.number().int().min(1).max(12).optional().nullable(), // Month (1-12) for first installment
+  startYear: z.number().int().min(2020).max(2100).optional().nullable(), // Year for first installment
 })
 
 export const addPaymentSchema = z.object({
@@ -39,6 +41,7 @@ export const addPaymentSchema = z.object({
 export const addItemsToSaleSchema = z.object({
   items: z.array(saleItemSchema).min(1, 'Pelo menos um item é obrigatório'),
   fixedInstallmentAmount: z.number().positive().optional().nullable(),
+  mode: z.enum(['increase_installments', 'increase_value']).default('increase_installments'),
 })
 
 // Schema for rescheduling sale receivables

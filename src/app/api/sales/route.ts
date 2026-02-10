@@ -115,6 +115,8 @@ export async function POST(request: NextRequest) {
       installmentPlan,
       fixedInstallmentAmount,
       createdAt: customCreatedAt,
+      startMonth,
+      startYear,
     } = validation.data
 
     // Fetch products and validate stock
@@ -294,14 +296,26 @@ export async function POST(request: NextRequest) {
         const referenceDate = customCreatedAt ? new Date(customCreatedAt) : new Date()
         const day = paymentDay || DEFAULT_PAYMENT_DAY
 
-        const receivables = Array.from({ length: numInstallments }, (_, i) => {
-          // Start from current month, but if the day has passed, start from next month
-          let targetMonth = referenceDate.getMonth() + i
-          let targetYear = referenceDate.getFullYear()
+        // If startMonth/startYear provided, use them as the base for first installment
+        const hasCustomStart = startMonth && startYear
 
-          // If first installment and the day has already passed this month, start next month
-          if (i === 0 && referenceDate.getDate() >= day) {
-            targetMonth += 1
+        const receivables = Array.from({ length: numInstallments }, (_, i) => {
+          let targetMonth: number
+          let targetYear: number
+
+          if (hasCustomStart) {
+            // User chose a custom start month (startMonth is 1-12, convert to 0-11)
+            targetMonth = (startMonth - 1) + i
+            targetYear = startYear
+          } else {
+            // Start from current month, but if the day has passed, start from next month
+            targetMonth = referenceDate.getMonth() + i
+            targetYear = referenceDate.getFullYear()
+
+            // If first installment and the day has already passed this month, start next month
+            if (i === 0 && referenceDate.getDate() >= day) {
+              targetMonth += 1
+            }
           }
 
           // Handle year overflow

@@ -35,7 +35,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     }
 
-    const { items, fixedInstallmentAmount: customInstallmentAmount } = validation.data
+    const { items, fixedInstallmentAmount: customInstallmentAmount, mode } = validation.data
 
     // Find the sale with all receivables for recalculation
     const sale = (await prisma.sale.findUnique({
@@ -117,108 +117,133 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const alreadyPaid = Number(sale.paidAmount)
     const newRemainingBalance = newTotal - alreadyPaid
 
-    // Determine the effective installment amount
-    // Priority: user-provided custom amount > sale's existing fixedInstallmentAmount > redistribute evenly
-    const effectiveFixedAmount = customInstallmentAmount
+    // Recalculate receivables based on explicit mode
+    let updatedInstallmentPlan = sale.installmentPlan
+    let updatedFixedInstallmentAmount = sale.fixedInstallmentAmount
+
+    // Determine the installment amount to use for increase_installments mode
+    const effectiveInstallmentAmount = customInstallmentAmount
       ? customInstallmentAmount
       : sale.fixedInstallmentAmount
         ? Number(sale.fixedInstallmentAmount)
-        : null
-
-    // Recalculate receivables
-    let updatedInstallmentPlan = sale.installmentPlan
-    let updatedFixedInstallmentAmount = sale.fixedInstallmentAmount
+        : pendingReceivables.length > 0
+          ? Number(pendingReceivables[0].amount)
+          : null
 
     // Execute in transaction
     const updatedSale = await prisma.$transaction(async (tx) => {
       // Add new items
       await tx.saleItem.createMany({ data: newSaleItems })
 
-      if (customInstallmentAmount) {
-        // User wants to set/change the installment amount
-        // Delete all pending receivables and recreate with the new amount
-        const pendingIds = pendingReceivables.map((r) => r.id)
-        if (pendingIds.length > 0) {
-          await tx.receivable.deleteMany({ where: { id: { in: pendingIds } } })
-        }
+      if (mode === 'increase_installments') {
+        // MODE: Keep installment amount the same, add new installments at the END of the queue
+        // This guarantees the new purchase goes to the "end of the line"
 
-        // Calculate how many installments are needed for the new remaining balance
-        const numNewInstallments = Math.ceil(newRemainingBalance / customInstallmentAmount)
-        const paidReceivablesCount = sale.receivables.length - pendingReceivables.length
+        if (effectiveInstallmentAmount && effectiveInstallmentAmount > 0) {
+          // Calculate how many extra installments are needed for the new items
+          const extraInstallments = Math.ceil(newItemsTotal / effectiveInstallmentAmount)
 
-        // Determine the start date for new receivables
-        const firstPendingDueDate = pendingReceivables.length > 0
-          ? new Date(pendingReceivables[0].dueDate)
-          : (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date())
+          if (extraInstallments > 0) {
+            // Find the last receivable due date (paid or pending) to append after it
+            const lastDueDate = pendingReceivables.length > 0
+              ? new Date(pendingReceivables[pendingReceivables.length - 1].dueDate)
+              : (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date())
 
-        const newReceivables = Array.from({ length: numNewInstallments }, (_, i) => {
-          const dueDate = new Date(firstPendingDueDate)
-          dueDate.setMonth(dueDate.getMonth() + i)
-          const targetDay = paymentDay
-          const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
-          dueDate.setDate(Math.min(targetDay, lastDayOfMonth))
+            const newReceivables = Array.from({ length: extraInstallments }, (_, i) => {
+              const dueDate = new Date(lastDueDate)
+              dueDate.setMonth(dueDate.getMonth() + i + 1)
+              const targetDay = paymentDay
+              const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
+              dueDate.setDate(Math.min(targetDay, lastDayOfMonth))
 
-          // Last installment may be smaller to avoid overpaying
-          const remainingForThis = newRemainingBalance - (customInstallmentAmount * i)
-          const amount = Math.min(customInstallmentAmount, remainingForThis)
+              // Last installment: correct the remainder so total matches exactly
+              let amount: number
+              if (i === extraInstallments - 1) {
+                // Last installment = whatever is left
+                const previousInstallmentsTotal = effectiveInstallmentAmount * i
+                amount = Math.max(0.01, newItemsTotal - previousInstallmentsTotal)
+              } else {
+                amount = effectiveInstallmentAmount
+              }
 
-          return {
-            saleId: id,
-            installment: paidReceivablesCount + i + 1,
-            amount: new Decimal(Math.max(0.01, amount)),
-            dueDate,
-          }
-        })
+              return {
+                saleId: id,
+                installment: lastInstallmentNumber + i + 1,
+                amount: new Decimal(Number(amount.toFixed(2))),
+                dueDate,
+              }
+            })
 
-        if (newReceivables.length > 0) {
-          await tx.receivable.createMany({ data: newReceivables })
-        }
-
-        updatedInstallmentPlan = paidReceivablesCount + numNewInstallments
-        updatedFixedInstallmentAmount = customInstallmentAmount
-      } else if (effectiveFixedAmount) {
-        // Sale already has a fixed amount, keep it and add extra installments as needed
-        const currentPendingTotal = pendingReceivables.reduce(
-          (sum, r) => sum + (Number(r.amount) - Number(r.paidAmount)),
-          0
-        )
-        const extraNeeded = newRemainingBalance - currentPendingTotal
-        const extraInstallments = Math.ceil(extraNeeded / effectiveFixedAmount)
-
-        if (extraInstallments > 0) {
-          const lastPendingDueDate = pendingReceivables.length > 0
-            ? new Date(pendingReceivables[pendingReceivables.length - 1].dueDate)
-            : (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date())
-
-          const newReceivables = Array.from({ length: extraInstallments }, (_, i) => {
-            const dueDate = new Date(lastPendingDueDate)
-            dueDate.setMonth(dueDate.getMonth() + i + 1)
-            const targetDay = paymentDay
-            const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
-            dueDate.setDate(Math.min(targetDay, lastDayOfMonth))
-
-            return {
-              saleId: id,
-              installment: lastInstallmentNumber + i + 1,
-              amount: new Decimal(effectiveFixedAmount),
-              dueDate,
+            await tx.receivable.createMany({ data: newReceivables })
+            updatedInstallmentPlan = sale.installmentPlan + extraInstallments
+            if (customInstallmentAmount) {
+              updatedFixedInstallmentAmount = customInstallmentAmount
             }
-          })
+          }
+        } else {
+          // No fixed amount exists — create a single new installment for the full new items total
+          const lastDueDate = lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date()
+          const dueDate = new Date(lastDueDate)
+          dueDate.setMonth(dueDate.getMonth() + 1)
+          const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
+          dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
 
-          await tx.receivable.createMany({ data: newReceivables })
-          updatedInstallmentPlan = sale.installmentPlan + extraInstallments
-        }
-      } else {
-        // Variable mode: redistribute the new remaining balance across existing pending receivables
-        for (const receivable of pendingReceivables) {
-          const alreadyPaidOnThis = Number(receivable.paidAmount)
-          const newAmount = alreadyPaidOnThis + (newRemainingBalance / pendingReceivables.length)
-          await tx.receivable.update({
-            where: { id: receivable.id },
+          await tx.receivable.create({
             data: {
-              amount: new Decimal(newAmount),
+              saleId: id,
+              installment: lastInstallmentNumber + 1,
+              amount: new Decimal(Number(newItemsTotal.toFixed(2))),
+              dueDate,
             },
           })
+          updatedInstallmentPlan = sale.installmentPlan + 1
+        }
+      } else {
+        // MODE: increase_value — Keep same number of pending installments, increase their amount
+        // Redistribute the new remaining balance across existing pending receivables
+
+        if (pendingReceivables.length > 0) {
+          const newAmountPerInstallment = newRemainingBalance / pendingReceivables.length
+
+          for (let i = 0; i < pendingReceivables.length; i++) {
+            const receivable = pendingReceivables[i]
+            const alreadyPaidOnThis = Number(receivable.paidAmount)
+            let newAmount: number
+
+            if (i === pendingReceivables.length - 1) {
+              // Last installment: correct rounding
+              const previousTotal = pendingReceivables.slice(0, i).reduce((sum, r) => {
+                return sum + newAmountPerInstallment
+              }, 0)
+              newAmount = alreadyPaidOnThis + (newRemainingBalance - previousTotal)
+            } else {
+              newAmount = alreadyPaidOnThis + newAmountPerInstallment
+            }
+
+            await tx.receivable.update({
+              where: { id: receivable.id },
+              data: {
+                amount: new Decimal(Number(Math.max(0.01, newAmount).toFixed(2))),
+              },
+            })
+          }
+        } else {
+          // No pending receivables — create one for the full amount
+          const lastDueDate = lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date()
+          const dueDate = new Date(lastDueDate)
+          dueDate.setMonth(dueDate.getMonth() + 1)
+          const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
+          dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+
+          await tx.receivable.create({
+            data: {
+              saleId: id,
+              installment: lastInstallmentNumber + 1,
+              amount: new Decimal(Number(newRemainingBalance.toFixed(2))),
+              dueDate,
+            },
+          })
+          updatedInstallmentPlan = sale.installmentPlan + 1
         }
       }
 
