@@ -146,8 +146,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         // This guarantees the new purchase goes to the "end of the line"
 
         if (effectiveInstallmentAmount && effectiveInstallmentAmount > 0) {
-          // Calculate how many extra installments are needed for the new items
-          const extraInstallments = Math.ceil(newItemsTotal / effectiveInstallmentAmount)
+          // Calculate how many extra installments are needed for the new items (use discounted total)
+          const extraInstallments = Math.ceil(discountedNewItemsTotal / effectiveInstallmentAmount)
 
           if (extraInstallments > 0) {
             // Find the last receivable due date (paid or pending) to append after it
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
               if (i === extraInstallments - 1) {
                 // Last installment = whatever is left
                 const previousInstallmentsTotal = effectiveInstallmentAmount * i
-                amount = Math.max(0.01, newItemsTotal - previousInstallmentsTotal)
+                amount = Math.max(0.01, discountedNewItemsTotal - previousInstallmentsTotal)
               } else {
                 amount = effectiveInstallmentAmount
               }
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             }
           }
         } else {
-          // No fixed amount exists — create a single new installment for the full new items total
+          // No fixed amount exists — create a single new installment for the full discounted items total
           const lastDueDate = lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date()
           const dueDate = new Date(lastDueDate)
           dueDate.setMonth(dueDate.getMonth() + 1)
@@ -198,7 +198,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             data: {
               saleId: id,
               installment: lastInstallmentNumber + 1,
-              amount: new Decimal(Number(newItemsTotal.toFixed(2))),
+              amount: new Decimal(Number(discountedNewItemsTotal.toFixed(2))),
               dueDate,
             },
           })

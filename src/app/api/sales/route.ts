@@ -292,7 +292,7 @@ export async function POST(request: NextRequest) {
       if (!isPaid) {
         const remainingAmount = total - paidAmount
         const numInstallments = installmentPlan && installmentPlan >= 1 ? installmentPlan : 1
-        const installmentAmount = remainingAmount / numInstallments
+        const installmentAmount = Math.floor((remainingAmount / numInstallments) * 100) / 100
 
         // Calculate due dates based on paymentDay (day of month)
         // Use customCreatedAt if provided (for imports), otherwise use current date
@@ -331,10 +331,16 @@ export async function POST(request: NextRequest) {
           const lastDayOfMonth = new Date(targetYear, targetMonth + 1, 0).getDate()
           const dueDate = new Date(targetYear, targetMonth, Math.min(day, lastDayOfMonth))
 
+          // Last installment absorbs rounding remainder
+          const isLast = i === numInstallments - 1
+          const thisAmount = isLast
+            ? Math.max(0.01, remainingAmount - installmentAmount * (numInstallments - 1))
+            : installmentAmount
+
           return {
             saleId: newSale.id,
             installment: i + 1,
-            amount: new Decimal(installmentAmount),
+            amount: new Decimal(Number(thisAmount.toFixed(2))),
             dueDate,
           }
         })

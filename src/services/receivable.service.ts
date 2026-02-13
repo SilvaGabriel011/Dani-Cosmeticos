@@ -369,14 +369,20 @@ export const receivableService = {
         }
       }
 
+      // Recalculate totalFees and netTotal absolutely (safer than increment/decrement)
+      const currentSale = await tx.sale.findUnique({ where: { id: saleId } })
+      let newTotalFees = Number(currentSale!.totalFees)
+      if (feeAbsorber === 'SELLER') {
+        newTotalFees += feeAmount
+      }
+      const newNetTotal = Number(currentSale!.total) - newTotalFees
+
       await tx.sale.update({
         where: { id: saleId },
         data: {
           paidAmount: totalPaidFromPayments,
-          ...(feeAbsorber === 'SELLER' && {
-            totalFees: { increment: feeAmount },
-            netTotal: { decrement: feeAmount },
-          }),
+          totalFees: newTotalFees,
+          netTotal: newNetTotal,
           ...(allReceivablesPaid && { status: 'COMPLETED' }),
         },
       })
@@ -401,16 +407,22 @@ export const receivableService = {
   },
 
   async createForSale(saleId: string, total: number, installmentPlan: number, dueDate: Date) {
-    const installmentAmount = total / installmentPlan
+    const installmentAmount = Math.floor((total / installmentPlan) * 100) / 100
 
     const receivables = Array.from({ length: installmentPlan }, (_, i) => {
       const installmentDueDate = new Date(dueDate)
       installmentDueDate.setMonth(installmentDueDate.getMonth() + i)
 
+      // Last installment absorbs rounding remainder
+      const isLast = i === installmentPlan - 1
+      const thisAmount = isLast
+        ? Math.max(0.01, total - installmentAmount * (installmentPlan - 1))
+        : installmentAmount
+
       return {
         saleId,
         installment: i + 1,
-        amount: installmentAmount,
+        amount: Number(thisAmount.toFixed(2)),
         dueDate: installmentDueDate,
       }
     })
