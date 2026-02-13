@@ -46,34 +46,33 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     // Restore stock, create audit log, then hard delete sale
     await prisma.$transaction(async (tx) => {
-      // Restore stock for each item
+      // Fetch all stock movements for this sale to calculate correct restore amounts
+      const allMovements = await tx.stockMovement.findMany({
+        where: { saleId: params.id },
+      })
+
+      // Aggregate actual decremented quantity per product from movements
+      const decrementedByProduct = new Map<string, number>()
+      for (const movement of allMovements) {
+        if (movement.type === 'SALE' || movement.type === 'BACKORDER') {
+          const current = decrementedByProduct.get(movement.productId) || 0
+          // quantity is negative in movements, so Math.abs gives the decremented amount
+          decrementedByProduct.set(movement.productId, current + Math.abs(movement.quantity))
+        }
+      }
+
+      // Restore stock for each product (aggregated)
+      const restoredProducts = new Set<string>()
       for (const item of sale.items) {
-        const product = await tx.product.findUnique({
-          where: { id: item.productId },
-        })
+        if (restoredProducts.has(item.productId)) continue
+        restoredProducts.add(item.productId)
 
-        if (product) {
-          let quantityToRestore = item.quantity
-          if (item.isBackorder) {
-            const backorderMovement = await tx.stockMovement.findFirst({
-              where: {
-                saleId: params.id,
-                productId: item.productId,
-                type: 'BACKORDER',
-              },
-            })
-            if (backorderMovement) {
-              quantityToRestore = Math.min(item.quantity, backorderMovement.previousStock)
-              quantityToRestore = Math.max(0, quantityToRestore)
-            }
-          }
-
-          if (quantityToRestore > 0) {
-            await tx.product.update({
-              where: { id: item.productId },
-              data: { stock: { increment: quantityToRestore } },
-            })
-          }
+        const quantityToRestore = decrementedByProduct.get(item.productId) || 0
+        if (quantityToRestore > 0) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: quantityToRestore } },
+          })
         }
       }
 

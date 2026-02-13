@@ -39,21 +39,67 @@ export async function POST(
       )
     }
 
-    // Mark as fulfilled
-    const updated = await prisma.saleItem.update({
-      where: { id },
-      data: { backorderFulfilledAt: new Date() },
-      include: {
-        product: {
-          select: { id: true, name: true, stock: true },
-        },
-        sale: {
-          select: {
-            id: true,
-            client: { select: { id: true, name: true } },
+    // Calculate pending backorder quantity from original stock movement
+    const backorderMovement = await prisma.stockMovement.findFirst({
+      where: {
+        saleId: saleItem.saleId,
+        productId: saleItem.productId,
+        type: 'BACKORDER',
+      },
+    })
+
+    // pendingQty = total ordered - what was already taken from stock at sale time
+    const alreadyDeducted = backorderMovement
+      ? Math.min(saleItem.quantity, Math.max(0, backorderMovement.previousStock))
+      : 0
+    const pendingQty = saleItem.quantity - alreadyDeducted
+
+    // Use transaction: mark fulfilled + decrement stock + create movement
+    const updated = await prisma.$transaction(async (tx) => {
+      const updatedItem = await tx.saleItem.update({
+        where: { id },
+        data: { backorderFulfilledAt: new Date() },
+        include: {
+          product: {
+            select: { id: true, name: true, stock: true },
+          },
+          sale: {
+            select: {
+              id: true,
+              client: { select: { id: true, name: true } },
+            },
           },
         },
-      },
+      })
+
+      // Decrement stock for the pending backorder quantity
+      if (pendingQty > 0) {
+        const product = await tx.product.update({
+          where: { id: saleItem.productId },
+          data: { stock: { decrement: pendingQty } },
+        })
+
+        // Safety: check stock didn't go negative
+        if (product.stock < 0) {
+          throw new Error(
+            `Estoque insuficiente para cumprir encomenda. Estoque atual: ${product.stock + pendingQty}, necessário: ${pendingQty}`
+          )
+        }
+
+        await tx.stockMovement.create({
+          data: {
+            productId: saleItem.productId,
+            type: 'SALE',
+            quantity: -pendingQty,
+            previousStock: product.stock + pendingQty,
+            newStock: product.stock,
+            saleId: saleItem.saleId,
+            notes: `Encomenda cumprida: ${pendingQty} un. entregue(s)`,
+          },
+        })
+      }
+
+      return updatedItem
     })
 
     // Invalidate dashboard cache

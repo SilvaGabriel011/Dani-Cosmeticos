@@ -256,21 +256,24 @@ export async function POST(request: NextRequest) {
             data: {
               productId: item.productId,
               type: 'BACKORDER',
-              quantity: -item.quantity,
+              quantity: -availableToDecrement,
               previousStock,
-              newStock: Math.max(0, previousStock - item.quantity),
+              newStock: previousStock - availableToDecrement,
               saleId: newSale.id,
-              notes: `Encomenda: ${item.quantity - availableToDecrement} un. pendente(s)`,
+              notes: `Encomenda: ${item.quantity - availableToDecrement} un. pendente(s) de ${item.quantity} un.`,
             },
           })
         } else {
           // Normal sale: decrement full quantity
-          const newStock = previousStock - item.quantity
-
-          await tx.product.update({
+          const updatedProduct = await tx.product.update({
             where: { id: item.productId },
             data: { stock: { decrement: item.quantity } },
           })
+
+          // Safety: detect concurrent stock race condition
+          if (updatedProduct.stock < 0) {
+            throw new Error(`Estoque insuficiente para ${product.name}. Estoque atual: ${previousStock}, solicitado: ${item.quantity}`)
+          }
 
           await tx.stockMovement.create({
             data: {
@@ -278,7 +281,7 @@ export async function POST(request: NextRequest) {
               type: 'SALE',
               quantity: -item.quantity,
               previousStock,
-              newStock,
+              newStock: updatedProduct.stock,
               saleId: newSale.id,
             },
           })

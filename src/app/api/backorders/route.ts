@@ -36,6 +36,25 @@ export async function GET() {
       orderBy: { addedAt: 'desc' },
     })
 
+    // Fetch all BACKORDER stock movements to calculate actual pending quantities
+    const saleIds = Array.from(new Set(backorderItems.map((i) => i.saleId)))
+    const backorderMovements = saleIds.length > 0
+      ? await prisma.stockMovement.findMany({
+          where: { saleId: { in: saleIds }, type: 'BACKORDER' },
+        })
+      : []
+
+    // Helper: calculate actual pending qty for a backorder item
+    const getPendingQty = (item: typeof backorderItems[0]) => {
+      const movement = backorderMovements.find(
+        (m) => m.saleId === item.saleId && m.productId === item.productId
+      )
+      const alreadyDeducted = movement
+        ? Math.min(item.quantity, Math.max(0, movement.previousStock))
+        : 0
+      return item.quantity - alreadyDeducted
+    }
+
     // Group by product for summary
     const byProduct = new Map<
       string,
@@ -52,9 +71,10 @@ export async function GET() {
     >()
 
     for (const item of backorderItems) {
+      const pendingQty = getPendingQty(item)
       const existing = byProduct.get(item.productId)
       if (existing) {
-        existing.totalPending += item.quantity
+        existing.totalPending += pendingQty
         existing.items.push(item)
       } else {
         byProduct.set(item.productId, {
@@ -64,7 +84,7 @@ export async function GET() {
           brandName: item.product.brand?.name || null,
           categoryName: item.product.category?.name || null,
           currentStock: item.product.stock,
-          totalPending: item.quantity,
+          totalPending: pendingQty,
           items: [item],
         })
       }
@@ -72,7 +92,7 @@ export async function GET() {
 
     return NextResponse.json({
       totalPendingItems: backorderItems.length,
-      totalPendingQuantity: backorderItems.reduce((sum, i) => sum + i.quantity, 0),
+      totalPendingQuantity: backorderItems.reduce((sum, i) => sum + getPendingQty(i), 0),
       byProduct: Array.from(byProduct.values()),
     })
   } catch (error) {

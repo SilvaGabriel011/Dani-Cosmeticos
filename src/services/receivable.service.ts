@@ -1,4 +1,4 @@
-import { Prisma, type ReceivableStatus } from '@prisma/client'
+import { Prisma, type FeeAbsorber, type ReceivableStatus } from '@prisma/client'
 
 import { PAYMENT_TOLERANCE } from '@/lib/constants'
 import { prisma } from '@/lib/prisma'
@@ -10,6 +10,18 @@ interface ListFilters {
   startDate?: Date
   endDate?: Date
   limit?: number
+}
+
+interface PaymentAuditOptions {
+  feePercent?: number
+  feeAbsorber?: FeeAbsorber
+  installments?: number
+}
+
+function buildDueDateFromMonth(baseDate: Date, monthOffset: number, dayOfMonth: number) {
+  const target = new Date(baseDate.getFullYear(), baseDate.getMonth() + monthOffset, 1)
+  const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate()
+  return new Date(target.getFullYear(), target.getMonth(), Math.min(dayOfMonth, lastDay))
 }
 
 export const receivableService = {
@@ -216,7 +228,8 @@ export const receivableService = {
     saleId: string,
     amount: number,
     paymentMethod: 'CASH' | 'PIX' | 'DEBIT' | 'CREDIT' = 'CASH',
-    paidAt?: Date
+    paidAt?: Date,
+    paymentAudit?: PaymentAuditOptions
   ) {
     // Get all pending/partial receivables for this sale, ordered by installment
     const receivables = await prisma.receivable.findMany({
@@ -264,6 +277,10 @@ export const receivableService = {
 
     const updated = await prisma.$transaction(async (tx) => {
       const updatedReceivables = []
+      const feePercent = paymentAudit?.feePercent || 0
+      const feeAbsorber = paymentAudit?.feeAbsorber || 'SELLER'
+      const installments = paymentAudit?.installments || 1
+      const feeAmount = amount * (feePercent / 100)
 
       for (const receivable of receivables) {
         if (remainingPayment <= PAYMENT_TOLERANCE) break
@@ -298,10 +315,10 @@ export const receivableService = {
           saleId,
           method: paymentMethod,
           amount: amount,
-          feePercent: 0,
-          feeAmount: 0,
-          feeAbsorber: 'SELLER',
-          installments: 1,
+          feePercent,
+          feeAmount,
+          feeAbsorber,
+          installments,
           paidAt: paidAt || new Date(),
         },
       })
@@ -336,15 +353,11 @@ export const receivableService = {
 
           // Calculate new due date: 30 days from now, or use paymentDay if configured
           const now = new Date()
-          let newDueDate = new Date(now)
-          newDueDate.setDate(newDueDate.getDate() + 30)
+          let newDueDate = buildDueDateFromMonth(now, 1, now.getDate())
 
           // If sale has a specific payment day configured, use it
           if (sale?.paymentDay) {
-            newDueDate = new Date(now)
-            newDueDate.setMonth(newDueDate.getMonth() + 1)
-            const lastDayOfMonth = new Date(newDueDate.getFullYear(), newDueDate.getMonth() + 1, 0).getDate()
-            newDueDate.setDate(Math.min(sale.paymentDay, lastDayOfMonth))
+            newDueDate = buildDueDateFromMonth(now, 1, sale.paymentDay)
           }
 
           // Update the next pending receivable's due date
@@ -360,6 +373,10 @@ export const receivableService = {
         where: { id: saleId },
         data: {
           paidAmount: totalPaidFromPayments,
+          ...(feeAbsorber === 'SELLER' && {
+            totalFees: { increment: feeAmount },
+            netTotal: { decrement: feeAmount },
+          }),
           ...(allReceivablesPaid && { status: 'COMPLETED' }),
         },
       })
