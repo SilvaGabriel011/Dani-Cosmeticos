@@ -1,6 +1,10 @@
+import { type ReceivableStatus } from '@prisma/client'
 import { Decimal } from '@prisma/client/runtime/library'
 import { type NextRequest, NextResponse } from 'next/server'
 
+import { cache, CACHE_KEYS } from '@/lib/cache'
+import { PAYMENT_TOLERANCE } from '@/lib/constants'
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { addPaymentSchema } from '@/schemas/sale'
 
@@ -72,9 +76,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     const feeAmount = amount * (feePercent / 100)
-    const newPaidAmount = Number(sale.paidAmount) + amount
-    const isPaid = newPaidAmount >= Number(sale.total) - 0.01
-    const newStatus = isPaid ? 'COMPLETED' : 'PENDING'
 
     // Update fees if seller absorbs
     let newTotalFees = Number(sale.totalFees)
@@ -84,6 +85,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const newNetTotal = Number(sale.total) - newTotalFees
 
     const updatedSale = await prisma.$transaction(async (tx) => {
+      // Create Payment record
       await tx.payment.create({
         data: {
           saleId: id,
@@ -95,6 +97,56 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           installments,
         },
       })
+
+      // Distribute payment into pending receivables (FIFO by installment number)
+      const pendingReceivables = await tx.receivable.findMany({
+        where: { saleId: id, status: { in: ['PENDING', 'PARTIAL'] } },
+        orderBy: { installment: 'asc' },
+      })
+
+      if (pendingReceivables.length > 0) {
+        let remainingPayment = amount
+        for (const receivable of pendingReceivables) {
+          if (remainingPayment <= PAYMENT_TOLERANCE) break
+
+          const receivableRemaining = Number(receivable.amount) - Number(receivable.paidAmount)
+          const paymentForThis = Math.min(remainingPayment, receivableRemaining)
+          const newRecPaidAmount = Number(receivable.paidAmount) + paymentForThis
+
+          let newRecStatus: ReceivableStatus = 'PENDING'
+          if (newRecPaidAmount >= Number(receivable.amount) - PAYMENT_TOLERANCE) {
+            newRecStatus = 'PAID'
+          } else if (newRecPaidAmount > 0) {
+            newRecStatus = 'PARTIAL'
+          }
+
+          await tx.receivable.update({
+            where: { id: receivable.id },
+            data: {
+              paidAmount: newRecPaidAmount,
+              status: newRecStatus,
+              paidAt: newRecStatus === 'PAID' ? new Date() : null,
+            },
+          })
+
+          remainingPayment -= paymentForThis
+        }
+      }
+
+      // Calculate paidAmount from all Payment records (includes initial + new)
+      const allPayments = await tx.payment.findMany({ where: { saleId: id } })
+      const newPaidAmount = allPayments.reduce((sum, p) => sum + Number(p.amount), 0)
+      const isPaid = newPaidAmount >= Number(sale.total) - PAYMENT_TOLERANCE
+
+      // Check if all receivables are paid
+      const allReceivables = await tx.receivable.findMany({
+        where: { saleId: id, status: { not: 'CANCELLED' } },
+      })
+      const allReceivablesPaid = allReceivables.length > 0
+        ? allReceivables.every((r) => r.status === 'PAID')
+        : isPaid
+
+      const newStatus = (isPaid || allReceivablesPaid) ? 'COMPLETED' : 'PENDING'
 
       return tx.sale.update({
         where: { id },
@@ -112,13 +164,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       })
     })
 
+    // Invalidate caches after payment
+    cache.invalidate(CACHE_KEYS.DASHBOARD)
+    cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+
     return NextResponse.json(updatedSale)
   } catch (error) {
-    console.error('Error adding payment:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao adicionar pagamento' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }
 

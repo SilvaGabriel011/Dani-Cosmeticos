@@ -81,12 +81,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         const receivable = sale.receivables[i]
         const newDueDate = new Date(baseDate)
         newDueDate.setMonth(newDueDate.getMonth() + i)
-        newDueDate.setDate(paymentDay)
-
-        // Handle months with fewer days
-        if (newDueDate.getDate() !== paymentDay) {
-          newDueDate.setDate(0) // Last day of previous month
-        }
+        // Handle months with fewer days (e.g., day=31 in Feb → Feb 28)
+        const lastDayOfMonth = new Date(newDueDate.getFullYear(), newDueDate.getMonth() + 1, 0).getDate()
+        newDueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
 
         await tx.receivable.update({
           where: { id: receivable.id },

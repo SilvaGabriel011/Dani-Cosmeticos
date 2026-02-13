@@ -74,10 +74,27 @@ export async function GET(request: NextRequest) {
         c."discount"::text as "clientDiscount",
         COALESCE(SUM(s."total" - s."paidAmount"), 0)::text as "totalDebt",
         COALESCE(SUM(s."total" - s."paidAmount"), 0) as total_debt_num,
-        COALESCE(SUM(CASE WHEN s."dueDate" < NOW() THEN s."total" - s."paidAmount" ELSE 0 END), 0)::text as "overdueAmount",
-        COALESCE(SUM(CASE WHEN s."dueDate" < NOW() THEN s."total" - s."paidAmount" ELSE 0 END), 0) as overdue_amount_num,
+        COALESCE((
+          SELECT SUM(r."amount" - r."paidAmount")
+          FROM "Receivable" r
+          WHERE r."saleId" = ANY(ARRAY_AGG(s."id"))
+            AND r."status" IN ('PENDING', 'PARTIAL')
+            AND r."dueDate" < NOW()
+        ), 0)::text as "overdueAmount",
+        COALESCE((
+          SELECT SUM(r."amount" - r."paidAmount")
+          FROM "Receivable" r
+          WHERE r."saleId" = ANY(ARRAY_AGG(s."id"))
+            AND r."status" IN ('PENDING', 'PARTIAL')
+            AND r."dueDate" < NOW()
+        ), 0) as overdue_amount_num,
         COUNT(DISTINCT s."id")::text as "salesCount",
-        MIN(s."dueDate") as "oldestDueDate"
+        (
+          SELECT MIN(r."dueDate")
+          FROM "Receivable" r
+          WHERE r."saleId" = ANY(ARRAY_AGG(s."id"))
+            AND r."status" IN ('PENDING', 'PARTIAL')
+        ) as "oldestDueDate"
       FROM "Client" c
       INNER JOIN "Sale" s ON s."clientId" = c."id" AND s."status" = 'PENDING'
       WHERE c."deletedAt" IS NULL

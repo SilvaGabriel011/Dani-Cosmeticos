@@ -37,10 +37,10 @@ async function fetchDashboardData(): Promise<DashboardData> {
     recentSales,
     stockValue,
   ] = await Promise.all([
-    // Sales today
+    // Sales today (includes COMPLETED + PENDING, excludes CANCELLED)
     prisma.sale.aggregate({
       where: {
-        status: 'COMPLETED',
+        status: { not: 'CANCELLED' },
         createdAt: { gte: todayStart, lte: todayEnd },
       },
       _sum: { total: true },
@@ -50,7 +50,7 @@ async function fetchDashboardData(): Promise<DashboardData> {
     // Sales this week
     prisma.sale.aggregate({
       where: {
-        status: 'COMPLETED',
+        status: { not: 'CANCELLED' },
         createdAt: { gte: weekStart },
       },
       _sum: { total: true },
@@ -60,7 +60,7 @@ async function fetchDashboardData(): Promise<DashboardData> {
     // Sales this month
     prisma.sale.aggregate({
       where: {
-        status: 'COMPLETED',
+        status: { not: 'CANCELLED' },
         createdAt: { gte: monthStart },
       },
       _sum: { total: true },
@@ -94,9 +94,9 @@ async function fetchDashboardData(): Promise<DashboardData> {
       },
     }),
 
-    // Recent sales - optimized includes
+    // Recent sales - optimized includes (includes PENDING)
     prisma.sale.findMany({
-      where: { status: 'COMPLETED' },
+      where: { status: { not: 'CANCELLED' } },
       select: {
         id: true,
         total: true,

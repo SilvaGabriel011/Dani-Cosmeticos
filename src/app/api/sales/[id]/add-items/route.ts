@@ -108,10 +108,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const lastInstallmentNumber = lastReceivable?.installment || 0
     const paymentDay = sale.paymentDay || (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate).getDate() : new Date().getDate())
 
+    // Apply the sale's discount to new items for consistency
+    const saleDiscountPercent = Number(sale.discountPercent)
+    const newItemsDiscount = newItemsTotal * (saleDiscountPercent / 100)
+    const discountedNewItemsTotal = newItemsTotal - newItemsDiscount
+
     // Calculate new totals
-    const newTotal = Number(sale.total) + newItemsTotal
     const newSubtotal = Number(sale.subtotal) + newItemsTotal
-    const newNetTotal = Number(sale.netTotal) + newItemsTotal
+    const newDiscountAmount = Number(sale.discountAmount) + newItemsDiscount
+    const newTotal = Number(sale.total) + discountedNewItemsTotal
+    const newNetTotal = Number(sale.netTotal) + discountedNewItemsTotal
 
     // Calculate new remaining balance (what's still owed after adding new items)
     const alreadyPaid = Number(sale.paidAmount)
@@ -252,6 +258,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         where: { id },
         data: {
           subtotal: new Decimal(newSubtotal),
+          discountAmount: new Decimal(newDiscountAmount),
           total: new Decimal(newTotal),
           netTotal: new Decimal(newNetTotal),
           installmentPlan: updatedInstallmentPlan,

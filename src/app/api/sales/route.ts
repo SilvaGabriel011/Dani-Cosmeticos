@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate totals
-    const finalDiscountPercent = discountPercent || clientDiscount
+    const finalDiscountPercent = discountPercent ?? clientDiscount
     let subtotal = 0
     const saleItems = items.map((item) => {
       const product = products.find((p) => p.id === item.productId)!

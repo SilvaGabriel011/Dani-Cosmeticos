@@ -1,4 +1,4 @@
-import { type ReceivableStatus } from '@prisma/client'
+import { Prisma, type ReceivableStatus } from '@prisma/client'
 
 import { PAYMENT_TOLERANCE } from '@/lib/constants'
 import { prisma } from '@/lib/prisma'
@@ -137,8 +137,14 @@ export const receivableService = {
     const newPaidAmount = Number(receivable.paidAmount) + amount
     const expectedAmount = Number(receivable.amount)
 
+    // Validate payment doesn't exceed remaining balance
+    const remainingOnReceivable = expectedAmount - Number(receivable.paidAmount)
+    if (amount > remainingOnReceivable + PAYMENT_TOLERANCE) {
+      throw new Error(`Valor excede o saldo da parcela. Máximo: R$ ${remainingOnReceivable.toFixed(2)}`)
+    }
+
     let newStatus: ReceivableStatus = 'PENDING'
-    if (newPaidAmount >= expectedAmount) {
+    if (newPaidAmount >= expectedAmount - PAYMENT_TOLERANCE) {
       newStatus = 'PAID'
     } else if (newPaidAmount > 0) {
       newStatus = 'PARTIAL'
@@ -174,16 +180,19 @@ export const receivableService = {
         },
       })
 
-      // Update sale paidAmount (exclude CANCELLED receivables)
-      const allReceivables = await tx.receivable.findMany({
-        where: { saleId: receivable.saleId, status: { not: 'CANCELLED' } },
+      // Update sale paidAmount using sum of all Payment records (includes initial payments)
+      const allPayments = await tx.payment.findMany({
+        where: { saleId: receivable.saleId },
       })
-
-      const totalPaidFromReceivables = allReceivables.reduce(
-        (sum, r) => sum + Number(r.paidAmount),
+      const totalPaidFromPayments = allPayments.reduce(
+        (sum, p) => sum + Number(p.amount),
         0
       )
 
+      // Check if all receivables are paid
+      const allReceivables = await tx.receivable.findMany({
+        where: { saleId: receivable.saleId, status: { not: 'CANCELLED' } },
+      })
       const allReceivablesPaid = allReceivables.every((r) =>
         r.id === id ? newStatus === 'PAID' : r.status === 'PAID'
       )
@@ -191,7 +200,7 @@ export const receivableService = {
       await tx.sale.update({
         where: { id: receivable.saleId },
         data: {
-          paidAmount: totalPaidFromReceivables,
+          paidAmount: totalPaidFromPayments,
           // Update status to COMPLETED if all receivables are paid
           ...(allReceivablesPaid && { status: 'COMPLETED' }),
         },
@@ -297,16 +306,19 @@ export const receivableService = {
         },
       })
 
-      // Update sale paidAmount (exclude CANCELLED receivables)
-      const allReceivables = await tx.receivable.findMany({
-        where: { saleId, status: { not: 'CANCELLED' } },
+      // Update sale paidAmount using sum of all Payment records (includes initial payments)
+      const allPayments = await tx.payment.findMany({
+        where: { saleId },
       })
-
-      const totalPaidFromReceivables = allReceivables.reduce(
-        (sum, r) => sum + Number(r.paidAmount),
+      const totalPaidFromPayments = allPayments.reduce(
+        (sum, p) => sum + Number(p.amount),
         0
       )
 
+      // Check if all receivables are paid
+      const allReceivables = await tx.receivable.findMany({
+        where: { saleId, status: { not: 'CANCELLED' } },
+      })
       const allReceivablesPaid = allReceivables.every((r) => r.status === 'PAID')
 
       // Update dueDate of remaining pending receivables to push client to end of queue
@@ -331,7 +343,8 @@ export const receivableService = {
           if (sale?.paymentDay) {
             newDueDate = new Date(now)
             newDueDate.setMonth(newDueDate.getMonth() + 1)
-            newDueDate.setDate(sale.paymentDay)
+            const lastDayOfMonth = new Date(newDueDate.getFullYear(), newDueDate.getMonth() + 1, 0).getDate()
+            newDueDate.setDate(Math.min(sale.paymentDay, lastDayOfMonth))
           }
 
           // Update the next pending receivable's due date
@@ -346,7 +359,7 @@ export const receivableService = {
       await tx.sale.update({
         where: { id: saleId },
         data: {
-          paidAmount: totalPaidFromReceivables,
+          paidAmount: totalPaidFromPayments,
           ...(allReceivablesPaid && { status: 'COMPLETED' }),
         },
       })
@@ -358,11 +371,11 @@ export const receivableService = {
   },
 
   async updateSalePaidAmount(saleId: string) {
-    const receivables = await prisma.receivable.findMany({
-      where: { saleId, status: { not: 'CANCELLED' } },
+    // Use sum of all Payment records (includes initial payments at sale creation)
+    const allPayments = await prisma.payment.findMany({
+      where: { saleId },
     })
-
-    const totalPaid = receivables.reduce((sum, r) => sum + Number(r.paidAmount), 0)
+    const totalPaid = allPayments.reduce((sum, p) => sum + Number(p.amount), 0)
 
     await prisma.sale.update({
       where: { id: saleId },
@@ -412,6 +425,11 @@ export const receivableService = {
 
   async getDashboardSummary(startDate?: Date, endDate?: Date) {
     // Use SQL aggregation for better performance - single query for all totals
+    // Apply date filter to totals so cards match the filtered list
+    const dateFilter = startDate && endDate
+      ? Prisma.sql`AND r."dueDate" >= ${startDate} AND r."dueDate" <= ${endDate}`
+      : Prisma.empty
+
     const summaryResult = await prisma.$queryRaw<
       {
         totalDue: string | null
@@ -427,6 +445,7 @@ export const receivableService = {
         COUNT(CASE WHEN r."dueDate" < NOW() THEN 1 END)::text as "overdueCount"
       FROM "Receivable" r
       WHERE r."status" IN ('PENDING', 'PARTIAL')
+      ${dateFilter}
     `
 
     // Fetch only top 10 receivables for display (lightweight query with select)

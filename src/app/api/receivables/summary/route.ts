@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { cache, CACHE_TTL, CACHE_KEYS } from '@/lib/cache'
+import { handleApiError } from '@/lib/errors'
 import { receivableService } from '@/services/receivable.service'
 
 export const dynamic = 'force-dynamic'
@@ -30,9 +31,8 @@ export async function GET(request: NextRequest) {
     cache.set(cacheKey, data, CACHE_TTL.DASHBOARD)
 
     return NextResponse.json(data)
-  } catch (error: unknown) {
-    console.error('Error fetching receivables summary:', error)
-    const message = error instanceof Error ? error.message : 'Erro ao buscar resumo'
-    return NextResponse.json({ error: message }, { status: 400 })
+  } catch (error) {
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

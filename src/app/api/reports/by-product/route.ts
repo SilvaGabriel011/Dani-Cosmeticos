@@ -35,6 +35,11 @@ export async function GET(request: NextRequest) {
             code: true,
           },
         },
+        sale: {
+          select: {
+            discountPercent: true,
+          },
+        },
       },
     })
 
@@ -53,7 +58,8 @@ export async function GET(request: NextRequest) {
 
     for (const item of saleItems) {
       const existing = productMap.get(item.productId)
-      const revenue = Number(item.total)
+      const discountPercent = Number(item.sale.discountPercent)
+      const revenue = Number(item.total) * (1 - discountPercent / 100)
       const cost = Number(item.costPrice) * item.quantity
       const profit = revenue - cost
 
