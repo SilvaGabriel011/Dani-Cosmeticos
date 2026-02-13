@@ -81,7 +81,7 @@ export default function DashboardPage() {
                   <CreditCard className="h-5 w-5" />
                   Fiado
                   {overdueCount > 0 ? (
-                    <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-sm px-2 py-0.5">
+                    <Badge variant="secondary" className="ml-1 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-sm px-2 py-0.5">
                       {overdueCount} venc.
                     </Badge>
                   ) : fiadoCount > 0 ? (
@@ -103,7 +103,7 @@ export default function DashboardPage() {
                   <Package className="h-5 w-5" />
                   Estoque
                   {stockAlertCount > 0 && (
-                    <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-sm px-2 py-0.5">
+                    <Badge variant="secondary" className="ml-1 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-sm px-2 py-0.5">
                       {stockAlertCount}
                     </Badge>
                   )}

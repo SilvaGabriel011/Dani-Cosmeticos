@@ -459,7 +459,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
               type="button" 
               variant="outline" 
               onClick={() => onOpenChange(false)}
-              className="transition-all duration-200 hover:bg-gray-100"
+              className="transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               Cancelar
             </Button>

@@ -871,7 +871,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
           {/* Products Section */}
           <div className="space-y-4">
-            <Card key={`products-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.products ? 'border-2 border-red-400 shadow-sm shadow-red-100 animate-shake' : items.length > 0 ? 'border-2 border-green-400 shadow-sm shadow-green-100' : ''}`}>
+            <Card key={`products-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.products ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : items.length > 0 ? 'border-2 border-green-400 shadow-sm shadow-green-100 dark:shadow-green-900/30' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>Produtos</span>
@@ -917,7 +917,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                 )}
 
                 {validationErrors.products && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm font-medium">
                     <AlertTriangle className="h-4 w-4 shrink-0" />
                     {validationErrors.products}
                   </div>
@@ -1028,9 +1028,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
                 {/* Item Avulso - Quick product creation */}
                 {showQuickProduct ? (
-                  <div className="border border-dashed border-amber-300 bg-amber-50/50 rounded-lg p-3 space-y-2">
+                  <div className="border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/30 rounded-lg p-3 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-amber-800 flex items-center gap-1.5">
+                      <span className="text-sm font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                         <Package className="h-4 w-4" />
                         Item Avulso
                       </span>
@@ -1080,7 +1080,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     </div>
                     <Button
                       size="sm"
-                      className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                      className="w-full bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white"
                       onClick={handleQuickProduct}
                       disabled={createProduct.isPending}
                     >
@@ -1101,7 +1101,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full border-dashed border-amber-300 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
+                    className="w-full border-dashed border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-800 dark:hover:text-amber-300"
                     onClick={() => {
                       setShowQuickProduct(true)
                       if (productSearch.trim() && filteredProducts.length === 0) {
@@ -1129,7 +1129,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
           {/* Payment Section */}
           <div className="space-y-4">
-            <Card key={`client-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.client ? 'border-2 border-red-400 shadow-sm shadow-red-100 animate-shake' : selectedClient ? 'border-2 border-green-400 shadow-sm shadow-green-100' : ''}`}>
+            <Card key={`client-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.client ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : selectedClient ? 'border-2 border-green-400 shadow-sm shadow-green-100 dark:shadow-green-900/30' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>Cliente e Desconto</span>
@@ -1142,7 +1142,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               </CardHeader>
               <CardContent className="space-y-3">
                 {validationErrors.client && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm font-medium">
                     <AlertTriangle className="h-4 w-4 shrink-0" />
                     {validationErrors.client}
                   </div>
@@ -1170,7 +1170,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       className="pl-9 h-11 text-base"
                     />
                     {isClientDropdownOpen && !clientId && (
-                      <div ref={clientDropdownRef} className="absolute z-50 w-full mt-1 max-h-48 md:max-h-72 overflow-y-auto border rounded-md bg-white shadow-lg">
+                      <div ref={clientDropdownRef} className="absolute z-50 w-full mt-1 max-h-48 md:max-h-72 overflow-y-auto border rounded-md bg-popover text-popover-foreground shadow-lg">
                         {clientCompletions.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 px-3 py-2 border-b bg-muted/30">
                             {clientCompletions.map((word) => (
@@ -1220,7 +1220,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             <p className="text-sm text-muted-foreground">Nenhum cliente encontrado</p>
                             <button
                               type="button"
-                              className="w-full mt-1 px-3 py-2.5 text-left text-sm min-h-[44px] hover:bg-blue-50 focus:outline-none active:bg-blue-100 text-blue-700 font-medium flex items-center gap-2 rounded-md"
+                              className="w-full mt-1 px-3 py-2.5 text-left text-sm min-h-[44px] hover:bg-blue-50 dark:hover:bg-blue-950/30 focus:outline-none active:bg-blue-100 dark:active:bg-blue-950/50 text-blue-700 dark:text-blue-400 font-medium flex items-center gap-2 rounded-md"
                               onMouseDown={(e) => {
                                 e.preventDefault()
                                 setShowQuickClient(true)
@@ -1261,9 +1261,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
                 {/* Quick client registration */}
                 {showQuickClient ? (
-                  <div className="border border-dashed border-blue-300 bg-blue-50/50 rounded-lg p-3 space-y-2">
+                  <div className="border border-dashed border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-950/30 rounded-lg p-3 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-blue-800 flex items-center gap-1.5">
+                      <span className="text-sm font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
                         <UserPlus className="h-4 w-4" />
                         Novo Cliente
                       </span>
@@ -1299,7 +1299,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     />
                     <Button
                       size="sm"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white"
                       onClick={handleQuickClient}
                       disabled={createClient.isPending}
                     >
@@ -1321,7 +1321,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     <Button
                       variant="outline"
                       size="sm"
-                      className="w-full border-dashed border-blue-300 text-blue-700 hover:bg-blue-50 hover:text-blue-800"
+                      className="w-full border-dashed border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-800 dark:hover:text-blue-300"
                       onClick={() => {
                         setShowQuickClient(true)
                         if (clientSearch.trim()) {
@@ -1337,8 +1337,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
                 {/* Multiple purchases feature - add to existing account */}
                 {clientId && pendingSales.length > 0 && (
-                  <div className="space-y-3 p-3 border rounded-md border-blue-200 bg-blue-50">
-                    <p className="text-sm font-medium text-blue-800">
+                  <div className="space-y-3 p-3 border rounded-md border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30">
+                    <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
                       Este cliente tem {pendingSales.length} conta(s) em aberto
                     </p>
                     <RadioGroup
@@ -1409,7 +1409,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                                 onValueChange={(v) => setExistingMode(v as 'increase_installments' | 'increase_value')}
                                 className="space-y-2"
                               >
-                                <div className={`flex items-start space-x-2 p-2.5 rounded-md border transition-colors ${existingMode === 'increase_installments' ? 'border-blue-400 bg-blue-50' : 'border-gray-200'}`}>
+                                <div className={`flex items-start space-x-2 p-2.5 rounded-md border transition-colors ${existingMode === 'increase_installments' ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
                                   <RadioGroupItem value="increase_installments" id="mode-increase-installments" className="mt-0.5" />
                                   <div className="flex-1">
                                     <Label htmlFor="mode-increase-installments" className="cursor-pointer text-sm font-medium">
@@ -1419,7 +1419,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                                       Mantém parcela de {formatCurrency(currentInstallment)}, adiciona {extraInstallments > 0 ? extraInstallments : '?'} parcela(s) no fim
                                     </p>
                                     {existingMode === 'increase_installments' && extraInstallments > 0 && (
-                                      <p className="text-xs text-blue-700 font-semibold mt-1">
+                                      <p className="text-xs text-blue-700 dark:text-blue-400 font-semibold mt-1">
                                         +{extraInstallments}x de {formatCurrency(installmentAmountForPreview)}
                                         {lastExtraAmount > 0 && Math.abs(lastExtraAmount - installmentAmountForPreview) > 0.01 && (
                                           <> (última: {formatCurrency(lastExtraAmount)})</>
@@ -1428,7 +1428,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                                     )}
                                   </div>
                                 </div>
-                                <div className={`flex items-start space-x-2 p-2.5 rounded-md border transition-colors ${existingMode === 'increase_value' ? 'border-blue-400 bg-blue-50' : 'border-gray-200'}`}>
+                                <div className={`flex items-start space-x-2 p-2.5 rounded-md border transition-colors ${existingMode === 'increase_value' ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
                                   <RadioGroupItem value="increase_value" id="mode-increase-value" className="mt-0.5" />
                                   <div className="flex-1">
                                     <Label htmlFor="mode-increase-value" className="cursor-pointer text-sm font-medium">
@@ -1438,7 +1438,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                                       Mantém {pendingCount} parcela(s), aumenta valor de cada
                                     </p>
                                     {existingMode === 'increase_value' && pendingCount > 0 && (
-                                      <p className="text-xs text-blue-700 font-semibold mt-1">
+                                      <p className="text-xs text-blue-700 dark:text-blue-400 font-semibold mt-1">
                                         {pendingCount}x de {formatCurrency(newValuePerInstallment)} (era {formatCurrency(currentInstallment)})
                                       </p>
                                     )}
@@ -1487,7 +1487,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               </CardContent>
             </Card>
 
-            <Card key={`prices-${shakeKey}`} className={`border-2 bg-gradient-to-br from-primary/5 to-transparent transition-all duration-300 ${validationErrors.prices ? 'border-red-400 shadow-sm shadow-red-100 animate-shake' : items.length > 0 ? 'border-green-400 shadow-sm shadow-green-100' : 'border-primary/20'}`}>
+            <Card key={`prices-${shakeKey}`} className={`border-2 bg-gradient-to-br from-primary/5 to-transparent transition-all duration-300 ${validationErrors.prices ? 'border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : items.length > 0 ? 'border-green-400 shadow-sm shadow-green-100 dark:shadow-green-900/30' : 'border-primary/20'}`}>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center gap-2">
@@ -1524,16 +1524,16 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                         className={`p-2 border rounded-lg animate-in fade-in duration-200 ${
                           item.unitPrice !== item.originalPrice
                             ? item.unitPrice < item.originalPrice
-                              ? 'border-green-200 bg-green-50/30'
-                              : 'border-orange-200 bg-orange-50/30'
-                            : 'bg-gray-50/50'
+                              ? 'border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-950/20'
+                              : 'border-orange-200 dark:border-orange-800 bg-orange-50/30 dark:bg-orange-950/20'
+                            : 'bg-gray-50/50 dark:bg-gray-900/50'
                         }`}
                       >
                         {/* Linha 1: Nome + Remover */}
                         <div className="flex items-center justify-between gap-1 mb-1.5">
                           <span className="font-medium text-sm leading-tight truncate flex-1">{item.product.name}</span>
                           {(item.product.stock <= 0 || item.quantity > item.product.stock) && (
-                            <span className="inline-flex items-center gap-0.5 text-[9px] font-medium text-amber-700 bg-amber-100 px-1 py-0.5 rounded-full shrink-0">
+                            <span className="inline-flex items-center gap-0.5 text-[9px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1 py-0.5 rounded-full shrink-0">
                               <Package className="h-2 w-2" />
                               Enc.
                             </span>
@@ -1541,7 +1541,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6 shrink-0 hover:bg-red-50 hover:text-red-600"
+                            className="h-6 w-6 shrink-0 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600"
                             onClick={() => removeItem(item.product.id)}
                           >
                             <Trash2 className="h-3.5 w-3.5 text-destructive" />
@@ -1554,7 +1554,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 rounded hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+                              className="h-7 w-7 rounded hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 disabled:opacity-40"
                               onClick={() => updateQuantity(item.product.id, -1)}
                               disabled={item.quantity <= 1}
                             >
@@ -1564,7 +1564,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 rounded hover:bg-green-50 hover:text-green-600 disabled:opacity-40"
+                              className="h-7 w-7 rounded hover:bg-green-50 dark:hover:bg-green-950/30 hover:text-green-600 disabled:opacity-40"
                               onClick={() => updateQuantity(item.product.id, 1)}
                               disabled={item.product.stock > 0 && item.quantity >= item.product.stock}
                             >
@@ -1580,15 +1580,15 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                         <div className={`mt-2 p-2.5 rounded-lg border-2 border-dashed transition-all ${
                           item.unitPrice !== item.originalPrice
                             ? item.unitPrice < item.originalPrice
-                              ? 'border-green-400 bg-green-50/60'
-                              : 'border-orange-400 bg-orange-50/60'
-                            : 'border-red-300 bg-red-50/40 hover:border-red-400 hover:bg-red-50/60'
+                              ? 'border-green-400 dark:border-green-600 bg-green-50/60 dark:bg-green-950/30'
+                              : 'border-orange-400 dark:border-orange-600 bg-orange-50/60 dark:bg-orange-950/30'
+                            : 'border-red-300 dark:border-red-700 bg-red-50/40 dark:bg-red-950/20 hover:border-red-400 dark:hover:border-red-600 hover:bg-red-50/60 dark:hover:bg-red-950/30'
                         }`}>
                           <div className="flex items-center justify-between gap-2">
                             <label className={`text-xs font-semibold flex items-center gap-1 ${
                               item.unitPrice !== item.originalPrice
-                                ? item.unitPrice < item.originalPrice ? 'text-green-700' : 'text-orange-700'
-                                : 'text-red-600'
+                                ? item.unitPrice < item.originalPrice ? 'text-green-700 dark:text-green-400' : 'text-orange-700 dark:text-orange-400'
+                                : 'text-red-600 dark:text-red-400'
                             }`}>
                               <Pencil className="h-3 w-3" />
                               Preço unitário
@@ -1596,8 +1596,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             {item.unitPrice !== item.originalPrice && (
                               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                                 item.unitPrice < item.originalPrice
-                                  ? 'bg-green-200 text-green-800'
-                                  : 'bg-orange-200 text-orange-800'
+                                  ? 'bg-green-200 dark:bg-green-900/50 text-green-800 dark:text-green-300'
+                                  : 'bg-orange-200 dark:bg-orange-900/50 text-orange-800 dark:text-orange-300'
                               }`}>
                                 {item.unitPrice < item.originalPrice
                                   ? `-${((1 - item.unitPrice / item.originalPrice) * 100).toFixed(0)}%`
@@ -1608,8 +1608,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           <div className="relative mt-1.5 group/price">
                             <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium ${
                               item.unitPrice !== item.originalPrice
-                                ? item.unitPrice < item.originalPrice ? 'text-green-600' : 'text-orange-600'
-                                : 'text-red-400'
+                                ? item.unitPrice < item.originalPrice ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'
+                                : 'text-red-400 dark:text-red-500'
                             }`}>R$</span>
                             <Input
                               type="number"
@@ -1618,9 +1618,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                               className={`h-10 pl-9 pr-3 text-right text-base font-bold rounded-md transition-all cursor-pointer border-2 ${
                                 item.unitPrice !== item.originalPrice
                                   ? item.unitPrice < item.originalPrice
-                                    ? 'border-green-300 bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200'
-                                    : 'border-orange-300 bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-200'
-                                  : 'border-red-200 bg-white hover:border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                                    ? 'border-green-300 dark:border-green-700 bg-background focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800'
+                                    : 'border-orange-300 dark:border-orange-700 bg-background focus:border-orange-500 focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-800'
+                                  : 'border-red-200 dark:border-red-800 bg-background hover:border-red-300 dark:hover:border-red-700 focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-800'
                               }`}
                               value={item.unitPrice}
                               onChange={(e) => updateItemPrice(item.product.id, Number(e.target.value))}
@@ -1643,8 +1643,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                 {/* Totais */}
                 {promoAmount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-purple-600 font-medium">Promoção:</span>
-                    <span className="text-purple-600 font-semibold">-{formatCurrency(promoAmount)}</span>
+                    <span className="text-purple-600 dark:text-purple-400 font-medium">Promoção:</span>
+                    <span className="text-purple-600 dark:text-purple-400 font-semibold">-{formatCurrency(promoAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm text-muted-foreground">
@@ -1653,8 +1653,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                 </div>
                 {effectiveDiscount > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-green-600 font-medium">Desconto ({effectiveDiscount}%):</span>
-                    <span className="text-green-600 font-semibold">-{formatCurrency(discountAmount)}</span>
+                    <span className="text-green-600 dark:text-green-400 font-medium">Desconto ({effectiveDiscount}%):</span>
+                    <span className="text-green-600 dark:text-green-400 font-semibold">-{formatCurrency(discountAmount)}</span>
                   </div>
                 )}
                 <Separator className="my-2" />
@@ -1678,15 +1678,15 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                   </div>
                 </div>
                 {(isFiadoMode || remaining > 0) && (
-                  <div className="flex justify-between text-sm bg-amber-50 p-2 rounded-lg border border-amber-200">
-                    <span className="text-amber-700 font-medium">Restante (Fiado):</span>
-                    <span className="text-amber-700 font-bold">{formatCurrency(isFiadoMode ? total : remaining)}</span>
+                  <div className="flex justify-between text-sm bg-amber-50 dark:bg-amber-950/30 p-2 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <span className="text-amber-700 dark:text-amber-400 font-medium">Restante (Fiado):</span>
+                    <span className="text-amber-700 dark:text-amber-400 font-bold">{formatCurrency(isFiadoMode ? total : remaining)}</span>
                   </div>
                 )}
                 {remaining < 0 && (
-                  <div className="flex justify-between text-sm bg-red-50 p-2 rounded-lg border border-red-200">
-                    <span className="text-red-600 font-medium">Excedente:</span>
-                    <span className="text-red-600 font-bold">{formatCurrency(Math.abs(remaining))}</span>
+                  <div className="flex justify-between text-sm bg-red-50 dark:bg-red-950/30 p-2 rounded-lg border border-red-200 dark:border-red-800">
+                    <span className="text-red-600 dark:text-red-400 font-medium">Excedente:</span>
+                    <span className="text-red-600 dark:text-red-400 font-bold">{formatCurrency(Math.abs(remaining))}</span>
                   </div>
                 )}
               </CardContent>
@@ -1695,22 +1695,22 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
           {/* Payment Section */}
           <div className="space-y-4">
-            <Card key={`payment-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.payment ? 'border-2 border-red-400 shadow-sm shadow-red-100 animate-shake' : ''}`}>
+            <Card key={`payment-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.payment ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Forma de Pagamento</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {validationErrors.payment && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm font-medium">
                     <AlertTriangle className="h-4 w-4 shrink-0" />
                     {validationErrors.payment}
                   </div>
                 )}
 
                 {/* Resumo do valor */}
-                <div className={`p-4 rounded-xl text-center border ${isFiadoMode ? 'bg-gradient-to-br from-amber-100 to-amber-50 border-amber-300' : 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20'}`}>
+                <div className={`p-4 rounded-xl text-center border ${isFiadoMode ? 'bg-gradient-to-br from-amber-100 dark:from-amber-950/40 to-amber-50 dark:to-amber-950/20 border-amber-300 dark:border-amber-700' : 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20'}`}>
                   <p className="text-sm text-muted-foreground font-medium">Total da compra</p>
-                  <p className={`text-3xl font-bold mt-1 ${isFiadoMode ? 'text-amber-700' : 'text-primary'}`}>{formatCurrency(total)}</p>
+                  <p className={`text-3xl font-bold mt-1 ${isFiadoMode ? 'text-amber-700 dark:text-amber-400' : 'text-primary'}`}>{formatCurrency(total)}</p>
                 </div>
 
                 {/* Escolha principal: Pagar Agora vs Fiado */}
@@ -1738,7 +1738,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
                   <Button
                     variant={isFiadoMode ? 'default' : 'outline'}
-                    className={`h-auto py-4 px-5 justify-start transition-all duration-200 ${isFiadoMode ? 'bg-amber-600 hover:bg-amber-700 ring-2 ring-amber-500 ring-offset-2 text-white' : 'hover:bg-amber-50'}`}
+                    className={`h-auto py-4 px-5 justify-start transition-all duration-200 ${isFiadoMode ? 'bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-background text-white' : 'hover:bg-amber-50 dark:hover:bg-amber-950/30'}`}
                     onClick={() => {
                       setIsFiadoMode(true)
                       setPayments([])
@@ -1758,8 +1758,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
                 {/* Campos específicos baseados na escolha */}
                 {!isFiadoMode ? (
-                  <div className="bg-green-50/80 p-4 rounded-xl space-y-3 border border-green-200">
-                    <p className="font-semibold text-green-800 flex items-center gap-2">
+                  <div className="bg-green-50/80 dark:bg-green-950/20 p-4 rounded-xl space-y-3 border border-green-200 dark:border-green-800">
+                    <p className="font-semibold text-green-800 dark:text-green-300 flex items-center gap-2">
                       <Wallet className="h-5 w-5" />
                       Forma de pagamento:
                     </p>
@@ -1776,7 +1776,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       </p>
                     ) : (
                       payments.map((payment, index) => (
-                        <div key={index} className="space-y-2 p-3 border rounded-md bg-white">
+                        <div key={index} className="space-y-2 p-3 border rounded-md bg-background">
                           <div className="flex gap-2">
                             <Select
                               value={payment.method}
@@ -1842,12 +1842,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                     )}
                   </div>
                 ) : (
-                  <div className="bg-amber-50/80 p-3 rounded-xl border border-amber-200 text-center">
-                    <p className="font-semibold text-amber-800 flex items-center justify-center gap-2">
+                  <div className="bg-amber-50/80 dark:bg-amber-950/20 p-3 rounded-xl border border-amber-200 dark:border-amber-800 text-center">
+                    <p className="font-semibold text-amber-800 dark:text-amber-300 flex items-center justify-center gap-2">
                       <Handshake className="h-5 w-5" />
                       Fiado selecionado
                     </p>
-                    <p className="text-sm text-amber-600 mt-1">
+                    <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
                       <strong>{formatCurrency(total)}</strong> será registrado como fiado.
                     </p>
                   </div>
@@ -1862,7 +1862,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         <div className="border-t pt-3 mt-0 shrink-0 bg-background">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             {isFiado ? (
-              <div className="flex flex-wrap items-center gap-4 text-base w-full sm:w-auto bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+              <div className="flex flex-wrap items-center gap-4 text-base w-full sm:w-auto bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-3">
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -1875,7 +1875,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                         setPayments([])
                       }
                     }}
-                    className="h-4 w-4 rounded border-gray-300"
+                    className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
                   />
                   <Label htmlFor="footer-installment-toggle" className="cursor-pointer text-base font-semibold whitespace-nowrap">
                     Dividir em parcelas
@@ -1978,7 +1978,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       />
                     </div>
                     {total > 0 && Number(installmentPlan) > 0 && (
-                      <span className="text-base text-amber-700 font-semibold whitespace-nowrap">
+                      <span className="text-base text-amber-700 dark:text-amber-400 font-semibold whitespace-nowrap">
                         {installmentPlan}x de {formatCurrency(fixedInstallmentAmount || total / Number(installmentPlan))}
                       </span>
                     )}
@@ -2004,13 +2004,13 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             date.setDate(lastDay)
                           }
                           return (
-                            <span key={i} className="bg-amber-100 px-1.5 py-0.5 rounded text-xs font-medium">
+                            <span key={i} className="bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 px-1.5 py-0.5 rounded text-xs font-medium">
                               {date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
                             </span>
                           )
                         })}
                         {Number(installmentPlan) > 6 && (
-                          <span className="text-xs text-amber-600">+{Number(installmentPlan) - 6} mais</span>
+                          <span className="text-xs text-amber-600 dark:text-amber-400">+{Number(installmentPlan) - 6} mais</span>
                         )}
                       </div>
                     )}
@@ -2024,7 +2024,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               <Button 
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
-                className="transition-all duration-200 hover:bg-gray-100"
+                className="transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Cancelar
               </Button>
@@ -2038,7 +2038,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                 }
                 className={`min-w-[160px] transition-all duration-200 disabled:opacity-50 ${
                   isFiado
-                    ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                    ? 'bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white'
                     : ''
                 }`}
               >
@@ -2068,8 +2068,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         <DialogContent className="max-w-md">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100">
-                <AlertTriangle className="h-5 w-5 text-amber-600" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/50">
+                <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <DialogTitle>Itens sem estoque</DialogTitle>
             </div>
@@ -2083,10 +2083,10 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
             {backorderItems.map((item) => (
               <div
                 key={item.product.id}
-                className="flex items-center justify-between text-sm bg-amber-50 border border-amber-200 rounded-lg px-3 py-2"
+                className="flex items-center justify-between text-sm bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2"
               >
                 <span className="font-medium">{item.product.name}</span>
-                <span className="text-amber-700 font-semibold">{item.quantity} un.</span>
+                <span className="text-amber-700 dark:text-amber-400 font-semibold">{item.quantity} un.</span>
               </div>
             ))}
           </div>
@@ -2095,7 +2095,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               Voltar
             </Button>
             <Button
-              className="bg-amber-600 hover:bg-amber-700 text-white"
+              className="bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white"
               onClick={handleSubmit}
             >
               <Package className="h-4 w-4 mr-2" />

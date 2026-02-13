@@ -64,7 +64,7 @@ export default function ClientesPage() {
                 <TabsTrigger value="devedores" className="gap-1.5">
                   Devedores
                   {devedoresCount > 0 && (
-                    <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-xs px-1.5 py-0">
+                    <Badge variant="secondary" className="ml-1 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-xs px-1.5 py-0">
                       {devedoresCount}
                     </Badge>
                   )}

@@ -101,7 +101,7 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
                   href={formatWhatsAppUrl(debtor.client.phone)!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-green-600 hover:text-green-700 transition-colors"
+                  className="flex items-center gap-1 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors"
                   title="Abrir WhatsApp"
                 >
                   <MessageCircle className="h-5 w-5" />
@@ -134,7 +134,7 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
               {debtor.salesCount !== 1 ? 's' : ''}
             </span>
             {monthlyExpected > 0 && (
-              <div className="flex items-center gap-1 text-sm font-medium text-amber-700">
+              <div className="flex items-center gap-1 text-sm font-medium text-amber-700 dark:text-amber-400">
                 <DollarSign className="h-4 w-4" />
                 Cobrar: {formatCurrency(monthlyExpected)}/mês
               </div>
@@ -201,10 +201,10 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
                       <span className="text-muted-foreground">
                         Parcelas: {paidInstallments}/{sale.receivables.length} pagas
                       </span>
-                      <span className="text-green-600">Pago: {formatCurrency(totalPaid)}</span>
+                      <span className="text-green-600 dark:text-green-400">Pago: {formatCurrency(totalPaid)}</span>
                     </div>
                     {sale.fixedInstallmentAmount && (
-                      <div className="flex items-center gap-1 text-sm font-medium text-amber-700">
+                      <div className="flex items-center gap-1 text-sm font-medium text-amber-700 dark:text-amber-400">
                         <DollarSign className="h-3.5 w-3.5" />
                         Valor combinado: {formatCurrency(Number(sale.fixedInstallmentAmount))}/mês
                       </div>
@@ -230,7 +230,7 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
                                 Próx: {formatDate(r.dueDate)} — restam {formatCurrency(remaining)}
                                 {isOverdue && ' - VENCIDO'}
                                 {paidLessThanExpected && (
-                                  <span className="text-amber-600 ml-1">
+                                  <span className="text-amber-600 dark:text-amber-400 ml-1">
                                     (acumulado)
                                   </span>
                                 )}
@@ -241,7 +241,7 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="shrink-0 gap-1.5 text-green-700 border-green-600 hover:bg-green-50"
+                        className="shrink-0 gap-1.5 text-green-700 dark:text-green-400 border-green-600 dark:border-green-700 hover:bg-green-50 dark:hover:bg-green-950/30"
                         onClick={() => handleAddPayment(sale)}
                         title="Registrar pagamento"
                       >

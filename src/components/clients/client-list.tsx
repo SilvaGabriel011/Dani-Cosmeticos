@@ -197,7 +197,7 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
                       size="icon"
                       asChild
                       title="Abrir WhatsApp"
-                      className="h-10 w-10 transition-all duration-150 hover:bg-green-50 hover:text-green-700"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-green-50 dark:hover:bg-green-950/30 hover:text-green-700"
                     >
                       <a
                         href={formatWhatsAppUrl(client.phone!) || '#'}
@@ -213,7 +213,7 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
                     size="icon"
                     onClick={() => setPurchasesClient(client)}
                     title="Ver compras"
-                    className="h-10 w-10 transition-all duration-150 hover:bg-blue-50 hover:text-blue-700"
+                    className="h-10 w-10 transition-all duration-150 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-700"
                   >
                     <Receipt className="h-6 w-6 text-blue-600" />
                   </Button>
@@ -231,7 +231,7 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
                   <Button variant="ghost" size="icon" className="h-10 w-10 transition-all duration-150" onClick={() => setEditingClient(client)}>
                     <Pencil className="h-6 w-6" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 transition-all duration-150 hover:bg-red-50 hover:text-red-700" onClick={() => setDeletingClient(client)}>
+                  <Button variant="ghost" size="icon" className="h-10 w-10 transition-all duration-150 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-700" onClick={() => setDeletingClient(client)}>
                     <Trash2 className="h-6 w-6 text-destructive" />
                   </Button>
                 </div>

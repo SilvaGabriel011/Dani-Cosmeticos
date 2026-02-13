@@ -37,7 +37,7 @@ const PaymentRow = memo(function PaymentRow({
   onRemove,
 }: PaymentRowProps) {
   return (
-    <div className="space-y-2 p-3 border rounded-md bg-white">
+    <div className="space-y-2 p-3 border rounded-md bg-background">
       <div className="flex gap-2">
         <Select
           value={payment.method}
@@ -176,8 +176,8 @@ export function PaymentSection({
       </div>
 
       {!isFiadoMode && (
-        <div className="bg-green-50/80 p-4 rounded-xl space-y-3 border border-green-200">
-          <p className="font-semibold text-green-800 flex items-center gap-2">
+        <div className="bg-green-50/80 dark:bg-green-950/20 p-4 rounded-xl space-y-3 border border-green-200 dark:border-green-800">
+          <p className="font-semibold text-green-800 dark:text-green-300 flex items-center gap-2">
             <Wallet className="h-5 w-5" />
             Forma de pagamento:
           </p>

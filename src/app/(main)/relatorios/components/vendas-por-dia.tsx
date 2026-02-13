@@ -221,13 +221,13 @@ export function VendasPorDia() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-green-200">
+        <Card className="border-green-200 dark:border-green-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Melhor Dia</CardTitle>
-            <TrendingUp className="h-5 w-5 text-green-600" />
+            <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
               {melhorDia?.total.toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
@@ -239,13 +239,13 @@ export function VendasPorDia() {
           </CardContent>
         </Card>
 
-        <Card className="border-red-200">
+        <Card className="border-red-200 dark:border-red-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pior Dia</CardTitle>
-            <TrendingDown className="h-5 w-5 text-red-600" />
+            <TrendingDown className="h-5 w-5 text-red-600 dark:text-red-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
               {piorDia?.total.toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',

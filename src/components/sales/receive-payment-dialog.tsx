@@ -145,8 +145,8 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
       <DialogContent className="max-w-[95vw] md:max-w-lg max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <div className="p-2 rounded-full bg-green-100">
-              <Receipt className="h-5 w-5 text-green-600" />
+            <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/50">
+              <Receipt className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             Receber Pagamento
           </DialogTitle>
@@ -164,11 +164,11 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Já Pago:</span>
-              <span className="text-green-600 font-semibold">{formatCurrency(paidAmount)}</span>
+              <span className="text-green-600 dark:text-green-400 font-semibold">{formatCurrency(paidAmount)}</span>
             </div>
             <div className="flex justify-between text-base font-bold pt-2 border-t border-primary/20">
               <span>Saldo Devedor:</span>
-              <span className="text-amber-600 text-lg">{formatCurrency(remaining)}</span>
+              <span className="text-amber-600 dark:text-amber-400 text-lg">{formatCurrency(remaining)}</span>
             </div>
           </div>
 
@@ -205,7 +205,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
                 variant="outline"
                 size="sm"
                 onClick={() => setAmount(remaining)}
-                className="transition-all duration-200 hover:bg-green-50 hover:text-green-700 hover:border-green-300"
+                className="transition-all duration-200 hover:bg-green-50 dark:hover:bg-green-950/30 hover:text-green-700 hover:border-green-300 dark:hover:border-green-700"
               >
                 Valor Total
               </Button>
@@ -214,7 +214,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
                 variant="outline"
                 size="sm"
                 onClick={() => setAmount(Math.round((remaining / 2) * 100) / 100)}
-                className="transition-all duration-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
+                className="transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-700 hover:border-blue-300 dark:hover:border-blue-700"
               >
                 Metade
               </Button>
@@ -265,14 +265,14 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}
-            className="transition-all duration-200 hover:bg-gray-100"
+            className="transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             Cancelar
           </Button>
           <Button 
             onClick={handleSubmit} 
             disabled={addPayment.isPending}
-            className="min-w-[160px] transition-all duration-200 bg-green-600 hover:bg-green-700"
+            className="min-w-[160px] transition-all duration-200 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
           >
             {addPayment.isPending ? (
               <span className="flex items-center gap-2">

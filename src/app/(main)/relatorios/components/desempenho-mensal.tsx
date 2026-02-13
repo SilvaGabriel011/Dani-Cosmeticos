@@ -215,12 +215,12 @@ export function DesempenhoMensal() {
               <CardTitle className="text-sm font-medium">{mes.mes}</CardTitle>
               <div className="flex items-center gap-1">
                 {mes.variacao > 0 ? (
-                  <TrendingUp className="h-5 w-5 text-green-600" />
+                  <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
                 ) : mes.variacao < 0 ? (
-                  <TrendingDown className="h-5 w-5 text-red-600" />
+                  <TrendingDown className="h-5 w-5 text-red-600 dark:text-red-400" />
                 ) : null}
                 <span
-                  className={`text-sm ${mes.variacao > 0 ? 'text-green-600' : mes.variacao < 0 ? 'text-red-600' : ''}`}
+                  className={`text-sm ${mes.variacao > 0 ? 'text-green-600 dark:text-green-400' : mes.variacao < 0 ? 'text-red-600 dark:text-red-400' : ''}`}
                 >
                   {mes.variacao > 0 ? '+' : ''}
                   {mes.variacao.toFixed(1)}%

@@ -67,7 +67,7 @@ export default function EstoquePage() {
                 <TabsTrigger value="faltantes" className="gap-1.5">
                   Faltantes
                   {faltantesCount > 0 && (
-                    <Badge variant="secondary" className="ml-1 bg-red-100 text-red-700 text-xs px-1.5 py-0">
+                    <Badge variant="secondary" className="ml-1 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-xs px-1.5 py-0">
                       {faltantesCount}
                     </Badge>
                   )}
@@ -101,7 +101,7 @@ export default function EstoquePage() {
                 <TabsTrigger value="encomendas" className="gap-1.5">
                   Encomendas
                   {encomendasCount > 0 && (
-                    <Badge variant="secondary" className="ml-1 bg-amber-100 text-amber-700 text-xs px-1.5 py-0">
+                    <Badge variant="secondary" className="ml-1 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 text-xs px-1.5 py-0">
                       {encomendasCount}
                     </Badge>
                   )}

@@ -19,6 +19,7 @@ import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from './theme-toggle'
 
 const navItems = [
   { href: '/dashboard', label: 'Inicio', icon: LayoutDashboard },
@@ -98,6 +99,9 @@ export function Sidebar() {
             )
           })}
         </nav>
+        <div className={cn('border-t', collapsed ? 'p-2' : 'p-3')}>
+          <ThemeToggle collapsed={collapsed} />
+        </div>
       </aside>
 
       {/* Mobile top bar — visible below md */}
@@ -136,6 +140,9 @@ export function Sidebar() {
               </Link>
             )
           })}
+          <div className="shrink-0 ml-auto">
+            <ThemeToggle collapsed />
+          </div>
         </nav>
       )}
     </>

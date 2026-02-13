@@ -55,13 +55,13 @@ export const FiadoConfig = memo(function FiadoConfig({
   }
 
   return (
-    <div className="bg-amber-50/80 p-4 rounded-xl space-y-4 border border-amber-200">
+    <div className="bg-amber-50/80 dark:bg-amber-950/20 p-4 rounded-xl space-y-4 border border-amber-200 dark:border-amber-800">
       <div className="text-center">
-        <p className="font-semibold text-amber-800 flex items-center justify-center gap-2">
+        <p className="font-semibold text-amber-800 dark:text-amber-300 flex items-center justify-center gap-2">
           <Handshake className="h-5 w-5" />
           Como vai ser o fiado?
         </p>
-        <p className="text-sm text-amber-600 mt-1">
+        <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
           O valor total de <strong>{formatCurrency(total)}</strong> será registrado como fiado.
         </p>
       </div>
@@ -73,7 +73,7 @@ export const FiadoConfig = memo(function FiadoConfig({
             id="installment-toggle-simple"
             checked={isInstallment}
             onChange={(e) => onIsInstallmentChange(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300"
+            className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
           />
           <Label htmlFor="installment-toggle-simple" className="cursor-pointer">
             Dividir em parcelas mensais
@@ -81,7 +81,7 @@ export const FiadoConfig = memo(function FiadoConfig({
         </div>
 
         {isInstallment && (
-          <div className="space-y-3 pl-6 border-l-2 border-amber-200">
+          <div className="space-y-3 pl-6 border-l-2 border-amber-200 dark:border-amber-800">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label className="text-sm">Número de parcelas</Label>
@@ -139,7 +139,7 @@ export const FiadoConfig = memo(function FiadoConfig({
               </p>
             </div>
 
-            <div className="bg-white p-2 rounded border text-sm">
+            <div className="bg-background p-2 rounded border text-sm">
               <p className="font-medium mb-1">Previsão de pagamentos:</p>
               <div className="space-y-1">
                 {getPaymentDatesPreview().map((date, i) => (

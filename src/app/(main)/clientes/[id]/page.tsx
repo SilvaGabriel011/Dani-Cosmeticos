@@ -65,7 +65,7 @@ export default function ClientDetailPage() {
           {client.phone && (
             <Button
               variant="outline"
-              className="text-green-600 border-green-600 hover:bg-green-50"
+              className="text-green-600 dark:text-green-400 border-green-600 dark:border-green-700 hover:bg-green-50 dark:hover:bg-green-950/30"
               asChild
             >
               <a

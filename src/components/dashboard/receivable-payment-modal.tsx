@@ -191,13 +191,13 @@ export function ReceivablePaymentModal({
             </div>
             <div className="flex justify-between text-sm">
               <span>Ja Pago:</span>
-              <span className="text-green-600">
+              <span className="text-green-600 dark:text-green-400">
                 {formatCurrency(Number(receivable.paidAmount))}
               </span>
             </div>
             <div className="flex justify-between text-sm font-semibold">
               <span>Saldo Restante:</span>
-              <span className="text-amber-600">{formatCurrency(remaining)}</span>
+              <span className="text-amber-600 dark:text-amber-400">{formatCurrency(remaining)}</span>
             </div>
           </div>
 

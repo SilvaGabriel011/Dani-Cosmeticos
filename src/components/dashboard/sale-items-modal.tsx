@@ -60,7 +60,7 @@ export function SaleItemsModal({ open, onOpenChange, saleId }: SaleItemsModalPro
                         {item.quantity}x {formatCurrency(Number(item.unitPrice))}
                       </p>
                       {item.isBackorder && (
-                        <Badge variant="secondary" className="mt-1 text-xs bg-amber-100 text-amber-800">
+                        <Badge variant="secondary" className="mt-1 text-xs bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300">
                           Encomenda
                         </Badge>
                       )}

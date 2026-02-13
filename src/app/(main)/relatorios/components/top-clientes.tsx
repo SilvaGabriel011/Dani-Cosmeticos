@@ -92,8 +92,8 @@ export function TopClientes() {
                 <TableHead>Posição</TableHead>
                 <TableHead>Cliente</TableHead>
                 <TableHead>Total Compras</TableHead>
-                <TableHead className="text-green-600">Pago</TableHead>
-                <TableHead className="text-amber-600">Em Aberto</TableHead>
+                <TableHead className="text-green-600 dark:text-green-400">Pago</TableHead>
+                <TableHead className="text-amber-600 dark:text-amber-400">Em Aberto</TableHead>
                 <TableHead>Nº Vendas</TableHead>
                 <TableHead>Última Compra</TableHead>
               </TableRow>
@@ -127,13 +127,13 @@ export function TopClientes() {
                       })}
                     </span>
                   </TableCell>
-                  <TableCell className="text-green-600 font-medium">
+                  <TableCell className="text-green-600 dark:text-green-400 font-medium">
                     {cliente.totalPago.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',
                     })}
                   </TableCell>
-                  <TableCell className="text-amber-600 font-medium">
+                  <TableCell className="text-amber-600 dark:text-amber-400 font-medium">
                     {cliente.totalEmAberto.toLocaleString('pt-BR', {
                       style: 'currency',
                       currency: 'BRL',

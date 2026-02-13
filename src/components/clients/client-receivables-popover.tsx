@@ -61,7 +61,7 @@ export function ClientReceivablesPopover({
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 shrink-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+            className="h-7 w-7 shrink-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30"
             title={`${pendingReceivables.length} conta(s) em aberto`}
           >
             <CreditCard className="h-4 w-4" />
@@ -101,7 +101,7 @@ export function ClientReceivablesPopover({
                     <div
                       key={receivable.id}
                       className={`flex items-center justify-between px-4 py-2.5 text-sm ${
-                        isOverdue ? 'bg-red-50/60' : ''
+                        isOverdue ? 'bg-red-50/60 dark:bg-red-950/20' : ''
                       }`}
                     >
                       <div className="flex-1 min-w-0 space-y-0.5">
@@ -131,7 +131,7 @@ export function ClientReceivablesPopover({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 shrink-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        className="h-8 w-8 shrink-0 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950/30"
                         onClick={() => handlePayment(receivable)}
                         title="Registrar pagamento"
                       >

@@ -196,16 +196,16 @@ export function RelacaoSemanalMensal() {
                       <TableCell>
                         <div className="flex items-center gap-1">
                           {semana.variacao > 0 ? (
-                            <TrendingUp className="h-5 w-5 text-green-600" />
+                            <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
                           ) : semana.variacao < 0 ? (
-                            <TrendingDown className="h-5 w-5 text-red-600" />
+                            <TrendingDown className="h-5 w-5 text-red-600 dark:text-red-400" />
                           ) : null}
                           <span
                             className={
                               semana.variacao > 0
-                                ? 'text-green-600'
+                                ? 'text-green-600 dark:text-green-400'
                                 : semana.variacao < 0
-                                  ? 'text-red-600'
+                                  ? 'text-red-600 dark:text-red-400'
                                   : ''
                             }
                           >

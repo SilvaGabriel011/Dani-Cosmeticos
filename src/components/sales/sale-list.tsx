@@ -339,7 +339,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                       size="icon"
                       asChild
                       title="Abrir WhatsApp"
-                      className="h-10 w-10 transition-all duration-150 hover:bg-green-50 hover:text-green-700"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-green-50 dark:hover:bg-green-950/30 hover:text-green-700"
                       aria-label="Abrir WhatsApp"
                     >
                       <a
@@ -357,7 +357,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                       size="icon"
                       onClick={() => setPaymentSale(sale)}
                       title="Receber pagamento"
-                      className="h-10 w-10 transition-all duration-150 hover:bg-green-50 hover:text-green-700"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-green-50 dark:hover:bg-green-950/30 hover:text-green-700"
                       aria-label="Receber pagamento"
                     >
                       <Banknote className="h-6 w-6 text-green-600" />
@@ -370,7 +370,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                       onClick={() => setCancelSaleId(sale.id)}
                       disabled={cancelSale.isPending}
                       title="Cancelar venda"
-                      className="h-10 w-10 transition-all duration-150 hover:bg-red-50 hover:text-red-700"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-700"
                       aria-label="Cancelar venda"
                     >
                       <XCircle className="h-6 w-6 text-destructive" />
@@ -486,8 +486,8 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
         <DialogContent className="max-w-md">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
+                <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <DialogTitle>Cancelar venda</DialogTitle>
             </div>

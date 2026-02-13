@@ -111,7 +111,7 @@ export default function RelatoriosPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {formatCurrency(summary?.totalProfit || 0)}
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -127,7 +127,7 @@ export default function RelatoriosPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {formatCurrency(summary?.netProfit || 0)}
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -185,7 +185,7 @@ export default function RelatoriosPage() {
                 </div>
                 <div className="rounded-lg border p-4">
                   <p className="text-sm text-muted-foreground">Líquido (- taxas)</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                     {formatCurrency(collection?.netCollection || 0)}
                   </p>
                   <p className="text-sm text-muted-foreground">
@@ -202,17 +202,17 @@ export default function RelatoriosPage() {
                   <p className="text-sm text-muted-foreground">vs Período Anterior</p>
                   <div className="flex items-center gap-2">
                     {collection?.comparison.trend === 'up' ? (
-                      <TrendingUp className="h-5 w-5 text-green-600" />
+                      <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
                     ) : collection?.comparison.trend === 'down' ? (
-                      <TrendingDown className="h-5 w-5 text-red-600" />
+                      <TrendingDown className="h-5 w-5 text-red-600 dark:text-red-400" />
                     ) : (
                       <Minus className="h-5 w-5 text-muted-foreground" />
                     )}
                     <span
                       className={cn(
                         'text-2xl font-bold',
-                        collection?.comparison.trend === 'up' && 'text-green-600',
-                        collection?.comparison.trend === 'down' && 'text-red-600'
+                        collection?.comparison.trend === 'up' && 'text-green-600 dark:text-green-400',
+                        collection?.comparison.trend === 'down' && 'text-red-600 dark:text-red-400'
                       )}
                     >
                       {collection?.comparison.change

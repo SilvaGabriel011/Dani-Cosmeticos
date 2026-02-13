@@ -73,10 +73,10 @@ export function ClientPurchasesModal({
                       : sale.status
               const statusColor =
                 sale.status === 'COMPLETED'
-                  ? 'bg-green-100 text-green-700'
+                  ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400'
                   : sale.status === 'PENDING'
-                    ? 'bg-amber-100 text-amber-700'
-                    : 'bg-red-100 text-red-700'
+                    ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400'
+                    : 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400'
 
               return (
                 <div key={sale.id} className="border rounded-lg overflow-hidden">

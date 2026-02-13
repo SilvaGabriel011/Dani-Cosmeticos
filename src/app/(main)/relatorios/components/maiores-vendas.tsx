@@ -74,7 +74,7 @@ export function MaioresVendas() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-green-600" />
+            <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
             Top 20 Maiores Vendas
           </CardTitle>
           <CardDescription>Vendas de maior valor dos últimos 30 dias</CardDescription>
@@ -117,8 +117,8 @@ export function MaioresVendas() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-green-600" />
-                      <span className="font-semibold text-green-600">
+                      <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      <span className="font-semibold text-green-600 dark:text-green-400">
                         {venda.total.toLocaleString('pt-BR', {
                           style: 'currency',
                           currency: 'BRL',

@@ -233,7 +233,7 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
                   </Badge>
                 )}
                 {warningCount > 0 && (
-                  <Badge variant="warning" className="bg-red-100 text-red-800">
+                  <Badge variant="warning" className="bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300">
                     <AlertTriangle className="h-5 w-5 mr-1" />
                     {warningCount} com problemas (serão ignorados)
                   </Badge>
@@ -256,7 +256,7 @@ export function ProductCSVImport({ open, onOpenChange }: ProductCSVImportProps) 
                   </TableHeader>
                   <TableBody>
                     {parsedData.map((row, index) => (
-                      <TableRow key={index} className={row.hasWarning ? 'bg-red-50' : ''}>
+                      <TableRow key={index} className={row.hasWarning ? 'bg-red-50 dark:bg-red-950/20' : ''}>
                         <TableCell>
                           {row.hasWarning ? (
                             <AlertTriangle className="h-5 w-5 text-red-500" />
