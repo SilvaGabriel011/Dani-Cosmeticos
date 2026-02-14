@@ -159,7 +159,7 @@ async function createSaleForRow(
     return true
   }
 
-  const installmentAmount = valorParcelas || totalEmAberto / numInstallments
+  const baseInstallmentAmount = valorParcelas || Math.floor((totalEmAberto / numInstallments) * 100) / 100
   const now = new Date()
 
   const receivables = Array.from({ length: numInstallments }, (_, i) => {
@@ -175,15 +175,18 @@ async function createSaleForRow(
       targetYear += 1
     }
 
-    const dueDate = new Date(targetYear, targetMonth, paymentDay)
-    if (dueDate.getDate() !== paymentDay) {
-      dueDate.setDate(0)
-    }
+    const lastDayOfMonth = new Date(targetYear, targetMonth + 1, 0).getDate()
+    const dueDate = new Date(targetYear, targetMonth, Math.min(paymentDay, lastDayOfMonth))
+
+    const isLast = i === numInstallments - 1
+    const thisAmount = isLast
+      ? Math.max(0.01, totalEmAberto - baseInstallmentAmount * (numInstallments - 1))
+      : baseInstallmentAmount
 
     return {
       saleId: sale.id,
       installment: i + 1,
-      amount: new Decimal(installmentAmount),
+      amount: new Decimal(Number(thisAmount.toFixed(2))),
       dueDate,
     }
   })

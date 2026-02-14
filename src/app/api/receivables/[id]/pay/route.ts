@@ -10,13 +10,14 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await request.json()
-    const { amount, paymentMethod, paidAt } = payReceivableSchema.parse(body)
+    const { amount, paymentMethod, paidAt, feePercent, feeAbsorber, installments } = payReceivableSchema.parse(body)
 
     const data = await receivableService.registerPayment(
       params.id,
       amount,
       paymentMethod,
-      paidAt ? new Date(paidAt) : undefined
+      paidAt ? new Date(paidAt) : undefined,
+      { feePercent, feeAbsorber, installments }
     )
 
     // Invalidate caches after payment
