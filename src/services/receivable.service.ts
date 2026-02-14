@@ -136,7 +136,8 @@ export const receivableService = {
     id: string,
     amount: number,
     paymentMethod: 'CASH' | 'PIX' | 'DEBIT' | 'CREDIT' = 'CASH',
-    paidAt?: Date
+    paidAt?: Date,
+    paymentAudit?: PaymentAuditOptions
   ) {
     const receivable = await prisma.receivable.findUnique({
       where: { id },
@@ -180,15 +181,20 @@ export const receivableService = {
       })
 
       // Create Payment record for audit trail
+      const feePercent = paymentAudit?.feePercent || 0
+      const feeAbsorber = paymentAudit?.feeAbsorber || 'SELLER'
+      const paymentInstallments = paymentAudit?.installments || 1
+      const feeAmount = amount * (feePercent / 100)
+
       await tx.payment.create({
         data: {
           saleId: receivable.saleId,
           method: paymentMethod,
           amount: amount,
-          feePercent: 0,
-          feeAmount: 0,
-          feeAbsorber: 'SELLER',
-          installments: 1,
+          feePercent,
+          feeAmount,
+          feeAbsorber,
+          installments: paymentInstallments,
         },
       })
 

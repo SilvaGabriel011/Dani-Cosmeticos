@@ -11,6 +11,9 @@ export const payReceivableSchema = z.object({
   amount: z.number().positive(),
   paymentMethod: z.enum(['CASH', 'PIX', 'DEBIT', 'CREDIT']).default('CASH'),
   paidAt: z.string().datetime().optional(),
+  feePercent: z.number().min(0).default(0),
+  feeAbsorber: z.enum(['SELLER', 'CLIENT']).default('SELLER'),
+  installments: z.number().int().min(1).default(1),
 })
 
 export const listReceivablesSchema = z.object({

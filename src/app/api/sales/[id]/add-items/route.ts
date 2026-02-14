@@ -209,21 +209,21 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         // Redistribute the new remaining balance across existing pending receivables
 
         if (pendingReceivables.length > 0) {
-          const newAmountPerInstallment = newRemainingBalance / pendingReceivables.length
+          const totalAlreadyPaidOnPending = pendingReceivables.reduce(
+            (sum, r) => sum + Number(r.paidAmount), 0
+          )
+          const newTotalForPending = newRemainingBalance + totalAlreadyPaidOnPending
+          const newAmountPerInstallment = Math.floor((newTotalForPending / pendingReceivables.length) * 100) / 100
 
           for (let i = 0; i < pendingReceivables.length; i++) {
             const receivable = pendingReceivables[i]
-            const alreadyPaidOnThis = Number(receivable.paidAmount)
             let newAmount: number
 
             if (i === pendingReceivables.length - 1) {
-              // Last installment: correct rounding
-              const previousTotal = pendingReceivables.slice(0, i).reduce((sum, _r) => {
-                return sum + newAmountPerInstallment
-              }, 0)
-              newAmount = alreadyPaidOnThis + (newRemainingBalance - previousTotal)
+              const previousTotal = newAmountPerInstallment * i
+              newAmount = newTotalForPending - previousTotal
             } else {
-              newAmount = alreadyPaidOnThis + newAmountPerInstallment
+              newAmount = newAmountPerInstallment
             }
 
             await tx.receivable.update({
