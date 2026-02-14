@@ -378,7 +378,7 @@ export function FiadoTable() {
                   <TableHead className="text-right whitespace-nowrap hidden xl:table-cell">Total</TableHead>
                   <TableHead className="hidden xl:table-cell">Progresso</TableHead>
                   <TableHead className="whitespace-nowrap">Vencimento</TableHead>
-                  <TableHead className="text-center">Acoes</TableHead>
+                  <TableHead className="text-center">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

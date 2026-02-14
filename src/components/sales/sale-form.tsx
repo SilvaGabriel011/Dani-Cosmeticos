@@ -1907,7 +1907,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               }
               setMobileStep((s) => s + 1)
             }} className="gap-1 min-w-[120px]">
-              Proximo <ChevronRight className="h-4 w-4" />
+              Próximo <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
           {/* Full footer: desktop always, mobile step 3 only */}

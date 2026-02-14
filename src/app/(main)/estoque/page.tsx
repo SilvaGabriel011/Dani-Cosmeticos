@@ -82,7 +82,7 @@ export default function EstoquePage() {
               <TooltipTrigger asChild>
                 <div>
                 <TabsTrigger value="sem-valor" className="gap-1.5">
-                  Sem Preco
+                  Sem Preço
                   {semValorCount > 0 && (
                     <Badge variant="secondary" className="ml-1 bg-yellow-100 text-yellow-800 text-xs px-1.5 py-0">
                       {semValorCount}
