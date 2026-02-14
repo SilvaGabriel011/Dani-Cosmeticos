@@ -42,20 +42,20 @@ export async function GET(request: NextRequest) {
     for (const payment of payments) {
       const existing = methodMap.get(payment.method)
       const amount = Number(payment.amount)
-      const fee = Number(payment.feeAmount)
+      const sellerFee = payment.feeAbsorber === 'SELLER' ? Number(payment.feeAmount) : 0
 
       if (existing) {
         existing.count += 1
         existing.totalAmount += amount
-        existing.totalFees += fee
-        existing.netAmount += amount - fee
+        existing.totalFees += sellerFee
+        existing.netAmount += amount - sellerFee
       } else {
         methodMap.set(payment.method, {
           method: payment.method,
           count: 1,
           totalAmount: amount,
-          totalFees: fee,
-          netAmount: amount - fee,
+          totalFees: sellerFee,
+          netAmount: amount - sellerFee,
         })
       }
     }
