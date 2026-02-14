@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Package, CreditCard, Users } from 'lucide-react'
+import { Plus, Package, CreditCard, Users, ShoppingCart } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { FiadoTable } from '@/components/dashboard/fiado-table'
@@ -55,7 +55,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Início" description="Ações rápidas e visão do dia-a-dia">
-        <div className="flex gap-3">
+        <div className="hidden md:flex gap-3">
           <Button size="lg" onClick={() => setSaleFormOpen(true)}>
             <Plus className="h-5 w-5 mr-2" />
             Nova Venda
@@ -69,6 +69,16 @@ export default function DashboardPage() {
             Novo Cliente
           </Button>
         </div>
+        <div className="flex md:hidden gap-2">
+          <Button size="sm" variant="outline" onClick={() => setProductFormOpen(true)}>
+            <Package className="h-4 w-4 mr-1" />
+            Produto
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setClientFormOpen(true)}>
+            <Users className="h-4 w-4 mr-1" />
+            Cliente
+          </Button>
+        </div>
       </PageHeader>
 
       <TooltipProvider>
@@ -79,10 +89,11 @@ export default function DashboardPage() {
                 <div>
                 <TabsTrigger value="fiado" className="gap-2 text-base px-6 py-3 h-12">
                   <CreditCard className="h-5 w-5" />
-                  Fiado
+                  <span className="hidden sm:inline">Vendas a Prazo</span>
+                  <span className="sm:hidden">Fiado</span>
                   {overdueCount > 0 ? (
                     <Badge variant="secondary" className="ml-1 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-sm px-2 py-0.5">
-                      {overdueCount} venc.
+                      {overdueCount} <span className="hidden sm:inline">vencidas</span><span className="sm:hidden">venc.</span>
                     </Badge>
                   ) : fiadoCount > 0 ? (
                     <Badge variant="secondary" className="ml-1 text-sm px-2 py-0.5">
@@ -125,6 +136,16 @@ export default function DashboardPage() {
           </TabsContent>
         </Tabs>
       </TooltipProvider>
+
+      {/* FAB - Mobile Nova Venda */}
+      <button
+        type="button"
+        onClick={() => setSaleFormOpen(true)}
+        className="md:hidden fixed right-4 bottom-20 z-40 flex items-center justify-center w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 active:scale-95 transition-all"
+        aria-label="Nova Venda"
+      >
+        <ShoppingCart className="h-6 w-6" />
+      </button>
 
       <SaleForm open={saleFormOpen} onOpenChange={setSaleFormOpen} />
       <ProductForm open={productFormOpen} onOpenChange={setProductFormOpen} />

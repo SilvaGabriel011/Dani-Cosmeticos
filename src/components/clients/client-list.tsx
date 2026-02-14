@@ -1,6 +1,6 @@
 'use client'
 
-import { MessageCircle, Pencil, Receipt, Trash2, ShoppingCart, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { MessageCircle, Pencil, Receipt, Trash2, ShoppingCart, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Users } from 'lucide-react'
 import { useState, useMemo, useCallback, useEffect, memo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -151,8 +151,10 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
     return (
       <div className="space-y-4">
         {filtersBar}
-        <div className="text-center py-8 text-muted-foreground">
-          Nenhum cliente encontrado para os filtros selecionados
+        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+          <Users className="h-12 w-12 mb-3 opacity-40" />
+          <p className="text-base font-medium">Nenhum cliente encontrado</p>
+          <p className="text-sm opacity-70 mt-1">Tente ajustar os filtros ou adicione um novo cliente</p>
         </div>
       </div>
     )
@@ -161,7 +163,52 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
   return (
     <div className="space-y-4">
       {filtersBar}
-      <Table>
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        {paginatedClients.map((client) => (
+          <div key={`mobile-${client.id}`} className="border rounded-xl p-3.5 bg-card">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <p className="font-medium text-sm truncate">{client.name}</p>
+                  <ClientReceivablesPopover clientId={client.id} clientName={client.name} />
+                </div>
+                {client.phone && <p className="text-xs text-muted-foreground mt-0.5">{client.phone}</p>}
+                {client.address && <p className="text-xs text-muted-foreground truncate mt-0.5">{client.address}</p>}
+              </div>
+              {Number(client.discount) > 0 && (
+                <Badge variant="secondary" className="shrink-0">{formatPercent(Number(client.discount))}</Badge>
+              )}
+            </div>
+            <div className="flex items-center justify-end gap-1 mt-2 border-t pt-2">
+              {client.phone && (
+                <Button variant="ghost" size="sm" className="h-8 gap-1 text-green-600" asChild>
+                  <a href={formatWhatsAppUrl(client.phone!) || '#'} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-4 w-4" /> WhatsApp
+                  </a>
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" className="h-8 gap-1 text-blue-600" onClick={() => setPurchasesClient(client)}>
+                <Receipt className="h-4 w-4" /> Compras
+              </Button>
+              {onNewSale && (
+                <Button variant="ghost" size="sm" className="h-8 gap-1 text-primary" onClick={() => onNewSale(client)}>
+                  <ShoppingCart className="h-4 w-4" /> Vender
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingClient(client)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDeletingClient(client)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <Table className="hidden md:table">
         <TableHeader>
           <TableRow>
             <TableHead>Nome</TableHead>

@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle, Pencil, UserPlus, CalendarDays } from 'lucide-react'
+import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle, Pencil, UserPlus, CalendarDays, ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -33,7 +33,7 @@ import { useCreateSale, useClientPendingSales, useAddItemsToSale } from '@/hooks
 import { useSettings } from '@/hooks/use-settings'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import Fuse from 'fuse.js'
-import { formatCurrency } from '@/lib/utils'
+import { cn, formatCurrency } from '@/lib/utils'
 import { type Product } from '@/types'
 
 interface CartItem {
@@ -114,6 +114,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     prices?: string
   }>({})
   const [shakeKey, setShakeKey] = useState(0)
+  const [mobileStep, setMobileStep] = useState(1)
 
   // Multiple purchases feature - add to existing account
   const [saleMode, setSaleMode] = useState<'new' | 'existing'>('new')
@@ -790,6 +791,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setQuickClientPhone('')
     setQuickClientAddress('')
     setValidationErrors({})
+    setMobileStep(1)
   }
 
   const handleQuickClient = async () => {
@@ -867,10 +869,38 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           <DialogTitle>Nova Venda - Carrinho</DialogTitle>
         </DialogHeader>
 
+        {/* Mobile Step Indicator */}
+        <div className="md:hidden flex items-center justify-center gap-1 py-2.5 border-b shrink-0">
+          {[
+            { step: 1, label: 'Produtos' },
+            { step: 2, label: 'Cliente' },
+            { step: 3, label: 'Pagamento' },
+          ].map(({ step, label }) => (
+            <button
+              key={step}
+              type="button"
+              onClick={() => { if (step < mobileStep) setMobileStep(step) }}
+              className={cn(
+                'flex items-center gap-1 text-xs font-medium rounded-full px-2.5 py-1 transition-colors',
+                mobileStep === step
+                  ? 'bg-primary text-primary-foreground'
+                  : mobileStep > step
+                    ? 'bg-primary/15 text-primary'
+                    : 'bg-muted text-muted-foreground'
+              )}
+            >
+              <span className="flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold leading-none">
+                {mobileStep > step ? <Check className="h-3 w-3" /> : step}
+              </span>
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
           {/* Products Section */}
-          <div className="space-y-4">
+          <div className={cn('space-y-4', mobileStep !== 1 && 'hidden md:block')}>
             <Card key={`products-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.products ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : items.length > 0 ? 'border-2 border-green-400 shadow-sm shadow-green-100 dark:shadow-green-900/30' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
@@ -1127,9 +1157,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
             </Card>
           </div>
 
-          {/* Payment Section */}
-          <div className="space-y-4">
-            <Card key={`client-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.client ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : selectedClient ? 'border-2 border-green-400 shadow-sm shadow-green-100 dark:shadow-green-900/30' : ''}`}>
+          {/* Client & Summary Section */}
+          <div className={cn('space-y-4', mobileStep !== 2 && 'hidden md:block')}>
+            <Card key={`client-${shakeKey}`}className={`transition-all duration-300 ${validationErrors.client ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : selectedClient ? 'border-2 border-green-400 shadow-sm shadow-green-100 dark:shadow-green-900/30' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>Cliente e Desconto</span>
@@ -1694,8 +1724,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           </div>
 
           {/* Payment Section */}
-          <div className="space-y-4">
-            <Card key={`payment-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.payment ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : ''}`}>
+          <div className={cn('space-y-4', mobileStep !== 3 && 'hidden md:block')}>
+            <Card key={`payment-${shakeKey}`}className={`transition-all duration-300 ${validationErrors.payment ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : ''}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Forma de Pagamento</CardTitle>
               </CardHeader>
@@ -1860,7 +1890,28 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         </div>
 
         <div className="border-t pt-3 mt-0 shrink-0 bg-background">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          {/* Mobile step navigation (steps 1-2) */}
+          <div className={cn('flex items-center justify-between gap-3 md:hidden', mobileStep === 3 && 'hidden')}>
+            {mobileStep > 1 ? (
+              <Button variant="outline" onClick={() => setMobileStep((s) => s - 1)} className="gap-1">
+                <ChevronLeft className="h-4 w-4" /> Voltar
+              </Button>
+            ) : (
+              <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+            )}
+            <Button onClick={() => {
+              if (mobileStep === 1 && items.length === 0) {
+                triggerValidationError({ products: 'Adicione pelo menos um produto' })
+                toast({ title: 'Adicione pelo menos um produto', variant: 'destructive' })
+                return
+              }
+              setMobileStep((s) => s + 1)
+            }} className="gap-1 min-w-[120px]">
+              Proximo <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          {/* Full footer: desktop always, mobile step 3 only */}
+          <div className={cn('flex flex-col sm:flex-row items-center justify-between gap-3', mobileStep !== 3 && 'hidden md:flex')}>
             {isFiado ? (
               <div className="flex flex-wrap items-center gap-4 text-base w-full sm:w-auto bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-3">
                 <div className="flex items-center gap-2">
@@ -2024,9 +2075,16 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               <Button 
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
-                className="transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="hidden md:inline-flex transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 Cancelar
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setMobileStep(2)}
+                className="md:hidden transition-all duration-200 gap-1"
+              >
+                <ChevronLeft className="h-4 w-4" /> Voltar
               </Button>
               <Button
                 onClick={handleSubmit}
