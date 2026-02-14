@@ -72,8 +72,18 @@ export async function GET(request: NextRequest) {
         c."phone" as "clientPhone",
         c."address" as "clientAddress",
         c."discount"::text as "clientDiscount",
-        COALESCE(SUM(s."total" - s."paidAmount"), 0)::text as "totalDebt",
-        COALESCE(SUM(s."total" - s."paidAmount"), 0) as total_debt_num,
+        COALESCE((
+          SELECT SUM(r."amount" - r."paidAmount")
+          FROM "Receivable" r
+          WHERE r."saleId" = ANY(ARRAY_AGG(s."id"))
+            AND r."status" IN ('PENDING', 'PARTIAL')
+        ), 0)::text as "totalDebt",
+        COALESCE((
+          SELECT SUM(r."amount" - r."paidAmount")
+          FROM "Receivable" r
+          WHERE r."saleId" = ANY(ARRAY_AGG(s."id"))
+            AND r."status" IN ('PENDING', 'PARTIAL')
+        ), 0) as total_debt_num,
         COALESCE((
           SELECT SUM(r."amount" - r."paidAmount")
           FROM "Receivable" r

@@ -25,6 +25,7 @@ import {
 import { useToast } from '@/components/ui/use-toast'
 import { usePaySaleReceivables } from '@/hooks/use-receivables'
 import { useUpdateReceivable } from '@/hooks/use-sales'
+import { useSettings } from '@/hooks/use-settings'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import { formatCurrency, formatDate } from '@/lib/utils'
 
@@ -49,12 +50,27 @@ export function ReceivablePaymentModal({
   const { toast } = useToast()
   const paySaleReceivables = usePaySaleReceivables()
   const updateReceivable = useUpdateReceivable()
+  const { data: settings } = useSettings()
 
   const [mode, setMode] = useState<'pay' | 'reschedule'>('pay')
   const [amount, setAmount] = useState(0)
   const [paidAt, setPaidAt] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'PIX' | 'DEBIT' | 'CREDIT'>('PIX')
   const [rescheduleDays, setRescheduleDays] = useState(7)
+
+  const feePercent = useMemo(() => {
+    switch (paymentMethod) {
+      case 'DEBIT':
+        return Number(settings?.debitFeePercent || 1.5)
+      case 'CREDIT':
+        return Number(settings?.creditFeePercent || 3)
+      default:
+        return 0
+    }
+  }, [paymentMethod, settings])
+
+  const feeAbsorber = settings?.defaultFeeAbsorber || 'SELLER'
+  const feeAmount = amount * (feePercent / 100)
 
   const rescheduleDate = useMemo(() => {
     const date = new Date()
@@ -95,6 +111,7 @@ export function ReceivablePaymentModal({
         amount,
         paymentMethod,
         paidAt: paidAt ? new Date(paidAt).toISOString() : undefined,
+        ...(feePercent > 0 && { feePercent, feeAbsorber }),
       })
 
       toast({
@@ -255,6 +272,26 @@ export function ReceivablePaymentModal({
                     ))}
                   </SelectContent>
                 </Select>
+                {feePercent > 0 && (
+                  <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-2.5 space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Taxa ({feePercent}%):</span>
+                      <span className="font-medium text-amber-700 dark:text-amber-400">
+                        {formatCurrency(feeAmount)}
+                      </span>
+                    </div>
+                    {feeAbsorber === 'SELLER' && (
+                      <p className="text-xs text-muted-foreground">
+                        Loja recebe: {formatCurrency(amount - feeAmount)}
+                      </p>
+                    )}
+                    {feeAbsorber === 'CLIENT' && (
+                      <p className="text-xs text-muted-foreground">
+                        Taxa absorvida pelo cliente — processadora desconta do valor pago.
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </>
           ) : (

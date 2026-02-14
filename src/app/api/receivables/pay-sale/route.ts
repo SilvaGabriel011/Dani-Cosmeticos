@@ -12,18 +12,26 @@ const paySaleSchema = z.object({
   amount: z.number().positive(),
   paymentMethod: z.enum(['CASH', 'PIX', 'DEBIT', 'CREDIT']).default('CASH'),
   paidAt: z.string().datetime().optional(),
+  feePercent: z.number().min(0).max(100).optional(),
+  feeAbsorber: z.enum(['SELLER', 'CLIENT']).optional(),
+  installments: z.number().int().min(1).optional(),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { saleId, amount, paymentMethod, paidAt } = paySaleSchema.parse(body)
+    const { saleId, amount, paymentMethod, paidAt, feePercent, feeAbsorber, installments } = paySaleSchema.parse(body)
+
+    const paymentAudit = (feePercent !== undefined || feeAbsorber || installments)
+      ? { feePercent, feeAbsorber, installments }
+      : undefined
 
     const data = await receivableService.registerPaymentWithDistribution(
       saleId,
       amount,
       paymentMethod,
-      paidAt ? new Date(paidAt) : undefined
+      paidAt ? new Date(paidAt) : undefined,
+      paymentAudit
     )
 
     // Invalidate dashboard cache after payment

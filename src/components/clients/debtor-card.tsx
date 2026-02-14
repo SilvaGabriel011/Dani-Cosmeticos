@@ -168,8 +168,8 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
         {isExpanded && (
           <div className="mt-4 space-y-4 border-t pt-4">
             {debtor.sales.map((sale) => {
-              const totalPaid = sale.receivables.reduce((sum, r) => sum + Number(r.paidAmount), 0)
-              const _totalAmount = sale.receivables.reduce((sum, r) => sum + Number(r.amount), 0)
+              const totalRemaining = sale.receivables.reduce((sum, r) => sum + (Number(r.amount) - Number(r.paidAmount)), 0)
+              const totalPaid = Number(sale.total) - totalRemaining
               const paidInstallments = sale.receivables.filter((r) => r.status === 'PAID').length
 
               return (

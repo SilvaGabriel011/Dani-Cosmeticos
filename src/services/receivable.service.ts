@@ -532,6 +532,7 @@ export const receivableService = {
         include: {
           client: true,
           receivables: {
+            where: { status: { not: 'CANCELLED' } },
             orderBy: { installment: 'asc' },
           },
         },

@@ -130,16 +130,22 @@ export function usePaySaleReceivables() {
       amount,
       paymentMethod,
       paidAt,
+      feePercent,
+      feeAbsorber,
+      installments,
     }: {
       saleId: string
       amount: number
       paymentMethod?: 'CASH' | 'PIX' | 'DEBIT' | 'CREDIT'
       paidAt?: string
+      feePercent?: number
+      feeAbsorber?: 'SELLER' | 'CLIENT'
+      installments?: number
     }) => {
       const res = await fetch(`/api/receivables/pay-sale`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ saleId, amount, paymentMethod, paidAt }),
+        body: JSON.stringify({ saleId, amount, paymentMethod, paidAt, feePercent, feeAbsorber, installments }),
       })
       if (!res.ok) {
         const error = await res.json()
