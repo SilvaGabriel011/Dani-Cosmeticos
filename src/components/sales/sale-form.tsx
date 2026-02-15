@@ -671,6 +671,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         const selectedPending = pendingSales.find((s) => s.id === selectedPendingSaleId)
         const previousTotal = selectedPending ? Number(selectedPending.total) : 0
 
+        const existingPromoSavings = items.reduce((sum, i) => sum + (i.originalPrice - i.unitPrice) * i.quantity, 0)
+        const existingDiscountAmt = Number(updatedSale.discountAmount || 0)
+
         setReceiptData({
           type: 'existing_fiado',
           date: new Date(),
@@ -678,12 +681,16 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           items: items.map((i) => ({
             name: i.product.name,
             quantity: i.quantity,
+            originalPrice: i.originalPrice,
             unitPrice: i.unitPrice,
             total: i.totalPrice,
           })),
-          subtotal: Number(updatedSale.subtotal || 0),
+          subtotalOriginal: items.reduce((sum, i) => sum + i.originalPrice * i.quantity, 0),
+          subtotal: subtotal,
+          promoSavings: existingPromoSavings,
           discountPercent: Number(updatedSale.discountPercent || 0),
-          discountAmount: Number(updatedSale.discountAmount || 0),
+          discountAmount: existingDiscountAmt,
+          totalSavings: existingPromoSavings + existingDiscountAmt,
           total: newTotal,
           payments: [],
           paidAmount: Number(updatedSale.paidAmount || 0),
@@ -826,12 +833,16 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         items: items.map((i) => ({
           name: i.product.name,
           quantity: i.quantity,
+          originalPrice: i.originalPrice,
           unitPrice: i.unitPrice,
           total: i.totalPrice,
         })),
+        subtotalOriginal,
         subtotal,
+        promoSavings: promoAmount,
         discountPercent: effectiveDiscount,
         discountAmount,
+        totalSavings: promoAmount + discountAmount,
         total,
         payments: validPayments.map((p) => ({
           method: p.method,
