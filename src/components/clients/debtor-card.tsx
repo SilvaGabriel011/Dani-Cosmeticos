@@ -199,7 +199,7 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
                   <div className="pl-6 pt-2 border-t border-muted space-y-1">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">
-                        Parcelas: {paidInstallments}/{sale.receivables.length} pagas
+                        Parcelas: {paidInstallments}/{sale.installmentPlan || sale.receivables.length} pagas
                       </span>
                       <span className="text-green-600 dark:text-green-400">Pago: {formatCurrency(totalPaid)}</span>
                     </div>
