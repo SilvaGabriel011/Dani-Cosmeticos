@@ -18,12 +18,10 @@ export async function GET(request: NextRequest) {
 
     const payments = await prisma.payment.findMany({
       where: {
-        sale: {
-          status: { not: 'CANCELLED' },
-          createdAt: {
-            gte: startDate,
-            lte: endDate,
-          },
+        sale: { status: { not: 'CANCELLED' } },
+        paidAt: {
+          gte: startDate,
+          lte: endDate,
         },
       },
     })

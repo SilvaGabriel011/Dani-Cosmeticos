@@ -88,6 +88,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           originalSaleId: fullSale.id,
           clientName: fullSale.client?.name || null,
           total: fullSale.total,
+          paidAmount: fullSale.paidAmount,
           itemCount: fullSale.items.reduce((sum, i) => sum + i.quantity, 0),
           itemsSummary,
           paymentMethods,
