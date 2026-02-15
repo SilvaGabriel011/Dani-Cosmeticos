@@ -790,6 +790,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         const now = new Date()
         const hasCustomStart = isInstallment && startMonth && startYear
 
+        const skipCurrentMonth = !hasCustomStart && now.getDate() >= day
         for (let i = 0; i < numInstallments; i++) {
           let targetMonth: number
           let targetYear: number
@@ -798,11 +799,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
             targetMonth = (startMonth - 1) + i
             targetYear = startYear
           } else {
-            targetMonth = now.getMonth() + i
+            targetMonth = now.getMonth() + i + (skipCurrentMonth ? 1 : 0)
             targetYear = now.getFullYear()
-            if (i === 0 && now.getDate() >= day) {
-              targetMonth += 1
-            }
           }
 
           while (targetMonth > 11) {
