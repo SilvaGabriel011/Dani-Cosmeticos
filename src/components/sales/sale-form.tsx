@@ -2040,6 +2040,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       if (e.target.checked) {
                         setIsFiadoMode(true)
                         setPayments([])
+                        if (!installmentPlan) {
+                          setInstallmentPlan(3)
+                          if (total > 0) {
+                            setFixedInstallmentAmount(Number((total / 3).toFixed(2)))
+                          }
+                        }
                       }
                     }}
                     className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
