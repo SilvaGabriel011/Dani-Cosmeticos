@@ -215,11 +215,18 @@ export const receivableService = {
         r.id === id ? newStatus === 'PAID' : r.status === 'PAID'
       )
 
+      let newTotalFees = Number(receivable.sale.totalFees)
+      if (feeAbsorber === 'SELLER') {
+        newTotalFees += feeAmount
+      }
+      const newNetTotal = Number(receivable.sale.total) - newTotalFees
+
       await tx.sale.update({
         where: { id: receivable.saleId },
         data: {
           paidAmount: totalPaidFromPayments,
-          // Update status to COMPLETED if all receivables are paid
+          totalFees: newTotalFees,
+          netTotal: newNetTotal,
           ...(allReceivablesPaid && { status: 'COMPLETED' }),
         },
       })

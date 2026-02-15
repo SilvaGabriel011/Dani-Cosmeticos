@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       SELECT 
         COALESCE(SUM(amount), 0) as "totalCollection",
         COUNT(*) as "paymentCount",
-        COALESCE(SUM("feeAmount"), 0) as "totalFees"
+        COALESCE(SUM(CASE WHEN "feeAbsorber" = 'SELLER' THEN "feeAmount" ELSE 0 END), 0) as "totalFees"
       FROM "Payment"
       WHERE "paidAt" >= ${startDate}
         AND "paidAt" <= ${endDate}
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       SELECT 
         COALESCE(SUM(amount), 0) as "totalCollection",
         COUNT(*) as "paymentCount",
-        COALESCE(SUM("feeAmount"), 0) as "totalFees"
+        COALESCE(SUM(CASE WHEN "feeAbsorber" = 'SELLER' THEN "feeAmount" ELSE 0 END), 0) as "totalFees"
       FROM "Payment"
       WHERE "paidAt" >= ${previousStartDate}
         AND "paidAt" <= ${previousEndDate}
