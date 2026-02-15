@@ -355,7 +355,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => printSaleReceipt(sale)}
+                    onClick={() => void printSaleReceipt(sale)}
                     title="Imprimir comprovante"
                     className="h-10 w-10 transition-all duration-150 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-700"
                     aria-label="Imprimir comprovante"
