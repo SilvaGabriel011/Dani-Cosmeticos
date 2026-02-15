@@ -57,17 +57,20 @@ export function ReceivablePaymentModal({
   const [paidAt, setPaidAt] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'PIX' | 'DEBIT' | 'CREDIT'>('PIX')
   const [rescheduleDays, setRescheduleDays] = useState(7)
+  const [creditInstallments, setCreditInstallments] = useState(1)
 
   const feePercent = useMemo(() => {
     switch (paymentMethod) {
       case 'DEBIT':
         return Number(settings?.debitFeePercent || 1.5)
       case 'CREDIT':
-        return Number(settings?.creditFeePercent || 3)
+        return creditInstallments > 1
+          ? Number(settings?.creditInstallmentFee || 4)
+          : Number(settings?.creditFeePercent || 3)
       default:
         return 0
     }
-  }, [paymentMethod, settings])
+  }, [paymentMethod, creditInstallments, settings])
 
   const feeAbsorber = settings?.defaultFeeAbsorber || 'SELLER'
   const feeAmount = amount * (feePercent / 100)
@@ -89,6 +92,7 @@ export function ReceivablePaymentModal({
       setAmount(fixedAmount)
       setPaidAt(new Date().toISOString().split('T')[0])
       setPaymentMethod('PIX')
+      setCreditInstallments(1)
       setMode('pay')
       setRescheduleDays(7)
     }
@@ -112,6 +116,7 @@ export function ReceivablePaymentModal({
         paymentMethod,
         paidAt: paidAt ? new Date(paidAt).toISOString() : undefined,
         ...(feePercent > 0 && { feePercent, feeAbsorber }),
+        ...(paymentMethod === 'CREDIT' && creditInstallments > 1 && { installments: creditInstallments }),
       })
 
       toast({
@@ -272,6 +277,26 @@ export function ReceivablePaymentModal({
                     ))}
                   </SelectContent>
                 </Select>
+                {paymentMethod === 'CREDIT' && (
+                  <div className="space-y-2">
+                    <Label>Parcelas do Cartão</Label>
+                    <Select
+                      value={String(creditInstallments)}
+                      onValueChange={(v) => setCreditInstallments(Number(v))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+                          <SelectItem key={n} value={String(n)}>
+                            {n === 1 ? 'À vista' : `${n}x`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 {feePercent > 0 && (
                   <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-2.5 space-y-1">
                     <div className="flex justify-between text-sm">

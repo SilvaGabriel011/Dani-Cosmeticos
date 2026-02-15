@@ -190,6 +190,7 @@ model CancelledSaleLog {
   originalSaleId String
   clientName     String?
   total          Decimal  @db.Decimal(10, 2)
+  paidAmount     Decimal  @default(0) @db.Decimal(10, 2)
   itemCount      Int
   itemsSummary   String?
   paymentMethods String?
