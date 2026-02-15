@@ -648,7 +648,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     // Adding to existing sale
     if (saleMode === 'existing' && selectedPendingSaleId) {
       try {
-        const updatedSale = await addItemsToSale.mutateAsync({
+        const result = await addItemsToSale.mutateAsync({
           saleId: selectedPendingSaleId,
           data: {
             items: items.map((i) => ({
@@ -661,6 +661,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           },
         })
 
+        const updatedSale = result.sale
+        const serverAddedTotal = result.addedItemsTotal
         const newTotal = Number(updatedSale.total || 0)
         const saleWithRecv = updatedSale as typeof updatedSale & { receivables?: { status: string; amount: number; dueDate: string; installment: number }[] }
         const pendingRecv = (saleWithRecv.receivables || []).filter(
@@ -679,9 +681,9 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
             unitPrice: i.unitPrice,
             total: i.totalPrice,
           })),
-          subtotal,
-          discountPercent: effectiveDiscount,
-          discountAmount,
+          subtotal: Number(updatedSale.subtotal || 0),
+          discountPercent: Number(updatedSale.discountPercent || 0),
+          discountAmount: Number(updatedSale.discountAmount || 0),
           total: newTotal,
           payments: [],
           paidAmount: Number(updatedSale.paidAmount || 0),
@@ -692,7 +694,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
             dueDate: new Date(r.dueDate),
           })),
           previousTotal,
-          addedItemsTotal: total,
+          addedItemsTotal: serverAddedTotal || (newTotal - previousTotal),
           existingMode: existingMode,
           paymentDay: Number(updatedSale.paymentDay) || undefined,
         })

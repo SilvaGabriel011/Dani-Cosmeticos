@@ -87,20 +87,66 @@ export function SaleReceipt({ data, onClose, onNewSale }: SaleReceiptProps) {
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { font-family: 'Courier New', monospace; font-size: 12px; padding: 16px; max-width: 320px; margin: 0 auto; }
-          .header { text-align: center; margin-bottom: 12px; }
-          .header h1 { font-size: 16px; font-weight: bold; }
-          .header p { font-size: 11px; color: #666; }
-          .divider { border-top: 1px dashed #999; margin: 8px 0; }
-          .item-row { display: flex; justify-content: space-between; padding: 2px 0; }
-          .item-name { flex: 1; }
-          .item-price { text-align: right; white-space: nowrap; }
-          .total-row { display: flex; justify-content: space-between; font-weight: bold; padding: 2px 0; }
-          .section-title { font-weight: bold; font-size: 11px; text-transform: uppercase; margin: 8px 0 4px; color: #333; }
-          .installment-row { display: flex; justify-content: space-between; padding: 1px 0; font-size: 11px; }
-          .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; text-align: center; margin: 8px auto; }
-          .badge-paid { background: #dcfce7; color: #166534; }
-          .badge-fiado { background: #fef3c7; color: #92400e; }
-          .footer { text-align: center; margin-top: 12px; font-size: 10px; color: #999; }
+          .flex { display: flex; }
+          .flex-1 { flex: 1; }
+          .items-center { align-items: center; }
+          .justify-between { justify-content: space-between; }
+          .inline-block { display: inline-block; }
+          .text-center { text-align: center; }
+          .text-xs { font-size: 12px; line-height: 16px; }
+          .text-sm { font-size: 14px; line-height: 20px; }
+          .text-base { font-size: 16px; line-height: 24px; }
+          .text-\\[10px\\] { font-size: 10px; }
+          .font-bold { font-weight: bold; }
+          .font-medium { font-weight: 500; }
+          .tracking-wide { letter-spacing: 0.025em; }
+          .uppercase { text-transform: uppercase; }
+          .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+          .whitespace-nowrap { white-space: nowrap; }
+          .shrink-0 { flex-shrink: 0; }
+          .space-y-1 > * + * { margin-top: 4px; }
+          .space-y-0\\.5 > * + * { margin-top: 2px; }
+          .gap-1 { gap: 4px; }
+          .p-4 { padding: 16px; }
+          .px-2 { padding-left: 8px; padding-right: 8px; }
+          .px-3 { padding-left: 12px; padding-right: 12px; }
+          .py-1 { padding-top: 4px; padding-bottom: 4px; }
+          .pr-2 { padding-right: 8px; }
+          .mt-1 { margin-top: 4px; }
+          .mt-2 { margin-top: 8px; }
+          .mt-3 { margin-top: 12px; }
+          .mb-1 { margin-bottom: 4px; }
+          .mb-2 { margin-bottom: 8px; }
+          .mb-3 { margin-bottom: 12px; }
+          .ml-1 { margin-left: 4px; }
+          .my-2 { margin-top: 8px; margin-bottom: 8px; }
+          .my-3 { margin-top: 12px; margin-bottom: 12px; }
+          .rounded { border-radius: 4px; }
+          .border { border-width: 1px; }
+          .border-t { border-top-width: 1px; border-top-style: solid; }
+          .border-dashed { border-style: dashed; }
+          .border-gray-300 { border-color: #d1d5db; }
+          .border-gray-400 { border-color: #9ca3af; }
+          .border-amber-200 { border-color: #fde68a; }
+          .text-gray-400 { color: #9ca3af; }
+          .text-gray-500 { color: #6b7280; }
+          .text-gray-600 { color: #4b5563; }
+          .text-green-700 { color: #15803d; }
+          .text-green-800 { color: #166534; }
+          .text-amber-600 { color: #d97706; }
+          .text-amber-700 { color: #92400e; }
+          .text-amber-800 { color: #92400e; }
+          .bg-white { background: #fff; }
+          .bg-green-100 { background: #dcfce7; }
+          .bg-amber-50 { background: #fffbeb; }
+          .bg-amber-100 { background: #fef3c7; }
+          .bg-gray-50 { background: #f9fafb; }
+          .text-black { color: #000; }
+          .max-w-sm { max-width: 384px; }
+          .mx-auto { margin-left: auto; margin-right: auto; }
+          .h-3 { height: 12px; }
+          .w-3 { width: 12px; }
+          .print\\:hidden { display: none; }
           @media print { body { padding: 0; } }
         </style>
       </head>
