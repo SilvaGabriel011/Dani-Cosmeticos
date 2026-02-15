@@ -35,6 +35,8 @@ import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import Fuse from 'fuse.js'
 import { cn, formatCurrency } from '@/lib/utils'
 import { type Product } from '@/types'
+import { SaleReceipt, type SaleReceiptData } from './sale-receipt'
+import { DEFAULT_PAYMENT_DAY } from '@/lib/constants'
 
 interface CartItem {
   product: Product
@@ -115,6 +117,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   }>({})
   const [shakeKey, setShakeKey] = useState(0)
   const [mobileStep, setMobileStep] = useState(1)
+  const [receiptData, setReceiptData] = useState<SaleReceiptData | null>(null)
 
   // Multiple purchases feature - add to existing account
   const [saleMode, setSaleMode] = useState<'new' | 'existing'>('new')
@@ -645,7 +648,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     // Adding to existing sale
     if (saleMode === 'existing' && selectedPendingSaleId) {
       try {
-        const updatedSale = await addItemsToSale.mutateAsync({
+        const result = await addItemsToSale.mutateAsync({
           saleId: selectedPendingSaleId,
           data: {
             items: items.map((i) => ({
@@ -658,18 +661,50 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           },
         })
 
+        const updatedSale = result.sale
+        const serverAddedTotal = result.addedItemsTotal
         const newTotal = Number(updatedSale.total || 0)
-        const saleWithRecv = updatedSale as typeof updatedSale & { receivables?: { status: string; amount: number }[] }
+        const saleWithRecv = updatedSale as typeof updatedSale & { receivables?: { status: string; amount: number; dueDate: string; installment: number }[] }
         const pendingRecv = (saleWithRecv.receivables || []).filter(
-          (r: { status: string; amount: number }) => r.status === 'PENDING' || r.status === 'PARTIAL'
+          (r) => r.status === 'PENDING' || r.status === 'PARTIAL'
         )
-        const nextInstallment = pendingRecv.length > 0 ? Number(pendingRecv[0].amount) : 0
-        toast({
-          title: 'Itens adicionados à conta!',
-          description: `Valor adicionado: ${formatCurrency(total)}. Total da conta: ${formatCurrency(newTotal)}${nextInstallment > 0 ? `. Parcela mensal: ${formatCurrency(nextInstallment)}` : ''}`,
+        const selectedPending = pendingSales.find((s) => s.id === selectedPendingSaleId)
+        const previousTotal = selectedPending ? Number(selectedPending.total) : 0
+
+        const existingPromoSavings = items.reduce((sum, i) => sum + (i.originalPrice - i.unitPrice) * i.quantity, 0)
+        const existingDiscountAmt = Number(updatedSale.discountAmount || 0)
+
+        setReceiptData({
+          type: 'existing_fiado',
+          date: new Date(),
+          clientName: selectedClient?.name,
+          items: items.map((i) => ({
+            name: i.product.name,
+            quantity: i.quantity,
+            originalPrice: i.originalPrice,
+            unitPrice: i.unitPrice,
+            total: i.totalPrice,
+          })),
+          subtotalOriginal: items.reduce((sum, i) => sum + i.originalPrice * i.quantity, 0),
+          subtotal: subtotal,
+          promoSavings: existingPromoSavings,
+          discountPercent: Number(updatedSale.discountPercent || 0),
+          discountAmount: existingDiscountAmt,
+          totalSavings: existingPromoSavings + existingDiscountAmt,
+          total: newTotal,
+          payments: [],
+          paidAmount: Number(updatedSale.paidAmount || 0),
+          remaining: newTotal - Number(updatedSale.paidAmount || 0),
+          installments: pendingRecv.map((r) => ({
+            number: r.installment,
+            amount: Number(r.amount),
+            dueDate: new Date(r.dueDate),
+          })),
+          previousTotal,
+          addedItemsTotal: serverAddedTotal || (newTotal - previousTotal),
+          existingMode: existingMode,
+          paymentDay: Number(updatedSale.paymentDay) || undefined,
         })
-        resetForm()
-        onOpenChange(false)
         return
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Erro ao adicionar itens'
@@ -746,12 +781,77 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         startYear: isInstallment && startYear ? startYear : null,
       })
 
-      toast({
-        title: isFiado ? 'Venda fiado registrada!' : 'Venda realizada com sucesso!',
-        description: isFiado ? `Saldo pendente: ${formatCurrency(remaining)}` : undefined,
+      const receiptInstallments: SaleReceiptData['installments'] = []
+      if (isFiado) {
+        const remainingAmount = remaining
+        const numInstallments = isInstallment && installmentPlan ? installmentPlan : 1
+        const installmentAmount = Math.floor((remainingAmount / numInstallments) * 100) / 100
+        const day = isInstallment ? paymentDay : DEFAULT_PAYMENT_DAY
+        const now = new Date()
+        const hasCustomStart = isInstallment && startMonth && startYear
+
+        const skipCurrentMonth = !hasCustomStart && now.getDate() >= day
+        for (let i = 0; i < numInstallments; i++) {
+          let targetMonth: number
+          let targetYear: number
+
+          if (hasCustomStart) {
+            targetMonth = (startMonth - 1) + i
+            targetYear = startYear
+          } else {
+            targetMonth = now.getMonth() + i + (skipCurrentMonth ? 1 : 0)
+            targetYear = now.getFullYear()
+          }
+
+          while (targetMonth > 11) {
+            targetMonth -= 12
+            targetYear += 1
+          }
+
+          const lastDayOfMonth = new Date(targetYear, targetMonth + 1, 0).getDate()
+          const dueDate = new Date(targetYear, targetMonth, Math.min(day, lastDayOfMonth))
+
+          const isLast = i === numInstallments - 1
+          const thisAmount = isLast
+            ? Math.max(0.01, remainingAmount - installmentAmount * (numInstallments - 1))
+            : installmentAmount
+
+          receiptInstallments.push({
+            number: i + 1,
+            amount: Number(thisAmount.toFixed(2)),
+            dueDate,
+          })
+        }
+      }
+
+      setReceiptData({
+        type: isFiado ? 'new_fiado' : 'paid',
+        date: new Date(),
+        clientName: selectedClient?.name,
+        items: items.map((i) => ({
+          name: i.product.name,
+          quantity: i.quantity,
+          originalPrice: i.originalPrice,
+          unitPrice: i.unitPrice,
+          total: i.totalPrice,
+        })),
+        subtotalOriginal,
+        subtotal,
+        promoSavings: promoAmount,
+        discountPercent: effectiveDiscount,
+        discountAmount,
+        totalSavings: promoAmount + discountAmount,
+        total,
+        payments: validPayments.map((p) => ({
+          method: p.method,
+          amount: p.amount,
+        })),
+        paidAmount: validPayments.reduce((sum, p) => sum + p.amount, 0),
+        remaining: isFiado ? remaining : 0,
+        installmentPlan: isInstallment ? (installmentPlan || 1) : undefined,
+        paymentDay: isInstallment ? paymentDay : undefined,
+        installments: receiptInstallments,
       })
-      resetForm()
-      onOpenChange(false)
     } catch (error: unknown) {
       console.error('[SaleForm] Erro ao criar venda:', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro ao realizar venda'
@@ -792,9 +892,10 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setQuickClientAddress('')
     setValidationErrors({})
     setMobileStep(1)
+    setReceiptData(null)
   }
 
-  const handleQuickClient = async () => {
+  const handleQuickClient= async () => {
     if (!quickClientName.trim()) {
       toast({ title: 'Preencha o nome do cliente', variant: 'destructive' })
       return
@@ -865,6 +966,19 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[98vw] md:max-w-5xl lg:max-w-7xl max-h-[90vh] overflow-hidden flex flex-col">
+        {receiptData ? (
+          <SaleReceipt
+            data={receiptData}
+            onClose={() => {
+              resetForm()
+              onOpenChange(false)
+            }}
+            onNewSale={() => {
+              resetForm()
+            }}
+          />
+        ) : (
+        <>
         <DialogHeader className="shrink-0">
           <DialogTitle>Nova Venda - Carrinho</DialogTitle>
         </DialogHeader>
@@ -1924,6 +2038,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                       if (e.target.checked) {
                         setIsFiadoMode(true)
                         setPayments([])
+                        if (!installmentPlan) {
+                          setInstallmentPlan(3)
+                          if (total > 0) {
+                            setFixedInstallmentAmount(Number((total / 3).toFixed(2)))
+                          }
+                        }
                       }
                     }}
                     className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
@@ -2039,16 +2159,15 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           <CalendarDays className="h-3.5 w-3.5" />
                           Vencimentos:
                         </span>
-                        {Array.from({ length: Math.min(Number(installmentPlan), 6) }, (_, i) => {
+                        {(() => {
                           const now = new Date()
+                          const skipCurrent = !(startMonth && startYear) && now.getDate() >= paymentDay
+                          return Array.from({ length: Math.min(Number(installmentPlan), 6) }, (_, i) => {
                           let date: Date
                           if (startMonth && startYear) {
                             date = new Date(startYear, startMonth - 1 + i, paymentDay)
                           } else {
-                            date = new Date(now.getFullYear(), now.getMonth() + i, paymentDay)
-                            if (i === 0 && date <= now) {
-                              date.setMonth(date.getMonth() + 1)
-                            }
+                            date = new Date(now.getFullYear(), now.getMonth() + i + (skipCurrent ? 1 : 0), paymentDay)
                           }
                           const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
                           if (paymentDay > lastDay) {
@@ -2059,7 +2178,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                               {date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
                             </span>
                           )
-                        })}
+                        })
+                        })()}
                         {Number(installmentPlan) > 6 && (
                           <span className="text-xs text-amber-600 dark:text-amber-400">+{Number(installmentPlan) - 6} mais</span>
                         )}
@@ -2119,6 +2239,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
             </div>
           </div>
         </div>
+        </>
+        )}
       </DialogContent>
 
       {/* Backorder confirmation dialog */}

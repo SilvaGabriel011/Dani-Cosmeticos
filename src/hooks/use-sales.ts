@@ -180,13 +180,18 @@ export function useClientPendingSales(clientId: string | null) {
 }
 
 // Add items to an existing sale
+export interface AddItemsResult {
+  sale: Sale
+  addedItemsTotal: number
+}
+
 async function addItemsToSale({
   saleId,
   data,
 }: {
   saleId: string
   data: AddItemsToSaleInput
-}): Promise<Sale> {
+}): Promise<AddItemsResult> {
   const res = await fetch(`/api/sales/${saleId}/add-items`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -197,7 +202,7 @@ async function addItemsToSale({
     throw new Error(error.error?.message || 'Erro ao adicionar itens à venda')
   }
   const result = await res.json()
-  return result.sale
+  return { sale: result.sale, addedItemsTotal: Number(result.addedItemsTotal || 0) }
 }
 
 export function useAddItemsToSale() {
@@ -205,9 +210,7 @@ export function useAddItemsToSale() {
   return useMutation({
     mutationFn: addItemsToSale,
     onSuccess: (data) => {
-      // Update otimista da venda específica
-      queryClient.setQueryData(['sale', data.id], data)
-      // Invalida apenas o necessário
+      queryClient.setQueryData(['sale', data.sale.id], data.sale)
       queryClient.invalidateQueries({ queryKey: ['sales'] })
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
