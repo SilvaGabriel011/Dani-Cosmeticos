@@ -312,13 +312,9 @@ export async function POST(request: NextRequest) {
             targetYear = startYear
           } else {
             // Start from current month, but if the day has passed, start from next month
-            targetMonth = referenceDate.getMonth() + i
+            const monthOffset = referenceDate.getDate() >= day ? 1 : 0
+            targetMonth = referenceDate.getMonth() + i + monthOffset
             targetYear = referenceDate.getFullYear()
-
-            // If first installment and the day has already passed this month, start next month
-            if (i === 0 && referenceDate.getDate() >= day) {
-              targetMonth += 1
-            }
           }
 
           // Handle year overflow

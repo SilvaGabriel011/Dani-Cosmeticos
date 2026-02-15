@@ -2142,9 +2142,13 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                         step="0.01"
                         placeholder={total > 0 && Number(installmentPlan) > 0 ? String((total / Number(installmentPlan)).toFixed(2)) : '0'}
                         value={fixedInstallmentAmount || ''}
-                        onChange={(e) =>
-                          setFixedInstallmentAmount(e.target.value ? Number(e.target.value) : null)
-                        }
+                        onChange={(e) => {
+                          const val = e.target.value ? Number(e.target.value) : null
+                          setFixedInstallmentAmount(val)
+                          if (val && val > 0 && total > 0) {
+                            setInstallmentPlan(Math.ceil(total / val))
+                          }
+                        }}
                         className="w-28 h-9 text-base"
                       />
                     </div>

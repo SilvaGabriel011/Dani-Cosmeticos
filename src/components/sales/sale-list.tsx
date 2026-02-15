@@ -1,6 +1,6 @@
 'use client'
 
-import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Printer } from 'lucide-react'
 import { useMemo, useState, useCallback, useEffect, memo } from 'react'
 
 import { ReceivePaymentDialog } from '@/components/sales/receive-payment-dialog'
@@ -31,6 +31,7 @@ import { useFilters } from '@/hooks/use-filters'
 import { useProducts } from '@/hooks/use-products'
 import { useSales, useCancelSale } from '@/hooks/use-sales'
 import { SALE_STATUS_LABELS, PAYMENT_METHOD_LABELS } from '@/lib/constants'
+import { printSaleReceipt } from '@/lib/print-sale'
 import { formatCurrency, formatDate, getDateRange, formatWhatsAppUrl } from '@/lib/utils'
 import { type Sale } from '@/types'
 
@@ -351,6 +352,16 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                       </a>
                     </Button>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => printSaleReceipt(sale)}
+                    title="Imprimir comprovante"
+                    className="h-10 w-10 transition-all duration-150 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-700"
+                    aria-label="Imprimir comprovante"
+                  >
+                    <Printer className="h-6 w-6 text-blue-600" />
+                  </Button>
                   {sale.status === 'PENDING' && (
                     <Button
                       variant="ghost"
