@@ -35,6 +35,8 @@ import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import Fuse from 'fuse.js'
 import { cn, formatCurrency } from '@/lib/utils'
 import { type Product } from '@/types'
+import { SaleReceipt, type SaleReceiptData } from './sale-receipt'
+import { DEFAULT_PAYMENT_DAY } from '@/lib/constants'
 
 interface CartItem {
   product: Product
@@ -115,6 +117,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   }>({})
   const [shakeKey, setShakeKey] = useState(0)
   const [mobileStep, setMobileStep] = useState(1)
+  const [receiptData, setReceiptData] = useState<SaleReceiptData | null>(null)
 
   // Multiple purchases feature - add to existing account
   const [saleMode, setSaleMode] = useState<'new' | 'existing'>('new')
@@ -659,17 +662,40 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         })
 
         const newTotal = Number(updatedSale.total || 0)
-        const saleWithRecv = updatedSale as typeof updatedSale & { receivables?: { status: string; amount: number }[] }
+        const saleWithRecv = updatedSale as typeof updatedSale & { receivables?: { status: string; amount: number; dueDate: string; installment: number }[] }
         const pendingRecv = (saleWithRecv.receivables || []).filter(
-          (r: { status: string; amount: number }) => r.status === 'PENDING' || r.status === 'PARTIAL'
+          (r) => r.status === 'PENDING' || r.status === 'PARTIAL'
         )
-        const nextInstallment = pendingRecv.length > 0 ? Number(pendingRecv[0].amount) : 0
-        toast({
-          title: 'Itens adicionados à conta!',
-          description: `Valor adicionado: ${formatCurrency(total)}. Total da conta: ${formatCurrency(newTotal)}${nextInstallment > 0 ? `. Parcela mensal: ${formatCurrency(nextInstallment)}` : ''}`,
+        const selectedPending = pendingSales.find((s) => s.id === selectedPendingSaleId)
+        const previousTotal = selectedPending ? Number(selectedPending.total) : 0
+
+        setReceiptData({
+          type: 'existing_fiado',
+          date: new Date(),
+          clientName: selectedClient?.name,
+          items: items.map((i) => ({
+            name: i.product.name,
+            quantity: i.quantity,
+            unitPrice: i.unitPrice,
+            total: i.totalPrice,
+          })),
+          subtotal,
+          discountPercent: effectiveDiscount,
+          discountAmount,
+          total: newTotal,
+          payments: [],
+          paidAmount: Number(updatedSale.paidAmount || 0),
+          remaining: newTotal - Number(updatedSale.paidAmount || 0),
+          installments: pendingRecv.map((r) => ({
+            number: r.installment,
+            amount: Number(r.amount),
+            dueDate: new Date(r.dueDate),
+          })),
+          previousTotal,
+          addedItemsTotal: total,
+          existingMode: existingMode,
+          paymentDay: Number(updatedSale.paymentDay) || undefined,
         })
-        resetForm()
-        onOpenChange(false)
         return
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Erro ao adicionar itens'
@@ -746,12 +772,75 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         startYear: isInstallment && startYear ? startYear : null,
       })
 
-      toast({
-        title: isFiado ? 'Venda fiado registrada!' : 'Venda realizada com sucesso!',
-        description: isFiado ? `Saldo pendente: ${formatCurrency(remaining)}` : undefined,
+      const receiptInstallments: SaleReceiptData['installments'] = []
+      if (isFiado) {
+        const remainingAmount = remaining
+        const numInstallments = isInstallment && installmentPlan ? installmentPlan : 1
+        const installmentAmount = Math.floor((remainingAmount / numInstallments) * 100) / 100
+        const day = isInstallment ? paymentDay : DEFAULT_PAYMENT_DAY
+        const now = new Date()
+        const hasCustomStart = isInstallment && startMonth && startYear
+
+        for (let i = 0; i < numInstallments; i++) {
+          let targetMonth: number
+          let targetYear: number
+
+          if (hasCustomStart) {
+            targetMonth = (startMonth - 1) + i
+            targetYear = startYear
+          } else {
+            targetMonth = now.getMonth() + i
+            targetYear = now.getFullYear()
+            if (i === 0 && now.getDate() >= day) {
+              targetMonth += 1
+            }
+          }
+
+          while (targetMonth > 11) {
+            targetMonth -= 12
+            targetYear += 1
+          }
+
+          const lastDayOfMonth = new Date(targetYear, targetMonth + 1, 0).getDate()
+          const dueDate = new Date(targetYear, targetMonth, Math.min(day, lastDayOfMonth))
+
+          const isLast = i === numInstallments - 1
+          const thisAmount = isLast
+            ? Math.max(0.01, remainingAmount - installmentAmount * (numInstallments - 1))
+            : installmentAmount
+
+          receiptInstallments.push({
+            number: i + 1,
+            amount: Number(thisAmount.toFixed(2)),
+            dueDate,
+          })
+        }
+      }
+
+      setReceiptData({
+        type: isFiado ? 'new_fiado' : 'paid',
+        date: new Date(),
+        clientName: selectedClient?.name,
+        items: items.map((i) => ({
+          name: i.product.name,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice,
+          total: i.totalPrice,
+        })),
+        subtotal,
+        discountPercent: effectiveDiscount,
+        discountAmount,
+        total,
+        payments: validPayments.map((p) => ({
+          method: p.method,
+          amount: p.amount,
+        })),
+        paidAmount: validPayments.reduce((sum, p) => sum + p.amount, 0),
+        remaining: isFiado ? remaining : 0,
+        installmentPlan: isInstallment ? (installmentPlan || 1) : undefined,
+        paymentDay: isInstallment ? paymentDay : undefined,
+        installments: receiptInstallments,
       })
-      resetForm()
-      onOpenChange(false)
     } catch (error: unknown) {
       console.error('[SaleForm] Erro ao criar venda:', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro ao realizar venda'
@@ -792,9 +881,10 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setQuickClientAddress('')
     setValidationErrors({})
     setMobileStep(1)
+    setReceiptData(null)
   }
 
-  const handleQuickClient = async () => {
+  const handleQuickClient= async () => {
     if (!quickClientName.trim()) {
       toast({ title: 'Preencha o nome do cliente', variant: 'destructive' })
       return
@@ -865,6 +955,19 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[98vw] md:max-w-5xl lg:max-w-7xl max-h-[90vh] overflow-hidden flex flex-col">
+        {receiptData ? (
+          <SaleReceipt
+            data={receiptData}
+            onClose={() => {
+              resetForm()
+              onOpenChange(false)
+            }}
+            onNewSale={() => {
+              resetForm()
+            }}
+          />
+        ) : (
+        <>
         <DialogHeader className="shrink-0">
           <DialogTitle>Nova Venda - Carrinho</DialogTitle>
         </DialogHeader>
@@ -2119,6 +2222,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
             </div>
           </div>
         </div>
+        </>
+        )}
       </DialogContent>
 
       {/* Backorder confirmation dialog */}
