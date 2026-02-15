@@ -235,8 +235,10 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
     return (
       <div className="space-y-4">
         {filtersBar}
-        <div className="text-center py-8 text-muted-foreground">
-          Nenhum produto encontrado para os filtros selecionados
+        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+          <Package className="h-12 w-12 mb-3 opacity-40" />
+          <p className="text-base font-medium">Nenhum produto encontrado</p>
+          <p className="text-sm opacity-70 mt-1">Tente ajustar os filtros ou cadastre um novo produto</p>
         </div>
       </div>
     )
@@ -245,7 +247,64 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
   return (
     <div className="space-y-4">
       {filtersBar}
-      <Table>
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        {paginatedProducts.map((product) => {
+          const stockStatus = getStockStatus(product.stock, product.minStock)
+          return (
+            <div key={`mobile-${product.id}`} className={`border rounded-xl p-3.5 bg-card ${backordersByProduct.has(product.id) ? 'border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/10' : ''}`}>
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm leading-tight truncate">{product.name}</p>
+                  {product.code && <p className="text-xs text-muted-foreground font-mono mt-0.5">{product.code}</p>}
+                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                    {product.category?.name && <span className="text-xs bg-muted px-1.5 py-0.5 rounded">{product.category.name}</span>}
+                    {product.brand?.name && <span className="text-xs bg-muted px-1.5 py-0.5 rounded">{product.brand.name}</span>}
+                  </div>
+                </div>
+                <Badge variant={stockStatus.color} className="shrink-0">
+                  {stockStatus.label} ({product.stock})
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase">Custo</p>
+                    <p className="text-sm font-medium">{formatCurrency(Number(product.costPrice))}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase">Venda</p>
+                    <p className="text-sm font-bold text-primary">
+                      {Number(product.salePrice) === 0 ? (
+                        <span className="text-yellow-600">Sem preco</span>
+                      ) : (
+                        formatCurrency(Number(product.salePrice))
+                      )}
+                    </p>
+                  </div>
+                  {backordersByProduct.has(product.id) && (
+                    <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1.5 py-0.5 rounded-full">
+                      <Package className="h-2.5 w-2.5" />
+                      {backordersByProduct.get(product.id)} encomendas
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setEditingProduct(product)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setDeletingProduct(product)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Desktop Table View */}
+      <Table className="hidden md:table">
         <TableHeader>
           <TableRow>
             <TableHead>Código</TableHead>

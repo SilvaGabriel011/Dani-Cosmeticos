@@ -291,19 +291,94 @@ export function FiadoTable() {
             </Select>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3">
+            {paginatedSummaries.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-10 text-muted-foreground">
+                <CreditCard className="h-12 w-12 mb-3 opacity-40" />
+                <p className="text-base font-medium">
+                  {saleSummaries.length === 0 ? 'Nenhuma venda fiado pendente' : 'Nenhum resultado para esses filtros'}
+                </p>
+                <p className="text-sm opacity-70 mt-1">
+                  {saleSummaries.length === 0 ? 'Quando houver vendas fiado, elas aparecerao aqui' : 'Tente ajustar a busca ou filtros'}
+                </p>
+              </div>
+            ) : (
+              paginatedSummaries.map((summary) => (
+                <div key={`mobile-${summary.saleId}`} className={`border rounded-xl p-3.5 bg-card ${summary.isOverdue ? 'border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/10' : ''}`}>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm truncate">{summary.clientName}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {summary.paidInstallments}/{summary.totalInstallments} parcelas pagas
+                      </p>
+                    </div>
+                    {summary.isOverdue && (
+                      <span className="text-xs font-medium text-red-600 bg-red-100 dark:bg-red-900/50 px-2 py-0.5 rounded-full shrink-0">
+                        Vencido
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4 mb-2">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase">Restante</p>
+                      <p className="text-sm font-bold text-amber-600">{formatCurrency(summary.totalAmount - summary.paidAmount)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase">Total</p>
+                      <p className="text-sm font-medium">{formatCurrency(summary.totalAmount)}</p>
+                    </div>
+                    {summary.installmentAmount && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase">Parcela</p>
+                        <p className="text-sm font-medium">{formatCurrency(summary.installmentAmount)}</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="relative h-2 bg-muted rounded-full overflow-hidden mb-2">
+                    <div className="h-full bg-green-500 transition-all" style={{ width: `${Math.min((summary.paidAmount / summary.totalAmount) * 100, 100)}%` }} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-muted-foreground">
+                      {summary.nextDueDate && (
+                        <span className={summary.isOverdue ? 'text-red-600 font-medium' : ''}>
+                          Vencimento: {formatDate(summary.nextDueDate)}
+                          {summary.isOverdue && ' (atrasado)'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button variant="outline" size="sm" className="h-8 gap-1 text-blue-600 border-blue-300" onClick={() => handleAddPayment(summary)} disabled={!summary.nextReceivable}>
+                        <Receipt className="h-3.5 w-3.5" /> Pagar
+                      </Button>
+                      {summary.clientPhone && (
+                        <Button variant="outline" size="icon" className="h-8 w-8 text-green-600 border-green-300" asChild>
+                          <a href={formatWhatsAppUrl(summary.clientPhone) || '#'} target="_blank" rel="noopener noreferrer">
+                            <MessageCircle className="h-3.5 w-3.5" />
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="overflow-x-auto hidden md:block">
             <Table className="text-sm">
               <TableHeader>
                 <TableRow>
                   <TableHead className="whitespace-nowrap">Nome</TableHead>
-                  <TableHead className="text-center whitespace-nowrap">Parc.</TableHead>
+                  <TableHead className="text-center whitespace-nowrap">Parcelas</TableHead>
                   <TableHead className="text-right whitespace-nowrap hidden sm:table-cell">Pago</TableHead>
                   <TableHead className="text-right whitespace-nowrap hidden lg:table-cell">Parcela</TableHead>
                   <TableHead className="text-right whitespace-nowrap">Restante</TableHead>
                   <TableHead className="text-right whitespace-nowrap hidden xl:table-cell">Total</TableHead>
                   <TableHead className="hidden xl:table-cell">Progresso</TableHead>
-                  <TableHead className="whitespace-nowrap">Venc.</TableHead>
-                  <TableHead className="text-center">Ação</TableHead>
+                  <TableHead className="whitespace-nowrap">Vencimento</TableHead>
+                  <TableHead className="text-center">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -369,7 +444,7 @@ export function FiadoTable() {
                               {formatDate(summary.nextDueDate)}
                             </span>
                             {summary.isOverdue && (
-                              <span className="text-destructive text-xs" title="Vencido">!</span>
+                              <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Atrasado</Badge>
                             )}
                           </div>
                         ) : (

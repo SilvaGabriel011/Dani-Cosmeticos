@@ -9,10 +9,10 @@ import {
   BarChart3,
   Settings,
   Sparkles,
-  Menu,
-  X,
   PanelLeftClose,
   PanelLeftOpen,
+  MoreHorizontal,
+  X,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -31,14 +31,16 @@ const navItems = [
   { href: '/configuracoes', label: 'Configuracoes', icon: Settings },
 ]
 
+const mobileMainItems = navItems.slice(0, 4)
+const mobileMoreItems = navItems.slice(4)
+
 export function Sidebar() {
   const pathname = usePathname()
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
 
-  // Close mobile nav on route change
   useEffect(() => {
-    setMobileOpen(false)
+    setMoreOpen(false)
   }, [pathname])
 
   // Detect screen size and auto-collapse on tablet-sized screens
@@ -51,6 +53,8 @@ export function Sidebar() {
     mq.addEventListener('change', handleChange)
     return () => mq.removeEventListener('change', handleChange)
   }, [])
+
+  const isMoreActive = mobileMoreItems.some((item) => pathname.startsWith(item.href))
 
   return (
     <>
@@ -104,47 +108,101 @@ export function Sidebar() {
         </div>
       </aside>
 
-      {/* Mobile top bar — visible below md */}
-      <header className="md:hidden flex items-center justify-between border-b bg-card px-4 h-14 shrink-0">
+      {/* Mobile top bar */}
+      <header className="md:hidden flex items-center justify-center border-b bg-card px-4 h-12 shrink-0">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-primary" />
-          <span className="text-base font-semibold">Dani Cosméticos</span>
+          <Sparkles className="h-5 w-5 text-primary" />
+          <span className="text-sm font-semibold">Dani Cosméticos</span>
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="rounded-md p-2 text-muted-foreground hover:bg-accent transition-colors"
-          aria-label={mobileOpen ? 'Fechar menu' : 'Abrir menu'}
-        >
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
       </header>
 
-      {/* Mobile dropdown nav */}
-      {mobileOpen && (
-        <nav className="md:hidden flex items-center gap-1 overflow-x-auto border-b bg-card px-3 py-2 shrink-0">
-          {navItems.map((item) => {
+      {/* Mobile "More" menu overlay */}
+      {moreOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col">
+          <div
+            className="flex-1 bg-black/50"
+            onClick={() => setMoreOpen(false)}
+          />
+          <div className="bg-card border-t rounded-t-2xl p-4 pb-24 space-y-1 animate-in slide-in-from-bottom duration-200">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold text-muted-foreground">Mais opcoes</span>
+              <button
+                onClick={() => setMoreOpen(false)}
+                className="rounded-full p-1.5 hover:bg-accent transition-colors"
+              >
+                <X className="h-5 w-5 text-muted-foreground" />
+              </button>
+            </div>
+            {mobileMoreItems.map((item) => {
+              const isActive = pathname.startsWith(item.href)
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 rounded-xl px-4 py-3.5 text-base font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-foreground hover:bg-accent'
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.label}
+                </Link>
+              )
+            })}
+            <div className="pt-2 border-t mt-2">
+              <ThemeToggle collapsed={false} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile bottom tab bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card border-t">
+        <div className="flex items-stretch justify-around h-16 pb-[env(safe-area-inset-bottom)]">
+          {mobileMainItems.map((item) => {
             const isActive = pathname.startsWith(item.href)
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors shrink-0',
+                  'flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors min-w-0',
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    ? 'text-primary'
+                    : 'text-muted-foreground active:text-foreground'
                 )}
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                <div className={cn(
+                  'flex items-center justify-center w-10 h-7 rounded-full transition-colors',
+                  isActive && 'bg-primary/15'
+                )}>
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <span className="truncate">{item.label}</span>
               </Link>
             )
           })}
-          <div className="shrink-0 ml-auto">
-            <ThemeToggle collapsed />
-          </div>
-        </nav>
-      )}
+          <button
+            onClick={() => setMoreOpen(!moreOpen)}
+            className={cn(
+              'flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors min-w-0',
+              isMoreActive
+                ? 'text-primary'
+                : 'text-muted-foreground active:text-foreground'
+            )}
+          >
+            <div className={cn(
+              'flex items-center justify-center w-10 h-7 rounded-full transition-colors',
+              isMoreActive && 'bg-primary/15'
+            )}>
+              <MoreHorizontal className="h-5 w-5" />
+            </div>
+            <span>Mais</span>
+          </button>
+        </div>
+      </nav>
     </>
   )
 }

@@ -65,7 +65,7 @@ export default function EstoquePage() {
               <TooltipTrigger asChild>
                 <div>
                 <TabsTrigger value="faltantes" className="gap-1.5">
-                  Faltantes
+                  Estoque Baixo
                   {faltantesCount > 0 && (
                     <Badge variant="secondary" className="ml-1 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-xs px-1.5 py-0">
                       {faltantesCount}
@@ -82,7 +82,7 @@ export default function EstoquePage() {
               <TooltipTrigger asChild>
                 <div>
                 <TabsTrigger value="sem-valor" className="gap-1.5">
-                  Sem Valor
+                  Sem Preço
                   {semValorCount > 0 && (
                     <Badge variant="secondary" className="ml-1 bg-yellow-100 text-yellow-800 text-xs px-1.5 py-0">
                       {semValorCount}
@@ -116,7 +116,7 @@ export default function EstoquePage() {
               <TooltipTrigger asChild>
                 <div>
                 <TabsTrigger value="zerados" className="gap-1.5">
-                  Itens Zerados
+                  Zerados
                   {zeradosCount > 0 && (
                     <Badge variant="secondary" className="ml-1 bg-gray-100 text-gray-700 text-xs px-1.5 py-0">
                       {zeradosCount}
