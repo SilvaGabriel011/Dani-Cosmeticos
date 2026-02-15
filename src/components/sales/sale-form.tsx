@@ -2159,16 +2159,15 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           <CalendarDays className="h-3.5 w-3.5" />
                           Vencimentos:
                         </span>
-                        {Array.from({ length: Math.min(Number(installmentPlan), 6) }, (_, i) => {
+                        {(() => {
                           const now = new Date()
+                          const skipCurrent = !(startMonth && startYear) && now.getDate() >= paymentDay
+                          return Array.from({ length: Math.min(Number(installmentPlan), 6) }, (_, i) => {
                           let date: Date
                           if (startMonth && startYear) {
                             date = new Date(startYear, startMonth - 1 + i, paymentDay)
                           } else {
-                            date = new Date(now.getFullYear(), now.getMonth() + i, paymentDay)
-                            if (i === 0 && date <= now) {
-                              date.setMonth(date.getMonth() + 1)
-                            }
+                            date = new Date(now.getFullYear(), now.getMonth() + i + (skipCurrent ? 1 : 0), paymentDay)
                           }
                           const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
                           if (paymentDay > lastDay) {
@@ -2179,7 +2178,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                               {date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
                             </span>
                           )
-                        })}
+                        })
+                        })()}
                         {Number(installmentPlan) > 6 && (
                           <span className="text-xs text-amber-600 dark:text-amber-400">+{Number(installmentPlan) - 6} mais</span>
                         )}
