@@ -626,6 +626,13 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       return
     }
 
+    if (!clientId) {
+      triggerValidationError({ client: 'Selecione um cliente' })
+      toast({ title: 'Adicione um cliente a venda ou crie um cliente', variant: 'destructive' })
+      setCurrentStep(1)
+      return
+    }
+
     // If there are backorder items and user hasn't confirmed yet, show confirmation dialog
     if (backorderItems.length > 0 && !showBackorderConfirm) {
       setShowBackorderConfirm(true)
@@ -968,6 +975,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     switch (step) {
       case 0:
         return items.length > 0
+      case 1:
+        return !!clientId
       default:
         return true
     }
@@ -977,6 +986,11 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     if (currentStep === 0 && items.length === 0) {
       triggerValidationError({ products: 'Adicione pelo menos um produto' })
       toast({ title: 'Adicione pelo menos um produto', variant: 'destructive' })
+      return
+    }
+    if (currentStep === 1 && !clientId) {
+      triggerValidationError({ client: 'Selecione um cliente' })
+      toast({ title: 'Adicione um cliente a venda ou crie um cliente', variant: 'destructive' })
       return
     }
     if (currentStep < STEPS.length - 1) {
