@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
 import { useReceivablesByClient, usePayReceivable } from '@/hooks/use-receivables'
+import { useSettings } from '@/hooks/use-settings'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import { formatCurrency, formatDate } from '@/lib/utils'
 
@@ -63,6 +64,7 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
   const { toast } = useToast()
   const { data: receivables, isLoading } = useReceivablesByClient(clientId)
   const payReceivable = usePayReceivable()
+  const { data: settings } = useSettings()
 
   const [paymentDialog, setPaymentDialog] = useState<{
     open: boolean
@@ -86,10 +88,20 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
     if (!paymentDialog.receivable || !paymentAmount) return
 
     try {
+      let feePercent = 0
+      if (paymentMethod === 'DEBIT') {
+        feePercent = Number(settings?.debitFeePercent || 1.5)
+      } else if (paymentMethod === 'CREDIT') {
+        feePercent = Number(settings?.creditFeePercent || 3)
+      }
+      const feeAbsorber = settings?.defaultFeeAbsorber || 'SELLER'
+
       await payReceivable.mutateAsync({
         id: paymentDialog.receivable.id,
         amount: Number(paymentAmount),
         paymentMethod,
+        feePercent,
+        feeAbsorber: feeAbsorber as 'SELLER' | 'CLIENT',
       })
       toast({ title: 'Pagamento registrado com sucesso!' })
       setPaymentDialog({ open: false, receivable: null })

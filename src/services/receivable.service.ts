@@ -263,13 +263,19 @@ export const receivableService = {
         throw new Error('Nenhuma parcela pendente encontrada para esta venda')
       }
 
+      const now = new Date()
+      const salePaymentDay = (sale as { paymentDay?: number | null })?.paymentDay
+      const fallbackDueDate = salePaymentDay
+        ? buildDueDateFromMonth(now, 1, salePaymentDay)
+        : buildDueDateFromMonth(now, 1, now.getDate())
+
       const created = await prisma.receivable.create({
         data: {
           saleId,
           installment: 1,
           amount: saleRemaining,
           paidAmount: 0,
-          dueDate: sale.dueDate || new Date(),
+          dueDate: sale.dueDate || fallbackDueDate,
           status: 'PENDING',
         },
       })
@@ -421,10 +427,10 @@ export const receivableService = {
 
   async createForSale(saleId: string, total: number, installmentPlan: number, dueDate: Date) {
     const installmentAmount = Math.floor((total / installmentPlan) * 100) / 100
+    const dayOfMonth = dueDate.getDate()
 
     const receivables = Array.from({ length: installmentPlan }, (_, i) => {
-      const installmentDueDate = new Date(dueDate)
-      installmentDueDate.setMonth(installmentDueDate.getMonth() + i)
+      const installmentDueDate = buildDueDateFromMonth(dueDate, i, dayOfMonth)
 
       // Last installment absorbs rounding remainder
       const isLast = i === installmentPlan - 1

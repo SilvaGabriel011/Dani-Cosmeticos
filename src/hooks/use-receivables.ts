@@ -95,16 +95,22 @@ export function usePayReceivable() {
       amount,
       paymentMethod,
       paidAt,
+      feePercent,
+      feeAbsorber,
+      installments,
     }: {
       id: string
       amount: number
       paymentMethod?: 'CASH' | 'PIX' | 'DEBIT' | 'CREDIT'
       paidAt?: string
+      feePercent?: number
+      feeAbsorber?: 'SELLER' | 'CLIENT'
+      installments?: number
     }) => {
       const res = await fetch(`/api/receivables/${id}/pay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, paymentMethod, paidAt }),
+        body: JSON.stringify({ amount, paymentMethod, paidAt, feePercent, feeAbsorber, installments }),
       })
       if (!res.ok) {
         const error = await res.json()
