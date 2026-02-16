@@ -1,30 +1,40 @@
-function extractPrefix(normalized: string): string {
-  const vowels = 'AEIOU'
-  let prefix = normalized[0] || ''
-
-  for (let i = 1; i < normalized.length && prefix.length < 3; i++) {
-    if (!vowels.includes(normalized[i])) {
-      prefix += normalized[i]
-    }
-  }
-
-  while (prefix.length < 3 && prefix.length < normalized.length) {
-    prefix = normalized.substring(0, prefix.length + 1)
-  }
-
-  return prefix.padEnd(3, 'X')
-}
-
-export function generateProductCode(name: string, existingCodes: string[]): string {
-  const normalized = name
+function normalize(text: string): string {
+  return text
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toUpperCase()
     .replace(/[^A-Z0-9]/g, '')
+}
 
-  const prefix = extractPrefix(normalized)
-  const letterCount = name.replace(/[^a-zA-Z]/g, '').length
-  const baseCode = `${prefix}${letterCount}`
+function extractLetters(text: string, count: number): string {
+  const normalized = normalize(text)
+  const vowels = 'AEIOU'
+  let result = normalized[0] || ''
+
+  for (let i = 1; i < normalized.length && result.length < count; i++) {
+    if (!vowels.includes(normalized[i])) {
+      result += normalized[i]
+    }
+  }
+
+  while (result.length < count && result.length < normalized.length) {
+    result = normalized.substring(0, result.length + 1)
+  }
+
+  return result.padEnd(count, 'X')
+}
+
+export function generateProductCode(
+  name: string,
+  existingCodes: string[],
+  brandName?: string,
+  price?: number,
+): string {
+  const brandPart = brandName ? extractLetters(brandName, 2) : 'XX'
+  const namePart = extractLetters(name, 3)
+  const pricePart = price && price > 0 ? Math.round(price).toString() : '0'
+
+  const baseCode = `${brandPart}${namePart}${pricePart}`
 
   let code = baseCode
   let counter = 1
@@ -34,17 +44,4 @@ export function generateProductCode(name: string, existingCodes: string[]): stri
   }
 
   return code
-}
-
-export function suggestProductCode(name: string): string {
-  const normalized = name
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '')
-
-  const prefix = extractPrefix(normalized)
-  const letterCount = name.replace(/[^a-zA-Z]/g, '').length
-
-  return `${prefix}${letterCount}`
 }
