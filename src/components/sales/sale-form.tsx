@@ -93,6 +93,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [startYear, setStartYear] = useState<number | null>(null)
   const [existingMode, setExistingMode] = useState<'increase_installments' | 'increase_value' | 'increase_value_from_installment'>('increase_installments')
   const [startFromInstallment, setStartFromInstallment] = useState<number | null>(null)
+  const [targetInstallmentAmount, setTargetInstallmentAmount] = useState<number | null>(null)
 
   // Backorder confirmation
   const [showBackorderConfirm, setShowBackorderConfirm] = useState(false)
@@ -660,6 +661,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
             fixedInstallmentAmount: existingInstallmentAmount || undefined,
             mode: existingMode,
             startFromInstallment: existingMode === 'increase_value_from_installment' ? startFromInstallment : undefined,
+            targetInstallmentAmount: existingMode === 'increase_value_from_installment' ? targetInstallmentAmount : undefined,
           },
         })
 
@@ -889,6 +891,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setStartYear(null)
     setExistingMode('increase_installments')
     setStartFromInstallment(null)
+    setTargetInstallmentAmount(null)
     setShowQuickClient(false)
     setQuickClientName('')
     setQuickClientPhone('')
@@ -1554,6 +1557,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                             ? receivables.filter((r) => r.installment >= startFromInstallment).length
                             : 0
                           const additionalPerAffected = affectedCount > 0 ? total / affectedCount : 0
+                          const hasCustomTarget = targetInstallmentAmount !== null && targetInstallmentAmount > 0
 
                           return (
                             <div className="space-y-3">
@@ -1609,7 +1613,10 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                                     </p>
                                     {existingMode === 'increase_value_from_installment' && startFromInstallment && affectedCount > 0 && (
                                       <p className="text-xs text-blue-700 dark:text-blue-400 font-semibold mt-1">
-                                        +{formatCurrency(additionalPerAffected)} por parcela em {affectedCount} parcela(s) a partir da {startFromInstallment}a
+                                        {hasCustomTarget
+                                          ? <>{formatCurrency(targetInstallmentAmount)} por parcela em {affectedCount} parcela(s) a partir da {startFromInstallment}a</>
+                                          : <>+{formatCurrency(additionalPerAffected)} por parcela em {affectedCount} parcela(s) a partir da {startFromInstallment}a</>
+                                        }
                                       </p>
                                     )}
                                   </div>
@@ -1617,7 +1624,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                               </RadioGroup>
 
                               {existingMode === 'increase_value_from_installment' && receivables.length > 0 && (
-                                <div className="space-y-1.5">
+                                <div className="space-y-2">
                                   <Label className="text-xs text-muted-foreground">A partir de qual parcela?</Label>
                                   <Select
                                     value={startFromInstallment?.toString() || ''}
@@ -1639,31 +1646,53 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                                     </SelectContent>
                                   </Select>
                                   {startFromInstallment && affectedCount > 0 && (
-                                    <div className="rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 p-2 mt-1">
-                                      <p className="text-xs font-medium text-blue-800 dark:text-blue-300">
-                                        Parcelas afetadas: {affectedCount} de {receivables.length}
-                                      </p>
-                                      <div className="mt-1 space-y-0.5">
-                                        {receivables.map((r) => {
-                                          const isAffected = r.installment >= startFromInstallment
-                                          const newAmt = isAffected ? r.amount + additionalPerAffected : r.amount
-                                          const dueDate = new Date(r.dueDate)
-                                          const monthName = dueDate.toLocaleDateString('pt-BR', { month: 'short' })
-                                          return (
-                                            <div key={r.installment} className={`flex justify-between text-xs ${isAffected ? 'text-blue-700 dark:text-blue-400 font-semibold' : 'text-muted-foreground'}`}>
-                                              <span>{r.installment}a ({monthName})</span>
-                                              <span>
-                                                {isAffected ? (
-                                                  <>{formatCurrency(r.amount)} → {formatCurrency(newAmt)}</>
-                                                ) : (
-                                                  formatCurrency(r.amount)
-                                                )}
-                                              </span>
-                                            </div>
-                                          )
-                                        })}
+                                    <>
+                                      <div className="space-y-1">
+                                        <Label className="text-xs text-muted-foreground">Valor final por parcela (opcional)</Label>
+                                        <Input
+                                          type="number"
+                                          step="0.01"
+                                          min="0.01"
+                                          placeholder={`Atual: ${currentInstallment.toFixed(2)}`}
+                                          value={targetInstallmentAmount ?? ''}
+                                          onChange={(e) => {
+                                            const val = e.target.value ? Number(e.target.value) : null
+                                            setTargetInstallmentAmount(val && val > 0 ? val : null)
+                                          }}
+                                          className="h-9"
+                                        />
+                                        <p className="text-[10px] text-muted-foreground">
+                                          Defina o valor que cada parcela afetada deve ter. Deixe vazio para calcular automaticamente.
+                                        </p>
                                       </div>
-                                    </div>
+                                      <div className="rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 p-2 mt-1">
+                                        <p className="text-xs font-medium text-blue-800 dark:text-blue-300">
+                                          Parcelas afetadas: {affectedCount} de {receivables.length}
+                                        </p>
+                                        <div className="mt-1 space-y-0.5">
+                                          {receivables.map((r) => {
+                                            const isAffected = r.installment >= startFromInstallment
+                                            const newAmt = isAffected
+                                              ? (hasCustomTarget ? targetInstallmentAmount : r.amount + additionalPerAffected)
+                                              : r.amount
+                                            const dueDate = new Date(r.dueDate)
+                                            const monthName = dueDate.toLocaleDateString('pt-BR', { month: 'short' })
+                                            return (
+                                              <div key={r.installment} className={`flex justify-between text-xs ${isAffected ? 'text-blue-700 dark:text-blue-400 font-semibold' : 'text-muted-foreground'}`}>
+                                                <span>{r.installment}a ({monthName})</span>
+                                                <span>
+                                                  {isAffected ? (
+                                                    <>{formatCurrency(r.amount)} → {formatCurrency(newAmt)}</>
+                                                  ) : (
+                                                    formatCurrency(r.amount)
+                                                  )}
+                                                </span>
+                                              </div>
+                                            )
+                                          })}
+                                        </div>
+                                      </div>
+                                    </>
                                   )}
                                 </div>
                               )}
