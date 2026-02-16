@@ -1,6 +1,6 @@
 'use client'
 
-import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Printer } from 'lucide-react'
+import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Printer, Copy, Check } from 'lucide-react'
 import { useMemo, useState, useCallback, useEffect, memo } from 'react'
 
 import { ReceivePaymentDialog } from '@/components/sales/receive-payment-dialog'
@@ -32,7 +32,7 @@ import { useProducts } from '@/hooks/use-products'
 import { useSales, useCancelSale } from '@/hooks/use-sales'
 import { SALE_STATUS_LABELS, PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import { printSaleReceipt } from '@/lib/print-sale'
-import { formatCurrency, formatDate, getDateRange, formatWhatsAppUrl } from '@/lib/utils'
+import { formatCurrency, formatDate, getDateRange, buildSaleWhatsAppUrl, buildSaleWhatsAppMessage } from '@/lib/utils'
 import { type Sale } from '@/types'
 
 const periodOptions = [
@@ -68,6 +68,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
   const [cancelSaleId, setCancelSaleId] = useState<string | null>(null)
   const [expandedSaleIds, setExpandedSaleIds] = useState<Set<string>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
+  const [copiedSaleId, setCopiedSaleId] = useState<string | null>(null)
 
   const toggleExpanded = useCallback((saleId: string) => {
     setExpandedSaleIds((prev) => {
@@ -140,6 +141,13 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
   }, [filters.search, filters.period, filters.status, filters.categoryId, filters.productId, filters.paymentMethod, tab])
 
   const cancelSale = useCancelSale()
+
+  const handleCopyMessage = useCallback(async (sale: Sale) => {
+    const message = buildSaleWhatsAppMessage(sale)
+    await navigator.clipboard.writeText(message)
+    setCopiedSaleId(sale.id)
+    setTimeout(() => setCopiedSaleId(null), 2000)
+  }, [])
 
   const handleCancelConfirm = async () => {
     if (!cancelSaleId) return
@@ -337,17 +345,17 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
-                  {sale.client?.phone && (
+                  {sale.client?.phone && buildSaleWhatsAppUrl(sale) && (
                     <Button
                       variant="ghost"
                       size="icon"
                       asChild
-                      title="Abrir WhatsApp"
+                      title="Enviar comprovante via WhatsApp"
                       className="h-10 w-10 transition-all duration-150 hover:bg-green-50 dark:hover:bg-green-950/30 hover:text-green-700"
-                      aria-label="Abrir WhatsApp"
+                      aria-label="Enviar comprovante via WhatsApp"
                     >
                       <a
-                        href={formatWhatsAppUrl(sale.client.phone) || '#'}
+                        href={buildSaleWhatsAppUrl(sale)!}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -355,6 +363,20 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                       </a>
                     </Button>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => void handleCopyMessage(sale)}
+                    title="Copiar mensagem do comprovante"
+                    className="h-10 w-10 transition-all duration-150 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    aria-label="Copiar mensagem"
+                  >
+                    {copiedSaleId === sale.id ? (
+                      <Check className="h-6 w-6 text-green-600" />
+                    ) : (
+                      <Copy className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
