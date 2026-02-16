@@ -1078,7 +1078,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[98vw] md:max-w-2xl lg:max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className={cn("max-w-[98vw] max-h-[90vh] overflow-hidden flex flex-col transition-all duration-300", currentStep === 0 ? 'md:max-w-4xl lg:max-w-5xl' : 'md:max-w-2xl lg:max-w-3xl')}>
         {receiptData ? (
           <SaleReceipt
             data={receiptData}
@@ -1124,7 +1124,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
         <SaleFormProvider value={contextValue}>
           <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 py-4">
-            <div className="max-w-xl mx-auto px-1">
+            <div className={cn('mx-auto px-1', currentStep === 0 ? 'max-w-full' : 'max-w-xl')}>
               {currentStep === 0 && <StepCart />}
               {currentStep === 1 && <StepClient />}
               {currentStep === 2 && <StepPayment />}
