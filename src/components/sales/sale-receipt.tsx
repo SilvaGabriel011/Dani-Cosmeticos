@@ -1,10 +1,10 @@
 'use client'
 
 import { useRef } from 'react'
-import { Printer, CalendarDays, Handshake } from 'lucide-react'
+import { Printer, CalendarDays, Handshake, MessageCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, formatWhatsAppUrl } from '@/lib/utils'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 
 interface ReceiptItem {
@@ -30,6 +30,7 @@ export interface SaleReceiptData {
   type: 'paid' | 'new_fiado' | 'existing_fiado'
   date: Date
   clientName?: string
+  clientPhone?: string
   items: ReceiptItem[]
   subtotalOriginal: number
   subtotal: number
@@ -75,6 +76,70 @@ function formatDateTimeBR(date: Date): string {
 
 export function SaleReceipt({ data, onClose, onNewSale }: SaleReceiptProps) {
   const receiptRef = useRef<HTMLDivElement>(null)
+
+  const buildWhatsAppMessage = (): string => {
+    const lines: string[] = []
+    lines.push('*DANI COSMÉTICOS*')
+    lines.push(`_Comprovante de Venda_`)
+    lines.push(`Data: ${formatDateTimeBR(data.date)}`)
+    if (data.clientName) lines.push(`Cliente: ${data.clientName}`)
+    lines.push('')
+    lines.push('*Itens:*')
+    data.items.forEach((item) => {
+      const hasPromo = item.originalPrice > item.unitPrice
+      let line = `• ${item.name} x${item.quantity} — ${formatCurrency(item.total)}`
+      if (hasPromo) {
+        line += ` _(de ${formatCurrency(item.originalPrice)} por ${formatCurrency(item.unitPrice)} un.)_`
+      }
+      lines.push(line)
+    })
+    lines.push('')
+    if (data.promoSavings > 0) {
+      lines.push(`Promoção: -${formatCurrency(data.promoSavings)}`)
+    }
+    if (data.discountPercent > 0) {
+      lines.push(`Desconto (${data.discountPercent.toFixed(0)}%): -${formatCurrency(data.discountAmount)}`)
+    }
+    if (data.totalSavings > 0) {
+      lines.push(`Economia total: -${formatCurrency(data.totalSavings)}`)
+    }
+    lines.push(`*TOTAL: ${formatCurrency(data.total)}*`)
+    lines.push('')
+    if (isPaid && data.payments.length > 0) {
+      lines.push('*Pagamento:*')
+      data.payments.forEach((p) => {
+        lines.push(`• ${PAYMENT_METHOD_LABELS[p.method]}: ${formatCurrency(p.amount)}`)
+      })
+      lines.push('✅ *PAGO*')
+    }
+    if (isFiado) {
+      if (data.paidAmount > 0) {
+        lines.push(`Entrada: ${formatCurrency(data.paidAmount)}`)
+      }
+      lines.push(`*Saldo a pagar: ${formatCurrency(data.remaining)}*`)
+      if (data.installments.length > 0) {
+        lines.push('')
+        lines.push(`*Parcelas (${data.installments.length}x):*`)
+        data.installments.forEach((inst) => {
+          lines.push(`${inst.number}ª - ${formatDateBR(inst.dueDate)} — ${formatCurrency(inst.amount)}`)
+        })
+      }
+      if (data.paymentDay) {
+        lines.push(`Dia de pagamento: todo dia ${data.paymentDay}`)
+      }
+    }
+    lines.push('')
+    lines.push('_Obrigada pela preferência!_')
+    return lines.join('\n')
+  }
+
+  const handleWhatsApp = () => {
+    if (!data.clientPhone) return
+    const url = formatWhatsAppUrl(data.clientPhone)
+    if (!url) return
+    const message = buildWhatsAppMessage()
+    window.open(`${url}?text=${encodeURIComponent(message)}`, '_blank')
+  }
 
   const handlePrint = () => {
     const content = receiptRef.current
@@ -381,31 +446,46 @@ export function SaleReceipt({ data, onClose, onNewSale }: SaleReceiptProps) {
         </div>
       </div>
 
-      <div className="border-t bg-white p-3 flex gap-2 shrink-0">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handlePrint}
-          className="flex-1 gap-1"
-        >
-          <Printer className="h-4 w-4" />
-          Imprimir / PDF
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onNewSale}
-          className="flex-1"
-        >
-          Nova Venda
-        </Button>
-        <Button
-          size="sm"
-          onClick={onClose}
-          className="flex-1"
-        >
-          Fechar
-        </Button>
+      <div className="border-t bg-white p-3 flex flex-col gap-2 shrink-0">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePrint}
+            className="flex-1 gap-1"
+          >
+            <Printer className="h-4 w-4" />
+            Imprimir / PDF
+          </Button>
+          {data.clientPhone && formatWhatsAppUrl(data.clientPhone) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleWhatsApp}
+              className="flex-1 gap-1 text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800 hover:border-green-400"
+            >
+              <MessageCircle className="h-4 w-4" />
+              Enviar via WhatsApp
+            </Button>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onNewSale}
+            className="flex-1"
+          >
+            Nova Venda
+          </Button>
+          <Button
+            size="sm"
+            onClick={onClose}
+            className="flex-1"
+          >
+            Fechar
+          </Button>
+        </div>
       </div>
     </div>
   )
