@@ -676,6 +676,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           type: 'existing_fiado',
           date: new Date(),
           clientName: selectedClient?.name,
+          clientPhone: selectedClient?.phone || undefined,
           items: items.map((i) => ({
             name: i.product.name,
             quantity: i.quantity,
@@ -826,6 +827,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         type: isFiado ? 'new_fiado' : 'paid',
         date: new Date(),
         clientName: selectedClient?.name,
+        clientPhone: selectedClient?.phone || undefined,
         items: items.map((i) => ({
           name: i.product.name,
           quantity: i.quantity,
