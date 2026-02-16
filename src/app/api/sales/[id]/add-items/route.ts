@@ -35,7 +35,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     }
 
-    const { items, fixedInstallmentAmount: customInstallmentAmount, mode, startFromInstallment } = validation.data
+    const { items, fixedInstallmentAmount: customInstallmentAmount, mode, startFromInstallment, targetInstallmentAmount } = validation.data
 
     // Find the sale with all receivables for recalculation
     const sale = (await prisma.sale.findUnique({
@@ -207,34 +207,46 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         } else if (mode === 'increase_value_from_installment') {
           // MODE: increase_value_from_installment — Only increase receivables starting from a specific installment
           // Receivables before startFromInstallment remain untouched
+          // If targetInstallmentAmount is provided, set each affected installment to that exact value
 
           if (pendingReceivables.length > 0 && startFromInstallment) {
             const affectedReceivables = pendingReceivables.filter(
               (r) => r.installment >= startFromInstallment
             )
             if (affectedReceivables.length > 0) {
-              const additionalPerInstallment = Math.floor((discountedNewItemsTotal / affectedReceivables.length) * 100) / 100
-
-              for (let i = 0; i < affectedReceivables.length; i++) {
-                const receivable = affectedReceivables[i]
-                let additionalAmount: number
-
-                if (i === affectedReceivables.length - 1) {
-                  const previousAdditional = additionalPerInstallment * i
-                  additionalAmount = discountedNewItemsTotal - previousAdditional
-                } else {
-                  additionalAmount = additionalPerInstallment
+              if (targetInstallmentAmount) {
+                for (const receivable of affectedReceivables) {
+                  await tx.receivable.update({
+                    where: { id: receivable.id },
+                    data: {
+                      amount: new Decimal(Number(Math.max(0.01, targetInstallmentAmount).toFixed(2))),
+                    },
+                  })
                 }
+              } else {
+                const additionalPerInstallment = Math.floor((discountedNewItemsTotal / affectedReceivables.length) * 100) / 100
 
-                const currentAmount = Number(receivable.amount)
-                const newAmount = currentAmount + additionalAmount
+                for (let i = 0; i < affectedReceivables.length; i++) {
+                  const receivable = affectedReceivables[i]
+                  let additionalAmount: number
 
-                await tx.receivable.update({
-                  where: { id: receivable.id },
-                  data: {
-                    amount: new Decimal(Number(Math.max(0.01, newAmount).toFixed(2))),
-                  },
-                })
+                  if (i === affectedReceivables.length - 1) {
+                    const previousAdditional = additionalPerInstallment * i
+                    additionalAmount = discountedNewItemsTotal - previousAdditional
+                  } else {
+                    additionalAmount = additionalPerInstallment
+                  }
+
+                  const currentAmount = Number(receivable.amount)
+                  const newAmount = currentAmount + additionalAmount
+
+                  await tx.receivable.update({
+                    where: { id: receivable.id },
+                    data: {
+                      amount: new Decimal(Number(Math.max(0.01, newAmount).toFixed(2))),
+                    },
+                  })
+                }
               }
             } else {
               // startFromInstallment is beyond all pending receivables — create new ones
