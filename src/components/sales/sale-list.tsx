@@ -347,34 +347,31 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                 <div className="flex justify-end gap-1">
                   {sale.client?.phone && buildSaleWhatsAppUrl(sale) && (
                     <Button
-                      variant="ghost"
-                      size="icon"
+                      variant="outline"
+                      size="sm"
                       asChild
-                      title="Enviar comprovante via WhatsApp"
-                      className="h-10 w-10 transition-all duration-150 hover:bg-green-50 dark:hover:bg-green-950/30 hover:text-green-700"
-                      aria-label="Enviar comprovante via WhatsApp"
+                      className="gap-1 text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800 hover:border-green-400"
                     >
                       <a
                         href={buildSaleWhatsAppUrl(sale)!}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <MessageCircle className="h-6 w-6 text-green-600" />
+                        <MessageCircle className="h-4 w-4" />
+                        WhatsApp
                       </a>
                     </Button>
                   )}
                   <Button
-                    variant="ghost"
-                    size="icon"
+                    variant="outline"
+                    size="sm"
                     onClick={() => void handleCopyMessage(sale)}
-                    title="Copiar mensagem do comprovante"
-                    className="h-10 w-10 transition-all duration-150 hover:bg-gray-100 dark:hover:bg-gray-800"
-                    aria-label="Copiar mensagem"
+                    className="gap-1"
                   >
                     {copiedSaleId === sale.id ? (
-                      <Check className="h-6 w-6 text-green-600" />
+                      <><Check className="h-4 w-4 text-green-600" /> Copiado!</>
                     ) : (
-                      <Copy className="h-5 w-5 text-muted-foreground" />
+                      <><Copy className="h-4 w-4" /> Copiar</>
                     )}
                   </Button>
                   <Button
