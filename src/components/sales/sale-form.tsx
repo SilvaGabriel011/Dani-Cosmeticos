@@ -1,10 +1,9 @@
 'use client'
 
-import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle, Pencil, UserPlus, CalendarDays, ChevronLeft, ChevronRight, Check, PackageSearch } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, AlertTriangle, Package } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -13,17 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/components/ui/use-toast'
 import { useClients, useCreateClient } from '@/hooks/use-clients'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -31,34 +19,29 @@ import { useProducts, useProductsOnDemand, useCreateProduct } from '@/hooks/use-
 import { useRecentSelections } from '@/hooks/use-recent-selections'
 import { useCreateSale, useClientPendingSales, useAddItemsToSale } from '@/hooks/use-sales'
 import { useSettings } from '@/hooks/use-settings'
-import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
+import { DEFAULT_PAYMENT_DAY } from '@/lib/constants'
 import Fuse from 'fuse.js'
 import { cn, formatCurrency } from '@/lib/utils'
 import { type Product } from '@/types'
 import { SaleReceipt, type SaleReceiptData } from './sale-receipt'
-import { DEFAULT_PAYMENT_DAY } from '@/lib/constants'
-
-interface CartItem {
-  product: Product
-  quantity: number
-  originalPrice: number
-  unitPrice: number
-  totalPrice: number
-}
-
-interface Payment {
-  method: 'CASH' | 'PIX' | 'DEBIT' | 'CREDIT'
-  amount: number
-  feePercent: number
-  feeAbsorber: 'SELLER' | 'CLIENT'
-  installments: number
-}
+import { SaleFormProvider, type CartItem, type Payment } from './sale-form-context'
+import { StepCart } from './steps/step-cart'
+import { StepClient } from './steps/step-client'
+import { StepPayment } from './steps/step-payment'
+import { StepReview } from './steps/step-review'
 
 interface SaleFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   defaultClientId?: string | null
 }
+
+const STEPS = [
+  { key: 'cart', label: 'Produtos' },
+  { key: 'client', label: 'Cliente' },
+  { key: 'payment', label: 'Pagamento' },
+  { key: 'review', label: 'Confirmar' },
+] as const
 
 export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps) {
   const { toast } = useToast()
@@ -121,7 +104,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     prices?: string
   }>({})
   const [shakeKey, setShakeKey] = useState(0)
-  const [mobileStep, setMobileStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(0)
   const [receiptData, setReceiptData] = useState<SaleReceiptData | null>(null)
 
   // Multiple purchases feature - add to existing account
@@ -904,7 +887,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setQuickClientPhone('')
     setQuickClientAddress('')
     setValidationErrors({})
-    setMobileStep(1)
+    setCurrentStep(0)
     setReceiptData(null)
   }
 
@@ -974,16 +957,128 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setQuickCost(0)
       setQuickProductType('encomenda')
 
-      setMobileStep(2)
+      setCurrentStep(1)
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Erro ao criar produto'
       toast({ title: 'Erro', description: errorMessage, variant: 'destructive' })
     }
   }
 
+  const canAdvanceStep = (step: number): boolean => {
+    switch (step) {
+      case 0:
+        return items.length > 0
+      default:
+        return true
+    }
+  }
+
+  const handleNextStep = () => {
+    if (currentStep === 0 && items.length === 0) {
+      triggerValidationError({ products: 'Adicione pelo menos um produto' })
+      toast({ title: 'Adicione pelo menos um produto', variant: 'destructive' })
+      return
+    }
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep(currentStep + 1)
+    }
+  }
+
+  const handlePrevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const contextValue = useMemo(() => ({
+    items, setItems,
+    payments, setPayments,
+    clientId, setClientId,
+    discountPercent, setDiscountPercent,
+    hasManualDiscount, setHasManualDiscount,
+    productSearch, setProductSearch,
+    clientSearch, setClientSearch,
+    isClientDropdownOpen, setIsClientDropdownOpen,
+    clientInputRef,
+    productListRef,
+    clientDropdownRef,
+    highlightedClientIndex, setHighlightedClientIndex,
+    highlightedProductIndex,
+    isInstallment, setIsInstallment,
+    paymentDay, setPaymentDay,
+    installmentPlan, setInstallmentPlan,
+    isFiadoMode, setIsFiadoMode,
+    fixedInstallmentAmount, setFixedInstallmentAmount,
+    startMonth, setStartMonth,
+    startYear, setStartYear,
+    existingMode, setExistingMode,
+    startFromInstallment, setStartFromInstallment,
+    targetInstallmentAmount, setTargetInstallmentAmount,
+    targetInstallmentCount, setTargetInstallmentCount,
+    lastEditedField, setLastEditedField,
+    showQuickProduct, setShowQuickProduct,
+    quickName, setQuickName,
+    quickPrice, setQuickPrice,
+    quickCost, setQuickCost,
+    quickProductType, setQuickProductType,
+    showQuickClient, setShowQuickClient,
+    quickClientName, setQuickClientName,
+    quickClientPhone, setQuickClientPhone,
+    quickClientAddress, setQuickClientAddress,
+    validationErrors, shakeKey,
+    saleMode, setSaleMode,
+    selectedPendingSaleId, setSelectedPendingSaleId,
+    existingInstallmentAmount, setExistingInstallmentAmount,
+    pendingSales,
+    products, clients, selectedClient,
+    sortedProducts, filteredProducts, visibleProducts, hasMoreProducts,
+    filteredClients, recentClients, recentProducts,
+    productCompletions, clientCompletions,
+    effectiveDiscount, subtotalOriginal, subtotal, promoAmount, hasCustomTotal,
+    discountAmount, total, totalPayments, remaining, isFiado, backorderItems,
+    addItem, updateQuantity, removeItem, updateItemPrice,
+    addPayment, updatePayment, removePayment,
+    handleSubmit, handleQuickClient, handleQuickProduct,
+    handleProductListScroll, handleClientKeyDown, handleProductKeyDown,
+    applyCompletion, updateTotalAndRedistribute, restoreOriginalPrices,
+    triggerValidationError, addRecentClient, addRecentProduct,
+    createProductPending: createProduct.isPending,
+    createClientPending: createClient.isPending,
+    createSalePending: createSale.isPending,
+    addItemsToSalePending: addItemsToSale.isPending,
+    settings: settings as { defaultFeeAbsorber?: string; debitFeePercent?: number; creditFeePercent?: number; creditInstallmentFee?: number } | null | undefined,
+  }), [
+    items, payments, clientId, discountPercent, hasManualDiscount,
+    productSearch, clientSearch, isClientDropdownOpen,
+    highlightedClientIndex, highlightedProductIndex,
+    isInstallment, paymentDay, installmentPlan, isFiadoMode,
+    fixedInstallmentAmount, startMonth, startYear,
+    existingMode, startFromInstallment, targetInstallmentAmount,
+    targetInstallmentCount, lastEditedField,
+    showQuickProduct, quickName, quickPrice, quickCost, quickProductType,
+    showQuickClient, quickClientName, quickClientPhone, quickClientAddress,
+    validationErrors, shakeKey,
+    saleMode, selectedPendingSaleId, existingInstallmentAmount,
+    pendingSales, products, clients, selectedClient,
+    sortedProducts, filteredProducts, visibleProducts, hasMoreProducts,
+    filteredClients, recentClients, recentProducts,
+    productCompletions, clientCompletions,
+    effectiveDiscount, subtotalOriginal, subtotal, promoAmount, hasCustomTotal,
+    discountAmount, total, totalPayments, remaining, isFiado, backorderItems,
+    createProduct.isPending, createClient.isPending,
+    createSale.isPending, addItemsToSale.isPending,
+    settings,
+    addItem, updateQuantity, removeItem, updateItemPrice,
+    addPayment, updatePayment, removePayment,
+    handleSubmit, handleQuickClient, handleQuickProduct,
+    handleProductListScroll, handleClientKeyDown, handleProductKeyDown,
+    applyCompletion, updateTotalAndRedistribute, restoreOriginalPrices,
+    triggerValidationError, addRecentClient, addRecentProduct,
+  ])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[98vw] md:max-w-5xl lg:max-w-7xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[98vw] md:max-w-2xl lg:max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         {receiptData ? (
           <SaleReceipt
             data={receiptData}
@@ -997,1436 +1092,81 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
           />
         ) : (
         <>
-        <DialogHeader className="shrink-0">
-          <DialogTitle>Nova Venda - Carrinho</DialogTitle>
+        <DialogHeader className="shrink-0 pb-0">
+          <DialogTitle className="text-lg">Nova Venda</DialogTitle>
         </DialogHeader>
 
-        {/* Mobile Step Indicator */}
-        <div className="md:hidden flex items-center justify-center gap-1 py-2.5 border-b shrink-0">
-          {[
-            { step: 1, label: 'Produtos' },
-            { step: 2, label: 'Cliente' },
-            { step: 3, label: 'Pagamento' },
-          ].map(({ step, label }) => (
+        <div className="flex items-center justify-between gap-1 py-3 border-b shrink-0">
+          {STEPS.map(({ key, label }, index) => (
             <button
-              key={step}
+              key={key}
               type="button"
-              onClick={() => { if (step < mobileStep) setMobileStep(step) }}
+              onClick={() => {
+                if (index < currentStep) setCurrentStep(index)
+                else if (index === currentStep + 1 && canAdvanceStep(currentStep)) handleNextStep()
+              }}
               className={cn(
-                'flex items-center gap-1 text-xs font-medium rounded-full px-2.5 py-1 transition-colors',
-                mobileStep === step
-                  ? 'bg-primary text-primary-foreground'
-                  : mobileStep > step
-                    ? 'bg-primary/15 text-primary'
+                'flex items-center gap-1.5 text-xs font-medium rounded-full px-3 py-1.5 transition-all duration-200',
+                currentStep === index
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : currentStep > index
+                    ? 'bg-primary/15 text-primary cursor-pointer hover:bg-primary/25'
                     : 'bg-muted text-muted-foreground'
               )}
             >
-              <span className="flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold leading-none">
-                {mobileStep > step ? <Check className="h-3 w-3" /> : step}
+              <span className="flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold leading-none">
+                {currentStep > index ? <Check className="h-3.5 w-3.5" /> : index + 1}
               </span>
-              {label}
+              <span className="hidden sm:inline">{label}</span>
             </button>
           ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-          {/* Products Section */}
-          <div className={cn('space-y-4', mobileStep !== 1 && 'hidden md:block')}>
-            <Card key={`products-${shakeKey}`} className={`transition-all duration-300 ${validationErrors.products ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : items.length > 0 ? 'border-2 border-green-400 shadow-sm shadow-green-100 dark:shadow-green-900/30' : ''}`}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center justify-between">
-                  <span>Produtos</span>
-                  <div className="flex items-center gap-2">
-                    {items.length > 0 && (
-                      <span className="bg-primary text-primary-foreground text-sm px-2 py-1 rounded-full">
-                        {items.reduce((sum, item) => sum + item.quantity, 0)} itens
-                      </span>
-                    )}
-                    {products.length > 0 && (
-                      <span className="text-sm font-normal text-muted-foreground">
-                        {products.filter((p) => p.stock > 0).length} disponíveis
-                      </span>
-                    )}
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Buscar produto..."
-                    value={productSearch}
-                    onChange={(e) => setProductSearch(e.target.value)}
-                    onKeyDown={handleProductKeyDown}
-                    className="pl-9 h-11 text-base"
-                  />
-                </div>
-
-                {productCompletions.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {productCompletions.map((word) => (
-                      <button
-                        key={word}
-                        type="button"
-                        className="text-sm bg-muted hover:bg-muted/80 text-muted-foreground rounded-full px-3 py-1.5 min-h-[36px] transition-colors"
-                        onClick={() => setProductSearch(applyCompletion(productSearch, word))}
-                      >
-                        {word}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {validationErrors.products && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm font-medium">
-                    <AlertTriangle className="h-4 w-4 shrink-0" />
-                    {validationErrors.products}
-                  </div>
-                )}
-
-                {(productSearch || filteredProducts.length > 0) && (
-                  <div
-                    ref={productListRef}
-                    className="max-h-60 md:max-h-[50vh] overflow-y-auto border rounded-md"
-                    onScroll={handleProductListScroll}
-                  >
-                    {/* Recent products section */}
-                    {!productSearch.trim() && recentProducts.length > 0 && (
-                      <>
-                        <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide bg-muted/50">
-                          Recentes
-                        </div>
-                        {recentProducts.map((product) => (
-                          <button
-                            key={`recent-${product.id}`}
-                            className="w-full px-3 py-3 text-left text-sm flex justify-between items-center min-h-[44px] hover:bg-primary/10 focus:outline-none active:bg-primary/20"
-                            onClick={() => { addItem(product); addRecentProduct(product.id) }}
-                          >
-                            <span className="font-medium">{product.name}</span>
-                            <span className="flex items-center gap-2">
-                              {product.stock > 0 ? (
-                                <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
-                                  product.stock <= product.minStock
-                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400'
-                                    : product.stock <= product.minStock * 2
-                                      ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400'
-                                      : 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
-                                }`}>
-                                  {product.stock} un.
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1.5 py-0.5 rounded-full">
-                                  <Package className="h-2.5 w-2.5" />
-                                  Enc.
-                                </span>
-                              )}
-                              <span className="text-muted-foreground font-semibold">
-                                {formatCurrency(Number(product.salePrice))}
-                              </span>
-                            </span>
-                          </button>
-                        ))}
-                        <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide bg-muted/50">
-                          Todos
-                        </div>
-                      </>
-                    )}
-                    {filteredProducts.length === 0 ? (
-                      <p className="px-3 py-2 text-sm text-muted-foreground">
-                        Nenhum produto encontrado
-                      </p>
-                    ) : (
-                      <>
-                        {visibleProducts.map((product, index) => (
-                          <button
-                            key={product.id}
-                            className={`w-full px-3 py-3 text-left text-sm flex justify-between items-center min-h-[44px] transition-all duration-200 hover:pl-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset active:bg-primary/20 active:scale-[0.99] ${
-                              index === highlightedProductIndex
-                                ? 'bg-primary/10 pl-4'
-                                : product.stock <= 0
-                                  ? 'bg-amber-50/60 hover:bg-amber-100/60 dark:bg-amber-950/20 dark:hover:bg-amber-950/40'
-                                  : 'hover:bg-primary/10'
-                            }`}
-                            onClick={() => { addItem(product); addRecentProduct(product.id) }}
-                          >
-                            <span className="flex items-center gap-1.5">
-                              <span className="font-medium">{product.name}</span>
-                              {product.stock <= 0 && (
-                                <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1.5 py-0.5 rounded-full shrink-0">
-                                  <Package className="h-2.5 w-2.5" />
-                                  Encomenda
-                                </span>
-                              )}
-                            </span>
-                            <span className="flex items-center gap-2">
-                              {product.stock > 0 && (
-                                <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${
-                                  product.stock <= product.minStock
-                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400'
-                                    : product.stock <= product.minStock * 2
-                                      ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400'
-                                      : 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400'
-                                }`}>
-                                  {product.stock} un.
-                                </span>
-                              )}
-                              <span className="text-muted-foreground font-semibold">
-                                {formatCurrency(Number(product.salePrice))}
-                              </span>
-                            </span>
-                          </button>
-                        ))}
-                        {hasMoreProducts && (
-                          <div className="px-3 py-2 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                            Role para carregar mais ({filteredProducts.length - visibleProductsCount} restantes)
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {/* Item Avulso - Quick product creation */}
-                {showQuickProduct ? (
-                  <div className="border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/30 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
-                        <Package className="h-4 w-4" />
-                        Item Avulso
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                        onClick={() => {
-                          setShowQuickProduct(false)
-                          setQuickName('')
-                          setQuickPrice('')
-                          setQuickCost(0)
-                          setQuickProductType('encomenda')
-                        }}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground">Tipo do item</Label>
-                      <RadioGroup
-                        value={quickProductType}
-                        onValueChange={(v) => setQuickProductType(v as 'encomenda' | 'fora_estoque')}
-                        className="flex gap-2"
-                      >
-                        <div className={`flex-1 flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-colors ${
-                          quickProductType === 'encomenda'
-                            ? 'border-amber-400 dark:border-amber-600 bg-amber-100/60 dark:bg-amber-900/40'
-                            : 'border-gray-200 dark:border-gray-700 hover:bg-muted/50'
-                        }`}>
-                          <RadioGroupItem value="encomenda" id="quick-type-encomenda" />
-                          <Label htmlFor="quick-type-encomenda" className="cursor-pointer text-xs font-medium flex items-center gap-1">
-                            <Package className="h-3 w-3" />
-                            Encomenda
-                          </Label>
-                        </div>
-                        <div className={`flex-1 flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-colors ${
-                          quickProductType === 'fora_estoque'
-                            ? 'border-red-400 dark:border-red-600 bg-red-100/60 dark:bg-red-900/40'
-                            : 'border-gray-200 dark:border-gray-700 hover:bg-muted/50'
-                        }`}>
-                          <RadioGroupItem value="fora_estoque" id="quick-type-fora" />
-                          <Label htmlFor="quick-type-fora" className="cursor-pointer text-xs font-medium flex items-center gap-1">
-                            <PackageSearch className="h-3 w-3" />
-                            Fora de estoque
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                    <Input
-                      placeholder="Nome do produto"
-                      value={quickName}
-                      onChange={(e) => setQuickName(e.target.value)}
-                      autoFocus
-                    />
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Preço de venda *</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          placeholder="0,00"
-                          value={quickPrice}
-                          onChange={(e) => setQuickPrice(e.target.value ? Number(e.target.value) : '')}
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Custo (opcional)</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="0,00"
-                          value={quickCost}
-                          onChange={(e) => setQuickCost(e.target.value ? Number(e.target.value) : '')}
-                        />
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      className="w-full bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white"
-                      onClick={handleQuickProduct}
-                      disabled={createProduct.isPending}
-                    >
-                      {createProduct.isPending ? (
-                        <span className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Criando...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <Plus className="h-4 w-4" />
-                          Criar e Adicionar
-                        </span>
-                      )}
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full border-dashed border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-800 dark:hover:text-amber-300"
-                    onClick={() => {
-                      setShowQuickProduct(true)
-                      if (productSearch.trim() && filteredProducts.length === 0) {
-                        setQuickName(productSearch.trim())
-                      }
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-1.5" />
-                    Item Avulso (sem cadastro)
-                  </Button>
-                )}
-
-                {items.length > 0 && (
-                  <>
-                    <Separator />
-                    <div className="flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground">
-                      <ShoppingCart className="h-4 w-4" />
-                      <span>{items.reduce((sum, item) => sum + item.quantity, 0)} itens no carrinho — edite preços no resumo ao lado</span>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+        <SaleFormProvider value={contextValue}>
+          <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 py-4">
+            <div className="max-w-xl mx-auto px-1">
+              {currentStep === 0 && <StepCart />}
+              {currentStep === 1 && <StepClient />}
+              {currentStep === 2 && <StepPayment />}
+              {currentStep === 3 && <StepReview />}
+            </div>
           </div>
+        </SaleFormProvider>
 
-          {/* Client & Summary Section */}
-          <div className={cn('space-y-4', mobileStep !== 2 && 'hidden md:block')}>
-            <Card key={`client-${shakeKey}`}className={`transition-all duration-300 ${validationErrors.client ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : selectedClient ? 'border-2 border-green-400 shadow-sm shadow-green-100 dark:shadow-green-900/30' : ''}`}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center justify-between">
-                  <span>Cliente e Desconto</span>
-                  {clients.length > 0 && (
-                    <span className="text-sm font-normal text-muted-foreground">
-                      {clients.length} clientes
-                    </span>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {validationErrors.client && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm font-medium">
-                    <AlertTriangle className="h-4 w-4 shrink-0" />
-                    {validationErrors.client}
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <Label>Cliente {isFiado && <span className="text-destructive">*</span>}</Label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      ref={clientInputRef}
-                      placeholder={
-                        clients.length > 0 ? 'Buscar cliente...' : 'Nenhum cliente cadastrado'
-                      }
-                      value={clientSearch}
-                      onChange={(e) => {
-                        setClientSearch(e.target.value)
-                        setClientId('')
-                        setIsClientDropdownOpen(true)
-                      }}
-                      onFocus={() => setIsClientDropdownOpen(true)}
-                      onBlur={() => {
-                        setTimeout(() => setIsClientDropdownOpen(false), 150)
-                      }}
-                      onKeyDown={handleClientKeyDown}
-                      className="pl-9 h-11 text-base"
-                    />
-                    {isClientDropdownOpen && !clientId && (
-                      <div ref={clientDropdownRef} className="absolute z-50 w-full mt-1 max-h-48 md:max-h-72 overflow-y-auto border rounded-md bg-popover text-popover-foreground shadow-lg">
-                        {clientCompletions.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 px-3 py-2 border-b bg-muted/30">
-                            {clientCompletions.map((word) => (
-                              <button
-                                key={word}
-                                type="button"
-                                className="text-sm bg-background hover:bg-muted text-muted-foreground rounded-full px-3 py-1 border transition-colors"
-                                onMouseDown={(e) => {
-                                  e.preventDefault()
-                                  setClientSearch(applyCompletion(clientSearch, word))
-                                }}
-                              >
-                                {word}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        {/* Recent clients section */}
-                        {!clientSearch.trim() && recentClients.length > 0 && (
-                          <>
-                            <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide bg-muted/50">
-                              Recentes
-                            </div>
-                            {recentClients.map((client) => (
-                              <button
-                                key={`recent-${client.id}`}
-                                type="button"
-                                className="w-full px-3 py-3 text-left text-sm min-h-[44px] hover:bg-primary/10 focus:outline-none active:bg-primary/20"
-                                onMouseDown={(e) => {
-                                  e.preventDefault()
-                                  setClientId(client.id)
-                                  setClientSearch(client.name)
-                                  setIsClientDropdownOpen(false)
-                                  addRecentClient(client.id)
-                                }}
-                              >
-                                {client.name}
-                              </button>
-                            ))}
-                            <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide bg-muted/50">
-                              Todos
-                            </div>
-                          </>
-                        )}
-                        {filteredClients.length === 0 ? (
-                          <div className="px-3 py-2">
-                            <p className="text-sm text-muted-foreground">Nenhum cliente encontrado</p>
-                            <button
-                              type="button"
-                              className="w-full mt-1 px-3 py-2.5 text-left text-sm min-h-[44px] hover:bg-blue-50 dark:hover:bg-blue-950/30 focus:outline-none active:bg-blue-100 dark:active:bg-blue-950/50 text-blue-700 dark:text-blue-400 font-medium flex items-center gap-2 rounded-md"
-                              onMouseDown={(e) => {
-                                e.preventDefault()
-                                setShowQuickClient(true)
-                                setQuickClientName(clientSearch.trim())
-                                setIsClientDropdownOpen(false)
-                              }}
-                            >
-                              <UserPlus className="h-4 w-4" />
-                              Cadastrar &ldquo;{clientSearch.trim()}&rdquo;
-                            </button>
-                          </div>
-                        ) : (
-                          filteredClients.slice(0, 20).map((client, index) => (
-                            <button
-                              key={client.id}
-                              type="button"
-                              className={`w-full px-3 py-3 text-left text-sm min-h-[44px] focus:outline-none active:bg-primary/20 ${
-                                index === highlightedClientIndex
-                                  ? 'bg-primary/10'
-                                  : 'hover:bg-primary/10'
-                              }`}
-                              onMouseDown={(e) => {
-                                e.preventDefault()
-                                setClientId(client.id)
-                                setClientSearch(client.name)
-                                setIsClientDropdownOpen(false)
-                                addRecentClient(client.id)
-                              }}
-                            >
-                              {client.name}
-                            </button>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Quick client registration */}
-                {showQuickClient ? (
-                  <div className="border border-dashed border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-950/30 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
-                        <UserPlus className="h-4 w-4" />
-                        Novo Cliente
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                        onClick={() => {
-                          setShowQuickClient(false)
-                          setQuickClientName('')
-                          setQuickClientPhone('')
-                          setQuickClientAddress('')
-                        }}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                    <Input
-                      placeholder="Nome do cliente *"
-                      value={quickClientName}
-                      onChange={(e) => setQuickClientName(e.target.value)}
-                      autoFocus
-                    />
-                    <Input
-                      placeholder="Telefone (opcional)"
-                      value={quickClientPhone}
-                      onChange={(e) => setQuickClientPhone(e.target.value)}
-                    />
-                    <Input
-                      placeholder="Endereço (opcional)"
-                      value={quickClientAddress}
-                      onChange={(e) => setQuickClientAddress(e.target.value)}
-                    />
-                    <Button
-                      size="sm"
-                      className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white"
-                      onClick={handleQuickClient}
-                      disabled={createClient.isPending}
-                    >
-                      {createClient.isPending ? (
-                        <span className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Cadastrando...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <UserPlus className="h-4 w-4" />
-                          Cadastrar e Selecionar
-                        </span>
-                      )}
-                    </Button>
-                  </div>
-                ) : (
-                  !clientId && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full border-dashed border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-800 dark:hover:text-blue-300"
-                      onClick={() => {
-                        setShowQuickClient(true)
-                        if (clientSearch.trim()) {
-                          setQuickClientName(clientSearch.trim())
-                        }
-                      }}
-                    >
-                      <UserPlus className="h-4 w-4 mr-1.5" />
-                      Novo Cliente
-                    </Button>
-                  )
-                )}
-
-                {/* Multiple purchases feature - add to existing account */}
-                {clientId && pendingSales.length > 0 && (
-                  <div className="space-y-3 p-3 border rounded-md border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30">
-                    <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
-                      Este cliente tem {pendingSales.length} conta(s) em aberto
-                    </p>
-                    <RadioGroup
-                      value={saleMode}
-                      onValueChange={(v) => {
-                        setSaleMode(v as 'new' | 'existing')
-                        if (v === 'new') {
-                          setSelectedPendingSaleId('')
-                        }
-                      }}
-                      className="space-y-2"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="new" id="sale-mode-new" />
-                        <Label htmlFor="sale-mode-new" className="cursor-pointer text-sm">
-                          Criar nova conta/fatura
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="existing" id="sale-mode-existing" />
-                        <Label htmlFor="sale-mode-existing" className="cursor-pointer text-sm">
-                          Adicionar na conta existente
-                        </Label>
-                      </div>
-                    </RadioGroup>
-
-                    {saleMode === 'existing' && (
-                      <div className="space-y-2">
-                        <Label className="text-sm">Selecione a conta</Label>
-                        <Select
-                          value={selectedPendingSaleId}
-                          onValueChange={setSelectedPendingSaleId}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione uma conta" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {pendingSales.map((sale) => (
-                              <SelectItem key={sale.id} value={sale.id}>
-                                {formatCurrency(sale.total)} - {sale.installmentPlan}x de{' '}
-                                {formatCurrency(
-                                  sale.fixedInstallmentAmount || sale.total / sale.installmentPlan
-                                )}{' '}
-                                - {sale.pendingReceivablesCount} parcelas restantes
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {selectedPendingSaleId && (() => {
-                          const selectedSale = pendingSales.find((s) => s.id === selectedPendingSaleId)
-                          const currentInstallment = selectedSale?.fixedInstallmentAmount || (selectedSale ? selectedSale.total / selectedSale.installmentPlan : 0)
-                          const pendingCount = selectedSale?.pendingReceivablesCount || 0
-                          const receivables = selectedSale?.pendingReceivables || []
-                          const newRemaining = (selectedSale?.remaining || 0) + total
-                          const isAppendMode = existingMode === 'increase_installments'
-
-                          const untouchedTotal = (!isAppendMode && startFromInstallment)
-                            ? receivables.filter((r) => r.installment < startFromInstallment).reduce((sum, r) => sum + r.amount, 0)
-                            : 0
-                          const amountToCover = isAppendMode ? total : (newRemaining - untouchedTotal)
-
-                          const defaultAppendCount = currentInstallment > 0 ? Math.max(1, Math.ceil(total / currentInstallment)) : 1
-                          const previewCount = isAppendMode
-                            ? (targetInstallmentCount || (targetInstallmentAmount && targetInstallmentAmount > 0 ? Math.max(1, Math.ceil(total / targetInstallmentAmount)) : defaultAppendCount))
-                            : (targetInstallmentCount || (targetInstallmentAmount && targetInstallmentAmount > 0 ? Math.max(1, Math.ceil(amountToCover / targetInstallmentAmount)) : pendingCount))
-                          const previewAmount = isAppendMode
-                            ? (targetInstallmentAmount || (targetInstallmentCount && targetInstallmentCount > 0 ? total / targetInstallmentCount : (previewCount > 0 ? total / previewCount : 0)))
-                            : (targetInstallmentAmount || (targetInstallmentCount && targetInstallmentCount > 0 ? amountToCover / targetInstallmentCount : (previewCount > 0 ? amountToCover / previewCount : 0)))
-
-                          const affectedStartInstallment = isAppendMode
-                            ? (receivables.length > 0 ? receivables[receivables.length - 1].installment + 1 : 1)
-                            : (startFromInstallment || (receivables.length > 0 ? receivables[0].installment : 1))
-
-                          return (
-                            <div className="space-y-3">
-                              <Separator />
-                              <Label className="text-sm font-semibold">Configurar parcelas</Label>
-
-                              <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-2.5">
-                                <div className="flex justify-between text-xs">
-                                  <span className="text-muted-foreground">Saldo restante atual</span>
-                                  <span className="font-medium">{formatCurrency(selectedSale?.remaining || 0)}</span>
-                                </div>
-                                <div className="flex justify-between text-xs mt-1">
-                                  <span className="text-muted-foreground">Novos itens</span>
-                                  <span className="font-medium">+ {formatCurrency(total)}</span>
-                                </div>
-                                <Separator className="my-1.5" />
-                                <div className="flex justify-between text-sm font-semibold text-amber-800 dark:text-amber-300">
-                                  <span>Total a pagar</span>
-                                  <span>{formatCurrency(newRemaining)}</span>
-                                </div>
-                              </div>
-
-                              <RadioGroup
-                                value={existingMode === 'increase_installments' ? 'append' : 'recalculate'}
-                                onValueChange={(v) => {
-                                  setExistingMode(v === 'append' ? 'increase_installments' : 'recalculate')
-                                  setTargetInstallmentAmount(null)
-                                  setTargetInstallmentCount(null)
-                                  setLastEditedField(null)
-                                  setStartFromInstallment(null)
-                                }}
-                                className="space-y-1.5"
-                              >
-                                <div className={`flex items-start space-x-2 p-2 rounded-md border transition-colors ${!isAppendMode ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
-                                  <RadioGroupItem value="recalculate" id="mode-recalculate" className="mt-0.5" />
-                                  <div className="flex-1">
-                                    <Label htmlFor="mode-recalculate" className="cursor-pointer text-xs font-medium">
-                                      Recalcular parcelas
-                                    </Label>
-                                    <p className="text-[10px] text-muted-foreground">Redistribui o total em novas parcelas</p>
-                                  </div>
-                                </div>
-                                <div className={`flex items-start space-x-2 p-2 rounded-md border transition-colors ${isAppendMode ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
-                                  <RadioGroupItem value="append" id="mode-append" className="mt-0.5" />
-                                  <div className="flex-1">
-                                    <Label htmlFor="mode-append" className="cursor-pointer text-xs font-medium">
-                                      Adicionar ao final
-                                    </Label>
-                                    <p className="text-[10px] text-muted-foreground">Mantém parcelas atuais, cria novas no fim</p>
-                                  </div>
-                                </div>
-                              </RadioGroup>
-
-                              {!isAppendMode && receivables.length > 1 && (
-                                <div className="space-y-1">
-                                  <Label className="text-xs text-muted-foreground">A partir de qual parcela? (opcional)</Label>
-                                  <Select
-                                    value={startFromInstallment?.toString() || 'all'}
-                                    onValueChange={(v) => setStartFromInstallment(v === 'all' ? null : Number(v))}
-                                  >
-                                    <SelectTrigger className="h-9">
-                                      <SelectValue placeholder="Todas as parcelas" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="all">Todas as parcelas</SelectItem>
-                                      {receivables.map((r) => {
-                                        const dueDate = new Date(r.dueDate)
-                                        const monthName = dueDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
-                                        return (
-                                          <SelectItem key={r.installment} value={r.installment.toString()}>
-                                            A partir da {r.installment}a - {monthName}
-                                          </SelectItem>
-                                        )
-                                      })}
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              )}
-
-                              <div className="grid grid-cols-2 gap-2">
-                                <div className="space-y-1">
-                                  <Label className="text-xs text-muted-foreground">{isAppendMode ? 'Valor da nova parcela' : 'Valor por parcela'}</Label>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0.01"
-                                    placeholder={previewAmount > 0 ? previewAmount.toFixed(2) : '0,00'}
-                                    value={targetInstallmentAmount ?? ''}
-                                    onChange={(e) => {
-                                      const val = e.target.value ? Number(e.target.value) : null
-                                      setTargetInstallmentAmount(val && val > 0 ? val : null)
-                                      setLastEditedField('value')
-                                      if (val && val > 0) {
-                                        const newCount = Math.max(1, Math.ceil(amountToCover / val))
-                                        setTargetInstallmentCount(newCount)
-                                      }
-                                    }}
-                                    className="h-9"
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <Label className="text-xs text-muted-foreground">{isAppendMode ? 'Novas parcelas' : 'N. de parcelas'}</Label>
-                                  <Input
-                                    type="number"
-                                    step="1"
-                                    min="1"
-                                    placeholder={String(previewCount || pendingCount)}
-                                    value={targetInstallmentCount ?? ''}
-                                    onChange={(e) => {
-                                      const val = e.target.value ? Number(e.target.value) : null
-                                      setTargetInstallmentCount(val && val > 0 ? Math.round(val) : null)
-                                      setLastEditedField('count')
-                                      if (val && val > 0) {
-                                        const newAmount = Math.max(0.01, amountToCover / Math.round(val))
-                                        setTargetInstallmentAmount(Number(newAmount.toFixed(2)))
-                                      }
-                                    }}
-                                    className="h-9"
-                                  />
-                                </div>
-                              </div>
-                              <p className="text-[10px] text-muted-foreground -mt-1">
-                                Altere o valor ou o numero de parcelas. O outro campo sera recalculado automaticamente.
-                              </p>
-
-                              {previewCount > 0 && previewAmount > 0 && (
-                                <div className="rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 p-2.5">
-                                  <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1.5">
-                                    {isAppendMode ? 'Preview: parcelas atuais + ' : 'Preview: '}{previewCount}x de {formatCurrency(previewAmount)}
-                                  </p>
-                                  <div className="space-y-0.5">
-                                    {isAppendMode && receivables.map((r) => {
-                                      const dueDate = new Date(r.dueDate)
-                                      const monthName = dueDate.toLocaleDateString('pt-BR', { month: 'short' })
-                                      return (
-                                        <div key={r.installment} className="flex justify-between text-xs text-muted-foreground">
-                                          <span>{r.installment}a ({monthName})</span>
-                                          <span>{formatCurrency(r.amount)} (inalterada)</span>
-                                        </div>
-                                      )
-                                    })}
-                                    {!isAppendMode && startFromInstallment && receivables.filter((r) => r.installment < startFromInstallment).map((r) => {
-                                      const dueDate = new Date(r.dueDate)
-                                      const monthName = dueDate.toLocaleDateString('pt-BR', { month: 'short' })
-                                      return (
-                                        <div key={r.installment} className="flex justify-between text-xs text-muted-foreground">
-                                          <span>{r.installment}a ({monthName})</span>
-                                          <span>{formatCurrency(r.amount)} (inalterada)</span>
-                                        </div>
-                                      )
-                                    })}
-                                    {Array.from({ length: previewCount }, (_, i) => {
-                                      const isLast = i === previewCount - 1
-                                      const amt = isLast
-                                        ? Math.max(0.01, amountToCover - previewAmount * (previewCount - 1))
-                                        : previewAmount
-                                      const instNum = affectedStartInstallment + i
-                                      return (
-                                        <div key={i} className="flex justify-between text-xs text-blue-700 dark:text-blue-400 font-semibold">
-                                          <span>{instNum}a parcela {isAppendMode ? '(nova)' : ''}</span>
-                                          <span>{formatCurrency(amt)}</span>
-                                        </div>
-                                      )
-                                    })}
-                                  </div>
-                                  {(() => {
-                                    const lastInstAmt = Math.max(0.01, amountToCover - previewAmount * (previewCount - 1))
-                                    const previewTotal = previewAmount * (previewCount - 1) + lastInstAmt + untouchedTotal
-                                    const fullTotal = isAppendMode ? previewTotal + (selectedSale?.remaining || 0) : previewTotal
-                                    const diff = Math.abs(fullTotal - newRemaining)
-                                    if (diff > 0.02) {
-                                      return (
-                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-1">
-                                          Total das parcelas: {formatCurrency(fullTotal)} (diferenca de {formatCurrency(diff)})
-                                        </p>
-                                      )
-                                    }
-                                    return null
-                                  })()}
-                                </div>
-                              )}
-                            </div>
-                          )
-                        })()}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label>Desconto (%)</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={discountPercent}
-                    onChange={(e) => {
-                      setDiscountPercent(Number(e.target.value))
-                      setHasManualDiscount(true)
-                    }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card key={`prices-${shakeKey}`} className={`border-2 bg-gradient-to-br from-primary/5 to-transparent transition-all duration-300 ${validationErrors.prices ? 'border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : items.length > 0 ? 'border-green-400 shadow-sm shadow-green-100 dark:shadow-green-900/30' : 'border-primary/20'}`}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <ShoppingCart className="h-4 w-4" />
-                    Resumo da Venda
-                  </span>
-                  {hasCustomTotal && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => restoreOriginalPrices()}
-                      className="h-7 px-2 text-xs hover:bg-primary/10 rounded-md"
-                      title="Restaurar preços originais"
-                    >
-                      ↩ Restaurar preços
-                    </Button>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 space-y-3">
-                {/* Lista de itens do carrinho com preço editável */}
-                {items.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
-                    <ShoppingCart className="h-8 w-8 mb-2 opacity-50" />
-                    <p className="text-sm">Carrinho vazio</p>
-                    <p className="text-xs opacity-70">Adicione produtos na lista ao lado</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {items.map((item) => (
-                      <div
-                        key={item.product.id}
-                        className={`p-2 border rounded-lg animate-in fade-in duration-200 ${
-                          item.unitPrice !== item.originalPrice
-                            ? item.unitPrice < item.originalPrice
-                              ? 'border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-950/20'
-                              : 'border-orange-200 dark:border-orange-800 bg-orange-50/30 dark:bg-orange-950/20'
-                            : 'bg-gray-50/50 dark:bg-gray-900/50'
-                        }`}
-                      >
-                        {/* Linha 1: Nome + Remover */}
-                        <div className="flex items-center justify-between gap-1 mb-1.5">
-                          <span className="font-medium text-sm leading-tight truncate flex-1">{item.product.name}</span>
-                          {(item.product.stock <= 0 || item.quantity > item.product.stock) && (
-                            <span className="inline-flex items-center gap-0.5 text-[9px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1 py-0.5 rounded-full shrink-0">
-                              <Package className="h-2 w-2" />
-                              Enc.
-                            </span>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 shrink-0 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600"
-                            onClick={() => removeItem(item.product.id)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                          </Button>
-                        </div>
-                        {/* Linha 2: Qty + Total */}
-                        <div className="flex items-center justify-between gap-2">
-                          {/* Quantidade compacta */}
-                          <div className="flex items-center gap-0.5 shrink-0">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 rounded hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 disabled:opacity-40"
-                              onClick={() => updateQuantity(item.product.id, -1)}
-                              disabled={item.quantity <= 1}
-                            >
-                              <Minus className="h-3.5 w-3.5" />
-                            </Button>
-                            <span className="w-6 text-center font-bold text-sm tabular-nums">{item.quantity}</span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 rounded hover:bg-green-50 dark:hover:bg-green-950/30 hover:text-green-600 disabled:opacity-40"
-                              onClick={() => updateQuantity(item.product.id, 1)}
-                              disabled={item.product.stock > 0 && item.quantity >= item.product.stock}
-                            >
-                              <Plus className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                          {/* Total do item */}
-                          <span className="text-sm font-bold text-primary shrink-0 min-w-[70px] text-right">
-                            {formatCurrency(item.totalPrice)}
-                          </span>
-                        </div>
-                        {/* Bloco de preço editável - mini-card */}
-                        <div className={`mt-2 p-2.5 rounded-lg border-2 border-dashed transition-all ${
-                          item.unitPrice !== item.originalPrice
-                            ? item.unitPrice < item.originalPrice
-                              ? 'border-green-400 dark:border-green-600 bg-green-50/60 dark:bg-green-950/30'
-                              : 'border-orange-400 dark:border-orange-600 bg-orange-50/60 dark:bg-orange-950/30'
-                            : 'border-red-300 dark:border-red-700 bg-red-50/40 dark:bg-red-950/20 hover:border-red-400 dark:hover:border-red-600 hover:bg-red-50/60 dark:hover:bg-red-950/30'
-                        }`}>
-                          <div className="flex items-center justify-between gap-2">
-                            <label className={`text-xs font-semibold flex items-center gap-1 ${
-                              item.unitPrice !== item.originalPrice
-                                ? item.unitPrice < item.originalPrice ? 'text-green-700 dark:text-green-400' : 'text-orange-700 dark:text-orange-400'
-                                : 'text-red-600 dark:text-red-400'
-                            }`}>
-                              <Pencil className="h-3 w-3" />
-                              Preço unitário
-                            </label>
-                            {item.unitPrice !== item.originalPrice && (
-                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                                item.unitPrice < item.originalPrice
-                                  ? 'bg-green-200 dark:bg-green-900/50 text-green-800 dark:text-green-300'
-                                  : 'bg-orange-200 dark:bg-orange-900/50 text-orange-800 dark:text-orange-300'
-                              }`}>
-                                {item.unitPrice < item.originalPrice
-                                  ? `-${((1 - item.unitPrice / item.originalPrice) * 100).toFixed(0)}%`
-                                  : `+${((item.unitPrice / item.originalPrice - 1) * 100).toFixed(0)}%`}
-                              </span>
-                            )}
-                          </div>
-                          <div className="relative mt-1.5 group/price">
-                            <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium ${
-                              item.unitPrice !== item.originalPrice
-                                ? item.unitPrice < item.originalPrice ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'
-                                : 'text-red-400 dark:text-red-500'
-                            }`}>R$</span>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              className={`h-10 pl-9 pr-3 text-right text-base font-bold rounded-md transition-all cursor-pointer border-2 ${
-                                item.unitPrice !== item.originalPrice
-                                  ? item.unitPrice < item.originalPrice
-                                    ? 'border-green-300 dark:border-green-700 bg-background focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800'
-                                    : 'border-orange-300 dark:border-orange-700 bg-background focus:border-orange-500 focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-800'
-                                  : 'border-red-200 dark:border-red-800 bg-background hover:border-red-300 dark:hover:border-red-700 focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-800'
-                              }`}
-                              value={item.unitPrice}
-                              onChange={(e) => updateItemPrice(item.product.id, Number(e.target.value))}
-                              title="Altere o preço para aplicar promoção"
-                            />
-                          </div>
-                          {item.unitPrice !== item.originalPrice && (
-                            <p className="text-[10px] text-muted-foreground mt-1">
-                              Preço original: {formatCurrency(item.originalPrice)}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <Separator />
-
-                {/* Totais */}
-                {promoAmount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-purple-600 dark:text-purple-400 font-medium">Promoção:</span>
-                    <span className="text-purple-600 dark:text-purple-400 font-semibold">-{formatCurrency(promoAmount)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Subtotal:</span>
-                  <span className="font-medium">{formatCurrency(subtotal)}</span>
-                </div>
-                {effectiveDiscount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-green-600 dark:text-green-400 font-medium">Desconto ({effectiveDiscount}%):</span>
-                    <span className="text-green-600 dark:text-green-400 font-semibold">-{formatCurrency(discountAmount)}</span>
-                  </div>
-                )}
-                <Separator className="my-2" />
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold">Total:</span>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={total}
-                      onChange={(e) => {
-                        const value = Number(e.target.value)
-                        if (value >= 0) {
-                          updateTotalAndRedistribute(value)
-                        }
-                      }}
-                      className="w-36 text-right text-xl font-bold text-primary border-2 border-primary/30 focus:border-primary rounded-lg"
-                      step="0.01"
-                      min="0"
-                      aria-label="Total da venda"
-                    />
-                  </div>
-                </div>
-                {(isFiadoMode || remaining > 0) && (
-                  <div className="flex justify-between text-sm bg-amber-50 dark:bg-amber-950/30 p-2 rounded-lg border border-amber-200 dark:border-amber-800">
-                    <span className="text-amber-700 dark:text-amber-400 font-medium">Restante (Fiado):</span>
-                    <span className="text-amber-700 dark:text-amber-400 font-bold">{formatCurrency(isFiadoMode ? total : remaining)}</span>
-                  </div>
-                )}
-                {remaining < 0 && (
-                  <div className="flex justify-between text-sm bg-red-50 dark:bg-red-950/30 p-2 rounded-lg border border-red-200 dark:border-red-800">
-                    <span className="text-red-600 dark:text-red-400 font-medium">Excedente:</span>
-                    <span className="text-red-600 dark:text-red-400 font-bold">{formatCurrency(Math.abs(remaining))}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Payment Section */}
-          <div className={cn('space-y-4', mobileStep !== 3 && 'hidden md:block')}>
-            <Card key={`payment-${shakeKey}`}className={`transition-all duration-300 ${validationErrors.payment ? 'border-2 border-red-400 shadow-sm shadow-red-100 dark:shadow-red-900/30 animate-shake' : ''}`}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Forma de Pagamento</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {validationErrors.payment && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm font-medium">
-                    <AlertTriangle className="h-4 w-4 shrink-0" />
-                    {validationErrors.payment}
-                  </div>
-                )}
-
-                {/* Resumo do valor */}
-                <div className={`p-4 rounded-xl text-center border ${isFiadoMode ? 'bg-gradient-to-br from-amber-100 dark:from-amber-950/40 to-amber-50 dark:to-amber-950/20 border-amber-300 dark:border-amber-700' : 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20'}`}>
-                  <p className="text-sm text-muted-foreground font-medium">Total da compra</p>
-                  <p className={`text-3xl font-bold mt-1 ${isFiadoMode ? 'text-amber-700 dark:text-amber-400' : 'text-primary'}`}>{formatCurrency(total)}</p>
-                </div>
-
-                {/* Escolha principal: Pagar Agora vs Fiado */}
-                <div className="grid gap-3">
-                  <Button
-                    variant={!isFiadoMode ? 'default' : 'outline'}
-                    className={`h-auto py-4 px-5 justify-start transition-all duration-200 ${!isFiadoMode ? 'ring-2 ring-primary ring-offset-2' : 'hover:bg-primary/5'}`}
-                    onClick={() => {
-                      setIsFiadoMode(false)
-                      if (payments.length === 0) {
-                        addPayment()
-                      }
-                    }}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`p-2.5 rounded-full ${!isFiadoMode ? 'bg-primary-foreground/20' : 'bg-muted'}`}>
-                        <Wallet className="h-6 w-6" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-semibold text-base">Pagar Agora</div>
-                        <div className="text-sm opacity-70 font-normal">Dinheiro, PIX ou cartão</div>
-                      </div>
-                    </div>
-                  </Button>
-
-                  <Button
-                    variant={isFiadoMode ? 'default' : 'outline'}
-                    className={`h-auto py-4 px-5 justify-start transition-all duration-200 ${isFiadoMode ? 'bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-background text-white' : 'hover:bg-amber-50 dark:hover:bg-amber-950/30'}`}
-                    onClick={() => {
-                      setIsFiadoMode(true)
-                      setPayments([])
-                    }}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`p-2.5 rounded-full ${isFiadoMode ? 'bg-white/20' : 'bg-muted'}`}>
-                        <Handshake className="h-6 w-6" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <div className="font-semibold text-base">Fiado</div>
-                        <div className="text-sm opacity-70 font-normal">Pagar depois em parcelas</div>
-                      </div>
-                    </div>
-                  </Button>
-                </div>
-
-                {/* Campos específicos baseados na escolha */}
-                {!isFiadoMode ? (
-                  <div className="bg-green-50/80 dark:bg-green-950/20 p-4 rounded-xl space-y-3 border border-green-200 dark:border-green-800">
-                    <p className="font-semibold text-green-800 dark:text-green-300 flex items-center gap-2">
-                      <Wallet className="h-5 w-5" />
-                      Forma de pagamento:
-                    </p>
-
-                    <div className="flex justify-end">
-                      <Button variant="outline" size="sm" onClick={addPayment}>
-                        <Plus className="h-5 w-5 mr-1" />
-                        Adicionar Pagamento
-                      </Button>
-                    </div>
-                    {payments.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-2">
-                        Nenhum pagamento adicionado
-                      </p>
-                    ) : (
-                      payments.map((payment, index) => (
-                        <div key={index} className="space-y-2 p-3 border rounded-md bg-background">
-                          <div className="flex gap-2">
-                            <Select
-                              value={payment.method}
-                              onValueChange={(v) =>
-                                updatePayment(index, { method: v as Payment['method'] })
-                              }
-                            >
-                              <SelectTrigger className="flex-1">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(PAYMENT_METHOD_LABELS).map(([key, label]) => (
-                                  <SelectItem key={key} value={key}>
-                                    {label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              value={payment.amount}
-                              onChange={(e) =>
-                                updatePayment(index, { amount: Number(e.target.value) })
-                              }
-                              className="w-28"
-                            />
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removePayment(index)}
-                            >
-                              <Trash2 className="h-5 w-5 text-destructive" />
-                            </Button>
-                          </div>
-                          {payment.method === 'CREDIT' && (
-                            <Select
-                              value={payment.installments.toString()}
-                              onValueChange={(v) =>
-                                updatePayment(index, { installments: Number(v) })
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
-                                  <SelectItem key={n} value={n.toString()}>
-                                    {n}x {n === 1 ? 'à vista' : ''}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                          {payment.feePercent > 0 && (
-                            <p className="text-sm text-muted-foreground">
-                              Taxa: {payment.feePercent}%
-                            </p>
-                          )}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                ) : (
-                  <div className="bg-amber-50/80 dark:bg-amber-950/20 p-3 rounded-xl border border-amber-200 dark:border-amber-800 text-center">
-                    <p className="font-semibold text-amber-800 dark:text-amber-300 flex items-center justify-center gap-2">
-                      <Handshake className="h-5 w-5" />
-                      Fiado selecionado
-                    </p>
-                    <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-                      <strong>{formatCurrency(total)}</strong> será registrado como fiado.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        </div>
-
-        <div className="border-t pt-3 mt-0 shrink-0 bg-background">
-          {/* Mobile step navigation (steps 1-2) */}
-          <div className={cn('flex items-center justify-between gap-3 md:hidden', mobileStep === 3 && 'hidden')}>
-            {mobileStep > 1 ? (
-              <Button variant="outline" onClick={() => setMobileStep((s) => s - 1)} className="gap-1">
+        <div className="border-t pt-3 shrink-0 bg-background">
+          <div className="flex items-center justify-between gap-3">
+            {currentStep > 0 ? (
+              <Button variant="outline" onClick={handlePrevStep} className="gap-1">
                 <ChevronLeft className="h-4 w-4" /> Voltar
               </Button>
             ) : (
               <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
             )}
-            <Button onClick={() => {
-              if (mobileStep === 1 && items.length === 0) {
-                triggerValidationError({ products: 'Adicione pelo menos um produto' })
-                toast({ title: 'Adicione pelo menos um produto', variant: 'destructive' })
-                return
-              }
-              setMobileStep((s) => s + 1)
-            }} className="gap-1 min-w-[120px]">
-              Próximo <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-          {/* Full footer: desktop always, mobile step 3 only */}
-          <div className={cn('flex flex-col sm:flex-row items-center justify-between gap-3', mobileStep !== 3 && 'hidden md:flex')}>
-            {isFiado ? (
-              <div className="flex flex-wrap items-center gap-4 text-base w-full sm:w-auto bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="footer-installment-toggle"
-                    checked={isInstallment}
-                    onChange={(e) => {
-                      setIsInstallment(e.target.checked)
-                      if (e.target.checked) {
-                        setIsFiadoMode(true)
-                        setPayments([])
-                        if (!installmentPlan) {
-                          setInstallmentPlan(3)
-                          if (total > 0) {
-                            setFixedInstallmentAmount(Number((total / 3).toFixed(2)))
-                          }
-                        }
-                      }
-                    }}
-                    className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
-                  />
-                  <Label htmlFor="footer-installment-toggle" className="cursor-pointer text-base font-semibold whitespace-nowrap">
-                    Dividir em parcelas
-                  </Label>
-                </div>
-                {isInstallment && (
-                  <>
-                    <div className="flex items-center gap-1.5">
-                      <Label className="text-base text-muted-foreground whitespace-nowrap">Parcelas:</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        max="48"
-                        value={installmentPlan}
-                        onChange={(e) => {
-                          const raw = e.target.value
-                          if (raw === '') {
-                            setInstallmentPlan('')
-                            setFixedInstallmentAmount(null)
-                            return
-                          }
-                          const value = Math.min(48, Number(raw) || 0)
-                          setInstallmentPlan(value)
-                          if (value > 0 && total > 0) {
-                            setFixedInstallmentAmount(Number((total / value).toFixed(2)))
-                          }
-                        }}
-                        onBlur={() => {
-                          if (!installmentPlan || installmentPlan < 1) setInstallmentPlan(1)
-                        }}
-                        className="w-18 h-9 text-center text-base"
-                        placeholder="3"
-                      />
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Label className="text-base text-muted-foreground whitespace-nowrap">Dia:</Label>
-                      <Select
-                        value={String(paymentDay)}
-                        onValueChange={(v) => setPaymentDay(Number(v))}
-                      >
-                        <SelectTrigger className="w-24 h-9 text-base">
-                          <SelectValue placeholder="Dia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
-                            <SelectItem key={day} value={String(day)}>
-                              Dia {day}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Label className="text-base text-muted-foreground whitespace-nowrap">Início:</Label>
-                      <Select
-                        value={startMonth && startYear ? `${startMonth}-${startYear}` : 'auto'}
-                        onValueChange={(v) => {
-                          if (v === 'auto') {
-                            setStartMonth(null)
-                            setStartYear(null)
-                          } else {
-                            const [m, y] = v.split('-').map(Number)
-                            setStartMonth(m)
-                            setStartYear(y)
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="w-32 h-9 text-base">
-                          <SelectValue placeholder="Auto" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="auto">Automático</SelectItem>
-                          {Array.from({ length: 12 }, (_, i) => {
-                            const d = new Date()
-                            d.setMonth(d.getMonth() + i)
-                            const m = d.getMonth() + 1
-                            const y = d.getFullYear()
-                            const label = d.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })
-                            return (
-                              <SelectItem key={`${m}-${y}`} value={`${m}-${y}`}>
-                                {label.charAt(0).toUpperCase() + label.slice(1)}
-                              </SelectItem>
-                            )
-                          })}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Label className="text-base text-muted-foreground whitespace-nowrap">Valor fixo:</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder={total > 0 && Number(installmentPlan) > 0 ? String((total / Number(installmentPlan)).toFixed(2)) : '0'}
-                        value={fixedInstallmentAmount || ''}
-                        onChange={(e) => {
-                          const val = e.target.value ? Number(e.target.value) : null
-                          setFixedInstallmentAmount(val)
-                          if (val && val > 0 && total > 0) {
-                            setInstallmentPlan(Math.ceil(total / val))
-                          }
-                        }}
-                        className="w-28 h-9 text-base"
-                      />
-                    </div>
-                    {total > 0 && Number(installmentPlan) > 0 && (
-                      <span className="text-base text-amber-700 dark:text-amber-400 font-semibold whitespace-nowrap">
-                        {installmentPlan}x de {formatCurrency(fixedInstallmentAmount || total / Number(installmentPlan))}
-                      </span>
-                    )}
-                    {Number(installmentPlan) > 0 && (
-                      <div className="w-full flex flex-wrap items-center gap-1.5 text-sm text-amber-700 mt-1">
-                        <span className="font-medium flex items-center gap-1">
-                          <CalendarDays className="h-3.5 w-3.5" />
-                          Vencimentos:
-                        </span>
-                        {(() => {
-                          const now = new Date()
-                          const skipCurrent = !(startMonth && startYear) && now.getDate() >= paymentDay
-                          return Array.from({ length: Math.min(Number(installmentPlan), 6) }, (_, i) => {
-                          let date: Date
-                          if (startMonth && startYear) {
-                            date = new Date(startYear, startMonth - 1 + i, paymentDay)
-                          } else {
-                            date = new Date(now.getFullYear(), now.getMonth() + i + (skipCurrent ? 1 : 0), paymentDay)
-                          }
-                          const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
-                          if (paymentDay > lastDay) {
-                            date.setDate(lastDay)
-                          }
-                          return (
-                            <span key={i} className="bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 px-1.5 py-0.5 rounded text-xs font-medium">
-                              {date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                            </span>
-                          )
-                        })
-                        })()}
-                        {Number(installmentPlan) > 6 && (
-                          <span className="text-xs text-amber-600 dark:text-amber-400">+{Number(installmentPlan) - 6} mais</span>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              {items.length > 0 && (
+                <span className="bg-primary/10 text-primary font-medium px-2 py-1 rounded-full">
+                  {items.reduce((sum, item) => sum + item.quantity, 0)} itens
+                </span>
+              )}
+              {total > 0 && (
+                <span className="font-semibold text-sm">{formatCurrency(total)}</span>
+              )}
+            </div>
+
+            {currentStep < STEPS.length - 1 ? (
+              <Button onClick={handleNextStep} className="gap-1 min-w-[120px]">
+                Proximo <ChevronRight className="h-4 w-4" />
+              </Button>
             ) : (
               <div />
             )}
-            <div className="flex gap-2 shrink-0 w-full sm:w-auto justify-end">
-              <Button 
-                variant="outline" 
-                onClick={() => onOpenChange(false)}
-                className="hidden md:inline-flex transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                Cancelar
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setMobileStep(2)}
-                className="md:hidden transition-all duration-200 gap-1"
-              >
-                <ChevronLeft className="h-4 w-4" /> Voltar
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={
-                  createSale.isPending ||
-                  addItemsToSale.isPending ||
-                  items.length === 0 ||
-                  (saleMode === 'existing' && !selectedPendingSaleId)
-                }
-                className={`min-w-[160px] transition-all duration-200 disabled:opacity-50 ${
-                  isFiado
-                    ? 'bg-amber-600 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 text-white'
-                    : ''
-                }`}
-              >
-                {createSale.isPending || addItemsToSale.isPending ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Finalizando...
-                  </span>
-                ) : saleMode === 'existing' ? (
-                  'Adicionar na Conta'
-                ) : isFiado ? (
-                  <span className="flex items-center gap-2">
-                    <Handshake className="h-5 w-5" />
-                    Registrar Fiado
-                  </span>
-                ) : (
-                  'Finalizar Venda'
-                )}
-              </Button>
-            </div>
           </div>
         </div>
         </>
         )}
       </DialogContent>
 
-      {/* Backorder confirmation dialog */}
       <Dialog open={showBackorderConfirm} onOpenChange={setShowBackorderConfirm}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -2438,8 +1178,8 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
             </div>
             <DialogDescription className="pt-2">
               {backorderItems.length === 1
-                ? 'O seguinte item está sem estoque e será registrado como encomenda:'
-                : `Os seguintes ${backorderItems.length} itens estão sem estoque e serão registrados como encomenda:`}
+                ? 'O seguinte item esta sem estoque e sera registrado como encomenda:'
+                : `Os seguintes ${backorderItems.length} itens estao sem estoque e serao registrados como encomenda:`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 max-h-40 overflow-y-auto">
