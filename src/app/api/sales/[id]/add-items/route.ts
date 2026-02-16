@@ -35,7 +35,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     }
 
-    const { items, fixedInstallmentAmount: customInstallmentAmount, mode } = validation.data
+    const { items, fixedInstallmentAmount: customInstallmentAmount, mode, startFromInstallment } = validation.data
 
     // Find the sale with all receivables for recalculation
     const sale = (await prisma.sale.findUnique({
@@ -204,54 +204,124 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           })
           updatedInstallmentPlan = sale.installmentPlan + 1
         }
-      } else {
-        // MODE: increase_value — Keep same number of pending installments, increase their amount
-        // Redistribute the new remaining balance across existing pending receivables
+        } else if (mode === 'increase_value_from_installment') {
+          // MODE: increase_value_from_installment — Only increase receivables starting from a specific installment
+          // Receivables before startFromInstallment remain untouched
 
-        if (pendingReceivables.length > 0) {
-          const totalAlreadyPaidOnPending = pendingReceivables.reduce(
-            (sum, r) => sum + Number(r.paidAmount), 0
-          )
-          const newTotalForPending = newRemainingBalance + totalAlreadyPaidOnPending
-          const newAmountPerInstallment = Math.floor((newTotalForPending / pendingReceivables.length) * 100) / 100
+          if (pendingReceivables.length > 0 && startFromInstallment) {
+            const affectedReceivables = pendingReceivables.filter(
+              (r) => r.installment >= startFromInstallment
+            )
+            if (affectedReceivables.length > 0) {
+              const additionalPerInstallment = Math.floor((discountedNewItemsTotal / affectedReceivables.length) * 100) / 100
 
-          for (let i = 0; i < pendingReceivables.length; i++) {
-            const receivable = pendingReceivables[i]
-            let newAmount: number
+              for (let i = 0; i < affectedReceivables.length; i++) {
+                const receivable = affectedReceivables[i]
+                let additionalAmount: number
 
-            if (i === pendingReceivables.length - 1) {
-              const previousTotal = newAmountPerInstallment * i
-              newAmount = newTotalForPending - previousTotal
+                if (i === affectedReceivables.length - 1) {
+                  const previousAdditional = additionalPerInstallment * i
+                  additionalAmount = discountedNewItemsTotal - previousAdditional
+                } else {
+                  additionalAmount = additionalPerInstallment
+                }
+
+                const currentAmount = Number(receivable.amount)
+                const newAmount = currentAmount + additionalAmount
+
+                await tx.receivable.update({
+                  where: { id: receivable.id },
+                  data: {
+                    amount: new Decimal(Number(Math.max(0.01, newAmount).toFixed(2))),
+                  },
+                })
+              }
             } else {
-              newAmount = newAmountPerInstallment
-            }
+              // startFromInstallment is beyond all pending receivables — create new ones
+              const lastDueDate = pendingReceivables.length > 0
+                ? new Date(pendingReceivables[pendingReceivables.length - 1].dueDate)
+                : (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date())
+              const dueDate = new Date(lastDueDate)
+              dueDate.setMonth(dueDate.getMonth() + 1)
+              const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
+              dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
 
-            await tx.receivable.update({
-              where: { id: receivable.id },
+              await tx.receivable.create({
+                data: {
+                  saleId: id,
+                  installment: lastInstallmentNumber + 1,
+                  amount: new Decimal(Number(discountedNewItemsTotal.toFixed(2))),
+                  dueDate,
+                },
+              })
+              updatedInstallmentPlan = sale.installmentPlan + 1
+            }
+          } else {
+            // Fallback: no pending receivables or no startFromInstallment — create one for the full amount
+            const lastDueDate = lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date()
+            const dueDate = new Date(lastDueDate)
+            dueDate.setMonth(dueDate.getMonth() + 1)
+            const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
+            dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+
+            await tx.receivable.create({
               data: {
-                amount: new Decimal(Number(Math.max(0.01, newAmount).toFixed(2))),
+                saleId: id,
+                installment: lastInstallmentNumber + 1,
+                amount: new Decimal(Number(newRemainingBalance.toFixed(2))),
+                dueDate,
               },
             })
+            updatedInstallmentPlan = sale.installmentPlan + 1
           }
         } else {
-          // No pending receivables — create one for the full amount
-          const lastDueDate = lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date()
-          const dueDate = new Date(lastDueDate)
-          dueDate.setMonth(dueDate.getMonth() + 1)
-          const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
-          dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+          // MODE: increase_value — Keep same number of pending installments, increase their amount
+          // Redistribute the new remaining balance across existing pending receivables
 
-          await tx.receivable.create({
-            data: {
-              saleId: id,
-              installment: lastInstallmentNumber + 1,
-              amount: new Decimal(Number(newRemainingBalance.toFixed(2))),
-              dueDate,
-            },
-          })
-          updatedInstallmentPlan = sale.installmentPlan + 1
+          if (pendingReceivables.length > 0) {
+            const totalAlreadyPaidOnPending = pendingReceivables.reduce(
+              (sum, r) => sum + Number(r.paidAmount), 0
+            )
+            const newTotalForPending = newRemainingBalance + totalAlreadyPaidOnPending
+            const newAmountPerInstallment = Math.floor((newTotalForPending / pendingReceivables.length) * 100) / 100
+
+            for (let i = 0; i < pendingReceivables.length; i++) {
+              const receivable = pendingReceivables[i]
+              let newAmount: number
+
+              if (i === pendingReceivables.length - 1) {
+                const previousTotal = newAmountPerInstallment * i
+                newAmount = newTotalForPending - previousTotal
+              } else {
+                newAmount = newAmountPerInstallment
+              }
+
+              await tx.receivable.update({
+                where: { id: receivable.id },
+                data: {
+                  amount: new Decimal(Number(Math.max(0.01, newAmount).toFixed(2))),
+                },
+              })
+            }
+          } else {
+            // No pending receivables — create one for the full amount
+            const lastDueDate = lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date()
+            const dueDate = new Date(lastDueDate)
+            dueDate.setMonth(dueDate.getMonth() + 1)
+            const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
+            dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+
+            await tx.receivable.create({
+              data: {
+                saleId: id,
+                installment: lastInstallmentNumber + 1,
+                amount: new Decimal(Number(newRemainingBalance.toFixed(2))),
+                dueDate,
+              },
+            })
+            updatedInstallmentPlan = sale.installmentPlan + 1
+          }
         }
-      }
 
       // Update sale totals
       const updated = await tx.sale.update({
