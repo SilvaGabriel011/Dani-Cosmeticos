@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
     const categoryId = searchParams.get('categoryId')
     const productId = searchParams.get('productId')
     const paymentMethod = searchParams.get('paymentMethod')
+    const search = searchParams.get('search')
 
     const where: Prisma.SaleWhereInput = {}
 
@@ -31,6 +32,12 @@ export async function GET(request: NextRequest) {
 
     if (clientId) {
       where.clientId = clientId
+    }
+
+    if (search) {
+      where.client = {
+        name: { contains: search, mode: 'insensitive' },
+      }
     }
 
     if (startDate || endDate) {
