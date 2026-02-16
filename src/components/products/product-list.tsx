@@ -256,7 +256,6 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-sm leading-tight truncate">{product.name}</p>
-                  {product.code && <p className="text-xs text-muted-foreground font-mono mt-0.5">{product.code}</p>}
                   <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                     {product.category?.name && <span className="text-xs bg-muted px-1.5 py-0.5 rounded">{product.category.name}</span>}
                     {product.brand?.name && <span className="text-xs bg-muted px-1.5 py-0.5 rounded">{product.brand.name}</span>}
@@ -307,7 +306,6 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
       <Table className="hidden md:table">
         <TableHeader>
           <TableRow>
-            <TableHead>Código</TableHead>
             <TableHead>Nome</TableHead>
             <TableHead>Categoria</TableHead>
             <TableHead>Marca</TableHead>
@@ -323,7 +321,6 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
             const stockStatus = getStockStatus(product.stock, product.minStock)
             return (
               <TableRow key={product.id} className={backordersByProduct.has(product.id) ? 'bg-amber-50/50 dark:bg-amber-950/20' : ''}>
-                <TableCell className="font-mono text-sm">{product.code || '-'}</TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>
                   {product.category?.name || <span className="text-muted-foreground">-</span>}
