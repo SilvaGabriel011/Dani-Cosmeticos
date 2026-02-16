@@ -10,6 +10,15 @@ import {
 } from '@/schemas/sale'
 import { type Sale, type PaginatedResult } from '@/types'
 
+interface PendingReceivableDetail {
+  id: string
+  installment: number
+  amount: number
+  paidAmount: number
+  dueDate: string
+  status: string
+}
+
 interface PendingSale {
   id: string
   total: number
@@ -22,6 +31,7 @@ interface PendingSale {
   itemsCount: number
   pendingReceivablesCount: number
   nextDueDate: string | null
+  pendingReceivables: PendingReceivableDetail[]
 }
 
 interface SaleFilters {

@@ -58,6 +58,14 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         itemsCount: sale.items.length,
         pendingReceivablesCount,
         nextDueDate,
+        pendingReceivables: sale.receivables.map((r) => ({
+          id: r.id,
+          installment: r.installment,
+          amount: Number(r.amount),
+          paidAmount: Number(r.paidAmount),
+          dueDate: r.dueDate,
+          status: r.status,
+        })),
       }
     })
 
