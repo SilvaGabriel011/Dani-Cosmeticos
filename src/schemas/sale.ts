@@ -41,9 +41,10 @@ export const addPaymentSchema = z.object({
 export const addItemsToSaleSchema = z.object({
   items: z.array(saleItemSchema).min(1, 'Pelo menos um item é obrigatório'),
   fixedInstallmentAmount: z.number().positive().optional().nullable(),
-  mode: z.enum(['increase_installments', 'increase_value', 'increase_value_from_installment']).default('increase_installments'),
+  mode: z.enum(['increase_installments', 'increase_value', 'increase_value_from_installment', 'recalculate']).default('recalculate'),
   startFromInstallment: z.number().int().min(1).optional().nullable(),
   targetInstallmentAmount: z.number().positive().optional().nullable(),
+  targetInstallmentCount: z.number().int().min(1).optional().nullable(),
 })
 
 // Schema for rescheduling sale receivables

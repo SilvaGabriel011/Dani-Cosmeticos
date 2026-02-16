@@ -91,9 +91,11 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [fixedInstallmentAmount, setFixedInstallmentAmount] = useState<number | null>(null) // Fixed amount for each payment
   const [startMonth, setStartMonth] = useState<number | null>(null) // 1-12, null = auto
   const [startYear, setStartYear] = useState<number | null>(null)
-  const [existingMode, setExistingMode] = useState<'increase_installments' | 'increase_value' | 'increase_value_from_installment'>('increase_installments')
+  const [existingMode, setExistingMode] = useState<'increase_installments' | 'increase_value' | 'increase_value_from_installment' | 'recalculate'>('recalculate')
   const [startFromInstallment, setStartFromInstallment] = useState<number | null>(null)
   const [targetInstallmentAmount, setTargetInstallmentAmount] = useState<number | null>(null)
+  const [targetInstallmentCount, setTargetInstallmentCount] = useState<number | null>(null)
+  const [lastEditedField, setLastEditedField] = useState<'value' | 'count' | null>(null)
 
   // Backorder confirmation
   const [showBackorderConfirm, setShowBackorderConfirm] = useState(false)
@@ -658,10 +660,11 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
               quantity: i.quantity,
               unitPrice: i.unitPrice,
             })),
-            fixedInstallmentAmount: existingInstallmentAmount || undefined,
+            fixedInstallmentAmount: existingMode === 'increase_installments' ? (targetInstallmentAmount || existingInstallmentAmount || undefined) : (existingInstallmentAmount || undefined),
             mode: existingMode,
-            startFromInstallment: existingMode === 'increase_value_from_installment' ? startFromInstallment : undefined,
-            targetInstallmentAmount: existingMode === 'increase_value_from_installment' ? targetInstallmentAmount : undefined,
+            startFromInstallment: existingMode === 'recalculate' ? startFromInstallment : undefined,
+            targetInstallmentAmount: existingMode === 'recalculate' ? targetInstallmentAmount : undefined,
+            targetInstallmentCount: existingMode === 'recalculate' ? targetInstallmentCount : undefined,
           },
         })
 
@@ -889,9 +892,11 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setExistingInstallmentAmount(null)
     setStartMonth(null)
     setStartYear(null)
-    setExistingMode('increase_installments')
+    setExistingMode('recalculate')
     setStartFromInstallment(null)
     setTargetInstallmentAmount(null)
+    setTargetInstallmentCount(null)
+    setLastEditedField(null)
     setShowQuickClient(false)
     setQuickClientName('')
     setQuickClientPhone('')
@@ -1541,177 +1546,205 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           const selectedSale = pendingSales.find((s) => s.id === selectedPendingSaleId)
                           const currentInstallment = selectedSale?.fixedInstallmentAmount || (selectedSale ? selectedSale.total / selectedSale.installmentPlan : 0)
                           const pendingCount = selectedSale?.pendingReceivablesCount || 0
-
-                          // Preview for increase_installments
-                          const installmentAmountForPreview = existingInstallmentAmount || currentInstallment
-                          const extraInstallments = installmentAmountForPreview > 0 ? Math.ceil(total / installmentAmountForPreview) : 0
-                          const lastExtraAmount = installmentAmountForPreview > 0 ? total - (installmentAmountForPreview * (extraInstallments - 1)) : 0
-
-                          // Preview for increase_value
-                          const newRemaining = (selectedSale?.remaining || 0) + total
-                          const newValuePerInstallment = pendingCount > 0 ? newRemaining / pendingCount : 0
-
-                          // Preview for increase_value_from_installment
                           const receivables = selectedSale?.pendingReceivables || []
-                          const affectedCount = startFromInstallment
-                            ? receivables.filter((r) => r.installment >= startFromInstallment).length
+                          const newRemaining = (selectedSale?.remaining || 0) + total
+                          const isAppendMode = existingMode === 'increase_installments'
+
+                          const untouchedTotal = (!isAppendMode && startFromInstallment)
+                            ? receivables.filter((r) => r.installment < startFromInstallment).reduce((sum, r) => sum + r.amount, 0)
                             : 0
-                          const additionalPerAffected = affectedCount > 0 ? total / affectedCount : 0
-                          const hasCustomTarget = targetInstallmentAmount !== null && targetInstallmentAmount > 0
+                          const amountToCover = isAppendMode ? total : (newRemaining - untouchedTotal)
+
+                          const defaultAppendCount = currentInstallment > 0 ? Math.max(1, Math.ceil(total / currentInstallment)) : 1
+                          const previewCount = isAppendMode
+                            ? (targetInstallmentCount || (targetInstallmentAmount && targetInstallmentAmount > 0 ? Math.max(1, Math.ceil(total / targetInstallmentAmount)) : defaultAppendCount))
+                            : (targetInstallmentCount || (targetInstallmentAmount && targetInstallmentAmount > 0 ? Math.max(1, Math.ceil(amountToCover / targetInstallmentAmount)) : pendingCount))
+                          const previewAmount = isAppendMode
+                            ? (targetInstallmentAmount || (targetInstallmentCount && targetInstallmentCount > 0 ? total / targetInstallmentCount : (previewCount > 0 ? total / previewCount : 0)))
+                            : (targetInstallmentAmount || (targetInstallmentCount && targetInstallmentCount > 0 ? amountToCover / targetInstallmentCount : (previewCount > 0 ? amountToCover / previewCount : 0)))
+
+                          const affectedStartInstallment = isAppendMode
+                            ? (receivables.length > 0 ? receivables[receivables.length - 1].installment + 1 : 1)
+                            : (startFromInstallment || (receivables.length > 0 ? receivables[0].installment : 1))
 
                           return (
                             <div className="space-y-3">
-                              <Label className="text-sm font-semibold">Como adicionar à conta?</Label>
+                              <Separator />
+                              <Label className="text-sm font-semibold">Configurar parcelas</Label>
+
+                              <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-2.5">
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-muted-foreground">Saldo restante atual</span>
+                                  <span className="font-medium">{formatCurrency(selectedSale?.remaining || 0)}</span>
+                                </div>
+                                <div className="flex justify-between text-xs mt-1">
+                                  <span className="text-muted-foreground">Novos itens</span>
+                                  <span className="font-medium">+ {formatCurrency(total)}</span>
+                                </div>
+                                <Separator className="my-1.5" />
+                                <div className="flex justify-between text-sm font-semibold text-amber-800 dark:text-amber-300">
+                                  <span>Total a pagar</span>
+                                  <span>{formatCurrency(newRemaining)}</span>
+                                </div>
+                              </div>
+
                               <RadioGroup
-                                value={existingMode}
-                                onValueChange={(v) => setExistingMode(v as 'increase_installments' | 'increase_value' | 'increase_value_from_installment')}
-                                className="space-y-2"
+                                value={existingMode === 'increase_installments' ? 'append' : 'recalculate'}
+                                onValueChange={(v) => {
+                                  setExistingMode(v === 'append' ? 'increase_installments' : 'recalculate')
+                                  setTargetInstallmentAmount(null)
+                                  setTargetInstallmentCount(null)
+                                  setLastEditedField(null)
+                                  setStartFromInstallment(null)
+                                }}
+                                className="space-y-1.5"
                               >
-                                <div className={`flex items-start space-x-2 p-2.5 rounded-md border transition-colors ${existingMode === 'increase_installments' ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
-                                  <RadioGroupItem value="increase_installments" id="mode-increase-installments" className="mt-0.5" />
+                                <div className={`flex items-start space-x-2 p-2 rounded-md border transition-colors ${!isAppendMode ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
+                                  <RadioGroupItem value="recalculate" id="mode-recalculate" className="mt-0.5" />
                                   <div className="flex-1">
-                                    <Label htmlFor="mode-increase-installments" className="cursor-pointer text-sm font-medium">
-                                      Aumentar parcelas (manter valor)
+                                    <Label htmlFor="mode-recalculate" className="cursor-pointer text-xs font-medium">
+                                      Recalcular parcelas
                                     </Label>
-                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                      Mantém parcela de {formatCurrency(currentInstallment)}, adiciona {extraInstallments > 0 ? extraInstallments : '?'} parcela(s) no fim
-                                    </p>
-                                    {existingMode === 'increase_installments' && extraInstallments > 0 && (
-                                      <p className="text-xs text-blue-700 dark:text-blue-400 font-semibold mt-1">
-                                        +{extraInstallments}x de {formatCurrency(installmentAmountForPreview)}
-                                        {lastExtraAmount > 0 && Math.abs(lastExtraAmount - installmentAmountForPreview) > 0.01 && (
-                                          <> (última: {formatCurrency(lastExtraAmount)})</>
-                                        )}
-                                      </p>
-                                    )}
+                                    <p className="text-[10px] text-muted-foreground">Redistribui o total em novas parcelas</p>
                                   </div>
                                 </div>
-                                <div className={`flex items-start space-x-2 p-2.5 rounded-md border transition-colors ${existingMode === 'increase_value' ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
-                                  <RadioGroupItem value="increase_value" id="mode-increase-value" className="mt-0.5" />
+                                <div className={`flex items-start space-x-2 p-2 rounded-md border transition-colors ${isAppendMode ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
+                                  <RadioGroupItem value="append" id="mode-append" className="mt-0.5" />
                                   <div className="flex-1">
-                                    <Label htmlFor="mode-increase-value" className="cursor-pointer text-sm font-medium">
-                                      Aumentar valor da parcela (manter qtd)
+                                    <Label htmlFor="mode-append" className="cursor-pointer text-xs font-medium">
+                                      Adicionar ao final
                                     </Label>
-                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                      Mantém {pendingCount} parcela(s), aumenta valor de cada
-                                    </p>
-                                    {existingMode === 'increase_value' && pendingCount > 0 && (
-                                      <p className="text-xs text-blue-700 dark:text-blue-400 font-semibold mt-1">
-                                        {pendingCount}x de {formatCurrency(newValuePerInstallment)} (era {formatCurrency(currentInstallment)})
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className={`flex items-start space-x-2 p-2.5 rounded-md border transition-colors ${existingMode === 'increase_value_from_installment' ? 'border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
-                                  <RadioGroupItem value="increase_value_from_installment" id="mode-increase-value-from" className="mt-0.5" />
-                                  <div className="flex-1">
-                                    <Label htmlFor="mode-increase-value-from" className="cursor-pointer text-sm font-medium">
-                                      Aumentar valor a partir de uma parcela
-                                    </Label>
-                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                      Escolha a partir de qual parcela o aumento começa
-                                    </p>
-                                    {existingMode === 'increase_value_from_installment' && startFromInstallment && affectedCount > 0 && (
-                                      <p className="text-xs text-blue-700 dark:text-blue-400 font-semibold mt-1">
-                                        {hasCustomTarget
-                                          ? <>{formatCurrency(targetInstallmentAmount)} por parcela em {affectedCount} parcela(s) a partir da {startFromInstallment}a</>
-                                          : <>+{formatCurrency(additionalPerAffected)} por parcela em {affectedCount} parcela(s) a partir da {startFromInstallment}a</>
-                                        }
-                                      </p>
-                                    )}
+                                    <p className="text-[10px] text-muted-foreground">Mantém parcelas atuais, cria novas no fim</p>
                                   </div>
                                 </div>
                               </RadioGroup>
 
-                              {existingMode === 'increase_value_from_installment' && receivables.length > 0 && (
-                                <div className="space-y-2">
-                                  <Label className="text-xs text-muted-foreground">A partir de qual parcela?</Label>
+                              {!isAppendMode && receivables.length > 1 && (
+                                <div className="space-y-1">
+                                  <Label className="text-xs text-muted-foreground">A partir de qual parcela? (opcional)</Label>
                                   <Select
-                                    value={startFromInstallment?.toString() || ''}
-                                    onValueChange={(v) => setStartFromInstallment(Number(v))}
+                                    value={startFromInstallment?.toString() || 'all'}
+                                    onValueChange={(v) => setStartFromInstallment(v === 'all' ? null : Number(v))}
                                   >
                                     <SelectTrigger className="h-9">
-                                      <SelectValue placeholder="Selecione a parcela" />
+                                      <SelectValue placeholder="Todas as parcelas" />
                                     </SelectTrigger>
                                     <SelectContent>
+                                      <SelectItem value="all">Todas as parcelas</SelectItem>
                                       {receivables.map((r) => {
                                         const dueDate = new Date(r.dueDate)
                                         const monthName = dueDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
                                         return (
                                           <SelectItem key={r.installment} value={r.installment.toString()}>
-                                            {r.installment}a parcela - {formatCurrency(r.amount)} - {monthName}
+                                            A partir da {r.installment}a - {monthName}
                                           </SelectItem>
                                         )
                                       })}
                                     </SelectContent>
                                   </Select>
-                                  {startFromInstallment && affectedCount > 0 && (
-                                    <>
-                                      <div className="space-y-1">
-                                        <Label className="text-xs text-muted-foreground">Valor final por parcela (opcional)</Label>
-                                        <Input
-                                          type="number"
-                                          step="0.01"
-                                          min="0.01"
-                                          placeholder={`Atual: ${currentInstallment.toFixed(2)}`}
-                                          value={targetInstallmentAmount ?? ''}
-                                          onChange={(e) => {
-                                            const val = e.target.value ? Number(e.target.value) : null
-                                            setTargetInstallmentAmount(val && val > 0 ? val : null)
-                                          }}
-                                          className="h-9"
-                                        />
-                                        <p className="text-[10px] text-muted-foreground">
-                                          Defina o valor que cada parcela afetada deve ter. Deixe vazio para calcular automaticamente.
-                                        </p>
-                                      </div>
-                                      <div className="rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 p-2 mt-1">
-                                        <p className="text-xs font-medium text-blue-800 dark:text-blue-300">
-                                          Parcelas afetadas: {affectedCount} de {receivables.length}
-                                        </p>
-                                        <div className="mt-1 space-y-0.5">
-                                          {receivables.map((r) => {
-                                            const isAffected = r.installment >= startFromInstallment
-                                            const newAmt = isAffected
-                                              ? (hasCustomTarget ? targetInstallmentAmount : r.amount + additionalPerAffected)
-                                              : r.amount
-                                            const dueDate = new Date(r.dueDate)
-                                            const monthName = dueDate.toLocaleDateString('pt-BR', { month: 'short' })
-                                            return (
-                                              <div key={r.installment} className={`flex justify-between text-xs ${isAffected ? 'text-blue-700 dark:text-blue-400 font-semibold' : 'text-muted-foreground'}`}>
-                                                <span>{r.installment}a ({monthName})</span>
-                                                <span>
-                                                  {isAffected ? (
-                                                    <>{formatCurrency(r.amount)} → {formatCurrency(newAmt)}</>
-                                                  ) : (
-                                                    formatCurrency(r.amount)
-                                                  )}
-                                                </span>
-                                              </div>
-                                            )
-                                          })}
-                                        </div>
-                                      </div>
-                                    </>
-                                  )}
                                 </div>
                               )}
 
-                              {existingMode === 'increase_installments' && (
-                                <div className="space-y-1.5">
-                                  <Label className="text-xs text-muted-foreground">Valor da parcela (opcional, alterar)</Label>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-1">
+                                  <Label className="text-xs text-muted-foreground">{isAppendMode ? 'Valor da nova parcela' : 'Valor por parcela'}</Label>
                                   <Input
                                     type="number"
                                     step="0.01"
                                     min="0.01"
-                                    placeholder={currentInstallment > 0 ? `Atual: ${currentInstallment.toFixed(2)}` : '0,00'}
-                                    value={existingInstallmentAmount ?? ''}
+                                    placeholder={previewAmount > 0 ? previewAmount.toFixed(2) : '0,00'}
+                                    value={targetInstallmentAmount ?? ''}
                                     onChange={(e) => {
                                       const val = e.target.value ? Number(e.target.value) : null
-                                      setExistingInstallmentAmount(val && val > 0 ? val : null)
+                                      setTargetInstallmentAmount(val && val > 0 ? val : null)
+                                      setLastEditedField('value')
+                                      if (val && val > 0) {
+                                        const newCount = Math.max(1, Math.ceil(amountToCover / val))
+                                        setTargetInstallmentCount(newCount)
+                                      }
                                     }}
                                     className="h-9"
                                   />
+                                </div>
+                                <div className="space-y-1">
+                                  <Label className="text-xs text-muted-foreground">{isAppendMode ? 'Novas parcelas' : 'N. de parcelas'}</Label>
+                                  <Input
+                                    type="number"
+                                    step="1"
+                                    min="1"
+                                    placeholder={String(previewCount || pendingCount)}
+                                    value={targetInstallmentCount ?? ''}
+                                    onChange={(e) => {
+                                      const val = e.target.value ? Number(e.target.value) : null
+                                      setTargetInstallmentCount(val && val > 0 ? Math.round(val) : null)
+                                      setLastEditedField('count')
+                                      if (val && val > 0) {
+                                        const newAmount = Math.max(0.01, amountToCover / Math.round(val))
+                                        setTargetInstallmentAmount(Number(newAmount.toFixed(2)))
+                                      }
+                                    }}
+                                    className="h-9"
+                                  />
+                                </div>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground -mt-1">
+                                Altere o valor ou o numero de parcelas. O outro campo sera recalculado automaticamente.
+                              </p>
+
+                              {previewCount > 0 && previewAmount > 0 && (
+                                <div className="rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 p-2.5">
+                                  <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1.5">
+                                    {isAppendMode ? 'Preview: parcelas atuais + ' : 'Preview: '}{previewCount}x de {formatCurrency(previewAmount)}
+                                  </p>
+                                  <div className="space-y-0.5">
+                                    {isAppendMode && receivables.map((r) => {
+                                      const dueDate = new Date(r.dueDate)
+                                      const monthName = dueDate.toLocaleDateString('pt-BR', { month: 'short' })
+                                      return (
+                                        <div key={r.installment} className="flex justify-between text-xs text-muted-foreground">
+                                          <span>{r.installment}a ({monthName})</span>
+                                          <span>{formatCurrency(r.amount)} (inalterada)</span>
+                                        </div>
+                                      )
+                                    })}
+                                    {!isAppendMode && startFromInstallment && receivables.filter((r) => r.installment < startFromInstallment).map((r) => {
+                                      const dueDate = new Date(r.dueDate)
+                                      const monthName = dueDate.toLocaleDateString('pt-BR', { month: 'short' })
+                                      return (
+                                        <div key={r.installment} className="flex justify-between text-xs text-muted-foreground">
+                                          <span>{r.installment}a ({monthName})</span>
+                                          <span>{formatCurrency(r.amount)} (inalterada)</span>
+                                        </div>
+                                      )
+                                    })}
+                                    {Array.from({ length: previewCount }, (_, i) => {
+                                      const isLast = i === previewCount - 1
+                                      const amt = isLast
+                                        ? Math.max(0.01, amountToCover - previewAmount * (previewCount - 1))
+                                        : previewAmount
+                                      const instNum = affectedStartInstallment + i
+                                      return (
+                                        <div key={i} className="flex justify-between text-xs text-blue-700 dark:text-blue-400 font-semibold">
+                                          <span>{instNum}a parcela {isAppendMode ? '(nova)' : ''}</span>
+                                          <span>{formatCurrency(amt)}</span>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                  {(() => {
+                                    const lastInstAmt = Math.max(0.01, amountToCover - previewAmount * (previewCount - 1))
+                                    const previewTotal = previewAmount * (previewCount - 1) + lastInstAmt + untouchedTotal
+                                    const fullTotal = isAppendMode ? previewTotal + (selectedSale?.remaining || 0) : previewTotal
+                                    const diff = Math.abs(fullTotal - newRemaining)
+                                    if (diff > 0.02) {
+                                      return (
+                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-1">
+                                          Total das parcelas: {formatCurrency(fullTotal)} (diferenca de {formatCurrency(diff)})
+                                        </p>
+                                      )
+                                    }
+                                    return null
+                                  })()}
                                 </div>
                               )}
                             </div>

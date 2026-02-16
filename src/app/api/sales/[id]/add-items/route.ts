@@ -35,7 +35,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     }
 
-    const { items, fixedInstallmentAmount: customInstallmentAmount, mode, startFromInstallment, targetInstallmentAmount } = validation.data
+    const { items, fixedInstallmentAmount: customInstallmentAmount, mode, startFromInstallment, targetInstallmentAmount, targetInstallmentCount } = validation.data
 
     // Find the sale with all receivables for recalculation
     const sale = (await prisma.sale.findUnique({
@@ -286,6 +286,104 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             })
             updatedInstallmentPlan = sale.installmentPlan + 1
           }
+        } else if (mode === 'recalculate') {
+          // MODE: recalculate — Unified mode where user sets target value and/or count
+          // The system recalculates installments to cover total debt = old remaining + new items
+          // Supports startFromInstallment to keep earlier installments unchanged
+
+          const untouchedReceivables = startFromInstallment
+            ? pendingReceivables.filter((r) => r.installment < startFromInstallment)
+            : []
+          const affectedReceivables = startFromInstallment
+            ? pendingReceivables.filter((r) => r.installment >= startFromInstallment)
+            : pendingReceivables
+
+          // Sum of untouched receivable amounts (these stay as-is)
+          const untouchedTotal = untouchedReceivables.reduce((sum, r) => sum + Number(r.amount), 0)
+
+          // The amount that needs to be covered by the affected (new) installments
+          const amountToCover = newRemainingBalance - untouchedTotal
+
+          let finalAmount: number
+          let finalCount: number
+
+          if (targetInstallmentAmount && targetInstallmentCount) {
+            finalAmount = targetInstallmentAmount
+            finalCount = targetInstallmentCount
+          } else if (targetInstallmentAmount) {
+            finalAmount = targetInstallmentAmount
+            finalCount = Math.max(1, Math.ceil(amountToCover / targetInstallmentAmount))
+          } else if (targetInstallmentCount) {
+            finalCount = targetInstallmentCount
+            finalAmount = Math.max(0.01, Math.floor((amountToCover / finalCount) * 100) / 100)
+          } else {
+            // Fallback: keep same count as affected, recalculate amount
+            finalCount = Math.max(1, affectedReceivables.length)
+            finalAmount = Math.max(0.01, Math.floor((amountToCover / finalCount) * 100) / 100)
+          }
+
+          // Delete all affected receivables (we'll recreate them)
+          if (affectedReceivables.length > 0) {
+            await tx.receivable.deleteMany({
+              where: { id: { in: affectedReceivables.map((r) => r.id) } },
+            })
+          }
+
+          // Determine the starting due date for new receivables
+          const lastUntouchedReceivable = untouchedReceivables.length > 0
+            ? untouchedReceivables[untouchedReceivables.length - 1]
+            : null
+          const baseDueDate = lastUntouchedReceivable
+            ? new Date(lastUntouchedReceivable.dueDate)
+            : affectedReceivables.length > 0
+              ? new Date(affectedReceivables[0].dueDate)
+              : lastReceivable?.dueDate
+                ? new Date(lastReceivable.dueDate)
+                : new Date()
+
+          // Starting installment number
+          const startInstNum = startFromInstallment
+            ? startFromInstallment
+            : (untouchedReceivables.length > 0
+              ? untouchedReceivables[untouchedReceivables.length - 1].installment + 1
+              : 1)
+
+          // If baseDueDate is from the last untouched receivable, offset by 1 month
+          const offsetMonths = lastUntouchedReceivable ? 1 : 0
+
+          // Create new receivables
+          const newReceivables = Array.from({ length: finalCount }, (_, i) => {
+            const dueDate = new Date(baseDueDate)
+            dueDate.setMonth(dueDate.getMonth() + i + offsetMonths)
+            const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
+            dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+
+            // Last installment: correct remainder so total matches
+            let amount: number
+            if (i === finalCount - 1) {
+              const previousTotal = finalAmount * i
+              amount = Math.max(0.01, amountToCover - previousTotal)
+            } else {
+              amount = finalAmount
+            }
+
+            return {
+              saleId: id,
+              installment: startInstNum + i,
+              amount: new Decimal(Number(amount.toFixed(2))),
+              dueDate,
+            }
+          })
+
+          await tx.receivable.createMany({ data: newReceivables })
+
+          // Update installment plan count
+          const paidReceivablesCount = sale.receivables.filter(
+            (r) => r.status === 'PAID'
+          ).length
+          updatedInstallmentPlan = paidReceivablesCount + untouchedReceivables.length + finalCount
+          updatedFixedInstallmentAmount = finalAmount
+
         } else {
           // MODE: increase_value — Keep same number of pending installments, increase their amount
           // Redistribute the new remaining balance across existing pending receivables
