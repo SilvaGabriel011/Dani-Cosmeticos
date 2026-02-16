@@ -6,6 +6,7 @@ import {
   ShoppingCart,
   Users,
   UserX,
+  Banknote,
   BarChart3,
   Settings,
   Sparkles,
@@ -27,6 +28,7 @@ const navItems = [
   { href: '/vendas', label: 'Vendas', icon: ShoppingCart },
   { href: '/clientes', label: 'Clientes', icon: Users },
   { href: '/clientes/devedores', label: 'Devedores', icon: UserX },
+  { href: '/pagamentos', label: 'Pagamentos', icon: Banknote },
   { href: '/relatorios', label: 'Relatorios', icon: BarChart3 },
   { href: '/configuracoes', label: 'Configuracoes', icon: Settings },
 ]
