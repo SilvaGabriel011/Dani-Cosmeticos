@@ -52,11 +52,27 @@ interface PaymentData {
     total: string | number
     status: string
     installmentPlan: number
+    createdAt: string
     client: {
       id: string
       name: string
       phone: string | null
     } | null
+    items: Array<{
+      id: string
+      quantity: number
+      unitPrice: string | number
+      total: string | number
+      product: { id: string; name: string }
+    }>
+    receivables: Array<{
+      id: string
+      installment: number
+      amount: string | number
+      paidAmount: string | number
+      status: string
+      dueDate: string
+    }>
   }
 }
 

@@ -214,22 +214,8 @@ export default function PagamentosPage() {
                     const hasFee = feeAmount > 0
                     const isExpanded = expandedIds.has(payment.id)
                     const sale = payment.sale
-                    const items = (sale as Record<string, unknown>)?.items as Array<{
-                      id: string
-                      quantity: number
-                      unitPrice: string | number
-                      total: string | number
-                      product: { id: string; name: string }
-                    }> | undefined
-                    const receivables = (sale as Record<string, unknown>)?.receivables as Array<{
-                      id: string
-                      installment: number
-                      amount: string | number
-                      paidAmount: string | number
-                      status: string
-                      dueDate: string
-                    }> | undefined
-                    const installmentPlan = (sale as Record<string, unknown>)?.installmentPlan as number | undefined
+                    const items = sale?.items
+                    const receivables = sale?.receivables
                     return (
                       <>
                       <TableRow key={payment.id} className="transition-colors duration-150 hover:bg-muted/50 cursor-pointer" onClick={() => toggleExpanded(payment.id)}>
@@ -280,10 +266,10 @@ export default function PagamentosPage() {
                                   <span className="text-muted-foreground">Total da venda: </span>
                                   <span className="font-medium">{formatCurrency(Number(sale?.total ?? 0))}</span>
                                 </div>
-                                {(installmentPlan ?? 0) > 1 && (
-                                  <div>
-                                    <span className="text-muted-foreground">Parcelas: </span>
-                                    <span className="font-medium">{installmentPlan}x</span>
+                                                                {(sale?.installmentPlan ?? 0) > 1 && (
+                                                                  <div>
+                                                                    <span className="text-muted-foreground">Parcelas: </span>
+                                                                    <span className="font-medium">{sale?.installmentPlan}x</span>
                                   </div>
                                 )}
                                 <div>
