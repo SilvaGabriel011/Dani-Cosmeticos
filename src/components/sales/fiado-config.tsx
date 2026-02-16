@@ -40,15 +40,20 @@ export const FiadoConfig = memo(function FiadoConfig({
   const getPaymentDatesPreview = () => {
     const dates: Date[] = []
     const now = new Date()
+    const day = paymentDay
+    const monthOffset = now.getDate() >= day ? 1 : 0
 
     for (let i = 0; i < installmentPlan; i++) {
-      const date = new Date(now.getFullYear(), now.getMonth() + i, paymentDay)
-      if (i === 0 && date <= now) {
-        date.setMonth(date.getMonth() + 1)
+      let targetMonth = now.getMonth() + i + monthOffset
+      let targetYear = now.getFullYear()
+
+      while (targetMonth > 11) {
+        targetMonth -= 12
+        targetYear += 1
       }
-      if (date.getDate() !== paymentDay) {
-        date.setDate(0)
-      }
+
+      const lastDayOfMonth = new Date(targetYear, targetMonth + 1, 0).getDate()
+      const date = new Date(targetYear, targetMonth, Math.min(day, lastDayOfMonth))
       dates.push(date)
     }
     return dates

@@ -21,7 +21,7 @@ export const createSaleSchema = z.object({
   payments: z.array(paymentSchema).default([]),
   discountPercent: z.number().min(0).max(100).default(0),
   notes: z.string().optional(),
-  paymentDay: z.number().int().min(1).max(31).optional().nullable(), // Day of month (1-31)
+  paymentDay: z.number().int().min(1).max(28).optional().nullable(), // Day of month (1-28)
   installmentPlan: z.number().int().min(1).max(48).default(1),
   fixedInstallmentAmount: z.number().positive().optional().nullable(), // Fixed amount for each payment
   createdAt: z.string().datetime().optional(), // For imports: use original sale date for receivable calculations

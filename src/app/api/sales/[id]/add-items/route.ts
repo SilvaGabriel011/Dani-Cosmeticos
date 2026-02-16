@@ -156,11 +156,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
               : (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date())
 
             const newReceivables = Array.from({ length: extraInstallments }, (_, i) => {
-              const dueDate = new Date(lastDueDate)
-              dueDate.setMonth(dueDate.getMonth() + i + 1)
-              const targetDay = paymentDay
-              const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
-              dueDate.setDate(Math.min(targetDay, lastDayOfMonth))
+              const targetDate = new Date(lastDueDate.getFullYear(), lastDueDate.getMonth() + i + 1, 1)
+              const lastDayOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0).getDate()
+              const dueDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), Math.min(paymentDay, lastDayOfMonth))
 
               // Last installment: correct the remainder so total matches exactly
               let amount: number
@@ -189,10 +187,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         } else {
           // No fixed amount exists — create a single new installment for the full discounted items total
           const lastDueDate = lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date()
-          const dueDate = new Date(lastDueDate)
-          dueDate.setMonth(dueDate.getMonth() + 1)
-          const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
-          dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+          const targetDate = new Date(lastDueDate.getFullYear(), lastDueDate.getMonth() + 1, 1)
+          const lastDayOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0).getDate()
+          const dueDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), Math.min(paymentDay, lastDayOfMonth))
 
           await tx.receivable.create({
             data: {
@@ -253,10 +250,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
               const lastDueDate = pendingReceivables.length > 0
                 ? new Date(pendingReceivables[pendingReceivables.length - 1].dueDate)
                 : (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date())
-              const dueDate = new Date(lastDueDate)
-              dueDate.setMonth(dueDate.getMonth() + 1)
-              const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
-              dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+              const targetDate = new Date(lastDueDate.getFullYear(), lastDueDate.getMonth() + 1, 1)
+              const lastDayOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0).getDate()
+              const dueDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), Math.min(paymentDay, lastDayOfMonth))
 
               await tx.receivable.create({
                 data: {
@@ -271,10 +267,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           } else {
             // Fallback: no pending receivables or no startFromInstallment — create one for the full amount
             const lastDueDate = lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date()
-            const dueDate = new Date(lastDueDate)
-            dueDate.setMonth(dueDate.getMonth() + 1)
-            const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
-            dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+            const targetDate2 = new Date(lastDueDate.getFullYear(), lastDueDate.getMonth() + 1, 1)
+            const lastDayOfMonth = new Date(targetDate2.getFullYear(), targetDate2.getMonth() + 1, 0).getDate()
+            const dueDate = new Date(targetDate2.getFullYear(), targetDate2.getMonth(), Math.min(paymentDay, lastDayOfMonth))
 
             await tx.receivable.create({
               data: {
@@ -353,10 +348,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
           // Create new receivables
           const newReceivables = Array.from({ length: finalCount }, (_, i) => {
-            const dueDate = new Date(baseDueDate)
-            dueDate.setMonth(dueDate.getMonth() + i + offsetMonths)
-            const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
-            dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+            const targetDate = new Date(baseDueDate.getFullYear(), baseDueDate.getMonth() + i + offsetMonths, 1)
+            const lastDayOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0).getDate()
+            const dueDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), Math.min(paymentDay, lastDayOfMonth))
 
             // Last installment: correct remainder so total matches
             let amount: number
@@ -417,10 +411,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           } else {
             // No pending receivables — create one for the full amount
             const lastDueDate = lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date()
-            const dueDate = new Date(lastDueDate)
-            dueDate.setMonth(dueDate.getMonth() + 1)
-            const lastDayOfMonth = new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0).getDate()
-            dueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+            const targetDate3 = new Date(lastDueDate.getFullYear(), lastDueDate.getMonth() + 1, 1)
+            const lastDayOfMonth = new Date(targetDate3.getFullYear(), targetDate3.getMonth() + 1, 0).getDate()
+            const dueDate = new Date(targetDate3.getFullYear(), targetDate3.getMonth(), Math.min(paymentDay, lastDayOfMonth))
 
             await tx.receivable.create({
               data: {

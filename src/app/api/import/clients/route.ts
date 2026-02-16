@@ -159,7 +159,10 @@ async function createSaleForRow(
     return true
   }
 
-  const baseInstallmentAmount = valorParcelas || Math.floor((totalEmAberto / numInstallments) * 100) / 100
+  const maxInstallmentAmount = Math.floor((totalEmAberto / numInstallments) * 100) / 100
+  const baseInstallmentAmount = valorParcelas
+    ? Math.min(valorParcelas, Math.ceil((totalEmAberto / numInstallments) * 100) / 100)
+    : maxInstallmentAmount
   const now = new Date()
 
   const receivables = Array.from({ length: numInstallments }, (_, i) => {
