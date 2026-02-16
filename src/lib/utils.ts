@@ -114,6 +114,13 @@ export function buildSaleWhatsAppMessage(sale: {
   status: string
   installmentPlan?: number | null
   paymentDay?: number | null
+  receivables?: Array<{
+    installment: number
+    amount: number | string | object
+    dueDate: string | Date
+    paidAmount?: number | string | object
+    status?: string
+  }> | null
 }): string {
   const lines: string[] = []
   lines.push('*DANI COSMÉTICOS*')
@@ -165,7 +172,14 @@ export function buildSaleWhatsAppMessage(sale: {
     }
     const remaining = Number(sale.total) - paid
     lines.push(`*Saldo a pagar: ${formatCurrency(remaining)}*`)
-    if (sale.installmentPlan && sale.installmentPlan > 1) {
+    if (sale.receivables && sale.receivables.length > 0) {
+      lines.push('')
+      lines.push(`*Parcelas (${sale.receivables.length}x):*`)
+      for (const rec of sale.receivables) {
+        const status = rec.status === 'PAID' ? ' \u2705' : rec.status === 'PARTIAL' ? ' (parcial)' : ''
+        lines.push(`${rec.installment}\u00AA - ${formatDate(rec.dueDate)} \u2014 ${formatCurrency(Number(rec.amount))}${status}`)
+      }
+    } else if (sale.installmentPlan && sale.installmentPlan > 1) {
       lines.push(`Parcelamento: ${sale.installmentPlan}x`)
     }
     if (sale.paymentDay) {
