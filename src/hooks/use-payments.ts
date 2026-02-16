@@ -27,3 +27,68 @@ export function useClientPaymentHistory(clientId: string, enabled = false) {
     staleTime: 2 * 60 * 1000,
   })
 }
+
+interface PaymentFilters {
+  clientId?: string
+  method?: string
+  startDate?: string
+  endDate?: string
+  page?: number
+  limit?: number
+}
+
+interface PaymentData {
+  id: string
+  saleId: string
+  method: string
+  amount: string | number
+  feePercent: string | number
+  feeAmount: string | number
+  feeAbsorber: string
+  installments: number
+  paidAt: string
+  sale: {
+    id: string
+    total: string | number
+    status: string
+    installmentPlan: number
+    client: {
+      id: string
+      name: string
+      phone: string | null
+    } | null
+  }
+}
+
+interface PaymentsResponse {
+  data: PaymentData[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+export function usePayments(filters: PaymentFilters = {}) {
+  const params = new URLSearchParams()
+  if (filters.clientId) params.set('clientId', filters.clientId)
+  if (filters.method) params.set('method', filters.method)
+  if (filters.startDate) params.set('startDate', filters.startDate)
+  if (filters.endDate) params.set('endDate', filters.endDate)
+  if (filters.page) params.set('page', String(filters.page))
+  if (filters.limit) params.set('limit', String(filters.limit))
+
+  return useQuery<PaymentsResponse>({
+    queryKey: ['payments', filters],
+    queryFn: async () => {
+      const res = await fetch(`/api/payments?${params}`)
+      if (!res.ok) throw new Error('Erro ao carregar pagamentos')
+      return res.json()
+    },
+    staleTime: 2 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  })
+}
+
+export type { PaymentData, PaymentsResponse, PaymentFilters }
