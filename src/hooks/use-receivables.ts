@@ -179,7 +179,7 @@ export function useSalesWithPendingReceivables(limit?: number) {
       if (!res.ok) throw new Error('Erro ao carregar vendas fiado')
       return res.json()
     },
-    staleTime: 2 * 60 * 1000, // 2 minutos
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000, // 30 segundos
+    refetchOnWindowFocus: true,
   })
 }

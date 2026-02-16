@@ -413,6 +413,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 },
               })
             }
+            updatedFixedInstallmentAmount = newAmountPerInstallment
           } else {
             // No pending receivables — create one for the full amount
             const lastDueDate = lastReceivable?.dueDate ? new Date(lastReceivable.dueDate) : new Date()
