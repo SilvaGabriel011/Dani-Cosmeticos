@@ -158,10 +158,10 @@ export function FiadoTable() {
           ? { ...effectiveReceivable, sale: { ...sale, client: sale.client } } as ReceivableWithSale
           : null
 
-        const installmentAmount = sale.fixedInstallmentAmount
-          ? Number(sale.fixedInstallmentAmount)
-          : nextReceivable
-            ? Number(nextReceivable.amount)
+        const installmentAmount = nextReceivable
+          ? Number(nextReceivable.amount)
+          : sale.fixedInstallmentAmount
+            ? Number(sale.fixedInstallmentAmount)
             : null
 
         return {
