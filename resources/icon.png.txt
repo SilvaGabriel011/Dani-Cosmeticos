@@ -1,0 +1,9 @@
+PLACEHOLDER ICON - Replace with actual 1024x1024 PNG
+
+Para adicionar um ícone personalizado:
+1. Criar um arquivo PNG de 1024x1024 pixels
+2. Salvar como: resources/icon.png
+3. Executar: npx capacitor-assets generate
+   (isso gera automaticamente todos os tamanhos necessários)
+
+Para agora, o Capacitor vai usar o ícone padrão dele.
