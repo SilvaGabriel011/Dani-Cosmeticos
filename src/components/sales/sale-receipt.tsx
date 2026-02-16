@@ -242,8 +242,8 @@ export function SaleReceipt({ data, onClose, onNewSale }: SaleReceiptProps) {
   const isExisting = data.type === 'existing_fiado'
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto">
+    <div className="flex flex-col flex-1 min-h-0">
+      <div className="flex-1 overflow-y-auto min-h-0 overscroll-contain">
         <div ref={receiptRef} className="bg-white text-black p-4 max-w-sm mx-auto" style={{ fontFamily: "'Courier New', monospace" }}>
           <div className="text-center mb-3">
             <p className="text-base font-bold tracking-wide">DANI COSMÉTICOS</p>

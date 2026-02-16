@@ -96,6 +96,94 @@ export function formatWhatsAppUrl(phone: string): string | null {
   return `https://wa.me/55${digits}`
 }
 
+export function buildSaleWhatsAppUrl(sale: {
+  createdAt: string | Date
+  client?: { name: string; phone?: string | null } | null
+  items: Array<{
+    quantity: number
+    unitPrice: number | string
+    originalPrice?: number | string | null
+    total: number | string
+    product: { name: string }
+  }>
+  total: number | string
+  discountAmount?: number | string | null
+  discountPercent?: number | string | null
+  paidAmount?: number | string | null
+  payments: Array<{ method: string; amount: number | string }>
+  status: string
+  installmentPlan?: number | null
+  paymentDay?: number | null
+}): string | null {
+  if (!sale.client?.phone) return null
+  const baseUrl = formatWhatsAppUrl(sale.client.phone)
+  if (!baseUrl) return null
+
+  const lines: string[] = []
+  lines.push('*DANI COSMÉTICOS*')
+  lines.push('_Comprovante de Venda_')
+  lines.push(`Data: ${formatDateTime(sale.createdAt)}`)
+  if (sale.client.name) lines.push(`Cliente: ${sale.client.name}`)
+  lines.push('')
+
+  lines.push('*Itens:*')
+  for (const item of sale.items) {
+    const unitPrice = Number(item.unitPrice)
+    const originalPrice = item.originalPrice ? Number(item.originalPrice) : null
+    const hasPromo = originalPrice != null && originalPrice > unitPrice
+    let line = `• ${item.product.name} x${item.quantity} — ${formatCurrency(Number(item.total))}`
+    if (hasPromo) {
+      line += ` _(de ${formatCurrency(originalPrice)} por ${formatCurrency(unitPrice)} un.)_`
+    }
+    lines.push(line)
+  }
+  lines.push('')
+
+  const discount = Number(sale.discountAmount || 0)
+  if (discount > 0) {
+    const pct = Number(sale.discountPercent || 0)
+    lines.push(`Desconto${pct > 0 ? ` (${pct.toFixed(0)}%)` : ''}: -${formatCurrency(discount)}`)
+  }
+
+  lines.push(`*TOTAL: ${formatCurrency(Number(sale.total))}*`)
+  lines.push('')
+
+  const isFiado = sale.status === 'PENDING'
+  if (!isFiado && sale.payments.length > 0) {
+    lines.push('*Pagamento:*')
+    for (const p of sale.payments) {
+      const label =
+        p.method === 'CASH' ? 'Dinheiro' :
+        p.method === 'PIX' ? 'PIX' :
+        p.method === 'DEBIT' ? 'Débito' :
+        p.method === 'CREDIT' ? 'Crédito' : p.method
+      lines.push(`• ${label}: ${formatCurrency(Number(p.amount))}`)
+    }
+    lines.push('✅ *PAGO*')
+  }
+
+  if (isFiado) {
+    const paid = Number(sale.paidAmount || 0)
+    if (paid > 0) {
+      lines.push(`Entrada: ${formatCurrency(paid)}`)
+    }
+    const remaining = Number(sale.total) - paid
+    lines.push(`*Saldo a pagar: ${formatCurrency(remaining)}*`)
+    if (sale.installmentPlan && sale.installmentPlan > 1) {
+      lines.push(`Parcelamento: ${sale.installmentPlan}x`)
+    }
+    if (sale.paymentDay) {
+      lines.push(`Dia de pagamento: todo dia ${sale.paymentDay}`)
+    }
+  }
+
+  lines.push('')
+  lines.push('_Obrigada pela preferência!_')
+
+  const message = lines.join('\n')
+  return `${baseUrl}?text=${encodeURIComponent(message)}`
+}
+
 export type StockStatus = 'baixo' | 'medio' | 'bom'
 
 export interface StockStatusInfo {

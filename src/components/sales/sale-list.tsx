@@ -32,7 +32,7 @@ import { useProducts } from '@/hooks/use-products'
 import { useSales, useCancelSale } from '@/hooks/use-sales'
 import { SALE_STATUS_LABELS, PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import { printSaleReceipt } from '@/lib/print-sale'
-import { formatCurrency, formatDate, getDateRange, formatWhatsAppUrl } from '@/lib/utils'
+import { formatCurrency, formatDate, getDateRange, buildSaleWhatsAppUrl } from '@/lib/utils'
 import { type Sale } from '@/types'
 
 const periodOptions = [
@@ -337,17 +337,17 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
-                  {sale.client?.phone && (
+                  {sale.client?.phone && buildSaleWhatsAppUrl(sale) && (
                     <Button
                       variant="ghost"
                       size="icon"
                       asChild
-                      title="Abrir WhatsApp"
+                      title="Enviar comprovante via WhatsApp"
                       className="h-10 w-10 transition-all duration-150 hover:bg-green-50 dark:hover:bg-green-950/30 hover:text-green-700"
-                      aria-label="Abrir WhatsApp"
+                      aria-label="Enviar comprovante via WhatsApp"
                     >
                       <a
-                        href={formatWhatsAppUrl(sale.client.phone) || '#'}
+                        href={buildSaleWhatsAppUrl(sale)!}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
