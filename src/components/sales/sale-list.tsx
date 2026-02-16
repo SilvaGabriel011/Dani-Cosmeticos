@@ -83,6 +83,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
+      search: '',
       period: 'month',
       status: '',
       categoryId: '',
@@ -107,6 +108,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
   )
 
   const filterConfigs: FilterConfig[] = [
+    { type: 'search', name: 'search', placeholder: 'Buscar por cliente...' },
     { type: 'toggle', name: 'period', toggleOptions: periodOptions },
     ...(tab === 'todas' ? [{ type: 'select' as const, name: 'status', label: 'Status', options: statusOptions }] : []),
     { type: 'select', name: 'categoryId', label: 'Categoria', options: categoryOptions },
@@ -117,6 +119,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
   const tabStatus = tab === 'fiado' ? 'PENDING' : tab === 'concluidas' ? 'COMPLETED' : undefined
 
   const { data, isLoading, error } = useSales({
+    search: filters.search || undefined,
     status: (tabStatus || filters.status) as 'COMPLETED' | 'PENDING' | '' | undefined,
     categoryId: filters.categoryId || undefined,
     productId: filters.productId || undefined,
@@ -134,7 +137,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [filters.period, filters.status, filters.categoryId, filters.productId, filters.paymentMethod, tab])
+  }, [filters.search, filters.period, filters.status, filters.categoryId, filters.productId, filters.paymentMethod, tab])
 
   const cancelSale = useCancelSale()
 

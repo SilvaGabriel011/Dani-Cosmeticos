@@ -44,6 +44,7 @@ interface SaleFilters {
   categoryId?: string
   productId?: string
   paymentMethod?: string
+  search?: string
 }
 
 async function fetchSales(filters: SaleFilters): Promise<PaginatedResult<Sale>> {
@@ -57,6 +58,7 @@ async function fetchSales(filters: SaleFilters): Promise<PaginatedResult<Sale>> 
   if (filters.categoryId) params.set('categoryId', filters.categoryId)
   if (filters.productId) params.set('productId', filters.productId)
   if (filters.paymentMethod) params.set('paymentMethod', filters.paymentMethod)
+  if (filters.search) params.set('search', filters.search)
 
   const res = await fetch(`/api/sales?${params}`)
   if (!res.ok) throw new Error('Erro ao buscar vendas')
