@@ -102,12 +102,12 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
 
   const existingCodes = useMemo(
     () => productsData?.data?.map((p) => p.code).filter((c): c is string => !!c) || [],
-    [productsData],
+    [productsData]
   )
 
   const selectedBrandName = useMemo(
     () => brands?.find((b) => b.id === watchedBrandId)?.name,
-    [brands, watchedBrandId],
+    [brands, watchedBrandId]
   )
 
   const autoGenerateCode = useCallback(() => {
@@ -115,12 +115,24 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
       setValue('code', '')
       return
     }
-    const codesToCheck = isEditing && product?.code
-      ? existingCodes.filter((c) => c !== product.code)
-      : existingCodes
-    const code = generateProductCode(watchedName, codesToCheck, selectedBrandName, calculatedSalePrice)
+    const codesToCheck =
+      isEditing && product?.code ? existingCodes.filter((c) => c !== product.code) : existingCodes
+    const code = generateProductCode(
+      watchedName,
+      codesToCheck,
+      selectedBrandName,
+      calculatedSalePrice
+    )
     setValue('code', code)
-  }, [watchedName, selectedBrandName, calculatedSalePrice, existingCodes, setValue, isEditing, product])
+  }, [
+    watchedName,
+    selectedBrandName,
+    calculatedSalePrice,
+    existingCodes,
+    setValue,
+    isEditing,
+    product,
+  ])
 
   useEffect(() => {
     if (!isEditing) {
@@ -186,7 +198,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] md:max-w-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] md:max-w-4xl max-h-[90vh] landscape:max-h-[95vh] overflow-y-auto landscape:gap-3">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <div className="p-2 rounded-full bg-primary/10">
@@ -195,11 +207,28 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             {isEditing ? 'Editar Produto' : 'Novo Produto'}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid gap-4 md:grid-cols-2 landscape:gap-3"
+        >
           <div className="space-y-2">
             <Label htmlFor="name">Nome *</Label>
             <Input id="name" placeholder="Nome do produto" {...register('name')} />
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="costPrice">Valor Produto (Custo)</Label>
+            <Input
+              id="costPrice"
+              type="number"
+              step="0.01"
+              min="0"
+              {...register('costPrice', { valueAsNumber: true })}
+            />
+            {errors.costPrice && (
+              <p className="text-sm text-destructive">{errors.costPrice.message}</p>
+            )}
           </div>
 
           <input type="hidden" {...register('code')} />
@@ -352,23 +381,9 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="costPrice">Valor Produto (Custo)</Label>
-            <Input
-              id="costPrice"
-              type="number"
-              step="0.01"
-              min="0"
-              {...register('costPrice', { valueAsNumber: true })}
-            />
-            {errors.costPrice && (
-              <p className="text-sm text-destructive">{errors.costPrice.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-3">
+          <div className="space-y-3 md:col-span-2">
             <Label>Modo de Precificacao</Label>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
@@ -417,24 +432,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             </div>
           )}
 
-          <div className="rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 p-4 space-y-2 border border-primary/20">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Preço de Venda:</span>
-              <span className="font-bold text-lg text-primary">
-                {formatCurrency(calculatedSalePrice || 0)}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Margem de Lucro:</span>
-              <span className="font-semibold text-foreground">{calculatedMargin.toFixed(1)}%</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Lucro por unidade:</span>
-              <span className="font-bold text-green-600">{formatCurrency(profit || 0)}</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 landscape:gap-3">
             <div className="space-y-2">
               <Label htmlFor="stock">Estoque Atual</Label>
               <Input
@@ -455,17 +453,34 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             </div>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button 
-              type="button" 
-              variant="outline" 
+          <div className="rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 p-4 landscape:p-3 space-y-2 landscape:space-y-1.5 border border-primary/20 md:col-span-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Preço de Venda:</span>
+              <span className="font-bold text-lg text-primary">
+                {formatCurrency(calculatedSalePrice || 0)}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Margem de Lucro:</span>
+              <span className="font-semibold text-foreground">{calculatedMargin.toFixed(1)}%</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Lucro por unidade:</span>
+              <span className="font-bold text-green-600">{formatCurrency(profit || 0)}</span>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0 md:col-span-2">
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
               className="transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               Cancelar
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting}
               className="min-w-[100px] transition-all duration-200"
             >
@@ -474,7 +489,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                   <Loader2 className="h-5 w-5 animate-spin" />
                   Salvando...
                 </span>
-              ) : isEditing ? 'Atualizar' : 'Criar'}
+              ) : isEditing ? (
+                'Atualizar'
+              ) : (
+                'Criar'
+              )}
             </Button>
           </DialogFooter>
         </form>
