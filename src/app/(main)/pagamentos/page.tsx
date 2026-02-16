@@ -1,6 +1,6 @@
 'use client'
 
-import { Banknote, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import { Banknote, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp } from 'lucide-react'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 
 import { PageHeader } from '@/components/layout/page-header'
@@ -39,6 +39,19 @@ const paymentMethodOptions = [
 
 export default function PagamentosPage() {
   const [currentPage, setCurrentPage] = useState(1)
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+
+  const toggleExpanded = useCallback((id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }, [])
 
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
@@ -199,8 +212,27 @@ export default function PagamentosPage() {
                   {payments.map((payment) => {
                     const feeAmount = Number(payment.feeAmount)
                     const hasFee = feeAmount > 0
+                    const isExpanded = expandedIds.has(payment.id)
+                    const sale = payment.sale
+                    const items = (sale as Record<string, unknown>)?.items as Array<{
+                      id: string
+                      quantity: number
+                      unitPrice: string | number
+                      total: string | number
+                      product: { id: string; name: string }
+                    }> | undefined
+                    const receivables = (sale as Record<string, unknown>)?.receivables as Array<{
+                      id: string
+                      installment: number
+                      amount: string | number
+                      paidAmount: string | number
+                      status: string
+                      dueDate: string
+                    }> | undefined
+                    const installmentPlan = (sale as Record<string, unknown>)?.installmentPlan as number | undefined
                     return (
-                      <TableRow key={payment.id} className="transition-colors duration-150 hover:bg-muted/50">
+                      <>
+                      <TableRow key={payment.id} className="transition-colors duration-150 hover:bg-muted/50 cursor-pointer" onClick={() => toggleExpanded(payment.id)}>
                         <TableCell>{formatDate(new Date(payment.paidAt))}</TableCell>
                         <TableCell>
                           {payment.sale?.client?.name || (
@@ -225,13 +257,93 @@ export default function PagamentosPage() {
                           )}
                         </TableCell>
                         <TableCell className="text-center">
-                          <Badge
-                            variant={payment.sale?.status === 'COMPLETED' ? 'default' : 'secondary'}
-                          >
-                            {payment.sale?.status === 'COMPLETED' ? 'Concluida' : 'Fiado'}
-                          </Badge>
+                          <div className="flex items-center justify-center gap-1">
+                            <Badge
+                              variant={payment.sale?.status === 'COMPLETED' ? 'default' : 'secondary'}
+                            >
+                              {payment.sale?.status === 'COMPLETED' ? 'Concluida' : 'Fiado'}
+                            </Badge>
+                            {isExpanded ? (
+                              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
+                      {isExpanded && (
+                        <TableRow key={`${payment.id}-detail`} className="bg-muted/30 hover:bg-muted/30">
+                          <TableCell colSpan={6} className="p-0">
+                            <div className="px-6 py-4 space-y-3">
+                              <div className="flex flex-wrap gap-4 text-sm">
+                                <div>
+                                  <span className="text-muted-foreground">Total da venda: </span>
+                                  <span className="font-medium">{formatCurrency(Number(sale?.total ?? 0))}</span>
+                                </div>
+                                {(installmentPlan ?? 0) > 1 && (
+                                  <div>
+                                    <span className="text-muted-foreground">Parcelas: </span>
+                                    <span className="font-medium">{installmentPlan}x</span>
+                                  </div>
+                                )}
+                                <div>
+                                  <span className="text-muted-foreground">Data da venda: </span>
+                                  <span className="font-medium">{sale?.createdAt ? formatDate(new Date(sale.createdAt)) : '-'}</span>
+                                </div>
+                              </div>
+
+                              {items && items.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-semibold text-muted-foreground mb-1.5">Itens da venda</p>
+                                  <div className="space-y-1">
+                                    {items.map((item) => (
+                                      <div key={item.id} className="flex items-center justify-between text-sm py-0.5">
+                                        <span className="font-medium truncate">{item.product.name}</span>
+                                        <span className="text-muted-foreground shrink-0 ml-4">
+                                          {item.quantity}x {formatCurrency(Number(item.unitPrice))} = {formatCurrency(Number(item.total))}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {receivables && receivables.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-semibold text-muted-foreground mb-1.5">Parcelas</p>
+                                  <div className="space-y-1">
+                                    {receivables.map((r) => {
+                                      const remaining = Number(r.amount) - Number(r.paidAmount)
+                                      return (
+                                        <div key={r.id} className="flex items-center justify-between text-sm py-0.5">
+                                          <div className="flex items-center gap-2">
+                                            <span>{r.installment}a parcela</span>
+                                            <Badge variant={r.status === 'PAID' ? 'default' : r.status === 'PARTIAL' ? 'secondary' : 'outline'} className="text-xs">
+                                              {r.status === 'PAID' ? 'Paga' : r.status === 'PARTIAL' ? 'Parcial' : 'Pendente'}
+                                            </Badge>
+                                          </div>
+                                          <div className="flex items-center gap-3 text-muted-foreground">
+                                            <span>Venc: {formatDate(new Date(r.dueDate))}</span>
+                                            <span className="font-medium text-foreground">
+                                              {formatCurrency(Number(r.paidAmount))} / {formatCurrency(Number(r.amount))}
+                                            </span>
+                                            {remaining > 0.01 && (
+                                              <span className="text-amber-600 dark:text-amber-400">
+                                                Falta {formatCurrency(remaining)}
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      </>
                     )
                   })}
                 </TableBody>

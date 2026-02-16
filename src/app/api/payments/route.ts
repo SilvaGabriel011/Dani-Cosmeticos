@@ -43,6 +43,16 @@ export async function GET(request: NextRequest) {
               client: {
                 select: { id: true, name: true, phone: true },
               },
+              items: {
+                include: {
+                  product: { select: { id: true, name: true } },
+                },
+              },
+              receivables: {
+                where: { status: { not: 'CANCELLED' } },
+                orderBy: { installment: 'asc' },
+                select: { id: true, installment: true, amount: true, paidAmount: true, status: true, dueDate: true },
+              },
             },
           },
         },
