@@ -202,19 +202,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="code">Codigo</Label>
-            <Input
-              id="code"
-              placeholder="Gerado automaticamente"
-              {...register('code')}
-              readOnly
-              className="bg-muted cursor-default"
-            />
-            <p className="text-sm text-muted-foreground">
-              Codigo gerado automaticamente a partir do nome, marca e preco
-            </p>
-          </div>
+          <input type="hidden" {...register('code')} />
 
           <div className="space-y-2">
             <Label htmlFor="category">Categoria</Label>
