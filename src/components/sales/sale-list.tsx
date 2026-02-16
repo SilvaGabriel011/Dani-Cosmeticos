@@ -120,6 +120,8 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
   const tabStatus = tab === 'fiado' ? 'PENDING' : tab === 'concluidas' ? 'COMPLETED' : undefined
 
   const { data, isLoading, error } = useSales({
+    page: currentPage,
+    limit: ITEMS_PER_PAGE,
     search: filters.search || undefined,
     status: (tabStatus || filters.status) as 'COMPLETED' | 'PENDING' | '' | undefined,
     categoryId: filters.categoryId || undefined,
@@ -130,11 +132,8 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
   })
 
   const sales = useMemo(() => data?.data || [], [data])
-  const totalPages = Math.max(1, Math.ceil(sales.length / ITEMS_PER_PAGE))
-  const paginatedSales = useMemo(
-    () => sales.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
-    [sales, currentPage]
-  )
+  const totalPages = data?.pagination?.totalPages ?? 1
+  const totalSales = data?.pagination?.total ?? 0
 
   useEffect(() => {
     setCurrentPage(1)
@@ -238,7 +237,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
           </TableRow>
         </TableHeader>
         <TableBody>
-          {paginatedSales.map((sale) => {
+          {sales.map((sale) => {
             const isExpanded = expandedSaleIds.has(sale.id)
             const saleItems = sale.items as unknown as Array<{
               id: string
@@ -466,7 +465,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
       {totalPages > 1 && (
         <div className="flex items-center justify-between border-t pt-4">
           <span className="text-sm text-muted-foreground">
-            {sales.length} venda{sales.length !== 1 ? 's' : ''} &middot; Página {currentPage} de {totalPages}
+            {totalSales} venda{totalSales !== 1 ? 's' : ''} &middot; Página {currentPage} de {totalPages}
           </span>
           <div className="flex items-center gap-1">
             <Button
