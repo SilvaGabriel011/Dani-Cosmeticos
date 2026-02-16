@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       prisma.sale.findMany({
         where,
         include: {
-          client: { select: { id: true, name: true } },
+          client: { select: { id: true, name: true, phone: true } },
           items: { select: { id: true, quantity: true, unitPrice: true, originalPrice: true, total: true, addedAt: true, product: { select: { id: true, name: true } } } },
           payments: { select: { method: true, amount: true } },
         },
