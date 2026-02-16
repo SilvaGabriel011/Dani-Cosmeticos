@@ -87,6 +87,7 @@ const CartItemRow = memo(function CartItemRow({
                 }`}
                 value={item.unitPrice}
                 onChange={(e) => onUpdatePrice(item.product.id, Number(e.target.value))}
+                onFocus={(e) => e.target.select()}
                 aria-label={`Preço unitário de ${item.product.name}`}
               />
             </div>
