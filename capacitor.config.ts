@@ -6,10 +6,28 @@ const config: CapacitorConfig = {
   webDir: 'out',
   server: {
     url: 'https://dani-cosmeticos.vercel.app',
-    cleartext: true
+    cleartext: true,
+    androidScheme: 'https'
   },
   android: {
-    allowMixedContent: true
+    allowMixedContent: true,
+    backgroundColor: '#000000'
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      launchFadeOutDuration: 300,
+      backgroundColor: '#000000',
+      androidScaleType: 'CENTER_CROP',
+      showSpinner: false,
+      androidSpinnerStyle: 'large',
+      spinnerColor: '#ffffff'
+    },
+    StatusBar: {
+      style: 'DARK',
+      backgroundColor: '#000000'
+    }
   }
 };
 
