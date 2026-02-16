@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle, Pencil, UserPlus, CalendarDays, ChevronLeft, ChevronRight, Check } from 'lucide-react'
+import { Plus, Minus, Trash2, Search, Loader2, Wallet, Handshake, ShoppingCart, Package, AlertTriangle, Pencil, UserPlus, CalendarDays, ChevronLeft, ChevronRight, Check, PackageSearch } from 'lucide-react'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -105,6 +105,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [quickName, setQuickName] = useState('')
   const [quickPrice, setQuickPrice] = useState<number | ''>('')
   const [quickCost, setQuickCost] = useState<number | ''>(0)
+  const [quickProductType, setQuickProductType] = useState<'encomenda' | 'fora_estoque'>('encomenda')
 
   // Quick client (cadastro rápido)
   const [showQuickClient, setShowQuickClient] = useState(false)
@@ -887,6 +888,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setQuickName('')
     setQuickPrice('')
     setQuickCost(0)
+    setQuickProductType('encomenda')
     setSaleMode('new')
     setSelectedPendingSaleId('')
     setExistingInstallmentAmount(null)
@@ -961,13 +963,18 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       addItem(newProduct as Product)
       toast({
         title: `Produto "${quickName.trim()}" criado e adicionado!`,
-        description: 'Aparecerá no estoque como item a comprar.',
+        description: quickProductType === 'encomenda'
+          ? 'Registrado como encomenda. Aparecerá no estoque como item a comprar.'
+          : 'Registrado como fora de estoque. Aparecerá no estoque como item a comprar.',
       })
 
       setShowQuickProduct(false)
       setQuickName('')
       setQuickPrice('')
       setQuickCost(0)
+      setQuickProductType('encomenda')
+
+      setMobileStep(2)
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Erro ao criar produto'
       toast({ title: 'Erro', description: errorMessage, variant: 'destructive' })
@@ -1198,10 +1205,42 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
                           setQuickName('')
                           setQuickPrice('')
                           setQuickCost(0)
+                          setQuickProductType('encomenda')
                         }}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Tipo do item</Label>
+                      <RadioGroup
+                        value={quickProductType}
+                        onValueChange={(v) => setQuickProductType(v as 'encomenda' | 'fora_estoque')}
+                        className="flex gap-2"
+                      >
+                        <div className={`flex-1 flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-colors ${
+                          quickProductType === 'encomenda'
+                            ? 'border-amber-400 dark:border-amber-600 bg-amber-100/60 dark:bg-amber-900/40'
+                            : 'border-gray-200 dark:border-gray-700 hover:bg-muted/50'
+                        }`}>
+                          <RadioGroupItem value="encomenda" id="quick-type-encomenda" />
+                          <Label htmlFor="quick-type-encomenda" className="cursor-pointer text-xs font-medium flex items-center gap-1">
+                            <Package className="h-3 w-3" />
+                            Encomenda
+                          </Label>
+                        </div>
+                        <div className={`flex-1 flex items-center gap-2 p-2 rounded-md border cursor-pointer transition-colors ${
+                          quickProductType === 'fora_estoque'
+                            ? 'border-red-400 dark:border-red-600 bg-red-100/60 dark:bg-red-900/40'
+                            : 'border-gray-200 dark:border-gray-700 hover:bg-muted/50'
+                        }`}>
+                          <RadioGroupItem value="fora_estoque" id="quick-type-fora" />
+                          <Label htmlFor="quick-type-fora" className="cursor-pointer text-xs font-medium flex items-center gap-1">
+                            <PackageSearch className="h-3 w-3" />
+                            Fora de estoque
+                          </Label>
+                        </div>
+                      </RadioGroup>
                     </div>
                     <Input
                       placeholder="Nome do produto"
