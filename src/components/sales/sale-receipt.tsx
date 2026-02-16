@@ -46,7 +46,7 @@ export interface SaleReceiptData {
   installments: ReceiptInstallment[]
   previousTotal?: number
   addedItemsTotal?: number
-  existingMode?: 'increase_installments' | 'increase_value'
+  existingMode?: 'increase_installments' | 'increase_value' | 'increase_value_from_installment'
 }
 
 interface SaleReceiptProps {
@@ -202,7 +202,9 @@ export function SaleReceipt({ data, onClose, onNewSale }: SaleReceiptProps) {
                 <span className="text-xs font-bold text-amber-700">
                   {data.existingMode === 'increase_installments'
                     ? 'Adicionado à conta fiado (novas parcelas)'
-                    : 'Adicionado à conta fiado (valor atualizado)'}
+                    : data.existingMode === 'increase_value_from_installment'
+                      ? 'Adicionado à conta fiado (valor atualizado a partir de parcela)'
+                      : 'Adicionado à conta fiado (valor atualizado)'}
                 </span>
               </div>
             </div>
