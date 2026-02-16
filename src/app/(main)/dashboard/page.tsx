@@ -42,13 +42,23 @@ export default function DashboardPage() {
   const overdueCount = useMemo(() => {
     if (!salesData?.data) return 0
     const now = new Date()
-    return (salesData.data as { receivables: { status: string; dueDate: string }[] }[]).filter(
-      (sale) =>
-        sale.receivables.some(
-          (r) =>
-            (r.status === 'PENDING' || r.status === 'PARTIAL') &&
-            new Date(r.dueDate) < now
-        )
+    return (salesData.data as { receivables: { status: string; dueDate: string; paidAmount: number | string }[]; total: number | string; paidAmount: number | string; dueDate?: string | null; createdAt: string }[]).filter(
+      (sale) => {
+        const pendingReceivables = sale.receivables
+          .filter((r) => r.status === 'PENDING' || r.status === 'PARTIAL')
+          .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+
+        const nextReceivable = pendingReceivables[0] || null
+        const remainingBalance = Number(sale.total) - Number(sale.paidAmount)
+
+        const effectiveDueDate = nextReceivable
+          ? new Date(nextReceivable.dueDate)
+          : (remainingBalance > 0 && (sale.dueDate || sale.createdAt)
+            ? new Date(sale.dueDate || sale.createdAt)
+            : null)
+
+        return effectiveDueDate ? effectiveDueDate < now : false
+      }
     ).length
   }, [salesData])
 
