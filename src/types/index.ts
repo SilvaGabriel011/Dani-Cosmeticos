@@ -11,6 +11,7 @@ export type Sale = Prisma.SaleGetPayload<{
     client: true
     items: { include: { product: true } }
     payments: true
+    receivables: true
   }
 }>
 
