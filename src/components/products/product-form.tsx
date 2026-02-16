@@ -1,8 +1,8 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, X, RefreshCw, Loader2, Package } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { Plus, X, Loader2, Package } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -28,6 +28,7 @@ import { useCategories, useCreateCategory } from '@/hooks/use-categories'
 import { useCreateProduct, useUpdateProduct, useProducts } from '@/hooks/use-products'
 import { generateProductCode } from '@/lib/code-generator'
 import { formatCurrency, calculateProfitMargin, calculateProfit } from '@/lib/utils'
+import { useMemo } from 'react'
 import { createProductSchema, type CreateProductInput } from '@/schemas/product'
 import { type Product } from '@/types'
 
@@ -88,6 +89,8 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
 
   const costPrice = watch('costPrice')
   const profitMargin = watch('profitMargin')
+  const watchedName = watch('name')
+  const watchedBrandId = watch('brandId')
 
   const calculatedSalePrice =
     pricingMode === 'margin' ? costPrice * (1 + profitMargin / 100) : inputSalePrice
@@ -97,18 +100,33 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
 
   const profit = calculateProfit(costPrice, calculatedSalePrice)
 
-  const handleGenerateCode = () => {
-    const name = watch('name')
-    if (!name) {
-      toast({ title: 'Digite o nome do produto primeiro', variant: 'destructive' })
+  const existingCodes = useMemo(
+    () => productsData?.data?.map((p) => p.code).filter((c): c is string => !!c) || [],
+    [productsData],
+  )
+
+  const selectedBrandName = useMemo(
+    () => brands?.find((b) => b.id === watchedBrandId)?.name,
+    [brands, watchedBrandId],
+  )
+
+  const autoGenerateCode = useCallback(() => {
+    if (!watchedName) {
+      setValue('code', '')
       return
     }
-    const existingCodes =
-      productsData?.data?.map((p) => p.code).filter((c): c is string => !!c) || []
-    const code = generateProductCode(name, existingCodes)
+    const codesToCheck = isEditing && product?.code
+      ? existingCodes.filter((c) => c !== product.code)
+      : existingCodes
+    const code = generateProductCode(watchedName, codesToCheck, selectedBrandName, calculatedSalePrice)
     setValue('code', code)
-    toast({ title: 'Codigo gerado!', description: code })
-  }
+  }, [watchedName, selectedBrandName, calculatedSalePrice, existingCodes, setValue, isEditing, product])
+
+  useEffect(() => {
+    if (!isEditing) {
+      autoGenerateCode()
+    }
+  }, [autoGenerateCode, isEditing])
 
   useEffect(() => {
     if (product) {
@@ -186,20 +204,15 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="code">Codigo</Label>
-            <div className="flex gap-2">
-              <Input id="code" placeholder="Ex: SHP15" {...register('code')} className="flex-1" />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleGenerateCode}
-                title="Gerar codigo automaticamente"
-              >
-                <RefreshCw className="h-5 w-5 mr-1" />
-                Gerar
-              </Button>
-            </div>
+            <Input
+              id="code"
+              placeholder="Gerado automaticamente"
+              {...register('code')}
+              readOnly
+              className="bg-muted cursor-default"
+            />
             <p className="text-sm text-muted-foreground">
-              Clique em &quot;Gerar&quot; para criar um codigo baseado no nome do produto
+              Codigo gerado automaticamente a partir do nome, marca e preco
             </p>
           </div>
 
