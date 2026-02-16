@@ -146,6 +146,7 @@ export function StepReview() {
                         )}
                         value={item.unitPrice}
                         onChange={(e) => ctx.updateItemPrice(item.product.id, Number(e.target.value))}
+                        onFocus={(e) => e.target.select()}
                         title="Altere o preco para aplicar promocao"
                       />
                     </div>
@@ -194,6 +195,7 @@ export function StepReview() {
                 className="w-36 text-right text-xl font-bold text-primary border-2 border-primary/30 focus:border-primary rounded-lg"
                 step="0.01"
                 min="0"
+                onFocus={(e) => e.target.select()}
                 aria-label="Total da venda"
               />
             </div>

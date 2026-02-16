@@ -392,6 +392,7 @@ function CartPanel() {
                     )}
                     value={item.unitPrice}
                     onChange={(e) => ctx.updateItemPrice(item.product.id, Number(e.target.value))}
+                    onFocus={(e) => e.target.select()}
                     title="Altere o preco para aplicar promocao"
                   />
                 </div>
