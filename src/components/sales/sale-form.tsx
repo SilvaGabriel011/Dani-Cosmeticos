@@ -1094,7 +1094,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn("max-w-[98vw] max-h-[90vh] overflow-hidden flex flex-col transition-all duration-300", currentStep === 0 ? 'md:max-w-4xl lg:max-w-5xl' : 'md:max-w-2xl lg:max-w-3xl')}>
+      <DialogContent className={cn("max-w-[98vw] max-h-[90dvh] overflow-hidden flex flex-col transition-all duration-300", currentStep === 0 ? 'md:max-w-4xl lg:max-w-5xl' : 'md:max-w-2xl lg:max-w-3xl')}>
         {receiptData ? (
           <SaleReceipt
             data={receiptData}

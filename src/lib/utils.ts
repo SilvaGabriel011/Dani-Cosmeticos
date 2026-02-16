@@ -101,16 +101,16 @@ export function buildSaleWhatsAppUrl(sale: {
   client?: { name: string; phone?: string | null } | null
   items: Array<{
     quantity: number
-    unitPrice: number | string
-    originalPrice?: number | string | null
-    total: number | string
+    unitPrice: number | string | object
+    originalPrice?: number | string | object | null
+    total: number | string | object
     product: { name: string }
   }>
-  total: number | string
-  discountAmount?: number | string | null
-  discountPercent?: number | string | null
-  paidAmount?: number | string | null
-  payments: Array<{ method: string; amount: number | string }>
+  total: number | string | object
+  discountAmount?: number | string | object | null
+  discountPercent?: number | string | object | null
+  paidAmount?: number | string | object | null
+  payments: Array<{ method: string; amount: number | string | object }>
   status: string
   installmentPlan?: number | null
   paymentDay?: number | null
