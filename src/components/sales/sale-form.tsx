@@ -88,6 +88,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
   const [quickName, setQuickName] = useState('')
   const [quickPrice, setQuickPrice] = useState<number | ''>('')
   const [quickCost, setQuickCost] = useState<number | ''>(0)
+  const [quickProductType, setQuickProductType] = useState<'encomenda' | 'fora_estoque'>('encomenda')
 
   // Quick client (cadastro rápido)
   const [showQuickClient, setShowQuickClient] = useState(false)
@@ -870,6 +871,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     setQuickName('')
     setQuickPrice('')
     setQuickCost(0)
+    setQuickProductType('encomenda')
     setSaleMode('new')
     setSelectedPendingSaleId('')
     setExistingInstallmentAmount(null)
@@ -944,13 +946,18 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       addItem(newProduct as Product)
       toast({
         title: `Produto "${quickName.trim()}" criado e adicionado!`,
-        description: 'Aparecerá no estoque como item a comprar.',
+        description: quickProductType === 'encomenda'
+          ? 'Registrado como encomenda. Aparecerá no estoque como item a comprar.'
+          : 'Registrado como fora de estoque. Aparecerá no estoque como item a comprar.',
       })
 
       setShowQuickProduct(false)
       setQuickName('')
       setQuickPrice('')
       setQuickCost(0)
+      setQuickProductType('encomenda')
+
+      setCurrentStep(1)
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Erro ao criar produto'
       toast({ title: 'Erro', description: errorMessage, variant: 'destructive' })
@@ -1013,6 +1020,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     quickName, setQuickName,
     quickPrice, setQuickPrice,
     quickCost, setQuickCost,
+    quickProductType, setQuickProductType,
     showQuickClient, setShowQuickClient,
     quickClientName, setQuickClientName,
     quickClientPhone, setQuickClientPhone,
@@ -1047,7 +1055,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
     fixedInstallmentAmount, startMonth, startYear,
     existingMode, startFromInstallment, targetInstallmentAmount,
     targetInstallmentCount, lastEditedField,
-    showQuickProduct, quickName, quickPrice, quickCost,
+    showQuickProduct, quickName, quickPrice, quickCost, quickProductType,
     showQuickClient, quickClientName, quickClientPhone, quickClientAddress,
     validationErrors, shakeKey,
     saleMode, selectedPendingSaleId, existingInstallmentAmount,

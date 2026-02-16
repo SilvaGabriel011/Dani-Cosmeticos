@@ -78,6 +78,8 @@ export interface SaleFormContextType {
   setQuickPrice: React.Dispatch<React.SetStateAction<number | ''>>
   quickCost: number | ''
   setQuickCost: React.Dispatch<React.SetStateAction<number | ''>>
+  quickProductType: 'encomenda' | 'fora_estoque'
+  setQuickProductType: React.Dispatch<React.SetStateAction<'encomenda' | 'fora_estoque'>>
 
   showQuickClient: boolean
   setShowQuickClient: React.Dispatch<React.SetStateAction<boolean>>
