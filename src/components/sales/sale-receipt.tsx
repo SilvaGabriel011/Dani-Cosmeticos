@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef } from 'react'
-import { Printer, CalendarDays, Handshake, MessageCircle } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Printer, CalendarDays, Handshake, MessageCircle, Copy, Check } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatWhatsAppUrl } from '@/lib/utils'
@@ -133,12 +133,21 @@ export function SaleReceipt({ data, onClose, onNewSale }: SaleReceiptProps) {
     return lines.join('\n')
   }
 
+  const [copied, setCopied] = useState(false)
+
   const handleWhatsApp = () => {
     if (!data.clientPhone) return
     const url = formatWhatsAppUrl(data.clientPhone)
     if (!url) return
     const message = buildWhatsAppMessage()
     window.open(`${url}?text=${encodeURIComponent(message)}`, '_blank')
+  }
+
+  const handleCopyMessage = async () => {
+    const message = buildWhatsAppMessage()
+    await navigator.clipboard.writeText(message)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   const handlePrint = () => {
@@ -468,6 +477,18 @@ export function SaleReceipt({ data, onClose, onNewSale }: SaleReceiptProps) {
               Enviar via WhatsApp
             </Button>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void handleCopyMessage()}
+            className="gap-1"
+          >
+            {copied ? (
+              <><Check className="h-4 w-4 text-green-600" /> Copiado!</>
+            ) : (
+              <><Copy className="h-4 w-4" /> Copiar Mensagem</>
+            )}
+          </Button>
         </div>
         <div className="flex gap-2">
           <Button

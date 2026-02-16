@@ -96,7 +96,7 @@ export function formatWhatsAppUrl(phone: string): string | null {
   return `https://wa.me/55${digits}`
 }
 
-export function buildSaleWhatsAppUrl(sale: {
+export function buildSaleWhatsAppMessage(sale: {
   createdAt: string | Date
   client?: { name: string; phone?: string | null } | null
   items: Array<{
@@ -114,16 +114,12 @@ export function buildSaleWhatsAppUrl(sale: {
   status: string
   installmentPlan?: number | null
   paymentDay?: number | null
-}): string | null {
-  if (!sale.client?.phone) return null
-  const baseUrl = formatWhatsAppUrl(sale.client.phone)
-  if (!baseUrl) return null
-
+}): string {
   const lines: string[] = []
   lines.push('*DANI COSMÉTICOS*')
   lines.push('_Comprovante de Venda_')
   lines.push(`Data: ${formatDateTime(sale.createdAt)}`)
-  if (sale.client.name) lines.push(`Cliente: ${sale.client.name}`)
+  if (sale.client?.name) lines.push(`Cliente: ${sale.client.name}`)
   lines.push('')
 
   lines.push('*Itens:*')
@@ -159,7 +155,7 @@ export function buildSaleWhatsAppUrl(sale: {
         p.method === 'CREDIT' ? 'Crédito' : p.method
       lines.push(`• ${label}: ${formatCurrency(Number(p.amount))}`)
     }
-    lines.push('✅ *PAGO*')
+    lines.push('\u2705 *PAGO*')
   }
 
   if (isFiado) {
@@ -180,7 +176,14 @@ export function buildSaleWhatsAppUrl(sale: {
   lines.push('')
   lines.push('_Obrigada pela preferência!_')
 
-  const message = lines.join('\n')
+  return lines.join('\n')
+}
+
+export function buildSaleWhatsAppUrl(sale: Parameters<typeof buildSaleWhatsAppMessage>[0]): string | null {
+  if (!sale.client?.phone) return null
+  const baseUrl = formatWhatsAppUrl(sale.client.phone)
+  if (!baseUrl) return null
+  const message = buildSaleWhatsAppMessage(sale)
   return `${baseUrl}?text=${encodeURIComponent(message)}`
 }
 
