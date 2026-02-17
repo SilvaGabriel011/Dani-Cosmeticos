@@ -21,7 +21,7 @@ import { useProducts } from '@/hooks/use-products'
 import { getStockStatus } from '@/lib/utils'
 
 export function StockOverviewTable() {
-  const { data: productsData, isLoading: loadingProducts } = useProducts({ limit: 500 })
+  const { data: productsData, isLoading: loadingProducts } = useProducts({ limit: 2000 })
   const { data: backordersData, isLoading: loadingBackorders } = useBackorders()
 
   const [search, setSearch] = useState('')
