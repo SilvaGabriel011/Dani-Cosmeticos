@@ -104,7 +104,6 @@ export function useCreateProduct() {
   return useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
-      // Invalida apenas produtos - dashboard será atualizado no próximo ciclo
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
   })
@@ -115,9 +114,7 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: updateProduct,
     onSuccess: (data) => {
-      // Update otimista do produto específico
       queryClient.setQueryData(['product', data.id], data)
-      // Invalida lista apenas se necessário
       queryClient.invalidateQueries({ queryKey: ['products'], exact: false })
     },
   })
@@ -137,6 +134,8 @@ export function useDeleteProduct() {
 interface ProductStats {
   lowStockCount: number
   totalProducts: number
+  noPriceCount: number
+  zeradosCount: number
 }
 
 async function fetchProductStats(): Promise<ProductStats> {

@@ -10,8 +10,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 30 * 1000, // 30s - dados ficam frescos mais rápido
-            refetchOnWindowFocus: true, // Atualiza ao voltar para a aba
+            staleTime: 30 * 1000,
+            refetchOnWindowFocus: true,
+            retry: 3,
+            retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
           },
         },
       })
