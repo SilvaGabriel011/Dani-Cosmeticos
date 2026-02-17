@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
           WHERE p."deletedAt" IS NULL
           AND ${searchCondition}
           ORDER BY rank, unaccent(p."name")
-          LIMIT 100
+          LIMIT 2000
         `
       )
       const ids = matchingProducts.map((r) => r.id)

@@ -45,7 +45,7 @@ const STEPS = [
 
 export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps) {
   const { toast } = useToast()
-  const { data: productsData } = useProducts({ limit: 500 })
+  const { data: productsData } = useProducts({ limit: 2000 })
   const { data: clientsData } = useClients({ limit: 200 })
   const { data: settings } = useSettings()
   const createSale = useCreateSale()
