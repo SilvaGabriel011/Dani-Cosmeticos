@@ -73,11 +73,12 @@ async function deleteProduct(id: string): Promise<void> {
   if (!res.ok) throw new Error('Erro ao excluir produto')
 }
 
-export function useProducts(filters: ProductFilters = {}) {
+export function useProducts(filters: ProductFilters = {}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
-    staleTime: 30 * 1000, // 30s
+    staleTime: 30 * 1000,
+    ...(options?.enabled !== undefined && { enabled: options.enabled }),
   })
 }
 
