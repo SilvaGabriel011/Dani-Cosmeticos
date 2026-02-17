@@ -175,6 +175,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
       const submitData = { ...data }
       if (pricingMode === 'salePrice') {
         submitData.profitMargin = calculatedMargin
+        submitData.salePrice = inputSalePrice
       }
 
       if (isEditing && product) {
