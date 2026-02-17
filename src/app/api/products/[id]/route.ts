@@ -48,8 +48,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       )
     }
 
-    const existing = await prisma.product.findFirst({
-      where: { id: params.id, deletedAt: null },
+    const existing = await prisma.product.findUnique({
+      where: { id: params.id },
     })
 
     if (!existing) {
@@ -63,7 +63,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const newCostPrice = costPrice ?? Number(existing.costPrice)
     const newProfitMargin = profitMargin ?? Number(existing.profitMargin)
     const calculatedSalePrice = calculateSalePrice(newCostPrice, newProfitMargin)
-    const salePrice = submittedSalePrice !== undefined && newCostPrice === 0
+    const salePrice = submittedSalePrice !== undefined && submittedSalePrice > 0
       ? submittedSalePrice
       : calculatedSalePrice
 
@@ -77,6 +77,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         ...(costPrice !== undefined && { costPrice }),
         ...(profitMargin !== undefined && { profitMargin }),
         salePrice,
+        ...(existing.deletedAt && { deletedAt: null, isActive: true }),
       },
       include: { category: true, brand: true },
     })
