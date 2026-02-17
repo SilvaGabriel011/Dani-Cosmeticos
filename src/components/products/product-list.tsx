@@ -83,7 +83,7 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
     search: filters.search || undefined,
     categoryId: filters.categoryId || undefined,
     brandId: filters.brandId || undefined,
-    limit: 500,
+    limit: 2000,
     ...(tab === 'sem-valor' && { priceStatus: 'no-price' as const }),
     ...(tab === 'zerados' && { stockStatus: 'zeroed' as const }),
   })

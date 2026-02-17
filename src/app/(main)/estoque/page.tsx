@@ -20,7 +20,7 @@ export default function EstoquePage() {
   const [isImportOpen, setIsImportOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<ProductTab>('todos')
 
-  const { data: allProducts } = useProducts({ limit: 200 })
+  const { data: allProducts } = useProducts({ limit: 2000 })
   const { data: noPriceProducts } = useProducts({ limit: 1, priceStatus: 'no-price' })
   const { data: zeradosProducts } = useProducts({ limit: 1, stockStatus: 'zeroed' })
 
