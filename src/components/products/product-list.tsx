@@ -100,33 +100,34 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
   }, [backordersData])
 
   const filteredProducts = useMemo(() => {
-    // Para tab encomendas, se não há produtos carregados mas há backorders,
-    // criar lista a partir dos dados de backorder
     if (tab === 'encomendas' && backordersData?.byProduct) {
-      // Mapear backorders para formato Product (simplificado)
-      const backorderProducts = backordersData.byProduct.map((bp) => ({
-        id: bp.productId,
-        name: bp.productName,
-        code: bp.productCode,
-        stock: bp.currentStock,
-        minStock: 0,
-        salePrice: 0,
-        costPrice: 0,
-        profitMargin: 0,
-        isActive: true,
-        fragrancia: null,
-        linha: null,
-        packagingType: null,
-        brand: bp.brandName ? { id: '', name: bp.brandName, createdAt: new Date(), defaultProfitMargin: 0 } : null,
-        category: bp.categoryName ? { id: '', name: bp.categoryName, createdAt: new Date() } : null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        deletedAt: null,
-        categoryId: null,
-        brandId: null,
-      }))
-      
-      // Aplicar filtros adicionais se houver
+      const allProducts = data?.data || []
+      const backorderProducts = backordersData.byProduct.map((bp) => {
+        const realProduct = allProducts.find((p) => p.id === bp.productId)
+        if (realProduct) return realProduct
+        return {
+          id: bp.productId,
+          name: bp.productName,
+          code: bp.productCode,
+          stock: bp.currentStock,
+          minStock: 0,
+          salePrice: 0,
+          costPrice: 0,
+          profitMargin: 0,
+          isActive: true,
+          fragrancia: null,
+          linha: null,
+          packagingType: null,
+          brand: bp.brandName ? { id: '', name: bp.brandName, createdAt: new Date(), defaultProfitMargin: 0 } : null,
+          category: bp.categoryName ? { id: '', name: bp.categoryName, createdAt: new Date() } : null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+          categoryId: null,
+          brandId: null,
+        } as unknown as Product
+      })
+
       let filtered = backorderProducts
       if (filters.search) {
         const search = filters.search.toLowerCase()
@@ -137,7 +138,7 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
             p.brand?.name.toLowerCase().includes(search)
         )
       }
-      return filtered as unknown as Product[]
+      return filtered
     }
 
     if (!data?.data) return []
