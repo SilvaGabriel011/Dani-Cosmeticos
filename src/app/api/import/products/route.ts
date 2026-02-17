@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
         const costPrice = 0
         const stock = row.quantidade || 0
 
-        // Check if product with same unique combo already exists
+        // Check if product with same unique combo already exists (including soft-deleted)
         const existing = await prisma.product.findFirst({
           where: {
             brandId: brandId,
@@ -120,12 +120,11 @@ export async function POST(request: NextRequest) {
             fragrancia: fragVal,
             categoryId: categoryId,
             packagingType: packVal,
-            deletedAt: null,
           },
         })
 
         if (existing) {
-          // Update: add stock, update price if new price is higher
+          // Update: add stock, update price if new price is higher, reactivate if deleted
           const newSalePrice = salePrice > Number(existing.salePrice) ? salePrice : Number(existing.salePrice)
           const newCostPrice = newSalePrice > 0 ? newSalePrice / (1 + profitMargin / 100) : 0
           await prisma.product.update({
@@ -134,6 +133,8 @@ export async function POST(request: NextRequest) {
               stock: { increment: stock },
               salePrice: new Decimal(newSalePrice),
               costPrice: new Decimal(newCostPrice),
+              deletedAt: null,
+              isActive: true,
             },
           })
           result.created++
