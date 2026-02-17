@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     const { costPrice, profitMargin, salePrice: submittedSalePrice, code, ...rest } = validation.data
     const calculatedSalePrice = calculateSalePrice(costPrice, profitMargin)
-    const salePrice = submittedSalePrice !== undefined && costPrice === 0
+    const salePrice = submittedSalePrice !== undefined && submittedSalePrice > 0
       ? submittedSalePrice
       : calculatedSalePrice
     const sanitizedCode = code === '' ? null : code

@@ -948,6 +948,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         name: quickName.trim(),
         costPrice,
         profitMargin: Math.round(profitMargin * 100) / 100,
+        salePrice,
         stock: 0,
         minStock: 1,
       })

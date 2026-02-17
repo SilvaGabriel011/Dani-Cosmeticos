@@ -136,13 +136,15 @@ export function useCreateSale() {
     onSuccess: (newSale) => {
       // Update otimista
       queryClient.setQueryData(['sale', newSale.id], newSale)
-      // Invalida vendas, produtos (estoque mudou), dashboard e receivables
+      // Invalida vendas, produtos (estoque mudou), dashboard, receivables e pagamentos
       queryClient.invalidateQueries({ queryKey: ['sales'] })
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['receivables'] })
       queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
       queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
+      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: ['client-payments'] })
     },
   })
 }
@@ -158,6 +160,8 @@ export function useCancelSale() {
       queryClient.invalidateQueries({ queryKey: ['receivables'] })
       queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
       queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
+      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: ['client-payments'] })
     },
   })
 }
@@ -170,6 +174,10 @@ export function useAddPayment() {
       // Update otimista
       queryClient.setQueryData(['sale', data.id], data)
       queryClient.invalidateQueries({ queryKey: ['sales'] })
+      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: ['client-payments'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['receivables'] })
     },
   })
 }
