@@ -117,6 +117,7 @@ export function useUpdateProduct() {
     onSuccess: (data) => {
       queryClient.setQueryData(['product', data.id], data)
       queryClient.invalidateQueries({ queryKey: ['products'], exact: false })
+      queryClient.invalidateQueries({ queryKey: ['backorders'] })
     },
   })
 }

@@ -69,27 +69,40 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       : calculatedSalePrice
 
     const sanitizedCode = code === '' ? null : code
+    const newStock = rest.stock ?? existing.stock
 
-    const product = await prisma.product.update({
-      where: { id: params.id },
-      data: {
-        ...rest,
-        ...(code !== undefined && { code: sanitizedCode }),
-        ...(costPrice !== undefined && { costPrice }),
-        ...(profitMargin !== undefined && { profitMargin }),
-        salePrice,
-        ...(existing.deletedAt && { deletedAt: null, isActive: true }),
-      },
-      include: { category: true, brand: true },
+    const product = await prisma.$transaction(async (tx) => {
+      const updated = await tx.product.update({
+        where: { id: params.id },
+        data: {
+          ...rest,
+          ...(code !== undefined && { code: sanitizedCode }),
+          ...(costPrice !== undefined && { costPrice }),
+          ...(profitMargin !== undefined && { profitMargin }),
+          salePrice,
+          ...(existing.deletedAt && { deletedAt: null, isActive: true }),
+        },
+        include: { category: true, brand: true },
+      })
+
+      if (newStock > 0) {
+        await tx.saleItem.updateMany({
+          where: {
+            productId: params.id,
+            isBackorder: true,
+            backorderFulfilledAt: null,
+          },
+          data: { backorderFulfilledAt: new Date() },
+        })
+      }
+
+      return updated
     })
 
     return NextResponse.json(product)
   } catch (error) {
-    console.error('Error updating product:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao atualizar produto' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }
 
