@@ -85,11 +85,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     return NextResponse.json(product)
   } catch (error) {
-    console.error('Error updating product:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao atualizar produto' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }
 

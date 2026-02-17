@@ -19,7 +19,7 @@ model Brand {
   id                  String    @id @default(uuid())
   name                String    @unique
   createdAt           DateTime  @default(now())
-  defaultProfitMargin Decimal   @default(35) @db.Decimal(5, 2)
+  defaultProfitMargin Decimal   @default(35) @db.Decimal(10, 2)
   products            Product[]
 }
 
@@ -29,7 +29,7 @@ model Product {
   name           String
   categoryId     String?
   costPrice      Decimal         @db.Decimal(10, 2)
-  profitMargin   Decimal         @db.Decimal(5, 2)
+  profitMargin   Decimal         @db.Decimal(10, 2)
   salePrice      Decimal         @db.Decimal(10, 2)
   stock          Int             @default(0)
   minStock       Int             @default(5)
