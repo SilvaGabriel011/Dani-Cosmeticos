@@ -59,15 +59,21 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       )
     }
 
-    const { costPrice, profitMargin, ...rest } = validation.data
+    const { costPrice, profitMargin, salePrice: submittedSalePrice, code, ...rest } = validation.data
     const newCostPrice = costPrice ?? Number(existing.costPrice)
     const newProfitMargin = profitMargin ?? Number(existing.profitMargin)
-    const salePrice = calculateSalePrice(newCostPrice, newProfitMargin)
+    const calculatedSalePrice = calculateSalePrice(newCostPrice, newProfitMargin)
+    const salePrice = submittedSalePrice !== undefined && newCostPrice === 0
+      ? submittedSalePrice
+      : calculatedSalePrice
+
+    const sanitizedCode = code === '' ? null : code
 
     const product = await prisma.product.update({
       where: { id: params.id },
       data: {
         ...rest,
+        ...(code !== undefined && { code: sanitizedCode }),
         ...(costPrice !== undefined && { costPrice }),
         ...(profitMargin !== undefined && { profitMargin }),
         salePrice,

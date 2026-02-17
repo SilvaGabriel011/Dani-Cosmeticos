@@ -130,12 +130,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { costPrice, profitMargin, ...rest } = validation.data
-    const salePrice = calculateSalePrice(costPrice, profitMargin)
+    const { costPrice, profitMargin, salePrice: submittedSalePrice, code, ...rest } = validation.data
+    const calculatedSalePrice = calculateSalePrice(costPrice, profitMargin)
+    const salePrice = submittedSalePrice !== undefined && costPrice === 0
+      ? submittedSalePrice
+      : calculatedSalePrice
+    const sanitizedCode = code === '' ? null : code
 
     const product = await prisma.product.create({
       data: {
         ...rest,
+        code: sanitizedCode,
         costPrice,
         profitMargin,
         salePrice,

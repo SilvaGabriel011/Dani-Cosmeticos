@@ -10,6 +10,7 @@ export const createProductSchema = z.object({
   packagingType: z.string().optional().nullable(),
   costPrice: z.number().min(0, 'Custo não pode ser negativo'),
   profitMargin: z.number().min(0, 'Margem não pode ser negativa'),
+  salePrice: z.number().min(0, 'Preço de venda não pode ser negativo').optional(),
   stock: z.number().int().min(0, 'Estoque não pode ser negativo'),
   minStock: z.number().int().min(0, 'Estoque mínimo não pode ser negativo'),
 })
