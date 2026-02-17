@@ -966,8 +966,6 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setQuickPrice('')
       setQuickCost(0)
       setQuickProductType('encomenda')
-
-      setCurrentStep(1)
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Erro ao criar produto'
       toast({ title: 'Erro', description: errorMessage, variant: 'destructive' })
