@@ -102,8 +102,7 @@ export function usePayments(filters: PaymentFilters = {}) {
       if (!res.ok) throw new Error('Erro ao carregar pagamentos')
       return res.json()
     },
-    staleTime: 2 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000, // 30s
   })
 }
 

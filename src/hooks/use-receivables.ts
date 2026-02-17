@@ -25,8 +25,7 @@ export function useReceivables(filters: ReceivableFilters = {}) {
       if (!res.ok) throw new Error('Erro ao carregar contas a receber')
       return res.json()
     },
-    staleTime: 2 * 60 * 1000, // 2 minutos
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000, // 30s
   })
 }
 
@@ -64,8 +63,7 @@ export function useReceivablesDue(filters?: { startDate?: string; endDate?: stri
       if (!res.ok) throw new Error('Erro ao carregar contas a receber')
       return res.json()
     },
-    staleTime: 2 * 60 * 1000, // 2 minutos
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000, // 30s
   })
 }
 
@@ -81,8 +79,7 @@ export function useReceivablesDashboard(filters?: { startDate?: string; endDate?
       if (!res.ok) throw new Error('Erro ao carregar resumo')
       return res.json()
     },
-    staleTime: 2 * 60 * 1000, // 2 minutos
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000, // 30s
   })
 }
 

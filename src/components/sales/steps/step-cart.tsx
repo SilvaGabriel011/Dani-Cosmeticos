@@ -75,7 +75,7 @@ function ProductPanel() {
                   className="w-full px-3 py-3 text-left text-sm flex justify-between items-center min-h-[44px] hover:bg-primary/10 focus:outline-none active:bg-primary/20"
                   onClick={() => { ctx.addItem(product); ctx.addRecentProduct(product.id) }}
                 >
-                  <span className="font-medium">{product.name}</span>
+                  <span className="font-medium">{product.name}{product.category ? <span className="text-muted-foreground font-normal"> · {product.category.name}</span> : null}</span>
                   <span className="flex items-center gap-2">
                     {product.stock > 0 ? (
                       <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
@@ -123,7 +123,7 @@ function ProductPanel() {
                   onClick={() => { ctx.addItem(product); ctx.addRecentProduct(product.id) }}
                 >
                   <span className="flex items-center gap-1.5">
-                    <span className="font-medium">{product.name}</span>
+                    <span className="font-medium">{product.name}{product.category ? <span className="text-muted-foreground font-normal"> · {product.category.name}</span> : null}</span>
                     {product.stock <= 0 && (
                       <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1.5 py-0.5 rounded-full shrink-0">
                         <Package className="h-2.5 w-2.5" />
@@ -302,7 +302,7 @@ function CartPanel() {
               }`}
             >
               <div className="flex items-center justify-between gap-1 mb-1.5">
-                <span className="font-medium text-sm leading-tight truncate flex-1">{item.product.name}</span>
+                <span className="font-medium text-sm leading-tight truncate flex-1">{item.product.name}{item.product.category ? <span className="text-muted-foreground font-normal text-xs"> · {item.product.category.name}</span> : null}</span>
                 {(item.product.stock <= 0 || item.quantity > item.product.stock) && (
                   <span className="inline-flex items-center gap-0.5 text-[9px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1 py-0.5 rounded-full shrink-0">
                     <Package className="h-2 w-2" />

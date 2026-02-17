@@ -52,7 +52,7 @@ export function SaleItemsModal({ open, onOpenChange, saleId }: SaleItemsModalPro
                     className="flex items-start justify-between p-3 rounded-lg border bg-muted/30"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{item.product.name}</p>
+                      <p className="font-medium truncate">{item.product.name}{(item.product as { category?: { name: string } | null }).category ? <span className="text-muted-foreground font-normal text-xs"> · {(item.product as { category?: { name: string } | null }).category!.name}</span> : null}</p>
                       {item.product.code && (
                         <p className="text-xs text-muted-foreground">Cód: {item.product.code}</p>
                       )}

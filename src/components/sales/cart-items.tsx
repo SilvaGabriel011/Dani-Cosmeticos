@@ -32,7 +32,7 @@ const CartItemRow = memo(function CartItemRow({
   return (
     <div className="p-3 border rounded-lg bg-gray-50/50 dark:bg-gray-900/50 space-y-3 animate-in fade-in slide-in-from-left-2 duration-300">
       <div className="flex items-start justify-between gap-2">
-        <span className="font-medium text-sm leading-tight">{item.product.name}</span>
+        <span className="font-medium text-sm leading-tight">{item.product.name}{item.product.category ? <span className="text-muted-foreground font-normal text-xs"> · {item.product.category.name}</span> : null}</span>
         <Button
           variant="ghost"
           size="icon"

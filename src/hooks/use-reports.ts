@@ -104,8 +104,7 @@ export function useReportSummary(filters: ReportFilters = {}) {
       if (!res.ok) throw new Error('Erro ao carregar resumo')
       return res.json()
     },
-    staleTime: 5 * 60 * 1000, // 5 minutos - relatórios são dados históricos
-    refetchOnWindowFocus: false,
+    staleTime: 2 * 60 * 1000, // 2 minutos
   })
 }
 
@@ -126,8 +125,7 @@ export function useReportByProduct(
       return res.json()
     },
     enabled,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    refetchOnWindowFocus: false,
+    staleTime: 2 * 60 * 1000, // 2 minutos
   })
 }
 
@@ -145,8 +143,7 @@ export function useReportByPayment(filters: ReportFilters & { enabled?: boolean 
       return res.json()
     },
     enabled,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    refetchOnWindowFocus: false,
+    staleTime: 2 * 60 * 1000, // 2 minutos
   })
 }
 
@@ -176,7 +173,6 @@ export function useTopClientes(
       return res.json()
     },
     enabled,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    staleTime: 2 * 60 * 1000, // 2 minutos
   })
 }

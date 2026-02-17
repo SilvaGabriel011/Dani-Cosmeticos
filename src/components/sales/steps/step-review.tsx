@@ -56,7 +56,7 @@ export function StepReview() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1 mb-1.5">
-                    <span className="font-medium text-sm leading-tight truncate flex-1">{item.product.name}</span>
+                    <span className="font-medium text-sm leading-tight truncate flex-1">{item.product.name}{item.product.category ? <span className="text-muted-foreground font-normal text-xs"> · {item.product.category.name}</span> : null}</span>
                     {(item.product.stock <= 0 || item.quantity > item.product.stock) && (
                       <span className="inline-flex items-center gap-0.5 text-[9px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1 py-0.5 rounded-full shrink-0">
                         <Package className="h-2 w-2" />

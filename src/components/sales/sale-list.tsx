@@ -246,7 +246,8 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
               originalPrice: number | string | null
               total: number | string
               addedAt: string
-              product: { id: string; name: string }
+              isBackorder?: boolean
+              product: { id: string; name: string; code?: string; category?: { id: string; name: string } | null }
             }>
 
             // Group items by addedAt date for multiple carts
@@ -433,7 +434,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                                 className="flex items-center justify-between text-sm py-1"
                               >
                                 <div className="flex items-center gap-2 min-w-0">
-                                  <span className="font-medium truncate">{item.product.name}</span>
+                                  <span className="font-medium truncate">{item.product.name}{item.product.category ? <span className="text-muted-foreground font-normal text-xs"> · {item.product.category.name}</span> : null}</span>
                                   <span className="text-muted-foreground shrink-0">
                                     {item.quantity}x {formatCurrency(unitPrice)}
                                   </span>

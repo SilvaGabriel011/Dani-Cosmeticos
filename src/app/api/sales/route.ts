@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           client: { select: { id: true, name: true, phone: true } },
-          items: { select: { id: true, quantity: true, unitPrice: true, originalPrice: true, total: true, addedAt: true, product: { select: { id: true, name: true } } } },
+          items: { select: { id: true, quantity: true, unitPrice: true, originalPrice: true, total: true, addedAt: true, isBackorder: true, product: { select: { id: true, name: true, code: true, category: { select: { id: true, name: true } } } } } },
           payments: { select: { method: true, amount: true } },
           receivables: { select: { installment: true, amount: true, dueDate: true, paidAmount: true, status: true }, orderBy: { installment: 'asc' as const } },
         },

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       where: { id: params.id },
       include: {
         client: true,
-        items: { include: { product: true } },
+        items: { include: { product: { include: { category: true } } } },
         payments: true,
       },
     })

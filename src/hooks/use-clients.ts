@@ -73,8 +73,7 @@ export function useClients(filters: ClientFilters = {}) {
   return useQuery({
     queryKey: ['clients', filters],
     queryFn: () => fetchClients(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutos - clientes raramente mudam
-    refetchOnWindowFocus: false,
+    staleTime: 60 * 1000, // 1 minuto
   })
 }
 

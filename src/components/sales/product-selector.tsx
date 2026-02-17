@@ -147,7 +147,7 @@ export function ProductSelector({ products, isLoading, onSelect }: ProductSelect
                     onClick={() => handleSelect(product)}
                   >
                     <span className="flex items-center gap-1.5 truncate mr-2">
-                      <span className="font-medium truncate">{product.name}</span>
+                      <span className="font-medium truncate">{product.name}{product.category ? <span className="text-muted-foreground font-normal"> · {product.category.name}</span> : null}</span>
                       {product.stock <= 0 && (
                         <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-1.5 py-0.5 rounded-full shrink-0">
                           <Package className="h-2.5 w-2.5" />

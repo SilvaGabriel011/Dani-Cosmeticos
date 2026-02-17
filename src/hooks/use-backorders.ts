@@ -61,8 +61,7 @@ export function useBackorders() {
   return useQuery({
     queryKey: ['backorders'],
     queryFn: fetchBackorders,
-    staleTime: 2 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000, // 30s
   })
 }
 

@@ -93,8 +93,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const existing = await prisma.product.findFirst({
-      where: { id: params.id, deletedAt: null },
+    const existing = await prisma.product.findUnique({
+      where: { id: params.id },
     })
 
     if (!existing) {
@@ -102,6 +102,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         { error: { code: 'NOT_FOUND', message: 'Produto não encontrado' } },
         { status: 404 }
       )
+    }
+
+    // Idempotent: if already soft-deleted, return success
+    if (existing.deletedAt) {
+      return new NextResponse(null, { status: 204 })
     }
 
     await prisma.product.update({
