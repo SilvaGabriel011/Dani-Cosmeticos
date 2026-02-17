@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { calculateSalePrice } from '@/lib/utils'
 import { updateProductSchema } from '@/schemas/product'
@@ -105,22 +106,29 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       )
     }
 
-    // Idempotent: if already soft-deleted, return success
-    if (existing.deletedAt) {
-      return new NextResponse(null, { status: 204 })
-    }
+    await prisma.$transaction(async (tx) => {
+      // Soft-delete the product (or re-soft-delete if already deleted)
+      if (!existing.deletedAt) {
+        await tx.product.update({
+          where: { id: params.id },
+          data: { deletedAt: new Date(), isActive: false },
+        })
+      }
 
-    await prisma.product.update({
-      where: { id: params.id },
-      data: { deletedAt: new Date(), isActive: false },
+      // Also mark any pending backorders for this product as fulfilled
+      await tx.saleItem.updateMany({
+        where: {
+          productId: params.id,
+          isBackorder: true,
+          backorderFulfilledAt: null,
+        },
+        data: { backorderFulfilledAt: new Date() },
+      })
     })
 
     return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error('Error deleting product:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao excluir produto' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
@@ -43,16 +44,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const existing = await prisma.category.findFirst({
+      where: { name: { equals: validation.data.name, mode: 'insensitive' } },
+    })
+    if (existing) {
+      return NextResponse.json(existing, { status: 200 })
+    }
+
     const category = await prisma.category.create({
       data: validation.data,
     })
 
     return NextResponse.json(category, { status: 201 })
   } catch (error) {
-    console.error('Error creating category:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao criar categoria' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }
