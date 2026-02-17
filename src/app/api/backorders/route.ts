@@ -12,7 +12,6 @@ export async function GET() {
       where: {
         isBackorder: true,
         backorderFulfilledAt: null,
-        product: { deletedAt: null },
       },
       include: {
         product: {
