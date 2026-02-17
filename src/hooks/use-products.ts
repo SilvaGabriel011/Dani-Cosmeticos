@@ -115,10 +115,9 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: updateProduct,
     onSuccess: (data) => {
-      // Update otimista do produto específico
       queryClient.setQueryData(['product', data.id], data)
-      // Invalida lista apenas se necessário
       queryClient.invalidateQueries({ queryKey: ['products'], exact: false })
+      queryClient.invalidateQueries({ queryKey: ['backorders'] })
     },
   })
 }
