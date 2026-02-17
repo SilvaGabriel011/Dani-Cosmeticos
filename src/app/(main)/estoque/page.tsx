@@ -1,7 +1,7 @@
 'use client'
 
 import { Plus, Upload } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 
 import { ProductCSVImport } from '@/components/import/product-csv-import'
 import { PageHeader } from '@/components/layout/page-header'
@@ -13,24 +13,18 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useBackorders } from '@/hooks/use-backorders'
-import { useProducts } from '@/hooks/use-products'
+import { useProductStats } from '@/hooks/use-products'
 
 export default function EstoquePage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isImportOpen, setIsImportOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<ProductTab>('todos')
 
-  const { data: allProducts } = useProducts({ limit: 2000 })
-  const { data: noPriceProducts } = useProducts({ limit: 1, priceStatus: 'no-price' })
-  const { data: zeradosProducts } = useProducts({ limit: 1, stockStatus: 'zeroed' })
+  const { data: stats } = useProductStats()
 
-  const faltantesCount = useMemo(() => {
-    if (!allProducts?.data) return 0
-    return allProducts.data.filter((p) => p.stock <= p.minStock).length
-  }, [allProducts])
-
-  const semValorCount = noPriceProducts?.pagination?.total ?? 0
-  const zeradosCount = zeradosProducts?.pagination?.total ?? 0
+  const faltantesCount = stats?.lowStockCount ?? 0
+  const semValorCount = stats?.noPriceCount ?? 0
+  const zeradosCount = stats?.zeradosCount ?? 0
 
   const { data: backordersData } = useBackorders()
   const encomendasCount = backordersData?.byProduct?.length ?? 0

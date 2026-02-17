@@ -43,7 +43,7 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const { data: categories } = useCategories()
   const createProduct = useCreateProduct()
   const updateProduct = useUpdateProduct()
-  const { data: productsData } = useProducts({ limit: 200 })
+  const { data: productsData } = useProducts({ limit: 200 }, { enabled: open })
   const createCategory = useCreateCategory()
   const { data: brands } = useBrands()
   const createBrand = useCreateBrand()

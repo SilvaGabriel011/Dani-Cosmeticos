@@ -73,11 +73,12 @@ async function deleteProduct(id: string): Promise<void> {
   if (!res.ok) throw new Error('Erro ao excluir produto')
 }
 
-export function useProducts(filters: ProductFilters = {}) {
+export function useProducts(filters: ProductFilters = {}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
-    staleTime: 30 * 1000, // 30s
+    staleTime: 30 * 1000,
+    ...(options?.enabled !== undefined && { enabled: options.enabled }),
   })
 }
 
@@ -104,7 +105,6 @@ export function useCreateProduct() {
   return useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
-      // Invalida apenas produtos - dashboard será atualizado no próximo ciclo
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
   })
@@ -115,9 +115,7 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: updateProduct,
     onSuccess: (data) => {
-      // Update otimista do produto específico
       queryClient.setQueryData(['product', data.id], data)
-      // Invalida lista apenas se necessário
       queryClient.invalidateQueries({ queryKey: ['products'], exact: false })
     },
   })
@@ -137,6 +135,8 @@ export function useDeleteProduct() {
 interface ProductStats {
   lowStockCount: number
   totalProducts: number
+  noPriceCount: number
+  zeradosCount: number
 }
 
 async function fetchProductStats(): Promise<ProductStats> {
