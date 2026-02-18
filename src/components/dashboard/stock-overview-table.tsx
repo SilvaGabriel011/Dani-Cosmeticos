@@ -133,13 +133,12 @@ export function StockOverviewTable() {
                 <TableHead className="text-center">Estoque</TableHead>
                 <TableHead className="text-center">Mín.</TableHead>
                 <TableHead className="text-center">Encomendas</TableHead>
-                <TableHead className="text-center">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedProducts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                     {sortedProducts.length === 0
                       ? 'Nenhum produto cadastrado.'
                       : 'Nenhum produto encontrado.'}
@@ -181,13 +180,6 @@ export function StockOverviewTable() {
                           </span>
                         ) : (
                           <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {needsBuy ? (
-                          <Badge variant="destructive">COMPRAR</Badge>
-                        ) : (
-                          <Badge variant={stockStatus.color}>{stockStatus.label}</Badge>
                         )}
                       </TableCell>
                     </TableRow>
