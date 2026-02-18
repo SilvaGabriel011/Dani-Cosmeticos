@@ -263,7 +263,7 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
                   </div>
                 </div>
                 <Badge variant={stockStatus.color} className="shrink-0">
-                  {stockStatus.label} ({product.stock})
+                  {product.stock}
                 </Badge>
               </div>
               <div className="flex items-center justify-between mt-2">
@@ -313,7 +313,6 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
             <TableHead className="text-right">Custo</TableHead>
             <TableHead className="text-right">Venda</TableHead>
             <TableHead className="text-center">Estoque</TableHead>
-            <TableHead className="text-center">Status</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -356,9 +355,6 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
                       </span>
                     )}
                   </div>
-                </TableCell>
-                <TableCell className="text-center">
-                  <Badge variant={stockStatus.color}>{stockStatus.label}</Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">

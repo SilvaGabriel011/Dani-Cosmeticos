@@ -166,7 +166,7 @@ export function VirtualizedProductList() {
       </div>
 
       <div className="border rounded-md">
-        <div className="grid grid-cols-[80px_1fr_120px_120px_80px_80px_100px_80px_80px] gap-2 p-3 bg-muted/50 font-medium text-sm border-b">
+        <div className="grid grid-cols-[80px_1fr_120px_120px_80px_80px_100px_80px] gap-2 p-3 bg-muted/50 font-medium text-sm border-b">
           <div>Código</div>
           <div>Nome</div>
           <div>Categoria</div>
@@ -174,7 +174,6 @@ export function VirtualizedProductList() {
           <div className="text-right">Custo</div>
           <div className="text-right">Venda</div>
           <div className="text-center">Estoque</div>
-          <div className="text-center">Status</div>
           <div className="text-right">Ações</div>
         </div>
 
@@ -204,7 +203,7 @@ export function VirtualizedProductList() {
                     height: `${virtualRow.size}px`,
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
-                  className="grid grid-cols-[80px_1fr_120px_120px_80px_80px_100px_80px_80px] gap-2 p-3 items-center text-sm border-b hover:bg-muted/30 transition-colors"
+                  className="grid grid-cols-[80px_1fr_120px_120px_80px_80px_100px_80px] gap-2 p-3 items-center text-sm border-b hover:bg-muted/30 transition-colors"
                 >
                   <div className="font-mono text-sm truncate">{product.code || '-'}</div>
                   <div className="font-medium truncate">{product.name}</div>
@@ -226,11 +225,6 @@ export function VirtualizedProductList() {
                     )}
                     <Badge variant={stockStatus.color} className="text-sm">
                       {product.stock}
-                    </Badge>
-                  </div>
-                  <div className="text-center">
-                    <Badge variant={stockStatus.color} className="text-sm">
-                      {stockStatus.label}
                     </Badge>
                   </div>
                   <div className="flex justify-end gap-1">
