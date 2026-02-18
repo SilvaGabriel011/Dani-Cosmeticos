@@ -1,8 +1,8 @@
 'use client'
 
 import { type Receivable, type Sale, type Client } from '@prisma/client'
-import { ChevronDown, ChevronUp, Phone, MapPin, Package, MessageCircle, DollarSign, Eye, Receipt } from 'lucide-react'
-import { useState } from 'react'
+import { ChevronDown, ChevronUp, Phone, MapPin, Package, MessageCircle, DollarSign, Eye, Receipt, Printer, Copy, Check } from 'lucide-react'
+import { useState, useCallback } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,7 @@ import { PaymentHistoryDialog } from '@/components/clients/payment-history-dialo
 import { ReceivablePaymentModal } from '@/components/dashboard/receivable-payment-modal'
 import { type Debtor } from '@/hooks/use-debtors'
 import { formatCurrency, formatDate, formatWhatsAppUrl } from '@/lib/utils'
+import { useToast } from '@/components/ui/use-toast'
 
 type ReceivableWithSale = Receivable & {
   sale: Sale & { client: Client | null }
@@ -20,11 +21,56 @@ interface DebtorCardProps {
   debtor: Debtor
 }
 
+function buildSaleText(debtor: Debtor, sale: Debtor['sales'][number]): string {
+  const lines: string[] = []
+  lines.push('DANI COSMÉTICOS')
+  lines.push('Comprovante de Compra')
+  lines.push(`Cliente: ${debtor.client.name}`)
+  if (debtor.client.phone) lines.push(`Telefone: ${debtor.client.phone}`)
+  lines.push(`Data da compra: ${formatDate(sale.createdAt)}`)
+  lines.push('')
+  lines.push('Itens:')
+  for (const item of sale.items) {
+    lines.push(`  ${item.product.name} x${item.quantity} — ${formatCurrency(Number(item.total))}`)
+  }
+  lines.push('')
+  lines.push(`TOTAL: ${formatCurrency(Number(sale.total))}`)
+
+  const totalRemaining = sale.receivables.reduce((sum, r) => sum + (Number(r.amount) - Number(r.paidAmount)), 0)
+  const totalPaid = Number(sale.total) - totalRemaining
+  const paidInstallments = (sale.installmentPlan || sale.receivables.length) - sale.receivables.length
+
+  lines.push(`Pago: ${formatCurrency(totalPaid)}`)
+  lines.push(`Restante: ${formatCurrency(totalRemaining)}`)
+  lines.push('')
+
+  if (sale.receivables.length > 0) {
+    lines.push(`Parcelas: ${paidInstallments}/${sale.installmentPlan || sale.receivables.length} pagas`)
+    if (sale.fixedInstallmentAmount) {
+      lines.push(`Valor combinado: ${formatCurrency(Number(sale.fixedInstallmentAmount))}/mês`)
+    }
+    const pending = sale.receivables.filter((r) => r.status !== 'PAID')
+    if (pending.length > 0) {
+      lines.push('')
+      lines.push('Parcelas pendentes:')
+      for (const r of pending) {
+        const remaining = Number(r.amount) - Number(r.paidAmount)
+        const isOverdue = new Date(r.dueDate) < new Date()
+        lines.push(`  ${r.installment}ª - ${formatDate(r.dueDate)} — ${formatCurrency(remaining)}${isOverdue ? ' - VENCIDO' : ''}`)
+      }
+    }
+  }
+
+  return lines.join('\n')
+}
+
 export function DebtorCard({ debtor }: DebtorCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showPaymentHistory, setShowPaymentHistory] = useState(false)
   const [selectedReceivable, setSelectedReceivable] = useState<ReceivableWithSale | null>(null)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
+  const [copiedSaleId, setCopiedSaleId] = useState<string | null>(null)
+  const { toast } = useToast()
 
   const handleAddPayment = (sale: Debtor['sales'][number]) => {
     const nextReceivable = sale.receivables
@@ -70,6 +116,28 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
     setSelectedReceivable(receivableForModal)
     setPaymentModalOpen(true)
   }
+
+  const handleCopy = useCallback(async (sale: Debtor['sales'][number]) => {
+    const text = buildSaleText(debtor, sale)
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedSaleId(sale.id)
+      toast({ title: 'Copiado!', description: 'Dados da compra copiados.' })
+      setTimeout(() => setCopiedSaleId(null), 2000)
+    } catch {
+      toast({ title: 'Erro', description: 'Não foi possível copiar.', variant: 'destructive' })
+    }
+  }, [debtor, toast])
+
+  const handlePrint = useCallback((sale: Debtor['sales'][number]) => {
+    const text = buildSaleText(debtor, sale)
+    const printWindow = window.open('', '_blank', 'width=400,height=600')
+    if (!printWindow) return
+    printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Comprovante</title><style>body{font-family:monospace;white-space:pre-wrap;padding:20px;font-size:14px;line-height:1.6;}@media print{body{padding:0;}}</style></head><body>${text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</body></html>`)
+    printWindow.document.close()
+    printWindow.focus()
+    printWindow.print()
+  }, [debtor])
 
   const monthlyExpected = debtor.sales.reduce((sum, sale) => {
     if (sale.fixedInstallmentAmount) return sum + Number(sale.fixedInstallmentAmount)
@@ -238,16 +306,36 @@ export function DebtorCard({ debtor }: DebtorCardProps) {
                             )
                           })}
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="shrink-0 gap-1.5 text-green-700 dark:text-green-400 border-green-600 dark:border-green-700 hover:bg-green-50 dark:hover:bg-green-950/30"
-                        onClick={() => handleAddPayment(sale)}
-                        title="Registrar pagamento"
-                      >
-                        <Receipt className="h-4 w-4" />
-                        Pagar
-                      </Button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleCopy(sale)}
+                          title="Copiar compra"
+                        >
+                          {copiedSaleId === sale.id ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handlePrint(sale)}
+                          title="Imprimir compra"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="shrink-0 gap-1.5 text-green-700 dark:text-green-400 border-green-600 dark:border-green-700 hover:bg-green-50 dark:hover:bg-green-950/30"
+                          onClick={() => handleAddPayment(sale)}
+                          title="Registrar pagamento"
+                        >
+                          <Receipt className="h-4 w-4" />
+                          Pagar
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
