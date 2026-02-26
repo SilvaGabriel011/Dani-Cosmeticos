@@ -1,0 +1,6296 @@
+[
+  {
+    "id": "44d14d0e-1be5-4594-83f6-6ef20f451c81",
+    "name": "Avon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e1445f45-d149-49e8-b603-a7ed85f7be3e",
+    "name": "Avon - Advance Techniques - Ultra Liso",
+    "stock": 2,
+    "costPrice": 22.15
+  },
+  {
+    "id": "b75ca991-59b5-480b-9fe1-c26d6ee92985",
+    "name": "Avon - Advance Techniques - Hidratação Profunda",
+    "stock": 8,
+    "costPrice": 19.25
+  },
+  {
+    "id": "2af3cbcd-3c95-493f-b8bb-26035d88436c",
+    "name": "Avon - Care - Erva Doce",
+    "stock": 2,
+    "costPrice": 13.33
+  },
+  {
+    "id": "d39d6f8f-1959-489b-ac91-0c97bfb60ebe",
+    "name": "Avon - Care",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b10de6c5-3853-4c89-b70e-08ba4fcb1c12",
+    "name": "Avon - Care Face",
+    "stock": 2,
+    "costPrice": 24.44
+  },
+  {
+    "id": "6b1946fe-a322-494b-a8a1-1ce76b0df62f",
+    "name": "Natura - Todo Dia - Jabuticaba Vegetal",
+    "stock": 6,
+    "costPrice": 25.85
+  },
+  {
+    "id": "25efadde-d1f9-4b22-b21f-6bcd060aeb59",
+    "name": "Avon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e0e1f2cc-b21b-43bd-8f7f-d2e39faa83e8",
+    "name": "Avon",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "91f81b9b-1fb7-4682-af48-cc2320188a50",
+    "name": "Avon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4d6cb5af-455a-4318-b22a-568243ef8b5a",
+    "name": "Avon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5e69c769-d356-42a6-884d-accae417a5bc",
+    "name": "Avon - 300 Km/h - Surfer",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7e207705-ab5c-4bd9-92ee-48e7ce0dc53a",
+    "name": "Avon - 300 km/h - Quantum",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "bfbd15bf-8ee0-4c78-9b00-77d2d21e0a9a",
+    "name": "Avon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d08f6a1e-12ce-4447-9e81-09fb7d81ee4a",
+    "name": "Avon - 300 km/h - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "0aef0d33-bf38-4db4-b3d7-e18cc1bb713f",
+    "name": "avon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7b7b92e3-65d8-48bd-8e41-cac59a053f95",
+    "name": "Avon - Care - Gentle Active",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "510ec008-c259-4988-8b60-3bbe6ae82379",
+    "name": "Avon - Care - Macadâmia 700ml",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b56115ca-ed25-4a54-947a-3a70d75314f2",
+    "name": "Avon - Care - Gentle Active",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7a3c4453-ca70-433c-ae43-488b2a07d0a9",
+    "name": "Hidratante 700ml",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6c3ee211-7594-4454-8629-da808eb1823b",
+    "name": "Avon - Clear Skin",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8b76182c-6fef-4852-a4cf-076a8b784310",
+    "name": "Avon - Dark - Black Essential",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "456ecd90-a6c7-415a-9885-c6974b2a8768",
+    "name": "Avon - Care Baby - Calming",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c763c247-2642-4dd5-935f-4e76a4535034",
+    "name": "Avon - Care Baby - Sem Lágrimas Infantil",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "fe92d457-5647-4c85-97c7-b01056e0f2d3",
+    "name": "Natura - Todo Dia - Macadâmia",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "ddfe5ab9-4dbb-420e-b41b-3604ebd4cb1b",
+    "name": "Hidratante 700 ml",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "29803123-2409-4454-aeab-148ff6ce73fd",
+    "name": "Avon - Advance Techniques - Hidratação Profunda",
+    "stock": 2,
+    "costPrice": 19.25
+  },
+  {
+    "id": "c2738eaa-2b7f-41a2-ba7f-431f25ba55ac",
+    "name": "Avon - Far Away - Beyond",
+    "stock": 2,
+    "costPrice": 74.07
+  },
+  {
+    "id": "afd5f74a-0217-44b4-b33f-b611f5de8014",
+    "name": "Avon - Musk Minerals",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "1de18e4d-a1a8-4181-b3d6-adf7b6012f33",
+    "name": "Natura - Homem - Sabonete em Barra",
+    "stock": 2,
+    "costPrice": 28.07
+  },
+  {
+    "id": "953b30b2-c8be-4f8b-978c-595b5d43d52c",
+    "name": "Avon - Clearskin - Carvão",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e235ce2d-3c60-4509-b18a-be1ce3e2ab67",
+    "name": "teste",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "2d48eabd-2f00-4342-ad32-f3158cbd0526",
+    "name": "Avon - Clearskin - —",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8e3c755b-3e93-4887-9e91-c356a96ad90c",
+    "name": "Natura - Todo Dia - Ameixa e Flor de Baunilha",
+    "stock": 2,
+    "costPrice": 25.85
+  },
+  {
+    "id": "e33ceedb-6c7b-4b07-9592-a50779ba8d8e",
+    "name": "Natura - Todo Dia - Tâmara e Canela",
+    "stock": 2,
+    "costPrice": 25.85
+  },
+  {
+    "id": "123d7073-7e7f-4a19-816d-a7c8a2a09963",
+    "name": "Natura - Todo Dia - Cereja e Avelã",
+    "stock": 2,
+    "costPrice": 25.85
+  },
+  {
+    "id": "547908a1-3ab7-4882-813f-828d1c6c0a7c",
+    "name": "Natura - Todo Dia - Com Carinho",
+    "stock": 6,
+    "costPrice": 25.85
+  },
+  {
+    "id": "91e98a66-8d72-4ec7-b078-4e8fee9edc1e",
+    "name": "O Boticário - 214 - Verano en Firenze",
+    "stock": 1,
+    "costPrice": 177.7
+  },
+  {
+    "id": "48967a51-e882-4c7f-b87c-1abf8a3b8d10",
+    "name": "Avon - Clearskin - —",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "779e9187-4c25-4ded-9100-a27aa90eeae9",
+    "name": "Avon - Disney - Frozen",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "37cf5de1-a7b8-452e-877f-ad5c1eeabb73",
+    "name": "Avon - Mickey 150ml",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6e44c330-76c9-46c8-a01e-5f86f8105f94",
+    "name": "Avon - Garrafa - Crer Para Ver Arara",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "67dcb6ec-fbc4-4d16-8347-8adc4aec5ca7",
+    "name": "Avon - Minnie",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "85ce4a7c-cb93-4fc7-a77b-bd848dffd433",
+    "name": "Natura - Todo Dia - Celebre a Vida",
+    "stock": 6,
+    "costPrice": 25.85
+  },
+  {
+    "id": "72465be1-0555-46dc-aed8-7718b7e79f66",
+    "name": "Natura - Todo Dia - Chá de Camomila e Lavanda",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "98bd3b6b-3933-46b4-8450-ef933f513118",
+    "name": "Natura - Todo Dia - Romã e Flor de Amora",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "aa5a1124-eb05-48dc-9db5-91b6b60666ed",
+    "name": "teste 444",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "0ef7f282-b854-4228-a939-828093019b46",
+    "name": "Avon - Petit - Atitude Girl Power",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "20b6b6e6-8cff-4f35-96ff-2a82d566da49",
+    "name": "Avon - Princess - Ariel",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "52b9f77a-2b31-4d2c-b0c8-c8ebf37fac7c",
+    "name": "O Boticário - Cuide-se Bem - Nuvem",
+    "stock": 5,
+    "costPrice": 55.48
+  },
+  {
+    "id": "6a28f00f-795d-4a7b-9207-cd356cc42e16",
+    "name": "O Boticário - Match - Ciência das Curvas",
+    "stock": 3,
+    "costPrice": 36.96
+  },
+  {
+    "id": "7b380544-5ad1-402d-aaa6-a1900aee4670",
+    "name": "Avon - Encanto - Encanto",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b552f38d-91f7-44a0-a7cd-46ca36d1c193",
+    "name": "Avon - Renew",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "82c7343a-0405-4755-9fd7-bcc84153cd47",
+    "name": "Aerossol egeo dolce",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d2939f10-bf78-4a5c-8fa9-e581f70fdbdd",
+    "name": "teste",
+    "stock": 8,
+    "costPrice": 0
+  },
+  {
+    "id": "d57c3f52-ce0a-421a-b9c5-109421cb358a",
+    "name": "Avon - Renew",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e9fb0ef8-50b1-4fa5-97aa-3fecee3c3758",
+    "name": "O Boticário - Coffee - Addictive",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ca251a4a-322e-43b0-91ad-63526d5c3171",
+    "name": "Natura - Águas - Violetas",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "5ee65507-f15d-44f3-836f-72cfae81e369",
+    "name": "Natura - Águas - Jabuticaba",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "0f293ede-d25c-4de7-9275-f841df9fff0e",
+    "name": "Natura - Todo Dia - Frutas Vermelhas",
+    "stock": 4,
+    "costPrice": 31.78
+  },
+  {
+    "id": "800b0cec-a79f-49f4-9f06-80a52c16372e",
+    "name": "O Boticário - Elysée - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "5fb484e4-3565-4b62-bfea-e02a701124a2",
+    "name": "O Boticário - Lily - Body Splash Lily",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ecee7cdf-d19c-4faa-a320-f3d28dc624bf",
+    "name": "avon",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "05d2a0dd-4442-4c59-a735-7772dec62ecd",
+    "name": "O Boticário - Arbo - Arbo",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "86c4dfb0-bd08-4009-b425-277d72e9d70e",
+    "name": "O Boticário - Celebre - Sua Força",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "9cfb62e0-4fde-4fcc-9294-cd908d399869",
+    "name": "Avon - Garrafa - Crer Para Ver Sonhar Para Transformar",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8803797c-e84c-4c56-9776-511cabb9685f",
+    "name": "Eudora - Instance - Velvet Cristal",
+    "stock": 2,
+    "costPrice": 18.52
+  },
+  {
+    "id": "b57ccd5a-a49e-4710-a896-f6adad4f4528",
+    "name": "Natura - Ekos - Cacau",
+    "stock": 2,
+    "costPrice": 34
+  },
+  {
+    "id": "1d40b14f-0182-49a1-a7f8-ebac4f75759d",
+    "name": "Natura - Todo Dia - Cereja e Avelã",
+    "stock": 2,
+    "costPrice": 14
+  },
+  {
+    "id": "76441a44-7d54-4867-a7d3-0e311028b5fe",
+    "name": "O Boticário - Boti Baby - Suave",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "e40121fa-d3c7-4cc6-a21f-c13b35102fbf",
+    "name": "O Boticário - Boti Baby - Glicerina",
+    "stock": 8,
+    "costPrice": 0
+  },
+  {
+    "id": "086ec565-177d-4526-9906-bcbf9730f43d",
+    "name": "O Boticário - Boti Baby - Suave",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "0fec10d1-b3b1-4e72-8b66-8468a7d2d80b",
+    "name": "O Boticário - Boti Baby - Suave",
+    "stock": 8,
+    "costPrice": 0
+  },
+  {
+    "id": "44ed2388-7a32-498c-ad85-df09f2745674",
+    "name": "O Boticário - Boti Baby - Castanho",
+    "stock": 8,
+    "costPrice": 0
+  },
+  {
+    "id": "d5faab59-b605-4d19-a5a4-bccbd217c60c",
+    "name": "O Boticário - Boti Baby - Lua",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "90f3512d-98e0-48fd-a86b-e0d653857ac6",
+    "name": "O Boticário - Boti Baby - Lua",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b541af58-cffb-48d5-a5e9-27082b493941",
+    "name": "O Boticário - Cuide-se Bem - Nuvem de Alegria",
+    "stock": 2,
+    "costPrice": 27.33
+  },
+  {
+    "id": "f0297d65-e268-4a85-8981-dd8330b85ffc",
+    "name": "O Boticário - Cuide-se Bem - Boa Noite",
+    "stock": 2,
+    "costPrice": 27.33
+  },
+  {
+    "id": "09505c4c-3548-45de-bdf0-ca5f66584f43",
+    "name": "O Boticário - Cuide-se Bem - Rosa e Algodão",
+    "stock": 4,
+    "costPrice": 27.33
+  },
+  {
+    "id": "bf3ad6f8-d40b-4af7-a652-9930f33b2bf0",
+    "name": "O Boticário - Cuide-se Bem - Sortidos",
+    "stock": 6,
+    "costPrice": 27.33
+  },
+  {
+    "id": "80ff72a1-8118-4b48-a509-cf89adb7392a",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 6,
+    "costPrice": 27.33
+  },
+  {
+    "id": "3dc87e09-ceb3-4298-9325-7d82c494a406",
+    "name": "O Boticário - Quasar - Next",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "58188fdc-6559-44e2-8571-00e98f964242",
+    "name": "O Boticário - Sophie - Spider Gwen",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "d1675add-b285-49d0-9869-88ca19d96e35",
+    "name": "O Boticário - Sophie - Spider Man",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "cc65eb1f-659f-48bc-a12b-4a555d884180",
+    "name": "Avon - Petit - Atitude Girl Power",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "55f31470-8390-40ad-95c8-e0b69b7022ae",
+    "name": "O Boticário - Nativa Spa - Quinoa",
+    "stock": 8,
+    "costPrice": 50.3
+  },
+  {
+    "id": "942bdef5-050d-4f79-a1a3-c6df3e63b32c",
+    "name": "O Boticário - Nativa Spa - Ameixa",
+    "stock": 6,
+    "costPrice": 50.3
+  },
+  {
+    "id": "47a2b894-f451-4292-973e-7e3a3ecbb19d",
+    "name": "O Boticário - Nativa Spa - Quinoa",
+    "stock": 8,
+    "costPrice": 64.37
+  },
+  {
+    "id": "e7604df5-c604-4921-9824-5250929f4ec2",
+    "name": "O Boticário - Nativa Spa - Ameixa",
+    "stock": 10,
+    "costPrice": 64.37
+  },
+  {
+    "id": "c6674421-f971-47f3-a5d6-6cea687b0191",
+    "name": "O Boticário - Nativa Spa - Ameixa Negra",
+    "stock": 4,
+    "costPrice": 64.37
+  },
+  {
+    "id": "67fcc8a1-88b1-4ebf-8a68-7dab4ccc2793",
+    "name": "O Boticário - Nativa Spa - Orquídea Noire",
+    "stock": 8,
+    "costPrice": 64.37
+  },
+  {
+    "id": "1998d7ae-819a-4f2a-840a-6a360dfa1945",
+    "name": "O Boticário - Nativa Spa - Orquídea Lumière",
+    "stock": 2,
+    "costPrice": 64.37
+  },
+  {
+    "id": "3bbd4ee5-dda1-4717-bf54-ca785a4c3423",
+    "name": "O Boticário - Nativa Spa - Rosé",
+    "stock": 2,
+    "costPrice": 64.37
+  },
+  {
+    "id": "bbfa0362-e3d9-4801-856d-0d467c28c873",
+    "name": "Natura - Todo Dia - Chá de Camomila e Lavanda",
+    "stock": 2,
+    "costPrice": 58.44
+  },
+  {
+    "id": "afc58213-c35a-4a58-b6f3-a51b1de7fa71",
+    "name": "Natura - Todo Dia - Tâmara e Canela",
+    "stock": 2,
+    "costPrice": 58.44
+  },
+  {
+    "id": "ab4eac05-c984-4fab-a9af-d35ac31d5d71",
+    "name": "Natura - Todo Dia - Limão Siciliano e Flor de Gardênia",
+    "stock": 2,
+    "costPrice": 58.44
+  },
+  {
+    "id": "fd5ee5d1-34a9-4612-97a0-71d2d1c44a64",
+    "name": "Natura - Todo Dia - Capim Limão e Hortelã",
+    "stock": 2,
+    "costPrice": 58.44
+  },
+  {
+    "id": "43c17849-206a-4b77-8f77-a748d2c65ecd",
+    "name": "Natura - Todo Dia - Ameixa e Flor de Baunilha",
+    "stock": 2,
+    "costPrice": 58.44
+  },
+  {
+    "id": "e0c63c59-cbc9-4902-8104-b7fe493b1147",
+    "name": "Natura - Todo Dia - Cereja e Avelã",
+    "stock": 24,
+    "costPrice": 58.44
+  },
+  {
+    "id": "e6b14ec4-22ae-4542-a741-e3dee812d1d7",
+    "name": "O Boticário - Nativa Spa - Orquídea Noire",
+    "stock": 2,
+    "costPrice": 50.3
+  },
+  {
+    "id": "0fc90167-3b44-4020-a435-3988816f6a6a",
+    "name": "O Boticário - Nativa Spa - Orquídea Lumière",
+    "stock": 2,
+    "costPrice": 50.3
+  },
+  {
+    "id": "a0348221-bd8b-479f-af5a-a1c1f71b3d0c",
+    "name": "O Boticário - Nativa Spa - Rosé",
+    "stock": 2,
+    "costPrice": 50.3
+  },
+  {
+    "id": "eeaa6284-3668-4530-94e2-1f4f4a50c37b",
+    "name": "O Boticário - Boti Baby - Glicerina",
+    "stock": 8,
+    "costPrice": 0
+  },
+  {
+    "id": "464974af-9403-4e1a-881c-095177819ff1",
+    "name": "O Boticário - Boti Baby - Glicerina",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "8e9f39a5-8e03-4807-babf-a4a292c079b7",
+    "name": "O Boticário - Boti Baby - Suave",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "3d1e4413-72e7-421d-9191-865690914168",
+    "name": "Avon - Petit - Lavande",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "cbf1f9f6-7161-4712-aca3-9ab0313281c0",
+    "name": "Eudora - Instance - Cereja & Amêndoas",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "abbaac6b-be13-4255-8cf9-eb409103e1f4",
+    "name": "Natura - Todo Dia - Cereja Negra e Praliné",
+    "stock": 5,
+    "costPrice": 58.44
+  },
+  {
+    "id": "98708eb6-acc3-4357-ae49-031687dd38ef",
+    "name": "O Boticário - Cuide-se Bem - Bob Esponja",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "34578024-0c5c-4e42-bc2e-2676f605fe94",
+    "name": "O Boticário - Cuide-se Bem - Bob Esponja",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "394e8b1c-c9d6-4a14-bf03-8314ff513022",
+    "name": "O Boticário - Dr. Botica - Coração",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "37bde860-05d3-4510-8bb7-850d22df251f",
+    "name": "O Boticário - Dr. Botica - Criatividade",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "4279a4f4-4b6c-4ce4-a154-a4117dede8d5",
+    "name": "O Boticário - Dr. Botica - Coragem",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "bbaa80dc-542a-4d95-8ed0-a514f742619e",
+    "name": "O Boticário - Dr. Botica - Amizade",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "8aa78b38-2983-44e0-88eb-0e664dd57e27",
+    "name": "O Boticário - Dr. Botica - Aventura",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "54a3fa77-f452-4e52-97c8-b5ec19b3b9b0",
+    "name": "O Boticário - Dr. Botica - Coragem",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "9ba8e42c-f4a2-4e05-a5ea-e235e759fb10",
+    "name": "O Boticário - Dr. Botica - Coração",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "c6614fb3-e232-4bba-a14f-52f9be80ed03",
+    "name": "O Boticário - Dr. Botica - Amizade",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "441db5c4-3703-4f3a-b479-2b32167ddd75",
+    "name": "O Boticário - Quasar - Next",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "8c97df7a-43a1-4278-8f63-7a6eab2d8e17",
+    "name": "O Boticário - Sophie",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "59a4f7bc-aec9-4873-b994-d4c2d32f0079",
+    "name": "O Boticário - Sophie - Like",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "2e3bd9a1-db2e-4f4c-a110-62f43bfd9fbd",
+    "name": "O Boticário - Sophie - Hello",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "fe5a2c64-8c23-4a04-a5a8-75d46ea69916",
+    "name": "O Boticário - Sophie",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ae99b1f5-436a-45e4-ab8f-b33a1c6c119f",
+    "name": "O Boticário - Sophie",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f1db4a37-6fb8-4644-8613-26a6fc678e31",
+    "name": "O Boticário - Sophie",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "8f0309bf-af23-4097-86e8-e2adaad125b8",
+    "name": "Eudora - Instance - Algodão & Jasmim",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "011ff670-012a-46c2-bd6b-7600e8eff662",
+    "name": "Eudora - Diva - Absoluta",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "95de2fe3-12d1-42bb-9000-95f8817cd406",
+    "name": "Eudora - Kids - Imaginação",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "87970184-9e8e-4801-a7bf-c95201cb6782",
+    "name": "O Boticário - Boti Baby",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7f92445e-4f37-4d31-9913-57a8f9964bdc",
+    "name": "O Boticário - Boti Baby",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "800eef1f-9f28-4279-b1f3-1ece061cd7a9",
+    "name": "O Boticário - Ma Chérie - Jeans",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a212bab8-4f2c-46d7-8ca3-89f13a8aebbe",
+    "name": "Avon - Care",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f0f18e5b-df74-41d7-9b2e-94c891ac7a21",
+    "name": "Avon - Renew",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "bb608240-3b97-46e5-8908-cb9689762638",
+    "name": "Avon - Renew",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "8c87e2c6-c938-4182-ad8a-3b4246c4a652",
+    "name": "Eudora - Kids - Era Uma Vez",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7521d945-852a-470b-97bb-0b022f7e0eb0",
+    "name": "Avon - Care 50 rosto",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "3cadedaa-d02c-4ca2-8d0b-27ca2200efd2",
+    "name": "Natura - Todo Dia - Tradicional",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "7cfb24d6-ba13-48ce-b3c7-0d1678be9fe1",
+    "name": "Natura - Todo Dia - Maracujá",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "626b5833-dbd5-459d-add5-22365a46c462",
+    "name": "Natura - Todo Dia - Noz Pecan",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "8e7f288c-43f1-4112-89ab-fc432b1cad94",
+    "name": "Natura - UNA - Blush",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "06eba1a7-0dc1-4576-90fc-045d758e63b5",
+    "name": "O Boticário - Cuide-se Bem - Amoruda",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "8347b915-86c9-40e2-89b6-33619a07ba23",
+    "name": "O Boticário - Dr. Botica - Cachos",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f3e45457-b04c-4c69-8468-4d196381a924",
+    "name": "O Boticário - Dr. Botica - Cachos",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "fcdb832b-131b-4aa1-adfe-065c20b00e5f",
+    "name": "O Boticário - Dr. Botica - Cachos",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "85ae2042-5180-4391-892c-1ce0efb82a87",
+    "name": "O Boticário - Glamour - Glamour",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "811ba30e-c34f-4a9e-a84a-cdc2256a58bd",
+    "name": "O Boticário - Nativa Spa - Ameixa Negra",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "1ec9ff68-0c17-4575-9713-668f80f582ff",
+    "name": "O Boticário - Quasar - Blue",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "a5f90158-5f48-4d50-b12e-8f2c99176e3d",
+    "name": "Avon",
+    "stock": 8,
+    "costPrice": 0
+  },
+  {
+    "id": "4c0c72aa-584f-4aca-80a1-2d33b5fa1afb",
+    "name": "Avon - Care Baby",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "22138542-95e1-4406-95d6-d7090879225f",
+    "name": "Eudora - Magnific - Violet Dahlia",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ae13e53a-bbba-4643-a0f4-cc644401799d",
+    "name": "Avon - Renew",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f59603f1-3517-4aa4-9958-0da3b6d6ed04",
+    "name": "Natura - Kaiak - Aventura Feminino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "65c6c58d-d46c-4a05-a4f0-adff1840d796",
+    "name": "Natura - Kaiak - Aero",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "9666e459-e452-4c80-ac40-6a50b251871d",
+    "name": "Natura - Todo Dia - Cereja Negra",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "cfa57fdc-86e3-4709-950c-984b8445c22f",
+    "name": "Natura - Todo Dia - Sortidos",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "5efc2a65-b853-4ea5-8078-5272c0905bfa",
+    "name": "Natura - Todo Dia - Manga Rosa",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "93aec4e1-fa3b-4d31-960d-8855ad0f50fc",
+    "name": "Natura - Todo Dia - Tâmara & Canela",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "efefe85c-30ca-4706-95e5-72340d6cf2ae",
+    "name": "Natura - Todo Dia - Ameixa & Flor de Baunilha",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f7566428-5432-44e9-b699-0a0b1cd52de0",
+    "name": "O Boticário - Boti Baby - Sol",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "19d4e986-7aa5-4e54-bb24-b4fb50bb756e",
+    "name": "O Boticário - Boti Baby",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "6cbc2ea0-37cd-45c4-973a-45fe7440eb1c",
+    "name": "O Boticário - Ma Chérie - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7ed1897c-0c44-42cb-a241-0714eb8846eb",
+    "name": "Avon - Care Baby",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "80b596da-4b0f-4072-8cfc-b4c08eef7d5a",
+    "name": "Avon - Feminino",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "1a68c7a7-a2ef-467f-ad22-62980146873d",
+    "name": "Avon - Masculino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "07c7d231-b8a4-4954-92e7-86ef58199418",
+    "name": "Avon pura blanc",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "c437f532-5904-4230-a524-6929cf692460",
+    "name": "Eudora - Instance - Macaron",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "dc4b3705-6339-4165-8d7b-f057962553c5",
+    "name": "Natura - Kaiak - Pulso",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "e27cfabb-a580-4462-af43-d01104d9c538",
+    "name": "Natura - Todo Dia - Amêndoas Doces",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "c0d06dbd-87df-4494-9846-e7e76595d77e",
+    "name": "Natura - Todo Dia - Castanha",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "da4f4491-8574-4392-9ebb-dee25ef2e8ce",
+    "name": "Natura - Todo Dia - Limão",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b0727316-a64a-4678-b381-a2012d7b640a",
+    "name": "Natura - Todo Dia - Framboesa & Pimenta Rosa",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "d3a96130-a78d-4bbf-b971-70c8b2c0651d",
+    "name": "O Boticário - Celebre - Sua Força",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "89814b7a-f4be-42e8-9cd3-51afd6452b2c",
+    "name": "O Boticário - Lily - Soleil",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "c02d81ae-3204-40e5-9504-a5d97eb432c8",
+    "name": "Avon - Renew",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "27d42fda-a283-4061-9368-9ffe10571907",
+    "name": "Avon - Skin Soft",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "f7af2ac7-68a1-42d6-a33b-f54f6f1929c2",
+    "name": "Kaiak aero masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "cae4f2a5-4b99-448a-812b-868c33ed3070",
+    "name": "Natura - Todo Dia - Noz Pecan & Cacau",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "9501d3d5-6978-4b33-bcb9-2ab531db9bbe",
+    "name": "O Boticário - Cuide-se Bem - Nuvem",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "9bc0a456-1875-4c36-a508-56731ab15797",
+    "name": "O Boticário - Cuide-se Bem - Sortidos",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b4a1b3f5-39a3-433e-8903-2bb8705e3450",
+    "name": "O Boticário - Egeo - Blue",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b8521211-3e5f-42ba-91e5-e4c456b59cf9",
+    "name": "O Boticário - Floratta - Red",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "f70ceb1f-399c-445f-81a4-377fdd6e6ebc",
+    "name": "O Boticário - Nativa Spa - Rose",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "08db154f-60c3-4e66-87bc-b83745e0ed40",
+    "name": "O Boticário - Sophie - Cachos",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "2572c095-306c-48da-815e-76416db599cc",
+    "name": "O Boticário - Sophie - Cachos",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ea6ff055-7b37-40a5-a376-0804fd09db47",
+    "name": "Avon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "da4aa1d2-b32e-4fe4-8fd8-6bedd155f2b8",
+    "name": "Avon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4bf23315-4866-491b-9caa-f0295e5edaba",
+    "name": "Eudora - H - Marine",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "54c541c6-13fc-43c2-9e60-1577f089291b",
+    "name": "Eudora - Siàge - Reconstrói",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "2bf29719-5834-4c96-a76a-cb3202771d88",
+    "name": "Avon",
+    "stock": 10,
+    "costPrice": 0
+  },
+  {
+    "id": "e53621c0-7fc7-4877-a3de-b945a2b89470",
+    "name": "Avon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "cb60004c-efda-4356-a2a0-94ead4d00c26",
+    "name": "Eudora - Baby",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a2b5f219-8822-4904-b56f-f2df13f4062d",
+    "name": "Avon - Spider-Man 150 ml",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a1463734-9c21-4f55-8ce3-5ed206256903",
+    "name": "Eudora - Chic - Retrô",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "970ba767-8f6f-4d06-b21b-7e1b329e1a01",
+    "name": "Eudora - Chic - Tradicional aerossol",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "56da842f-5ec6-489e-9810-1f7394fd8a45",
+    "name": "Eudora - Club 6 - Exclusive",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "1e24f35f-252e-409d-b95b-ffe2c5626e05",
+    "name": "Eudora - Club 6 - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f2f6c685-fc93-468e-bc5e-a6007d62833f",
+    "name": "Eudora - Club 6 - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "18f1eff0-a9f9-4d77-95ca-a7450ab50135",
+    "name": "Eudora - Club 6 - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4855a917-9eca-40a5-b165-44dd7f6fb90d",
+    "name": " Kit Eudora h",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7afed19e-68eb-4981-bca0-aeb19905fb47",
+    "name": "Eudora - Golden",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "bc146f92-0698-4e94-8dc8-a39b8b22c2cf",
+    "name": "Eudora - Club 6 - Vibe",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f885805d-31a8-42e2-bf0c-6d2bcc40d087",
+    "name": "Rolon aclarar ",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "583d2ede-94be-4d7a-92aa-431e5318ea67",
+    "name": "Eudora - Instance - Karité Manteiga 180ml",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "9d8aff2e-2823-44ac-9a25-5adde2ebed2e",
+    "name": "Eudora - Instance - Frutas Vermelhas",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "1cb367db-cad9-46c0-9780-651bef6ba9b6",
+    "name": "Eudora - Instance - Karité",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "24e4c9b4-938f-4af4-8de0-6df07a18ad02",
+    "name": "Eudora - H",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e897af08-ad61-4daa-b493-0c40e216fab3",
+    "name": "Eudora - Instance - Karité",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "41aa24b2-ef2a-4f73-91f9-696d869ea7be",
+    "name": "Eudora - H - Ready",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6522ef79-2c8a-45d2-a04f-8f3c7cbca128",
+    "name": " Her Code - Tradicional pote",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7ff25997-6616-4e87-8113-bc39a25e1a1c",
+    "name": "Eudora - Impression - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "8a23e3f9-3a42-4a88-a270-2dd7fb24625e",
+    "name": "Eudora - Impression - In Black",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e0f63762-befa-4c21-a779-1f1455172b86",
+    "name": "Eudora - Instance - Bacio di Latte",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "83d101fc-beb2-43ff-a66f-207c190ff462",
+    "name": "Eudora - Impression -bory spray",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "67b455d5-e0ec-4bc7-a995-e36620d6d8b2",
+    "name": "Eudora - Instance - Baunilha",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "9810eab5-85c4-4692-8733-5b50f2295942",
+    "name": "Eudora - Instance - Doce Fino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f0da9f6c-590b-41bc-acb2-0a56b0909678",
+    "name": "Eudora - Instance obsessão por baunilha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c8555f2a-2da4-4292-85c1-0ec58472155e",
+    "name": "Eudora - Instance - Lima Rosa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8dcd5857-c984-4a24-912c-1de0494c6379",
+    "name": "Eudora - Instance - Lima Rosa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a40b9c82-761c-48cd-b1cc-2622dbf018b5",
+    "name": "Eudora - Instance - Maracujá",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a720becc-a38e-4d96-8248-93c845a6cafb",
+    "name": "Eudora - Instance - Maracujá",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c0fa3ef9-a1a9-466a-b491-99a5abb00937",
+    "name": "Eudora - Instance - Rosa Absoluta",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c48b07e4-1148-4858-b542-dec4b20e2c7b",
+    "name": "Eudora - Instance - Rosa Absoluta",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "17d64055-e489-4612-bc24-1de6d9c5fa2b",
+    "name": "Eudora - Instance - Sabonetes sortidos",
+    "stock": 7,
+    "costPrice": 0
+  },
+  {
+    "id": "7e0b9c7a-5aa6-4732-8569-68e9fe43af1f",
+    "name": "Eudora - Intention - Bad",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "302b7590-4a75-4cd3-85b3-161490d562c4",
+    "name": "Eudora - Neo Dermo",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ab553492-d5f6-41ac-954b-c18625541691",
+    "name": "Eudora - Neo Dermo",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c711236f-e484-4ef3-86a5-8bfdbb58a9b0",
+    "name": "Eudora - Neo Dermo",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "36103b42-6013-46dc-ba9d-c8026314af8f",
+    "name": "Eudora - Neo Dermo",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f9192314-9b98-4cc7-96ee-9ecb5c038bfc",
+    "name": "Eudora - Neo Dermo",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "33fbb6c4-847f-4c18-9343-f231d344cfd9",
+    "name": "Eudora - Niina Secrets",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "fa4391bd-1376-4797-9515-65cef1f16aff",
+    "name": "Eudora - Niina skin",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "eea019ed-2af0-4c61-b689-00719fbb62e1",
+    "name": "Eudora - Niina skin",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a7a3e3a3-4778-435f-8a50-ffe4bfb359ad",
+    "name": "Eudora - Niina skin",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7e47585f-4734-4d8e-a31a-eccac3d6a961",
+    "name": "Eudora - Niina skin",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "7dd0ecf3-de35-4deb-a7ea-d7bf9384fa65",
+    "name": "Eudora - Instance - Karite",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d57b726b-a74c-4de9-b8dc-220a2d7fb3e8",
+    "name": "Eudora - Instance - Karite",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8c20ee04-aab1-4f8a-a20e-acbb11d6f08d",
+    "name": "Eudora - Instance - Body Splash",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "8b85e8ed-8c97-4256-8dc4-deb0268acbb0",
+    "name": "Eudora - Intention - Bold",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a61a07c3-5ae0-4501-9fd6-c18a4f1df33f",
+    "name": "Eudora - La Piel - Tâmara Egipcias",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a0c8f679-ec07-421f-a29a-5be6018e31bf",
+    "name": "Eudora - La Victorie - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ef8ad6eb-591e-4e43-94cc-b956edd12f2d",
+    "name": "Eudora - La Victorie - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "55109b27-2554-4b9e-ba9a-e7451f573619",
+    "name": "Eudora - Lyra - Happy",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e9b70901-945d-4a67-8d1c-ae3706dc8ea9",
+    "name": "Eudora - Lyra - Joy",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "143416f1-8df1-4974-99a7-93061f7a3476",
+    "name": "Eudora - Lyra - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "79957eba-9f5e-47f9-84bf-8cedfd21f9a4",
+    "name": "Eudora - Magnific",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7f9d8e67-02e5-4c1c-80af-86019d2cfd3f",
+    "name": "aerossol Men",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b6f26874-e69a-4af4-894c-dfd7fc98b10f",
+    "name": "Eudora - Niina  Skin rosto",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4820d2ba-100e-47db-b62d-5e1f53a29400",
+    "name": "Eudora - Neo Dermo",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f1d62808-eb6c-4387-ad35-25d48686ca93",
+    "name": "Eudora - Pulse - kit Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ed01c74c-f0ca-4903-a6ee-919ab1a9e3d6",
+    "name": "Eudora - Roxinho - Redondo tradicional",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "5d55efb3-c791-4ab0-8d88-ea5c9e83a831",
+    "name": "Eudora - Siàge - Cachos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "88dbbf86-6aff-48bc-998d-697c41fefa96",
+    "name": "Eudora - Siàge - Cachos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "dc022b1b-f02c-42ab-a677-66b14bd7afc7",
+    "name": "Natura - Todo Dia - Erva Doce",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "d2e0cabf-fa38-4aee-8ca6-baec383d2907",
+    "name": "Eudora - Siàge - Liso",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8eaa22d2-b70a-4ccc-a433-0872803167fe",
+    "name": "Eudora - Siàge - Liso Intenso",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "55199187-71c7-4183-8580-af114f08b71f",
+    "name": "Eudora - Siàge - Liso Intenso",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "84530111-ef31-4116-95bd-067c94635a62",
+    "name": "Natura - Aumigos",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f5bd9293-c085-4c3f-924f-5cadcf904bbe",
+    "name": "Eudora - Siàge - Remove Oleosidade",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d6a9ab68-d593-4ea4-a86b-402a27258918",
+    "name": "Eudora - Siàge - Pro Cronology",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "5e4e2a0e-8c20-4503-b50c-3acfd1f95b03",
+    "name": "Eudora - Siàge - Cauterização dos Fios",
+    "stock": 4,
+    "costPrice": 50.36
+  },
+  {
+    "id": "cb96a254-6be8-48d5-aa05-a759e0ec858b",
+    "name": "Eudora - Siàge - Reconstrói os Fios",
+    "stock": 2,
+    "costPrice": 35.55
+  },
+  {
+    "id": "abe74d02-f84d-4ec2-8590-a8f017109728",
+    "name": "Eudora - Siàge - Reconstrói os Fios Máscara",
+    "stock": 2,
+    "costPrice": 51.78
+  },
+  {
+    "id": "b2b5b6a9-abee-4aeb-a1f1-73449b059af2",
+    "name": "Eudora - Siàge - Reconstrói os Fios Shampoo",
+    "stock": 2,
+    "costPrice": 35.55
+  },
+  {
+    "id": "0fd0e054-9d38-4934-aae2-55cc071b3a34",
+    "name": "Natura - Erva-Doce",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "fcc4f497-dff6-4199-8d1d-361ff9998afe",
+    "name": "Natura - Solar",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "14dd360d-41d8-4372-9a2e-f6e2c82fb10e",
+    "name": "Natura - Fotoequilíbrio",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "dff482a5-8174-4ead-b4a9-8a1bd63616dc",
+    "name": "Natura - Todo Dia - Algodão",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a7078b34-2b51-4afc-a38c-0a4be111f41c",
+    "name": "Natura - Todo Dia - Algodão",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "8005e2e9-e81a-41e9-9022-f67f41f065c3",
+    "name": "Natura - Águas - Lavanda",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5bda3f68-c05a-43e4-bee6-965398dba3ca",
+    "name": "Natura - Águas - Lavanda",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "539616be-3ce6-41b1-9914-5f57a370297c",
+    "name": "Natura - Alba Aura",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "9848b75c-58ef-4b59-ae27-b264612f0b58",
+    "name": "Natura - Aumigos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "666661d6-399c-4b38-91be-4256f9f3fd18",
+    "name": "Natura - Aumigos - Adultos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ea2484ba-436f-45ba-ab76-f8830f404dc7",
+    "name": "Eudora - Siàge - Acelera Crescimento",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "d146f1f0-b380-4a6f-9783-dcdb7da0cde1",
+    "name": "Eudora - Siàge - Anti Frizz",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "51bf4fc6-7166-4dfc-87bf-19e96e98546d",
+    "name": "Eudora - Siàge - Anti Frizz",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6043f8b6-2fe6-42c2-8c0d-0bb1e3aafdaf",
+    "name": "Eudora - Siàge - Anti Frizz",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2896cbbb-02aa-4525-ab71-d662b442343e",
+    "name": "Eudora - Siàge - Cachos mascara",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8effdb20-5888-41ba-a047-9ae8ed8185ba",
+    "name": "Eudora - Siàge - Cachos Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "85e029b0-4c3b-4c8b-9f3e-7d9b749e244f",
+    "name": "Eudora - Siàge - Cachos Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2b5548b0-ea6a-4332-ab56-3cec6e60aa3c",
+    "name": "Eudora - Siàge - Hidratação Micelar",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6dd69b36-4715-4904-a529-431cb14f021c",
+    "name": "Eudora - Volpe - Triumph",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7b72bdbe-3737-4b5e-bcd7-1af3573fc0fc",
+    "name": "Eudora - Siàge - Acelera Crescimento",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5df0b004-e03d-4cb1-8514-076ba5486389",
+    "name": "Natura - Kaiak - Aventura Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "fded4c0b-cd13-466f-bc5c-21e955ad6a4a",
+    "name": "Natura - Kaiak - Aventura Feminino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "faef7f0f-bf0e-401d-8732-821be3cf4261",
+    "name": "Natura - Kaiak - Aventura Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a4f03315-4d7b-4023-88eb-4e0fbf0d1663",
+    "name": "Natura - Biografia - Tradicional Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "57bba5de-29e3-4578-be77-59ec51377fa6",
+    "name": "Natura - Biografia - Tradicional Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f74b8561-8a8e-48c8-863e-c993c22d7136",
+    "name": "O Boticário - Cuide-se Bem - Deleite",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "09171f35-2b17-48bb-906e-715439575a02",
+    "name": "Natura - Biografia - Tradicional Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2a38b1dc-1f60-4b7d-a6c0-297f5a8968d6",
+    "name": "Natura - Biografia - Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ba9227e9-867f-45c0-8a07-f2d1139f5369",
+    "name": "Natura - Biografia - Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "888ef70d-169b-4cd6-8fad-2b20e3f9ed2f",
+    "name": "Natura - Biografia - Tradicional Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8c825156-b2be-4d27-b0dd-448f75f0cd3d",
+    "name": "Natura - Biografia - Tradicional Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "48deb9e0-9d58-4bb2-92a2-40cbb9ffeba8",
+    "name": "Natura - Biografia - Encontros",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "fcc82fbe-7366-48cd-9734-f512f072e2a0",
+    "name": "Natura - Biografia - Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c1c38d98-7233-4c73-8b32-a62bab8f0295",
+    "name": "Natura - Chronos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a903c44d-9bcc-496c-8523-e56a3c52ac31",
+    "name": "Natura - Chronos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8d93bbbd-fa40-4da2-b790-cab86116d160",
+    "name": "Natura - Ekos - Castanha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "1e2a9bee-5960-4af8-ab85-850ed95d15cc",
+    "name": "Natura - Ekos - Maracujá",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c9d5b96a-665f-447d-829a-90b7cbda6ebd",
+    "name": "Natura - Ekos - Andiroba",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7ec6c4b6-2499-406e-b0d2-81e09561e608",
+    "name": "Natura - Ekos - Patauá",
+    "stock": 2,
+    "costPrice": 44.37
+  },
+  {
+    "id": "46c9cc87-bda8-4513-ba3b-10ce566b3e2d",
+    "name": "Natura - Ekos - Maracujá",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c59fe882-8d8f-4276-b839-af7bef34a6b7",
+    "name": "Natura - Ekos - Amazô",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d9b142f3-f7d3-4c8d-9c73-47a2b4dd4db1",
+    "name": "Natura - Ekos - Açaí",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e4c11ebb-aed6-45f5-bbea-26eefe8e34bd",
+    "name": "Natura - Ekos - Castanha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "05aa828e-c464-4083-ad07-a9894ad5576f",
+    "name": "Natura - Ekos - Castanha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5e9816c2-e15c-429a-b228-ace0e03decca",
+    "name": "Natura - Ekos - Castanha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "779d96c7-5a6e-4f4e-95b4-ad3af06f4d20",
+    "name": "Natura - Ekos - Açaí Frescor",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "bd680061-7ff9-47ee-8b4a-b5f8d6993c88",
+    "name": "Natura - Ekos - Pitangas",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "94898f8e-7f9c-4e39-a806-d899141fb888",
+    "name": "Natura - Ekos - Andiroba",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f162ef58-6b5d-4989-b3cd-4160d9e46a0d",
+    "name": "Natura - Ekos - Açaí",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ed65b507-9497-417a-9c01-0c0cb29bd40a",
+    "name": "Natura - Ekos - Madeira em Flor",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "0aa613a1-f887-44d4-94fd-5958ecd4460d",
+    "name": "Natura - Ekos - Açaí",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "655b871a-3c5e-4aee-9103-20a2868bc05b",
+    "name": "Natura - Ekos - Amazô",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d390e697-e717-44c3-a322-ef5d98fd2668",
+    "name": "Natura - Ekos - Madeira em Flor",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6e12b814-8332-4680-9d52-9e627c840990",
+    "name": "Natura - Ekos - Madeira em Flor",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "a6488faf-3c8e-4767-91d3-e442e925b0ac",
+    "name": "Natura - Erva-Doce",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6cc93fb5-567c-4cc2-b483-5b94f0d06740",
+    "name": "Óleo capilar Siage reconstrói os fios",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4fa58d01-f93d-4f72-8df9-2d288042423d",
+    "name": "Óleo corporal termico cereja fases",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "65e3598e-58e4-4672-8e68-3349b829b4aa",
+    "name": "Natura - Essencial - Desejos Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ea38f49f-905a-4c05-b666-e7477b72b30c",
+    "name": "Natura - Essencial - Oud Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d891fc0f-8343-4bad-b490-6e8bc49dd4ec",
+    "name": "Natura - Essencial - Exclusivo Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7f9e3c6d-f0c9-4b1c-9708-7fa742d56dfb",
+    "name": "Natura - Essencial - Tradicional Masculino",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "42f1fe32-5787-4d16-a3fb-6fff348ceb24",
+    "name": "Natura - Essencial - Exclusivo Feminino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "60a133e5-8966-4a58-9404-307ba7f912bf",
+    "name": "Natura - Essencial - Exclusivo Feminino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "776b7c4e-4c24-440d-b4ac-5b33323611dd",
+    "name": "Natura - Essencial - Exclusivo Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3a621b8a-8053-4a7b-bbe8-d4a439ce7ab7",
+    "name": "Natura - Essencial - Tradicional Feminino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a3aee837-7364-4a9b-a4c9-58ce895d4fb9",
+    "name": "Natura - Essencial - Exclusivo Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2a96d9fc-37fb-4513-9856-5ee64236a722",
+    "name": "Natura - Essencial - Atrai Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3df7c6da-be65-430c-8be8-450e9fad3ddb",
+    "name": "Natura - Essencial - Exclusivo Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5d020307-5b72-4f07-a244-630f57579072",
+    "name": "Natura - Essencial - Desejos Masculino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "90b546c5-942e-4fa1-9b12-0709aebc275b",
+    "name": "Natura - Essencial - Tradicional Masculino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a87900c6-ef87-4044-b35f-5a4a14cd314b",
+    "name": "Natura - Essencial - Sentir Masculino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "c01e47ea-a0d2-4ea8-a271-036b920c379f",
+    "name": "Natura - Essencial - Oud Masculino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7d45aaf5-56c2-4ff2-983b-e597dac15d05",
+    "name": "Natura - Essencial - Tradicional masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "0f5c6074-6900-44e2-93c1-8fc25fc9c56f",
+    "name": "Natura - Essencial - Tradicional Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "686b66b9-75de-4ddb-9ed5-aab1763d4c28",
+    "name": "Natura - Essencial - Exclusivo Masculino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "e0904e15-2ca8-426a-83fd-b08f557b1b2b",
+    "name": "Natura - Essencial - Tradicional Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3c197ecd-567e-4b7d-83a9-ca6fbc54311d",
+    "name": "Natura - Essencial - Exclusivo Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "cad51b7f-0285-44ae-9e97-3bf4699e6bea",
+    "name": "Natura - Essencial - Tradicional Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5236b6c3-54de-42fa-9a75-9e1166981666",
+    "name": "Natura - Essencial - Atrai Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "0e9495eb-4893-432e-97a2-23e216520a17",
+    "name": "Natura - Essencial - Exclusivo Feminino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "dec86042-b6b2-4f85-8ce9-4f044b281770",
+    "name": "Natura - Essencial - Supreme Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "41e0aede-f990-4147-a22e-21abb4908fc1",
+    "name": "Natura - Faces - Fotoequilíbrio Criança",
+    "stock": 2,
+    "costPrice": 51.78
+  },
+  {
+    "id": "21772cd2-ca4a-418d-a3af-63598eb31be0",
+    "name": "Hidratante corporal cereja fases",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b7e24c1f-3eee-4039-8e02-88df19ef2b70",
+    "name": "Spray intimo cereja fases",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "760ffb05-7360-41a7-8fc3-f6a9bf21c9f5",
+    "name": "Natura - Homem - Homem Especiarias",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4e14594e-6a58-4e30-8380-8f74027966bf",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c26439f1-9354-4bc2-8c89-665c5208e67f",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ca6499d9-1620-485c-b14a-65767f202496",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "deff6dfc-9c34-46b9-ba53-452efc0dd359",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "6d129e0b-3bd1-4280-94d5-745eeba711fb",
+    "name": "Natura - Homem - Elo",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6c4d7046-928b-4b06-a5ce-911e399e8048",
+    "name": "Natura - Homem - Dom",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "da2c2a47-93ab-45d2-88be-0b623b8f4c70",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "63446a6b-0b09-4ca4-b83b-aa12eff6be7a",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2dfa02e7-9b77-4f28-891f-dfebba112e80",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e1594a0a-69f5-4d3d-a30f-9083c629ccba",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b313c930-cf19-467b-ac18-8d50d1b73bdf",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6fc74bfa-1f9a-4d11-96fa-3ebb5ee129b9",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "84f18ca8-f5b3-4d96-b49c-b0cfa37a045d",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "448ee3e1-8fc7-4c45-aab1-dc890d8f7acf",
+    "name": "Natura - Homem - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "80c60092-9a7e-4c47-9709-a24f084fe225",
+    "name": "Natura - Homem - Tato",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b1ed5f2f-aa80-4ca7-be92-057e639f7263",
+    "name": "Natura - Humor - Humor Próprio",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6de188ad-62e4-471a-b2b2-d8379c332f4f",
+    "name": "Natura - Humor - Humor Próprio",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f1877b53-d84b-459b-8a4c-0c92afc26e97",
+    "name": "Natura - Humor - Humor Próprio",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "11df0004-41c9-4db7-8566-cc5ff5e98324",
+    "name": "Natura - Humor - Meu primeiro humor",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "1b247b90-27de-4544-a99d-b79389f9e05e",
+    "name": "Natura - Humor - Próprio",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b9020c8c-cf7e-41c3-8ca8-c7f238c6a82b",
+    "name": "Natura - Humor - Próprio",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ec96bf39-2d4e-4a0d-9b51-b52554eaafce",
+    "name": "Natura - Ilía - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "62a05344-3750-457b-b4dd-73fc8cb4fd13",
+    "name": "Natura - Kaiak - Tradicional Feminino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "9f75b76a-b4d1-4b47-b6a6-b9bc3f1e0e8b",
+    "name": "Natura - Kaiak - O2 Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5200a555-779a-4e11-a246-8f84d57fc045",
+    "name": "Natura - Kaiak - Aventura Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f0b3a5a8-e75b-40b0-892a-9dfca43c6929",
+    "name": "Natura - Kaiak - Tradicional Masculino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7a12d6c4-79b2-451e-8239-cf779729b9ac",
+    "name": "Natura - Kaiak - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "137e0af6-f150-4b90-bf78-0585b6d7a040",
+    "name": "Natura - Kaiak - Pulso",
+    "stock": 5,
+    "costPrice": 0
+  },
+  {
+    "id": "bffb7c6f-5aac-44d9-a2d9-c7e55f642cc4",
+    "name": "Natura - Kaiak - Urbe",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "197c58f9-e311-46cc-bab7-1e5a9af9cca0",
+    "name": "Natura - Kaiak - O2 Masculino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a0b587fa-c236-4d4d-916e-9c378f54b6e3",
+    "name": "Natura - Kaiak - Aventura Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "46f07277-1ab0-4fa0-a6c5-7fd7587b062e",
+    "name": "Natura - Kaiak - Tradicional Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6b0a8ded-8bd7-4ca8-afd9-03a91be1c59d",
+    "name": "Natura - Kaiak - Tradicional Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d6d17e32-493f-49ca-82bf-3ec95abc42a7",
+    "name": "Natura - Kaiak - Tradicional Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "208ec8cd-8c5f-401f-a5f4-25df0f58be59",
+    "name": "Natura - Kaiak - Tradicional Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3136e44e-abd0-426f-9e7c-4d890a248a78",
+    "name": "Natura - Kaiak - Urbe",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "b24f3c68-c917-4fff-8b13-b5840d81ca56",
+    "name": "Natura - Kaiak - Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "898ecb89-d417-4212-b4c9-27ab5a8c7cb9",
+    "name": "Natura - Kaiak - Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7485f5a9-d2d1-4f82-88e6-025762dc6d0e",
+    "name": "Natura - Kaiak - Aventura Masculina",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "535a8dd3-4021-480d-9c55-48b15ae8eace",
+    "name": "Natura - Kaiak - Tradicional Feminino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ece27830-b16b-4417-a7a7-96ab37deaf2d",
+    "name": "Natura - Kaiak - Tradicional Feminino",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "ecd84b4d-f265-41b8-9917-654ae2b1f80e",
+    "name": "Natura - Kaiak - Tradicional Feminino",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "817db7f2-4fe8-40f4-b357-3f889130cad7",
+    "name": "Natura - Kaiak - Pulso",
+    "stock": 5,
+    "costPrice": 0
+  },
+  {
+    "id": "2b8f155b-182d-4487-b686-e8b3387fca76",
+    "name": "Natura - Kaiak - Pulso",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "e31bc56a-48be-4496-9a58-f40c17dab29f",
+    "name": "Natura - Kaiak - Urbe",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "1504d15f-094e-4b1f-8458-fea18f2e6a3e",
+    "name": "Natura - Kriska - Jeans",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "51af8113-1f10-4ca3-a04d-d91d82a0b588",
+    "name": "Natura - Luna - Tradicional",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "ed8b096e-0fb9-45d6-821c-db2d0b43b0dd",
+    "name": "Natura - Luna - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3f224a8c-f3e1-4225-b726-869a7fcd4164",
+    "name": "Natura - Luna - Radiante",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6d1a94ff-fb00-4285-b3a0-6d56e55e17fc",
+    "name": "Natura - Luna - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "2e66c6d4-a54c-4c6d-a9a8-b5a1c82be5da",
+    "name": "Natura - Luna - Tradicional",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "e50ebea7-be20-463f-a367-4e57b8546a2a",
+    "name": "Natura - Luna - Girl",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ba93269b-8834-4603-8afc-778183d05419",
+    "name": "Natura - Luna - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "31243cb9-dc0d-4ecc-b092-00a496b2cee0",
+    "name": "Natura - Luna - Fascinante",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "dff32db0-f63a-4021-b4a9-5f4b7c85057e",
+    "name": "Shampoo Mickey 2em 1",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "40ce40c3-51a4-4938-956c-c06a5b70acc8",
+    "name": "Caixa sabonetes 4 unidades cereja fases",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "add0e770-4d38-438e-b6f3-afe4b2f29bca",
+    "name": "Natura - Luna - Radiante",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "71571ca6-0547-43e3-afaf-a9a8ffaf55d2",
+    "name": "Natura - Luna",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c8476b7c-f733-4e65-aea3-4f9ef0dabe72",
+    "name": "Natura - Luna",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "bc2e8549-b305-4a8f-8915-57baad58eac7",
+    "name": "Natura - Luna - Intenso",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "210b828a-c2ab-4c54-86aa-a749c447bbf2",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "b14975a6-90b3-4207-ad41-7eff7b941ba4",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "d05a4758-78fb-4455-b7c2-3ba9be27c012",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 5,
+    "costPrice": 0
+  },
+  {
+    "id": "3198a60f-ab26-488f-89b9-c6125352f33d",
+    "name": "Natura - Mamãe e Bebê - Papai e Bebê",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a0613ade-bf5c-4204-a2f4-75bd7a4089ce",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 5,
+    "costPrice": 0
+  },
+  {
+    "id": "7b3159e3-d3d8-4574-abcc-d45d53025624",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 5,
+    "costPrice": 0
+  },
+  {
+    "id": "73273de5-23a4-4d75-a4ef-7e6045121780",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "804d5cbc-cfb7-4d01-bc11-31205123d52c",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "9cf113c0-430a-40d0-be07-7a5e8372cf07",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5df16875-4330-4421-9771-3c82a4ffcb89",
+    "name": "Natura - Mamãe e Bebê - Flor de Laranjeira",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "88fd4a32-5044-4b62-8163-0e5f8630470b",
+    "name": "Natura - Mamãe e Bebê - Flor de Laranjeira c saboneteira",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "0388f780-bef5-43ec-8381-6875dc19da3c",
+    "name": "Natura - Mamãe e Bebê - Cachos e Crespos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ed826614-1cbd-459b-81a3-d753c6264731",
+    "name": "Natura - Mamãe e Bebê - Cachos e Crespos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "691d304e-2f2f-43ba-933a-32fe3ab4725a",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a70e15da-9e36-420d-b798-ae3e4fed6908",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "08a7e061-60e6-4556-91a8-6e9be6e76680",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "1914a0c5-7242-49ba-8c9b-d4fe42fb7972",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "78be7513-33d8-47ac-b0e6-4b7fe8c6cedb",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "7e5949d3-e202-4850-99d2-10bbc82f1433",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 5,
+    "costPrice": 0
+  },
+  {
+    "id": "fe597c66-9a15-46f8-ba8f-d70fd485d503",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "922a2ffd-9c6f-44da-acdd-f18cd42723d5",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "890b9c32-f09f-4959-9e0d-56494bf83fbb",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ffd67cb3-d2f2-4048-8b6f-702d4c7d4f24",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "00a2dc8a-76e9-4a99-88c7-eec3dcb71f18",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c83fce3d-1343-480b-987c-b0860078bdc0",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e8abef5b-21c4-415a-a45d-37621fd9d7c5",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 10,
+    "costPrice": 40
+  },
+  {
+    "id": "97438135-24a8-4e8a-bfa4-12aa4b6833f4",
+    "name": "Bory Splash cereja fases",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "02ece3a4-d785-4069-8f31-65d3a172a99f",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "22ca7fd4-70fd-486d-9c59-d8d039cad3b2",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "484f02ff-d790-45b4-b039-2b4832313ea4",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2c8bb080-e71a-4976-b8ae-a27236c4df52",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "a064dede-4a76-450d-95a0-ed1d47d34575",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f1eb41ee-ea79-48b0-afdc-b0e94e74e339",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "fed1ae20-81cd-4ad2-8d93-5aae142a3d7b",
+    "name": "Natura - Todo Dia - Ameixa & Flor de Baunilha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "1763a5e4-9c9d-4e82-8c6d-4cbdea0480de",
+    "name": "Natura - Naturé",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "78ffbd61-2fb2-4e3c-ba77-307ffb6a3d4c",
+    "name": "Natura - Naturé - Lisos e Ondulados (Azul Claro)",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "8102689a-90fe-4308-a6c6-2e4d1f18c30c",
+    "name": "Natura - Naturé - Lisos e Ondulados (Azul Claro)",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "58d15edf-2505-4a9f-a06b-f7784f21d0bf",
+    "name": "Natura - Naturé - Cabelinhos no Sol (Verde Água)",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "aa5d7111-f206-40fe-ba05-3787a4305976",
+    "name": "Natura - Naturé - Cabelinhos no Sol (Verde Água)",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "06844fff-3468-48e0-b8a6-9ca22477f869",
+    "name": "Natura - Naturé - Azul Escuro",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "4eae4538-8e8e-43fa-96f7-d2c22064bda2",
+    "name": "Natura - Naturé - Cacheados e Crespos (Verde Escuro)",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "0ed82725-7702-454e-b377-849e3add2a2a",
+    "name": "Natura - Naturé - Cacheados e Crespos (Verde Escuro)",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "5cfcf80f-e6eb-4954-b5e1-afba4edad5e1",
+    "name": "Natura - Naturé - Magenta",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "00225dc0-0b78-49ee-ade9-209ffa9bf150",
+    "name": "Natura - Naturé - Cabelinhos no Sol (Verde Água)",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4c91231c-7020-4568-93cb-2b01e525bd68",
+    "name": "Natura - Naturé",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b5bbf361-f1e4-4cd4-bcff-839e378e5603",
+    "name": "Natura - Naturé - Verde Escuro",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5b608e37-e960-4cc7-ae9b-c93695e85c9b",
+    "name": "Natura - Naturé - Azul Escuro",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "973b97be-f2cf-4b0c-a5d8-eaecc904c6f8",
+    "name": "Natura - Naturé - Verde",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b59d6767-f0ea-4745-8b13-474d9d639e1a",
+    "name": "Natura - Naturé - Marrom",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2aec009a-b573-446f-afbf-78643e687389",
+    "name": "Natura - Naturé - Festa no Mar",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "33f8667e-d21e-486d-bb53-960a3176895f",
+    "name": "Natura - Naturé - Cata Vento",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a53afa89-3e03-49fd-b29d-4be75820ebca",
+    "name": "Natura - Naturé - Pique Pega",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a04ffa06-6a46-4ad7-9eeb-82743b714a1e",
+    "name": "Natura - Naturé - Subindo na Árvore",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "cdcb0d22-53dd-4ae7-ab6b-1673cfe3088d",
+    "name": "Natura - Naturé - Babacu e Pantenol (Vermelho)",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5943c01e-1439-4eac-bdc7-5d8651b19edb",
+    "name": "Natura - Naturé - Magenta",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "aa2a7420-56c6-4284-950e-4c88cb59c96e",
+    "name": "Natura - Naturé - Azul Escuro",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "1cea86c2-9863-4f3e-be91-340d54b7b673",
+    "name": "Natura - Red - Red",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f9084698-ec79-4c50-8762-a15f9750bded",
+    "name": "Natura - Seve - Amêndoas Doces",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6dc5beba-4294-4c74-96ed-921149f804d3",
+    "name": "Natura - Seve - Pimenta Rosa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "781ef830-cbe3-41d7-b1d4-cc9d61284e55",
+    "name": "Natura - Seve - Amêndoas Doces",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "bf838cad-1ea1-4c0b-a86b-362bf1808a51",
+    "name": "Natura - Seve - Pimenta Rosa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "9fba72f1-3830-45e6-b013-83707bc59167",
+    "name": "Natura - Seve - Amêndoas Doces",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7e7d7878-b3ac-484a-81ae-bef321b219b9",
+    "name": "Natura - Seve - Pimenta Rosa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6a67f671-832f-41db-9576-27391ca14395",
+    "name": "Natura - Todo Dia - Ameixa & Flor de Baunilha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "71e31247-c8eb-45ec-b3c2-979fcbd5d3b3",
+    "name": "Natura - Todo Dia - Ameixa & Flor de Baunilha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "bfc38136-665f-4d64-b1ab-f553e9fb6a80",
+    "name": "Natura - Sr. N",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "33485047-f254-458f-8a07-a3ed219e0d75",
+    "name": "Natura - Todo Dia - Alecrim e Sálvia",
+    "stock": 10,
+    "costPrice": 25.85
+  },
+  {
+    "id": "0d8373ef-5fac-4620-97fa-6e39a0b44c7c",
+    "name": "Natura - Todo Dia - Amora e Flor de Pêssego",
+    "stock": 4,
+    "costPrice": 25.85
+  },
+  {
+    "id": "6c89947d-8bf3-4d99-81ef-4b605b0eac33",
+    "name": "Natura - Todo Dia - Boas Vibrações (redondo verde)",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "28e20236-6232-477a-9f72-23003b10ae4d",
+    "name": "Natura - Todo Dia - Caixa quadrada grande (corações na caixa)",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "0377fc3a-86ff-461c-892c-66d09949ee71",
+    "name": "Natura - Todo Dia - Algodão",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "771e30b1-9f3f-4016-bdf0-06f8a5462eb6",
+    "name": "Natura - Todo Dia - Flor de Pêssego",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d1c08bd1-7771-4777-987c-eed74554754e",
+    "name": "Natura - Todo Dia - Flor de Pêssego",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "72daaea1-34d3-44fa-bcd0-77c8f55c10e7",
+    "name": "Natura - Todo Dia - Maçã Caramelada",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "9cfc21ab-295f-46ce-8573-b59bd36b0dc4",
+    "name": "Natura - Todo Dia - Algodão",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "79b44773-0996-4062-a6c0-135c515b633a",
+    "name": "Natura - Todo Dia - Cereja e Avelã",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e19a9b65-bdc6-4b26-864a-4dbec2de5dc5",
+    "name": "Natura - Todo Dia - Ameixa e Flor de Baunilha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7ed58b43-8daa-4cde-bc8d-d63a3ac7634a",
+    "name": "Natura - Todo Dia - Limão Siciliano e Flor de Gardênia",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6333b86c-8d44-4542-bf72-35f45c907ea1",
+    "name": "Natura - Todo Dia - Macadâmia",
+    "stock": 2,
+    "costPrice": 133.33
+  },
+  {
+    "id": "8d65c04e-70a3-4a20-9118-6e197ada97c6",
+    "name": "Natura - Todo Dia - Framboesa e Pimenta",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "01fccc72-8cae-43d2-aebc-680742257663",
+    "name": "Natura - Todo Dia - Noz Pecã e Cacau",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6da9ec0b-1670-4b73-81de-1c5348144d6a",
+    "name": "Sabonete liquido intimo  cereja livre",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "4e17119e-95da-4e79-8694-c80e53a5c371",
+    "name": "O Boticário - Boti Baby",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "5d7e0b75-960a-4aa6-bf21-0f8f225f9e46",
+    "name": "O Boticário - Boti Baby",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "22b63aa0-ee58-4bb4-9d32-fd3333c72901",
+    "name": "Natura - Todo Dia - Noz Pecã e Cacau",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3aa0af93-94b9-497c-9ce7-a3e8fc25665d",
+    "name": "Natura - Todo Dia - Flor de Pera e Melissa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ac56f717-9a1c-4ba3-b104-54d4d43b212b",
+    "name": "Natura - Todo Dia - Cereja e Avelã",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "030e5f9d-cab8-438a-9028-f15743a108de",
+    "name": " Kit her code trad hidrat 200ml",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "63d821a7-1604-40dd-bca8-7eb5227493b0",
+    "name": "Natura - Todo Dia - Amora e Óleo de Coco",
+    "stock": 2,
+    "costPrice": 29.56
+  },
+  {
+    "id": "4c23e8a8-f1a1-4533-af2d-cb9d65c03162",
+    "name": "Natura - Todo Dia - Pessego e Amendoa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4d3ef902-b264-42fb-97d5-0f0520b2b69d",
+    "name": "Natura - Todo Dia - Pessego e Amendoa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7e3737ec-c45f-4d98-a605-c48664e000c9",
+    "name": "Natura - Todo Dia - Pessego e Amendoa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2da2567d-9941-4f65-939c-b51982e72946",
+    "name": "Natura - Todo Dia - Noz Pecan & Cacau",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "a204d8e0-efbb-4bb1-b4ad-ed40d3b19770",
+    "name": "Natura - Todo Dia - Invisível Sem Perfume",
+    "stock": 5,
+    "costPrice": 0
+  },
+  {
+    "id": "e3080e2d-c89e-4a27-bcef-281ec71d96bd",
+    "name": "Natura - Todo Dia - Leite de Algodão",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "64b10a95-8039-4eb9-9127-f302ec583bc8",
+    "name": "Natura - Todo Dia - Flor de Lis",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c6f61e7e-b6f9-49d1-ac24-ec68253ef8f1",
+    "name": "Natura - Todo Dia - Sortidas caixa coração pequena",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "607958f5-0793-48b6-bd58-2a2c0ec31210",
+    "name": "Natura - Todo Dia - Ameixa & Flor de Baunilha",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "8fd091b7-0f9b-4bc4-9072-3b94d7206ae6",
+    "name": "Natura - Todo Dia - Ameixa e Flor de Baunilha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ca532bdd-a938-4f7a-9849-72c99b4977c4",
+    "name": "Natura - Tododia - Jambo Rosa e Flor de Caju",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8b40f055-cec9-4265-b11f-023023fa3838",
+    "name": "Natura - Tododia - Ameixa e Baunilha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2a2aa8c3-be60-47f2-a4ac-ea9b03d834a8",
+    "name": "Natura - Tododia - Ameixa e Baunilha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f987a0ae-2250-4c17-84bf-d14aa1133096",
+    "name": "Natura - Tododia - Amora e Jabuticaba",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "be26164f-4cce-44fd-8b31-fcf26b0672d4",
+    "name": "Natura - Tododia - Avelã e Cassis",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7f384892-4863-4768-8823-96ebf9ffa966",
+    "name": "Natura - Tododia - Ameixa",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "303429c0-1bff-46bb-b83b-eb0a92e0c7b7",
+    "name": "Natura - TodoDia - Chá de Camomila e Lavanda",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4aa1c622-b53a-47d1-9fa3-72694ef7c475",
+    "name": "Natura - TodoDia - Chá de Camomila e Lavanda",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a8439783-7f61-4838-ab37-b685966fd26f",
+    "name": "Natura - TodoDia - Macadâmia",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "806e2820-1819-4c3a-9a0b-39b9358324a9",
+    "name": "Natura - TodoDia - Capim Limão e Hortelã",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5297090e-8cf9-4793-8dd7-42d4757e0da5",
+    "name": "Natura - TodoDia - Ameixa e Flor de Baunilha",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "3b4c22c1-b749-4631-8807-b40f638a379f",
+    "name": "Natura - TodoDia - Ameixa e Flor de Baunilha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "67a37c73-6ff8-4762-82df-53fd4c936535",
+    "name": "Natura - TodoDia - Framboesa e Pimenta Vermelha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "769808e1-620a-4525-9428-b4e1f828dfae",
+    "name": "Natura - Todo Dia - Macadâmia",
+    "stock": 1,
+    "costPrice": 58.44
+  },
+  {
+    "id": "e2b204d5-df59-4d45-be96-c50fbbde4e2d",
+    "name": "Natura - TodoDia - Ameixa e Flor de Baunilha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b4ab3ba5-edc4-493f-b865-4d1c940b3875",
+    "name": "Natura - TodoDia - Sabonete Íntimo Suave Conforto",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "11d0decf-afbb-42cd-a0a8-a0d0dbf712c1",
+    "name": "Natura - Tododia - Tâmara & Canela",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "916a6b7c-dde8-4b59-b6f6-75179a622de2",
+    "name": "Natura - Tododia - Acerola e Hibisco",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "02e40185-c2c3-49be-be53-caee9932d4af",
+    "name": "Natura - UNA - Senses",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "bdb1f5d9-5c81-4072-b329-d7428f996937",
+    "name": "Natura - UNA - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "92278331-afc1-4ca0-bc41-467c4648c843",
+    "name": "Natura - Kaiak - Urbe",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "a6b2c74e-7920-4fa9-9ce9-0bed48c20a3e",
+    "name": "Natura - Crer pra Ver",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c60b1f79-2575-47f3-89e2-0ac90a2a1a59",
+    "name": "O Boticário - 214",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "42f091e8-75dc-4125-a945-1da39841c84d",
+    "name": "O Boticário - 214 - Dark Mint",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6c17bc08-d65d-423d-be0d-1308cedee60a",
+    "name": "O Boticário - 214 - Golden Gardênia",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a2fcbfda-c231-40a4-9325-05d064ad1cdd",
+    "name": "O Boticário - Accordes - Harmonia",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "bf6a5de8-1dce-47fe-b4c9-19872f99c8bd",
+    "name": "O Boticário - Arbo - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a1a49a71-4a86-4054-adaa-00fa1226cccf",
+    "name": "O Boticário - Arbo - Reserva",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "792b35ed-aef5-4aeb-b0d6-cc9135e776a1",
+    "name": "O Boticário - Arbo - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "caa041ac-9715-4f3f-b44d-0ef411474ace",
+    "name": "O Boticário - Arbo - Botanic",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "759c19f1-4ae9-4e66-9fbf-2460c54875cb",
+    "name": "O Boticário - Arbo - Reserva",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f07cabef-5ecd-4f16-bb26-7184578af5b1",
+    "name": "O Boticário - Boti Baby - Suave",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "818e6b5f-47b4-496d-9051-078bdd950541",
+    "name": "O Boticário - Boti Baby",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "32bcf3fc-9faa-49be-8839-f78cca4d9c32",
+    "name": "O Boticário - Boti Sun",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "1ab0e6f3-fa66-4ed4-9e58-50a256635c8e",
+    "name": "O Boticário - Boti Sun",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a873e93c-6efc-480d-b400-3829e3af79ce",
+    "name": "O Boticário - Boti Sun",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "c21327c8-165a-4ede-89a4-276bf343ec64",
+    "name": "O Boticário - Boti Sun",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "19ce488c-817d-4e2a-9fa8-247960311c33",
+    "name": "O Boticário - Boti Sun",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c32150e1-30fa-49a9-bfee-a7fd4ff45573",
+    "name": "O Boticário - Boti Sun",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c0f5f0a6-311c-4a25-aa90-465cf94b01e9",
+    "name": "O Boticário - Boti Sun",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "0f304d88-21dd-42ce-b0b2-e6b9db47262b",
+    "name": "O Boticário - Boti Sun",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "c39cfcc3-481c-4458-b27a-447276d6c218",
+    "name": "O Boticário - Botik",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "706f2550-4159-4ebb-bdc4-1fb0d5930f7b",
+    "name": "O Boticário - Botik",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "9eceb3a5-a8ee-45f4-9b10-afc3dbe2311f",
+    "name": "Hidratante her code trad pote 250 g",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7dad70a2-a899-4b61-ba4c-74a18cccb845",
+    "name": "O Boticário - Celebre - Sua Força",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "1ae8dc99-342e-4df8-8fca-cae1be223445",
+    "name": "O Boticário - Celebre - Celebre Agora",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b3e5f07d-7e1c-40cf-9478-7aa1d4bb8cee",
+    "name": "O Boticário - Clash - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ffd7f5e4-1b1e-4421-bc3e-0a23e7323d7a",
+    "name": "O Boticário - Clash",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "14e9947c-cf98-4479-972e-1813fcf930ab",
+    "name": "O Boticário - Clash",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "355b3b7d-7399-4792-982f-6c5743386e5b",
+    "name": "O Boticário - Clash",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a4ecc8e9-7173-412f-babf-693b014214b2",
+    "name": "O Boticário - Clash",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f472aaef-58b2-4a50-855f-382e443eabb7",
+    "name": "O Boticário - Clash",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b0a3b9f0-e52d-4243-b56f-3e14ea2a9153",
+    "name": "O Boticário - Club 6 - Voyage",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2ced076d-631c-425b-a149-ca2315817c10",
+    "name": "O Boticário - Club 6 - Tradicional",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "b887df07-afa9-4e74-97a1-c400c7387b35",
+    "name": "O Boticário - Coffee woman - Seduction",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "ad2932a3-1a96-463a-93f5-909c39a150a9",
+    "name": "O Boticário - Connection",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "aac17bfc-1be4-4abb-8d9e-71a84fe24b9e",
+    "name": "O Boticário - Connection",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "60ebfbe0-3183-4c0f-bb1b-7624723864d3",
+    "name": "O Boticário - Cuide-se Bem - Biscoito ou Bolacha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "557c3945-9769-4275-a69d-f6f9a069c110",
+    "name": "O Boticário - Cuide-se Bem - Deleite Chocolatudo",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e9d7fb2e-c754-4d5e-8a23-1f3d52e8f874",
+    "name": "O Boticário - Cuide-se Bem - Deleite",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ba4d2538-c34f-430b-bc4b-a44529445d01",
+    "name": "O Boticário - Cuide-se Bem - Deleite",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "13e7f4a8-2dd7-497f-89d5-77398a4f435b",
+    "name": "O Boticário - Cuide-se Bem - Nuvem Cloud",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "142599f4-4ca5-40f0-a0b7-4d19a81ba30b",
+    "name": "O Boticário - Cuide-se Bem - Nuvem Cloud",
+    "stock": 2,
+    "costPrice": 40.67
+  },
+  {
+    "id": "a4554d57-13bb-4321-a1aa-6621bd84b1ea",
+    "name": "O Boticário - Cuide-se Bem - Nutrição e Brilho Manga",
+    "stock": 2,
+    "costPrice": 22.15
+  },
+  {
+    "id": "f6a8507b-4dec-4f71-aafd-68ca0b986090",
+    "name": "O Boticário - Cuide-se Bem - Beijinho",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "6247a13d-6097-4c44-8968-c97e6e8d99e0",
+    "name": "O Boticário - Cuide-se Bem - Zero Alumínio",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "59ebe3fd-9a01-4a85-8907-15dc5f358d58",
+    "name": "O Boticário - Cuide-se Bem - Invisible Protect",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "10232b22-8216-4caf-8adf-b2903baf0cab",
+    "name": "O Boticário - Cuide-se Bem - Deleite",
+    "stock": 5,
+    "costPrice": 0
+  },
+  {
+    "id": "b3d5769b-a04c-4376-864a-36689b8c2055",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ce34eb0b-b200-45e2-acf0-53ae3ecdfed6",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "119784cc-4bb3-4ad8-93e2-07756676f31e",
+    "name": "O Boticário - Cuide-se Bem - Nuvem Alegria",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b9314a0a-db2b-4137-848b-33473f9b0c46",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3e9088b5-064e-4b95-b7a9-ea472c530c3d",
+    "name": "O Boticário - Coffee Man - Duo",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "e3764448-56d7-4561-9568-e32ada95d7e4",
+    "name": "Natura - Todo Dia - Macadâmia",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "5bfc8025-55fd-4f23-a89d-d00f4e52b72a",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "0efa9233-dd65-4b14-a48a-83722fed12cf",
+    "name": "O Boticário - Cuide-se Bem - Bob Esponja",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b8a6068f-605a-464e-b9e4-7a2beb4ab8f7",
+    "name": "O Boticário - Cuide-se Bem - Bob Esponja",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8867d14a-df7b-45de-8149-ddb367c9f89b",
+    "name": "O Boticário - Cuide-se Bem - Rosa e Algodão",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8e265750-eca8-49af-a6c8-0e6dfd7f52b5",
+    "name": "O Boticário - Cuide-se Bem - Protect & Beauty",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5dcf3f5c-9443-4dd5-8627-87ed904a7943",
+    "name": "O Boticário - Cuide-se Bem - Boa noite",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "9094d0a5-f36c-4dd8-93bb-7c49e1b9a786",
+    "name": "O Boticário - Cuide-se Bem - Deleite",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "76090027-4903-44fd-bb93-69504f8b0892",
+    "name": "O Boticário - Cuide-se Bem - Algodão & Jasmim",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "af9875c6-819d-4c77-a832-4ef30d67fa32",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d15b6d5b-e7e6-4b1e-8b1d-9e06bc5d59cb",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ee4984b1-1fe1-4c29-907d-90f371e9b304",
+    "name": "O Boticário - Cuide-se Bem - Sortidos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "38fb3b8c-c244-4f11-adf7-07a88529330e",
+    "name": "O Boticário - Cuide-se Bem - De leite",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "4284f8f4-fb1a-4ee8-b709-7a453c068994",
+    "name": "O Boticário - Cuide-se Bem - Deleite Chocolatudo",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6b6f94dd-a2cf-4436-ba50-24e8bb3ec260",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ae064499-1407-4d95-b80b-1df8269649c3",
+    "name": "O Boticário - Cuide-se Bem - Nuvem de Alegria",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "facbc734-8749-4645-aabe-06e6d919a5ec",
+    "name": "O Boticário - Cuide-se Bem - Algodão Doce",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "3c0df459-d54f-4764-914f-404ae4042e4f",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "085fcec1-6936-42e3-b719-4dcc0a388a67",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "4e7e31e7-133d-444d-94e5-6df65517a43e",
+    "name": "O Boticário - Cuide-se Bem - Beijinho",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "202277c5-6ef9-4cdd-a002-193487430ff6",
+    "name": "O Boticário - Cuide-se Bem - Deleite",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "99644741-d33b-4984-bd29-99e6d0293e70",
+    "name": "O Boticário - Dr. Botica - Porção Aventura",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5af48885-df20-499e-8ff5-0269aeb48c11",
+    "name": "O Boticário - Dr. Botica - Poção das Bolhas",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b0f61ea8-4466-48be-af30-e04a1f8440d3",
+    "name": "O Boticário - Dr. Botica - Poção das Nuvens",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "4b4cd26c-3631-4840-9c90-077ca1d714b0",
+    "name": "Shampoo refrescante next 230ml",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "4acd9fb0-b03a-4117-a81f-c7491cbf763b",
+    "name": "O Boticário - Dr. Botica - Poção Tira Nó",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "295e8e0e-e78e-404e-9b3b-677bd92f943e",
+    "name": "Spray intimo Cuide-se Bem - Cereja Livre",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "9439cc8f-28f6-4739-90f8-186ed2e173ff",
+    "name": "Pasta modeladora capilar next",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d7b0c721-9980-47d6-9b36-eb0a8abf5703",
+    "name": "O Boticário - Dr. Botica - Poção Liso",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "0e02460f-784b-4dc6-9b01-d61f2df3f52c",
+    "name": "O Boticário - Dr. Botica - Poção da Espuma  Liso",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "de6e480d-9380-4b02-85e7-ac88c32dfd3b",
+    "name": "O Boticário - Dr. Botica - Poção do Brilho",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3a5c0e85-8279-44ca-92f3-218ea76ffa6f",
+    "name": "O Boticário - Dream - Céu de Baunilha",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "cecf21f4-208f-4eb0-a0f8-df68e18aa80a",
+    "name": "O Boticário - Egeo - Dolce",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f720ac9d-8cf0-4360-b860-88bab62b7350",
+    "name": "O Boticário - Egeo - Dolce",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "e764adfe-20f2-4285-ae9f-e7d16f85a94c",
+    "name": "O Boticário - Egeo - Choc",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "53123633-47b2-48d1-b140-1410d6e55f6d",
+    "name": "O Boticário - Egeo - Dolce",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b346b4d0-f550-49a4-8a41-41020f6d5092",
+    "name": "O Boticário - Egeo - Dolce",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f8a08fd1-9962-4eb8-9bda-047509c2ec5f",
+    "name": "O Boticário - Egeo - Choc High",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3a0146c0-27bb-47b8-a7cf-e515aca8d41c",
+    "name": "O Boticário - Egeo - Choc",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a9ad48fc-671c-4314-ab5c-04f6a26e3f5d",
+    "name": "O Boticário - Egeo - Original Masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "24eab054-be29-41ae-9624-239bb5420c47",
+    "name": "O Boticário - Egeo - Bomb Black",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "eb100537-6045-411c-be8b-85fb403092c6",
+    "name": "O Boticário - Egeo - Original",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "cc17656a-69c2-4489-8c53-9390aba4063b",
+    "name": "O Boticário - Egeo - Choc High",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "981ea773-ee2e-494e-b32c-35027e1eacc9",
+    "name": "O Boticário - Egeo - Blue",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a7ba7b3e-3c13-46f1-b63d-eed8fb0b38ab",
+    "name": "O Boticário - Egeo - Blue",
+    "stock": 5,
+    "costPrice": 0
+  },
+  {
+    "id": "ae4e43c0-ab57-4139-a13b-0168feb28572",
+    "name": "O Boticário - Elysée - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "628f605b-75a8-4156-ac8e-efd0db5bc7d7",
+    "name": "O Boticário - Floratta - Rose",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "85115be9-0524-4098-ab55-cc4fc564a511",
+    "name": "O Boticário - Floratta - Red",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "f40c582f-203f-4508-aac9-80e2b11b3ac9",
+    "name": "O Boticário - Floratta - Blue Rose Flores secretas",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "2290803b-49e0-456f-a07d-1c36eeed3264",
+    "name": "O Boticário - Floratta - Red",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "e5be3f6b-b380-469d-9969-6705d45c7f4c",
+    "name": "O Boticário - Floratta - Gold",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "9f5a7ac4-59e1-4015-a230-506f3a0e616d",
+    "name": "O Boticário - Glamour - Óleo Corporal",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "589f9e9c-f4eb-42c4-8256-6f2203c0a9f4",
+    "name": "O Boticário - Harry Potter",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "961c88b7-99d2-4c56-8aa7-904750b57675",
+    "name": "O Boticário - Her Code - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "14660891-1fdc-4fcd-9c9b-e52d7bd9a762",
+    "name": "O Boticário - Kriska - Jeans",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "832b07a4-ee60-4783-bf2f-c79c34861901",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f6ed74fd-cb7a-4024-974d-f3c0fa25e244",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "94a6d686-699c-4cfa-a1b4-aa93b7116121",
+    "name": "O Boticário - Dream - Viagem Encantada",
+    "stock": 9,
+    "costPrice": 0
+  },
+  {
+    "id": "4b85cacc-10a0-4836-b3d6-78e88e60f493",
+    "name": "Siage shampoo Men 250ml cachos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3a465762-389e-4e30-b012-5e1e13e6dc1e",
+    "name": "O Boticário - Lily - Soleil",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e2d06f2f-f146-40e9-a939-991e43c0d401",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f3f3c7c7-3644-463d-a95d-ffeb40a10ffd",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a4c4abcd-bcc3-45f5-8146-b023ce647768",
+    "name": "O Boticário - Lily",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "d736fb21-dc75-454d-9c8c-5490852e2dba",
+    "name": "O Boticário - Lily - Absolu",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "61fe12da-6192-428b-aed3-5e33103ac319",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "2ef221a2-0e8c-48f4-859c-f36fda43177c",
+    "name": "O Boticário - Lily - Lumière",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c9d4e6db-47af-43c8-a273-278a19bfa852",
+    "name": "O Boticário - Lily - Love",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "236c5b2d-8c0b-404b-b5ef-dc5c76e99ff1",
+    "name": "O Boticário - Lily - Soleil",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "853d8edc-f5f4-4486-9658-ba13093f5bf0",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2c616dee-bbd5-4ac1-ba83-18d494df2a86",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "74bc7f2d-5f4f-458b-b6eb-00f32267f5d3",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "6cf8e5a0-353f-4f86-9036-b77070695cff",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3a3c0695-b876-4563-9104-ceb0efa44042",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f8526839-6072-4af8-8a8e-0cd5b864b162",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ed56de68-c9ab-4130-9c71-5d6118f98e54",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a3015b89-f22b-4d75-adb3-8d19ce11fdb7",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2f3c52f0-908b-46d7-b337-66938c1682ee",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "dde7a4b1-48bf-4051-b203-32e0a9f17098",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "36a9d98d-20b9-4600-9d45-47c9d1e79ea7",
+    "name": "O Boticário - Lily - Love",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "331ebad1-6e5c-4366-ab21-c0aad399c83c",
+    "name": "O Boticário - Linda",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7f0f45d4-dd84-475f-ba90-bd9061d2aef9",
+    "name": "O Boticário - Liz",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a6ad3d88-ae0c-40a1-8323-66fc96c5cbed",
+    "name": "O Boticário - Liz - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8de4e78a-7335-434f-8866-8b0102951f30",
+    "name": "O Boticário - Liz - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "1470ba4d-5f9f-4720-b963-fd1bf78967e8",
+    "name": "O Boticário - Ma Chérie - Jeans",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "80deaaef-14e7-4c70-839a-66a4ca9a92aa",
+    "name": "O Boticário - Malbec - Tradicional",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "98dd7040-e2c4-41ee-b3c9-8b1b10b2c566",
+    "name": "O Boticário - Malbec - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ccdea6fb-ed9e-4f3f-bfe5-0e183c6a2e55",
+    "name": "O Boticário - Malbec - Tradicional",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "514e0e7d-6412-4cd8-9437-a52f317e11a7",
+    "name": "O Boticário - Malbec - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "bdf9a41a-7528-450f-97df-3e20187f345d",
+    "name": "O Boticário - Malbec - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "23228b50-8c26-4639-9a45-a49d2a561b0b",
+    "name": "O Boticário - Malbec - Tradicional",
+    "stock": 5,
+    "costPrice": 0
+  },
+  {
+    "id": "77e8a113-f213-4a2c-b0bf-f00e9aacb9f0",
+    "name": "O Boticário - Malbec - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "630dd485-f046-4a60-90e4-8babecf13a1a",
+    "name": "O Boticário - Malbec - Tradicional",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "a9df34b8-27e4-4111-8ac1-cc987a973a62",
+    "name": "O Boticário - Malbec - Tradicional",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "5ca570e0-f5dc-4d04-94b4-68d0c693212c",
+    "name": "O Boticário - Malbec - Icon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a72afaf6-69c4-45a2-b13c-a8dbf7a92268",
+    "name": "O Boticário - Malbec - Flame",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a72c165e-0112-448a-bed7-0f967dc63594",
+    "name": "O Boticário - Malbec - Gold",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "da3664aa-8634-4dba-9483-daa8910ec387",
+    "name": "O Boticário - Malbec - Club",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "43e5b84e-28c3-44ef-9426-c45b99f047b4",
+    "name": "O Boticário - Malbec - X",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "dd881d3f-dbf5-41cc-ad6b-83159ff4a547",
+    "name": "O Boticário - Malbec - Black Legend",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "31f8e5dd-cef5-4613-a151-a5c3e333efcc",
+    "name": "O Boticário - Malbec - Black Legend",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8917ea4b-81b1-4577-b199-1335025a810d",
+    "name": "O Boticário - Malbec - Black Legend",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "3467af8f-eb0b-44e6-8bfc-d640755216b1",
+    "name": "O Boticário - Malbec - Black",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "06fe6126-e979-498a-b7de-f3defb09c0d4",
+    "name": "O Boticário - Malbec - Club",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "9f48f3e9-78a2-43d9-a4fd-9d3eab19192b",
+    "name": "O Boticário - Malbec - Pure Gold",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "a37fae82-c83b-44b8-b83b-40b50c4aba41",
+    "name": "O Boticário - Malbec - Sabonete",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "feb027d0-9920-4a4c-92f5-a861e304d06a",
+    "name": "O Boticário - Malbec - X",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ceb8e94d-892a-4f0d-8a82-1b6597b1dbdc",
+    "name": "O Boticário - Match - Cachos",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "c06ba4d8-1d87-41d7-9cc0-26e23b48d95b",
+    "name": "O Boticário - MEN",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e6e2a1ee-3026-4707-a372-57788115cbbd",
+    "name": "O Boticário - MEN",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "086472c8-3940-4883-912d-5d47e5c2455b",
+    "name": "O Boticário - MEN",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b915f842-2ceb-4e56-91b4-4a79379a7381",
+    "name": "O Boticário - MEN",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "77e56062-47e0-451a-86ac-22e5bbe73a4d",
+    "name": "O Boticário - MEN",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "10b052a0-6944-4e80-a041-1b745680eb2a",
+    "name": "O Boticário - MEN",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "0ca6befe-6b3b-4c8d-93eb-fc3ac95fdbe6",
+    "name": "O Boticário - Nativa Spa - Cereja Rouge",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "31e005ea-a2a4-4e9a-b32d-b12753030dd2",
+    "name": "O Boticário - Nativa Spa - Cereja Rouge",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c9ddbfab-c1ac-4721-928f-b119976caec9",
+    "name": "O Boticário - Nativa spa - Ameixa",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "c414025b-cd8a-4dcd-847d-3e8683a9c340",
+    "name": "O Boticário - Nativa Spa - Grow Detox Noite",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "43d4dd1a-2ea7-49f6-a906-ef08d7f01d3f",
+    "name": "O Boticário - Nativa Spa - Ameixa Dourada",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "691d059b-533a-4849-a5be-1823f337be8f",
+    "name": "O Boticário - Nativa Spa - Ameixa Negra",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5bb89a12-f132-4dd7-88ab-51ca0acbe306",
+    "name": "O Boticário - Nativa Spa - Ameixa Negra",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e43404dd-aaba-47e9-9ccc-e428172988b9",
+    "name": "O Boticário - Nativa Spa - Orquidea Lumiere",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "57a3b970-ec62-41e8-a463-c14ac878a3fd",
+    "name": "O Boticário - Nativa Spa - Rose",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "188b744d-5259-4228-8849-3e75dae87efe",
+    "name": "O Boticário - Nativa Spa - Orquídea Noire",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ce4d69e5-554f-4777-a83d-1b6699a8f068",
+    "name": "sabonete ameixa negra ",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7899ad02-f47a-4b32-adab-3f124234b06d",
+    "name": "O Boticário - Nativa Spa - Ameixa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "fe5b3748-bb17-413c-a0c8-105f3f87853b",
+    "name": "O Boticário - Nativa Spa - Quinoa e Amêndoas",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5fc13e19-00c4-4fcf-828d-0cd8f0137287",
+    "name": "O Boticário - Nativa Spa - Ameixa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "bc0ef708-b518-49d5-ac35-61685273a7d8",
+    "name": "O Boticário - Nativa Spa - Quinoa & Amêndoas",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "bf3dc35d-35b0-490a-aef4-a03930227271",
+    "name": "O Boticário - Nativa Spa - Ameixa Negra",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e6136079-2fd5-451c-b943-3c1c0449ee22",
+    "name": "O Boticário - Nativa Spa - Ameixa Negra",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "0064def4-06b7-4704-b4fa-42741b6c2720",
+    "name": "O Boticário - Nativa Spa - Ameixa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "10086f87-afa6-419b-affd-6a0a9d3c1ebf",
+    "name": "O Boticário - Nativa Spa - Lilac",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "adea9592-42cc-4982-a2a4-0aca5d0a4d7f",
+    "name": "O Boticário - Nativa Spa - Rose",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3b8b2da0-a834-4a6f-911b-8c4f61c8b7de",
+    "name": "O Boticário - Nativa Spa - Óleo de Amêndoas",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "c4a84a9d-a70a-463e-8d66-e0f858f6833b",
+    "name": "O Boticário - Nativa Spa - Ameixa",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7496b835-8ee2-4f24-8dca-f32cd9d45f47",
+    "name": "O Boticário - Nativa Spa - Ameixa & Flor de Baunilha",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "bded8813-36d1-46b4-8976-2dabba37ee66",
+    "name": "O Boticário - Nativa Spa - Cereja Rouge",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "05768cd7-f847-40f0-be46-45d61acde244",
+    "name": "O Boticário - Next - Spider-Man",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "9d239824-3da7-4d76-8cae-08087b4ae390",
+    "name": "O Boticário - Portinari",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "0fd8c75f-b46f-4612-a6e8-9a410ccb2b68",
+    "name": "O Boticário - Portinari",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b3e9d5b6-e701-4e23-8b8e-1e8bea3be531",
+    "name": "O Boticário - QDB - Harry Potter",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "9c7e8085-0cd7-4d57-b8ac-3b969d51d15f",
+    "name": "O Boticário - Quasar - Sua Força",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4f788622-1ac4-43e2-a923-ea3a57a425fc",
+    "name": "O Boticário - Quasar - Next Spider Man",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c2f534e1-a549-4d13-a90c-6dbd8c09e019",
+    "name": "O Boticário - Quasar - Next",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "c3010c3c-4382-4c8d-88f3-78a4d60c498a",
+    "name": "O Boticário - Sophie - Spider Gwen",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "38fb53e0-d167-4e14-a21f-728096d33733",
+    "name": "O Boticário - Sophie - Disney 100 anos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2b67a311-a987-4179-a707-ca65edc95ba2",
+    "name": "O Boticário - Styletto",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "94dc9377-f2c7-46da-9edc-cbee4f2108d1",
+    "name": "O Boticário - The Blend",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "9d1e9bd6-6ad4-419d-833e-a7b65ffe8d24",
+    "name": "O Boticário - The Blend",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "c17a60fd-5a69-4e1a-b30f-ecc6e5595664",
+    "name": "O Boticário - Uomini - Black",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "54bc9ee9-1942-49eb-bd95-afbcfbb446e9",
+    "name": "O Boticário - Zaad - Intense",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "926e315a-0642-4af2-be3d-0184dee22311",
+    "name": "O Boticário - Zaad - Tradicional",
+    "stock": 8,
+    "costPrice": 0
+  },
+  {
+    "id": "f1ee5582-5658-40c0-a92c-933df6395bb8",
+    "name": "O Boticário - Zaad",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "44c1926b-ae47-4fb7-8a2b-66d572e6fbf6",
+    "name": "O Boticário - Zaad",
+    "stock": 8,
+    "costPrice": 0
+  },
+  {
+    "id": "22511a49-6490-46e5-9910-09abb84ec3ea",
+    "name": "O Boticário - Zaad - Intense",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "fed2fd03-0b5c-412e-af18-0106c4b951ab",
+    "name": "O Boticário - Zaad",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "d4d351a0-d117-491d-aa5c-bce6bf65a085",
+    "name": "O Boticário - Zaad",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "403c674e-a85c-46be-b095-10c29ac50b88",
+    "name": "O Boticário - Zaad - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4dd21438-c3b6-42ef-b388-0e47034c7e70",
+    "name": "O Boticário - Sabonteira Banheira",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "23684ee7-5c90-4465-b32a-e58c7829b212",
+    "name": "O Boticário - Nativa Spa - Ameixa Negra",
+    "stock": 22,
+    "costPrice": 50.3
+  },
+  {
+    "id": "ed9e8e2f-3cef-49fe-ab7f-325e2f81a529",
+    "name": "O Boticário - Nativa Spa - Ameixa",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "fbcf6b85-c46c-4343-bc1a-22f13b56a576",
+    "name": "O Boticário - Zaad - Expedition",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7f5b4e95-32b0-438b-bf8a-6823e8f05e1f",
+    "name": "O Boticário - Zaad - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "d12919c6-6ccd-4a04-b54f-f690bc0b55b2",
+    "name": "O Boticário - Zaad - Tradicional",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "e7c2366a-500f-423b-b348-1231a78ff1fa",
+    "name": "O.U.I - La Villette",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2b7ce1fb-47b0-4237-8317-3a52c21b127d",
+    "name": "O.U.I - Scapin",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "feeba2eb-2e51-4c40-ad6f-9e684bb995aa",
+    "name": "O.U.I - Madeleine",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "0c9b0eed-6cf1-4da3-9796-ecf638c233bb",
+    "name": "O.U.I - Jardin de Grasse Rose",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "0157f56d-4d81-46ea-a025-6fc68da75096",
+    "name": "O.U.I - Jardin de Grasse Sauge Blanche",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "7916fb86-cbd4-4ac7-ba36-d2c159d43522",
+    "name": "O.U.I - Jardin de Grasse",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "66af0e78-7345-48fe-814d-8651bf254fb0",
+    "name": "Sabonete liq 2em1 cereja fases corpo e rosto",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5c540450-002f-44b4-b67a-1badc523f5f8",
+    "name": "hidratante corporal cereja livre 200ml",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8d01c960-2be2-4b26-ad7f-6731b9a8ee0a",
+    "name": "Antitranpirante em creme erva doce",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "f6e4438b-92a2-4c7b-875c-9447269e4c87",
+    "name": "O Boticário - Liz - Intenso",
+    "stock": 3,
+    "costPrice": 55.48
+  },
+  {
+    "id": "2f1bebcf-e697-4091-8de4-71d63e431c46",
+    "name": "Protetor solar facial stick FPS 50",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4dd192b3-e1c1-4e27-b50d-77397b31eb81",
+    "name": "Natura - Todo Dia - Amora & Flor de Pêssego",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "52f6334b-07c4-442a-8c78-1b221fc7b892",
+    "name": "kit mamãe b shampo/cond/ 2 sabonetes",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "4833dde7-17f2-4fa8-a5a6-288f06d8b091",
+    "name": "Hidratante glamour secrets black",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "29a0772f-d0f8-46f0-9e05-d75021b67c21",
+    "name": "Natura - Naturé - Magenta",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a98fe85b-2807-4430-917e-6e77f21e959f",
+    "name": "Colônia aumigos",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "b7f91160-9fe1-4e7b-b3e3-155db4847846",
+    "name": "Lencol casal malha",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "1d1f5eab-7f9f-4c37-97d8-b3524c3dd09f",
+    "name": "Cortina Oxford 3 por 3",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f80809bb-be74-4159-92e2-1f64c5d1f491",
+    "name": "Colônia Petit libelulle",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "910b867f-1acc-4a05-9b59-9973532eb366",
+    "name": "Demaquilante avon",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "b95fb4c1-a7d8-43c5-8354-a77c639a74f4",
+    "name": " Sabonete todo dia flor gengibre e tangerina",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ea702052-e653-4034-b480-6fed8b43c244",
+    "name": "Eudora - Siàge - Liso",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "929a1a72-2fbf-4bcf-965b-e5b69f122034",
+    "name": "Kit ekos cacau ",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "53d989cd-8ce0-47b1-9462-2305e0b27758",
+    "name": "O Boticário - Dream - Amor no Ar",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "fb4fce2d-ce96-4119-8886-bf192b953294",
+    "name": "Eudora - Siàge - Acelera Crescimento",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "3e8c9e9e-be36-40f3-9c9c-20b7ace2d7ae",
+    "name": "Kit talher frozen",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "1bfc02fa-11fa-4e0d-b387-4d3fdf70a6a6",
+    "name": "Garrafa infantil Frozen ",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "f5828602-dbbd-4e9d-a9e7-1c5c8a912d58",
+    "name": "Sabonete esfoliante facial clearskin",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "b036748a-a5c5-4d33-857e-02caf362c451",
+    "name": "Colonia infantil care baby",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "8b38f4ad-6961-4043-89f4-12303e51d783",
+    "name": "Eudora - Siàge - Acelera o Crescimento",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "d387ec01-e760-460a-942f-fc7f4ae0c3ec",
+    "name": "Eudora - Siàge - Acelera o Crescimento",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2626b04b-b1ce-4f12-82f8-ff89f0e45ea4",
+    "name": "Eudora - Siàge - Hidratação Intensa Men",
+    "stock": 2,
+    "costPrice": 32.59
+  },
+  {
+    "id": "b34dfb40-8194-4c6c-8132-a8c7b7fb56ab",
+    "name": "Eudora - Impression - In Black",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "2951f088-5984-400e-baa1-fe244227c587",
+    "name": "Eudora - Siàge - Glow",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "7dad14c7-944e-4a99-8cb0-31cb154bb88c",
+    "name": "Avon - Care Baby",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "59f8c247-9b0b-493f-839b-2879ad2de654",
+    "name": "Avon - Care Sun",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "6d6ef0bb-c4ee-4835-9249-1f43220a3664",
+    "name": "Natura - Ekos - Maracujá",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f10a62b2-01fd-424a-aed0-e36986c735cc",
+    "name": "Natura - Luna - Blush",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a5ef97e1-dbf1-421c-94a7-8cd6be0cb146",
+    "name": "Natura - Mamãe e Bebê",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "79f13ec3-4df7-47b6-8011-c06d06ffbdc1",
+    "name": "Natura - Todo Dia - Algodão",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "6f7d1567-2485-4545-8dcc-bec7a5a77efe",
+    "name": "Natura - Todo Dia - Macadâmia",
+    "stock": 3,
+    "costPrice": 0
+  },
+  {
+    "id": "b15f03fc-7439-4967-891c-8f77dd4e30f7",
+    "name": "Natura - Todo Dia - Noz Pecan",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "83874509-80e7-4e66-8034-f8d9c2b71d37",
+    "name": "Natura - Todo Dia - Algodão",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "c42bbae7-a9b5-41e1-97f3-f85275d0e4ba",
+    "name": "O Boticário - Floratta - My Blue",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "27313fb0-6832-4220-a9d9-39e82a6377c6",
+    "name": "Avon - Care",
+    "stock": 4,
+    "costPrice": 0
+  },
+  {
+    "id": "04e2f53a-fa0c-4051-a116-c94267651ca5",
+    "name": " Protetor care kids Mickey fps 50",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "b9eb0b33-51e0-44af-9a58-65fd0e9eefe8",
+    "name": "Eudora - Siàge - Glow",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "428daca3-5f9a-4100-9945-0e9b3b390ea1",
+    "name": "Eudora - Siàge - Glow",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "f4053e92-d80e-4dcc-99de-1cbdb06e2bf6",
+    "name": "Gow",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "8161c2dd-d0ed-4de3-bbb3-89332f16ce97",
+    "name": "Natura - Kaiak - Tradicional",
+    "stock": 8,
+    "costPrice": 0
+  },
+  {
+    "id": "5f621b0a-9d32-4132-8f89-f8a304d43756",
+    "name": "Natura - Todo Dia - Flor de Pera e Melissa",
+    "stock": 2,
+    "costPrice": 58.44
+  },
+  {
+    "id": "ceebeaa2-c2d3-435e-a7f9-3de32d387572",
+    "name": "Natura - Todo Dia - Algodão",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "793e51c7-f879-4aa7-8ee1-3b2826ea2857",
+    "name": "O Boticário - Cuide-se Bem - Ameixa",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "2fb173c6-e380-4259-9495-43081374c4a5",
+    "name": "O Boticário - Glamour - Secret Black",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "ecb49799-2d32-4299-9969-d066c1d7934d",
+    "name": "Eudora - Instance - Karité",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "f53fa731-792c-4efa-909a-4861ed43ca1b",
+    "name": "Eudora - Siàge - Men",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "7f520051-1ef1-4f1c-98d4-25266ec155da",
+    "name": "Natura - Todo Dia - Amora Vermelha e Jabuticaba",
+    "stock": 6,
+    "costPrice": 58.44
+  },
+  {
+    "id": "ded0a7e9-a062-4168-abf3-c1e694ad57b2",
+    "name": "Natura - Todo Dia - Nuvem",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ba422a91-ab5d-4d87-8f3e-05fd8cd72eec",
+    "name": "O Boticário - Egeo - Vanilla Vibe",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "4f956f08-0779-4246-9e39-e325a86805f5",
+    "name": "O Boticário - Floratta - Flores Secretas",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "edc0349e-d522-4c89-84ab-f554e8340912",
+    "name": "O Boticário - Floratta - Blue",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "e8077669-d919-41e3-a3f3-0a5de1807782",
+    "name": "O Boticário - Glamour - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ae843fc5-e411-4279-bff1-bc6be34ee747",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "84db284e-ebe0-4574-bee1-4f302a86c086",
+    "name": "O Boticário - Lily - Perfumado",
+    "stock": 6,
+    "costPrice": 0
+  },
+  {
+    "id": "80a3797c-36ad-456f-a7c1-9fe318b1e182",
+    "name": "O Boticário - Match - Cachos",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "920e3263-0572-4764-b457-1f1eaff571a9",
+    "name": "Eudora - Instance - Baunilha",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "2316ca6d-597a-4bb5-913d-9eb637e9f115",
+    "name": "Eudora - Instance - Ameixa e Praliné",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "5ca1e323-2499-4776-8ea7-0826df2f3ee4",
+    "name": "Eudora - Instance - Frutas Vermelhas",
+    "stock": 0,
+    "costPrice": 0
+  },
+  {
+    "id": "1bbbe9a1-0431-4d71-aa5a-93d9db5360af",
+    "name": "Eudora - La Victorie - Intense",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "4bcfed4d-4214-47d7-869f-0169d6f9b9eb",
+    "name": "Natura - Ekos - Ryos",
+    "stock": 6,
+    "costPrice": 74
+  },
+  {
+    "id": "e67d8506-dbad-4f08-96a0-46db36472997",
+    "name": "Natura - Todo Dia - Manga Rosa e Água de Coco",
+    "stock": 5,
+    "costPrice": 58.44
+  },
+  {
+    "id": "a9b41b8d-b5a3-4294-8889-67037c994563",
+    "name": "O Boticário - Cuide-se Bem - Cereja Livre",
+    "stock": 4,
+    "costPrice": 55.48
+  },
+  {
+    "id": "c897b218-1083-4b29-9824-e4bc2a55efd6",
+    "name": "O Boticário - Cuide-se Bem - Algodão Doce",
+    "stock": 2,
+    "costPrice": 55.48
+  },
+  {
+    "id": "ad0a17d7-52e1-4dac-94cf-4106d304e2ae",
+    "name": "O Boticário - Cuide-se Bem - Pessegura",
+    "stock": 2,
+    "costPrice": 55.48
+  },
+  {
+    "id": "aac0320d-402a-4c27-97ad-ce9a8d918f80",
+    "name": "O Boticário - Cuide-se Bem - Deleite",
+    "stock": 20,
+    "costPrice": 44.37
+  },
+  {
+    "id": "fcd33b34-13e3-48a7-b9b1-e56201e0190b",
+    "name": "O Boticário - Cuide-se Bem - Boa Noite",
+    "stock": 6,
+    "costPrice": 44.37
+  },
+  {
+    "id": "19f72022-8f24-439b-88a0-5480418b58ec",
+    "name": "O Boticário - Cuide-se Bem - Beijinho",
+    "stock": 6,
+    "costPrice": 44.37
+  },
+  {
+    "id": "9edfb484-a43b-4d64-a0d8-56d289c7866b",
+    "name": "O Boticário - Elysée - Tradicional",
+    "stock": 4,
+    "costPrice": 74
+  },
+  {
+    "id": "c79dfceb-12bc-4db0-b74b-9afc48bc7fe1",
+    "name": "O Boticário - Elysée - Tradicional",
+    "stock": 5,
+    "costPrice": 107.33
+  },
+  {
+    "id": "b1acbd8b-dc40-47ca-afca-195f37387004",
+    "name": "O Boticário - Floratta - Gold",
+    "stock": 3,
+    "costPrice": 49.56
+  },
+  {
+    "id": "ade85bab-8b3c-4113-914e-a96380523047",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 6,
+    "costPrice": 74
+  },
+  {
+    "id": "af864d4b-99b5-4a4d-92d0-2ddad1adf1c2",
+    "name": "O Boticário - Match - Age Anti Oleosidade",
+    "stock": 2,
+    "costPrice": 35.48
+  },
+  {
+    "id": "a10d2156-0139-4983-be7a-5870ed6b44da",
+    "name": "O Boticário - Match - Pré e Pós Química",
+    "stock": 1,
+    "costPrice": 51.78
+  },
+  {
+    "id": "68177da1-1478-4037-ad26-6fa0e8c43e28",
+    "name": "O Boticário - Cuide-se Bem - Hidratação Abacaxi",
+    "stock": 2,
+    "costPrice": 19.19
+  },
+  {
+    "id": "68486913-3e80-4d40-9fdb-ee26c31d11f8",
+    "name": "O Boticário - Match - SOS Cauterização",
+    "stock": 6,
+    "costPrice": 35.48
+  },
+  {
+    "id": "235599af-60ea-453a-8c74-82e0de6d5488",
+    "name": "O Boticário - Match - SOS Cauterização",
+    "stock": 2,
+    "costPrice": 42.89
+  },
+  {
+    "id": "de7c7e32-8a32-4af0-a0a3-e158cb7a506f",
+    "name": "O Boticário - Match - Juventude dos Fios",
+    "stock": 2,
+    "costPrice": 34
+  },
+  {
+    "id": "b9c05222-e653-4251-a3a1-9f8e8785e8e5",
+    "name": "O Boticário - Match - Science Crescimento",
+    "stock": 4,
+    "costPrice": 34
+  },
+  {
+    "id": "1190e528-fb1a-47f0-a10e-6b9081f3b2ba",
+    "name": "O Boticário - Match - Science Crescimento",
+    "stock": 4,
+    "costPrice": 35.48
+  },
+  {
+    "id": "16e2fb84-b146-4f10-8fec-1ea88551238f",
+    "name": "O Boticário - Match - Science Crescimento",
+    "stock": 4,
+    "costPrice": 50.3
+  },
+  {
+    "id": "2a7c2c94-e91b-46da-99b1-93fd4bdfd29f",
+    "name": "O Boticário - Match - Pré e Pós Química",
+    "stock": 2,
+    "costPrice": 35.48
+  },
+  {
+    "id": "8f7697aa-85d0-427b-b7dc-2c3ff10dfc5f",
+    "name": "O Boticário - Match - Pré e Pós Química",
+    "stock": 2,
+    "costPrice": 36.96
+  },
+  {
+    "id": "94696c87-f8af-43b8-97ea-057823e392aa",
+    "name": "O Boticário - Match - Reconstrução",
+    "stock": 2,
+    "costPrice": 34
+  },
+  {
+    "id": "80c179cd-3940-40a6-85bb-488ef4087c5d",
+    "name": "O Boticário - Match - Reconstrução",
+    "stock": 2,
+    "costPrice": 35.48
+  },
+  {
+    "id": "19db0431-4f6e-453c-82b8-c6ef5734a156",
+    "name": "O Boticário - Match - Reconstrução",
+    "stock": 2,
+    "costPrice": 50.3
+  },
+  {
+    "id": "b9850297-6d04-46bd-b207-c2c6b0288470",
+    "name": "O Boticário - Match - Crescimento",
+    "stock": 2,
+    "costPrice": 42.89
+  },
+  {
+    "id": "9c51e4c3-5fee-44ba-a1df-b11c2e5589e2",
+    "name": "O Boticário - Match - Nutrição Regeneradora",
+    "stock": 2,
+    "costPrice": 34
+  },
+  {
+    "id": "a529c080-3b55-459f-a3df-249d022f1c51",
+    "name": "O Boticário - Match - Nutrição Regeneradora",
+    "stock": 2,
+    "costPrice": 35.48
+  },
+  {
+    "id": "472f2a2f-a7cf-4e78-946c-dd541d6d46f7",
+    "name": "O Boticário - Match - Nutrição Regeneradora",
+    "stock": 2,
+    "costPrice": 50.3
+  },
+  {
+    "id": "e2bfe085-f674-49db-85c3-5e7543d23252",
+    "name": "O Boticário - Match - Ciência das Curvas",
+    "stock": 2,
+    "costPrice": 48.14
+  },
+  {
+    "id": "e992f2cc-cad2-4c1e-b8e7-b4e1c01ed95f",
+    "name": "O Boticário - Match - Ciência das Curvas",
+    "stock": 2,
+    "costPrice": 36.96
+  },
+  {
+    "id": "e44c8ed3-eb7e-420b-a0d1-161625b78d34",
+    "name": "O Boticário - Match - Ciência das Curvas",
+    "stock": 2,
+    "costPrice": 34
+  },
+  {
+    "id": "c8bc51d2-a9eb-4810-a12b-520709243f67",
+    "name": "O Boticário - Match - Ciência das Curvas",
+    "stock": 4,
+    "costPrice": 36.96
+  },
+  {
+    "id": "2eeab884-6b1f-44e9-96c4-4025d0eda2bb",
+    "name": "O Boticário - Match - Lab Queratina Concentrada",
+    "stock": 2,
+    "costPrice": 33.26
+  },
+  {
+    "id": "0d3c90bd-dee5-4517-bce0-41a64cb7ed9c",
+    "name": "O Boticário - Match - Lab Reconstrutor",
+    "stock": 2,
+    "costPrice": 40.67
+  },
+  {
+    "id": "25701c99-2a5a-4970-8534-51ad7c30a50a",
+    "name": "O Boticário - Match - Hidratação e Brilho",
+    "stock": 2,
+    "costPrice": 44.37
+  },
+  {
+    "id": "afee1fc3-8bba-40de-a380-3cca3c207e99",
+    "name": "O Boticário - Match - Lab Multi Benefícios",
+    "stock": 6,
+    "costPrice": 48.07
+  },
+  {
+    "id": "21464ea0-b037-409d-b546-7dc16e7fb779",
+    "name": "Natura - Ekos - Patauá",
+    "stock": 2,
+    "costPrice": 46.59
+  },
+  {
+    "id": "55947b1b-41f5-4b51-aa87-ba6aed623ff4",
+    "name": "Natura - Ekos - Murumuru",
+    "stock": 2,
+    "costPrice": 48.07
+  },
+  {
+    "id": "af95077d-78bd-45d7-b2e0-89ec9e5aa505",
+    "name": "Natura - Todo Dia - Amora e Óleo de Coco",
+    "stock": 2,
+    "costPrice": 26.59
+  },
+  {
+    "id": "a3446e44-e75d-4816-9872-7ab0594c1198",
+    "name": "Natura - Todo Dia - Amora e Óleo de Coco",
+    "stock": 2,
+    "costPrice": 28.07
+  },
+  {
+    "id": "94e1ac57-0789-46be-8286-2439be357921",
+    "name": "Natura - Todo Dia - Amora e Óleo de Coco",
+    "stock": 2,
+    "costPrice": 29.56
+  },
+  {
+    "id": "b4038ea8-ae5f-4faf-a309-1b78b4c92904",
+    "name": "Natura - Todo Dia - Amora e Óleo de Coco",
+    "stock": 2,
+    "costPrice": 34
+  },
+  {
+    "id": "e70d6833-b573-4a9b-b4df-6d6c7684454b",
+    "name": "Natura - Todo Dia - Maçã Verde e Aloe Vera",
+    "stock": 2,
+    "costPrice": 36.96
+  },
+  {
+    "id": "a6178824-dc66-42f9-b9d4-6280442c6966",
+    "name": "Natura - Todo Dia - Maçã Verde e Aloe Vera",
+    "stock": 4,
+    "costPrice": 26.59
+  },
+  {
+    "id": "f1383d08-b3d7-4688-b49a-b69765c98bac",
+    "name": "Natura - Todo Dia - Maçã Verde e Aloe Vera",
+    "stock": 4,
+    "costPrice": 28.07
+  },
+  {
+    "id": "0a65e507-e4b8-4e96-a603-adce65539c22",
+    "name": "Natura - Todo Dia - Maçã Verde e Aloe Vera",
+    "stock": 2,
+    "costPrice": 34
+  },
+  {
+    "id": "737d1116-4d12-4bda-81c1-2567f45432f4",
+    "name": "Natura - Todo Dia - Pêssego e Amêndoa",
+    "stock": 4,
+    "costPrice": 36.96
+  },
+  {
+    "id": "c134c9a3-50f6-41c7-acc2-2dfb34f0c032",
+    "name": "Natura - Todo Dia - Pêssego e Amêndoa",
+    "stock": 2,
+    "costPrice": 26.59
+  },
+  {
+    "id": "d87cc41d-32f5-4a07-82e3-5784afe212fa",
+    "name": "Natura - Todo Dia - Pêssego e Amêndoa",
+    "stock": 2,
+    "costPrice": 28.07
+  },
+  {
+    "id": "ab9873e6-1d9f-4fab-b6b1-3c973a333749",
+    "name": "Natura - Todo Dia - Flor de Cereja e Abacate",
+    "stock": 2,
+    "costPrice": 36.96
+  },
+  {
+    "id": "932901b3-9abb-40d4-ac33-6aeb4d1adcb4",
+    "name": "Natura - Todo Dia - Flor de Ameixa",
+    "stock": 2,
+    "costPrice": 36.96
+  },
+  {
+    "id": "b4fe9582-04cb-4c80-9285-f8ff42e2d866",
+    "name": "Natura - Todo Dia - Flor de Cereja e Abacate",
+    "stock": 2,
+    "costPrice": 20.67
+  },
+  {
+    "id": "c3e43a47-42c3-4f59-8c70-0e7c21db1286",
+    "name": "Natura - Todo Dia - Flor de Cereja e Abacate",
+    "stock": 4,
+    "costPrice": 21.41
+  },
+  {
+    "id": "6ccd5c10-fef0-47d3-98bc-735dda4da44a",
+    "name": "Natura - Todo Dia - Flor de Cereja e Abacate",
+    "stock": 2,
+    "costPrice": 20.67
+  },
+  {
+    "id": "9bb73659-ec50-4f84-a75b-fa443f943924",
+    "name": "Natura - Todo Dia - Maçã Verde e Aloe Vera",
+    "stock": 2,
+    "costPrice": 20.67
+  },
+  {
+    "id": "75f1bd82-b266-4eb9-aba9-8be2a9ef625f",
+    "name": "Natura - Todo Dia - Maçã Verde e Aloe Vera",
+    "stock": 2,
+    "costPrice": 21.41
+  },
+  {
+    "id": "346b7368-a3de-4dec-ade5-2ec13f4868b6",
+    "name": "Natura - Todo Dia - Maçã Verde e Aloe Vera",
+    "stock": 2,
+    "costPrice": 28.07
+  },
+  {
+    "id": "d016e77a-cc33-4b74-9f70-c6ed02584a82",
+    "name": "O Boticário - Cuide-se Bem - Banana",
+    "stock": 2,
+    "costPrice": 22.15
+  },
+  {
+    "id": "01afbd4a-c28b-48be-994d-e01135a9c9fe",
+    "name": "O Boticário - Cuide-se Bem - Banana",
+    "stock": 2,
+    "costPrice": 19.19
+  },
+  {
+    "id": "6aa88b4b-a7d8-463a-811c-ec4a648cbd89",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 4,
+    "costPrice": 51.78
+  },
+  {
+    "id": "5ee0e466-c19d-424b-b3b8-443e0da52e9b",
+    "name": "O Boticário - Lily - Tradicional",
+    "stock": 4,
+    "costPrice": 46.59
+  },
+  {
+    "id": "0a25ead8-867b-409b-bf83-ba74100c3ebe",
+    "name": "Avon - Advance Techniques - Cachos Poderosos",
+    "stock": 2,
+    "costPrice": 34
+  },
+  {
+    "id": "20428c8f-259a-4ef7-a0ea-9f6e7235849e",
+    "name": "Avon - Advance Techniques - Cachos Poderosos",
+    "stock": 2,
+    "costPrice": 29.56
+  },
+  {
+    "id": "c7034387-e426-477b-9732-bc746769bfb9",
+    "name": "Eudora - Siàge - Resgate Imediato",
+    "stock": 2,
+    "costPrice": 51.84
+  },
+  {
+    "id": "fcaa53dd-45bc-4230-94f3-788cb4adafba",
+    "name": "Eudora - Siàge - Resgate Imediato",
+    "stock": 2,
+    "costPrice": 51.84
+  },
+  {
+    "id": "4a8710b6-975e-4ed8-be97-8cf777d4372f",
+    "name": "Eudora - Siàge - Resgate Imediato",
+    "stock": 6,
+    "costPrice": 35.55
+  },
+  {
+    "id": "8630acce-6f4b-4ab3-a73c-797b72608996",
+    "name": "Eudora - Siàge - Resgate Imediato",
+    "stock": 2,
+    "costPrice": 37.03
+  },
+  {
+    "id": "a3861a44-2573-437c-ae50-f8283817cfbd",
+    "name": "Eudora - Siàge - Revela Cachos",
+    "stock": 4,
+    "costPrice": 51.84
+  },
+  {
+    "id": "35933573-9f82-41ed-a83d-616fd1fc53a6",
+    "name": "Natura - Ekos - Murumuru",
+    "stock": 2,
+    "costPrice": 59.19
+  },
+  {
+    "id": "55cb25c7-f4b6-4ac7-b99d-7e7a86e3d2e5",
+    "name": "Natura - Lumina - Nutrição e Reparação Profunda",
+    "stock": 2,
+    "costPrice": 59.19
+  },
+  {
+    "id": "44e3fb85-1a34-48d5-813a-8d0c20db555a",
+    "name": "Natura - Lumina - Nutrição e Reparação Profunda",
+    "stock": 2,
+    "costPrice": 39.19
+  },
+  {
+    "id": "1079a434-9ffb-4dc7-8448-a34fffdac788",
+    "name": "Natura - Lumina - Nutrição e Reparação Profunda",
+    "stock": 2,
+    "costPrice": 41.41
+  },
+  {
+    "id": "848a2a84-8620-4fd2-8fcb-1a24a7871d06",
+    "name": "Natura - Lumina - Nutrição e Reparação Profunda",
+    "stock": 2,
+    "costPrice": 43.63
+  },
+  {
+    "id": "374cdbf6-6f90-4d92-81ea-0b41db2d603a",
+    "name": "Natura - Lumina - Nutrição e Reparação Profunda",
+    "stock": 2,
+    "costPrice": 44.37
+  },
+  {
+    "id": "c10b91cb-b150-4dd6-ae88-f961063c6db5",
+    "name": "Natura - Lumina - Nutrição e Reparação Profunda",
+    "stock": 2,
+    "costPrice": 28.81
+  },
+  {
+    "id": "de8f8c85-f9f7-472e-8f70-61ab22c9843b",
+    "name": "Natura - Lumina - Nutrição e Reparação Profunda",
+    "stock": 2,
+    "costPrice": 31.04
+  },
+  {
+    "id": "b26e8869-3c24-49c2-89b3-b1855e9d69e5",
+    "name": "Natura - Lumina - Nutrição e Reparação Profunda",
+    "stock": 2,
+    "costPrice": 33.26
+  },
+  {
+    "id": "7d20545d-ccd9-43ac-946e-c0961b6ef8af",
+    "name": "Natura - Lumina - Força e Reparação Molecular",
+    "stock": 2,
+    "costPrice": 59.19
+  },
+  {
+    "id": "828e1898-962d-4a54-a910-a711e9d23567",
+    "name": "Natura - Lumina - Força e Reparação Molecular",
+    "stock": 2,
+    "costPrice": 39.19
+  },
+  {
+    "id": "cfc5ac89-3a44-4751-a64b-f6dce1ce2572",
+    "name": "Natura - Lumina - Força e Reparação Molecular",
+    "stock": 2,
+    "costPrice": 41.41
+  },
+  {
+    "id": "0514c1d5-3d6a-4d63-a0e7-1fdb6dcda809",
+    "name": "Natura - Lumina - Cabelos Cacheados",
+    "stock": 2,
+    "costPrice": 59.19
+  },
+  {
+    "id": "5aa488e4-5434-4a2f-8ffe-1dfaae49aa94",
+    "name": "Natura - Lumina - Cabelos Crespos",
+    "stock": 2,
+    "costPrice": 33.26
+  },
+  {
+    "id": "43f06773-ca0c-4cff-b866-8d88ec615c64",
+    "name": "Natura - Lumina - Definição Intensa",
+    "stock": 4,
+    "costPrice": 43.63
+  },
+  {
+    "id": "82381800-6bbc-4337-855c-33b167e1712a",
+    "name": "Natura - Lumina - Definição e Hidratação",
+    "stock": 2,
+    "costPrice": 43.63
+  },
+  {
+    "id": "0cdf1cfb-3dc8-4262-8e1f-d97a03398d11",
+    "name": "Natura - Lumina - Anti Queda e Crescimento",
+    "stock": 2,
+    "costPrice": 42.15
+  },
+  {
+    "id": "0357c034-5458-464d-b295-34f3c17c3741",
+    "name": "Natura - Lumina - Anti Queda e Crescimento",
+    "stock": 2,
+    "costPrice": 44.37
+  },
+  {
+    "id": "3bdccff2-dfa8-4a74-85ca-2a8a9dec4715",
+    "name": "Natura - Lumina - Essência Sublime",
+    "stock": 2,
+    "costPrice": 59.19
+  },
+  {
+    "id": "337e2020-a56e-44ac-b599-2368095ea090",
+    "name": "Natura - Lumina - Lumina",
+    "stock": 2,
+    "costPrice": 59.19
+  },
+  {
+    "id": "d9b6d21e-04e0-4afd-b1b8-32db3d61f0e0",
+    "name": "Eudora - Siàge - Cauterização dos Fios",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "162b97d4-3418-4834-b6a0-62d8e970c912",
+    "name": "Eudora - Siàge - Cauterização dos Fios",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "bd282aa3-987c-418f-b0a0-02d7dd255eee",
+    "name": "Eudora - Siàge - Revela Cachos",
+    "stock": 3,
+    "costPrice": 35.55
+  },
+  {
+    "id": "9989b51a-454e-44e2-aa09-e98cc180da79",
+    "name": "Eudora - Siàge - Revela Cachos",
+    "stock": 3,
+    "costPrice": 37.03
+  },
+  {
+    "id": "114a024b-7170-434a-92aa-5a0ac8407bb7",
+    "name": "Eudora - Siàge - Hidratação Micelar",
+    "stock": 2,
+    "costPrice": 33.33
+  },
+  {
+    "id": "92feb3c0-f7b1-4cea-8c10-88d332a06a66",
+    "name": "Eudora - Siàge - Hidratação Micelar",
+    "stock": 2,
+    "costPrice": 35.55
+  },
+  {
+    "id": "2158fd75-81dc-4a12-aeb5-102c69daedd3",
+    "name": "Eudora - Siàge - Loiro Expert",
+    "stock": 4,
+    "costPrice": 33.33
+  },
+  {
+    "id": "776da55f-1bb0-45d2-823d-45b77db05e88",
+    "name": "Eudora - Siàge - Loiro Expert",
+    "stock": 4,
+    "costPrice": 35.55
+  },
+  {
+    "id": "8bd21adb-addd-4d88-8228-0b9930a974c9",
+    "name": "Eudora - Siàge - Loiro Expert",
+    "stock": 2,
+    "costPrice": 51.84
+  },
+  {
+    "id": "aaa8d28c-bd3f-4aee-b020-78361a353d65",
+    "name": "Eudora - Siàge - Liso Intenso",
+    "stock": 2,
+    "costPrice": 50.36
+  },
+  {
+    "id": "fd1528fc-8b3f-452e-9dbe-dab013277d09",
+    "name": "Eudora - Siàge - Liso Intenso",
+    "stock": 7,
+    "costPrice": 33.33
+  },
+  {
+    "id": "d8fc04ae-c471-4015-878b-14271f5ade4f",
+    "name": "Eudora - Siàge - Liso Intenso",
+    "stock": 7,
+    "costPrice": 35.55
+  },
+  {
+    "id": "0fce2792-c8c0-4f65-914d-467a9e9043a6",
+    "name": "Eudora - Siàge - Pro Cronology",
+    "stock": 2,
+    "costPrice": 48.07
+  },
+  {
+    "id": "ed50fa31-3408-4b56-a0ee-85e20295c4e0",
+    "name": "Eudora - Siàge - Pro Cronology",
+    "stock": 2,
+    "costPrice": 51.84
+  },
+  {
+    "id": "82cd5f2d-ac58-4f4a-a983-af3be01f2214",
+    "name": "Eudora - Siàge - Pro Cronology / Curvas",
+    "stock": 8,
+    "costPrice": 37.03
+  },
+  {
+    "id": "f9ce5ad1-4e21-4375-ae3a-00bf07ea7361",
+    "name": "Eudora - Siàge - Pro Cronology",
+    "stock": 4,
+    "costPrice": 37.03
+  },
+  {
+    "id": "45801b82-9453-4d0d-b914-fdcddcd840b6",
+    "name": "Eudora - Siàge - Pro Cronology / Curvas",
+    "stock": 8,
+    "costPrice": 35.55
+  },
+  {
+    "id": "6ec20d30-e954-4ec6-a311-7b8629ea8f27",
+    "name": "Eudora - Siàge - Pro Cronology",
+    "stock": 10,
+    "costPrice": 37.03
+  },
+  {
+    "id": "0548e1db-31ae-41d7-91e4-05273cd34733",
+    "name": "Eudora - Siàge - Pro Cronology",
+    "stock": 4,
+    "costPrice": 37.03
+  },
+  {
+    "id": "03d9e083-a3f1-47e4-be39-2b5ddd76db2c",
+    "name": "Eudora - Siàge - Pro Cronology",
+    "stock": 6,
+    "costPrice": 46.66
+  },
+  {
+    "id": "4d49577e-d683-4f9d-840a-20351e88e6eb",
+    "name": "Eudora - Siàge - Nutri Rosé",
+    "stock": 2,
+    "costPrice": 51.84
+  },
+  {
+    "id": "3b39b649-d175-4b48-91cf-9bfeea3d4914",
+    "name": "Eudora - Siàge - Nutri Rosé",
+    "stock": 2,
+    "costPrice": 35.55
+  },
+  {
+    "id": "5c260a95-350a-40f0-8a79-ab0351672237",
+    "name": "Eudora - Siàge - Nutri Rosé",
+    "stock": 2,
+    "costPrice": 37.03
+  },
+  {
+    "id": "1f370e83-5724-4e73-91a0-a99a91c4b142",
+    "name": "Eudora - Siàge - Nutri Rosé",
+    "stock": 2,
+    "costPrice": 39.25
+  },
+  {
+    "id": "8383574c-649f-407b-b9c0-020af8ceb67a",
+    "name": "Eudora - Siàge - Nutri Rosé",
+    "stock": 2,
+    "costPrice": 41.47
+  },
+  {
+    "id": "70ded912-41db-4637-a875-6729fbef59f4",
+    "name": "Eudora - Instance - Baunilha",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "e2a148aa-5412-432d-91d5-b557f04117ee",
+    "name": "Avon - Care - Original",
+    "stock": 2,
+    "costPrice": 13.33
+  },
+  {
+    "id": "ef4a6173-e030-447c-83c1-17e6a80a383d",
+    "name": "Avon - Care - Original 120g",
+    "stock": 2,
+    "costPrice": 18.51
+  },
+  {
+    "id": "f80020ca-caca-432d-8141-af0fc415bbec",
+    "name": "Avon - Care Footworks",
+    "stock": 4,
+    "costPrice": 17.77
+  },
+  {
+    "id": "462010c8-7d3c-4544-acc8-19787c2ada73",
+    "name": "Avon - Care Footworks",
+    "stock": 4,
+    "costPrice": 16.29
+  },
+  {
+    "id": "967e2847-89c5-4cd5-8ae4-9b24934eb590",
+    "name": "Avon - Care Footworks",
+    "stock": 2,
+    "costPrice": 17.77
+  },
+  {
+    "id": "78e9c72e-5ddf-46df-b4a8-ce115b0adfe7",
+    "name": "Avon - Care Footworks",
+    "stock": 2,
+    "costPrice": 16.29
+  },
+  {
+    "id": "c27fd9be-f83b-40b9-a84f-35d32b1787b4",
+    "name": "Avon - Care Footworks",
+    "stock": 2,
+    "costPrice": 17.77
+  },
+  {
+    "id": "75d66a42-f194-48d3-b839-1999261840f8",
+    "name": "Avon - Care Sun",
+    "stock": 2,
+    "costPrice": 54
+  },
+  {
+    "id": "8d9a60e4-d140-4a68-b91b-9922c68f9ed9",
+    "name": "Avon - Care Sun",
+    "stock": 2,
+    "costPrice": 38.44
+  },
+  {
+    "id": "8d0253c9-0ad2-4035-a3fa-d9234fb6ae68",
+    "name": "Avon - Care Sun",
+    "stock": 2,
+    "costPrice": 33.33
+  },
+  {
+    "id": "30581858-21a5-4826-8469-1665f53ac18f",
+    "name": "Avon - Care Sun",
+    "stock": 2,
+    "costPrice": 33.33
+  },
+  {
+    "id": "0f068c78-792c-4464-925c-e60cf41a72f9",
+    "name": "Natura - Chronos",
+    "stock": 2,
+    "costPrice": 65.93
+  },
+  {
+    "id": "267c3eee-04f2-4bd0-9b6f-668ce3fcad3f",
+    "name": "Natura - Ekos - Castanha",
+    "stock": 4,
+    "costPrice": 44.37
+  },
+  {
+    "id": "6bddc958-27f2-4978-9433-41598e7c62dc",
+    "name": "Natura - Ekos - Castanha",
+    "stock": 4,
+    "costPrice": 31.04
+  },
+  {
+    "id": "8724c4c2-f4f2-4498-8283-5386f7e0d008",
+    "name": "Natura - Ekos - Maracujá",
+    "stock": 2,
+    "costPrice": 31.04
+  },
+  {
+    "id": "427b896f-5937-4a88-b0ea-5f1052fe110d",
+    "name": "Natura - Ekos - Ucuuba",
+    "stock": 2,
+    "costPrice": 31.04
+  },
+  {
+    "id": "af1447f3-57a7-456a-bc92-f4bdaf9bd760",
+    "name": "Natura - Ekos - Açaí",
+    "stock": 2,
+    "costPrice": 44.37
+  },
+  {
+    "id": "1ff41c47-2a29-4b61-a1a5-a9b35c593e09",
+    "name": "Natura - Faces",
+    "stock": 8,
+    "costPrice": 31.78
+  },
+  {
+    "id": "d2120c36-2197-4abc-8ef0-b0f089d5e700",
+    "name": "Natura - Faces",
+    "stock": 2,
+    "costPrice": 18.52
+  },
+  {
+    "id": "05a85d27-afdc-4989-b5e6-ead0e5b7604a",
+    "name": "Natura - Faces",
+    "stock": 2,
+    "costPrice": 37.7
+  },
+  {
+    "id": "67441b14-24fd-4068-94da-8df546c19a75",
+    "name": "Natura - Faces",
+    "stock": 2,
+    "costPrice": 26.59
+  },
+  {
+    "id": "691d9b65-6ba6-4b6a-9fe3-992d5f521801",
+    "name": "Natura - Solar",
+    "stock": 2,
+    "costPrice": 81.41
+  },
+  {
+    "id": "146a0168-19fc-4fbd-a89a-683a43f80f62",
+    "name": "Natura - Solar",
+    "stock": 2,
+    "costPrice": 74
+  },
+  {
+    "id": "87937d06-2902-4c04-b172-e3f025611654",
+    "name": "Natura - Todo Dia - Carambola e Mandarina",
+    "stock": 2,
+    "costPrice": 29.56
+  },
+  {
+    "id": "ceb691c9-d8fc-4776-9f2a-98e6e7567b3b",
+    "name": "Natura - Todo Dia - Algodão",
+    "stock": 2,
+    "costPrice": 29.56
+  },
+  {
+    "id": "1d51b359-d28e-46af-bba3-351c6945b53d",
+    "name": "O Boticário - Boti Sun",
+    "stock": 4,
+    "costPrice": 59.19
+  },
+  {
+    "id": "39ead8e0-9ec1-4e43-bf86-cfc57cea9c62",
+    "name": "O Boticário - Boti Sun",
+    "stock": 2,
+    "costPrice": 81.41
+  },
+  {
+    "id": "2e2e2db4-8202-464a-b1a0-1df1ed6803be",
+    "name": "O Boticário - Cuide-se Bem - Nuvem Cloud",
+    "stock": 2,
+    "costPrice": 7.41
+  },
+  {
+    "id": "fb3f2550-9455-406b-8e7f-9b56fd0581fb",
+    "name": "O Boticário - Cuide-se Bem - Rosa e Algodão",
+    "stock": 2,
+    "costPrice": 27.33
+  },
+  {
+    "id": "3755138b-a469-423c-8c49-8bf60f6580e7",
+    "name": "O Boticário - Cuide-se Bem - Rosa e Algodão",
+    "stock": 2,
+    "costPrice": 36.22
+  },
+  {
+    "id": "00107baf-3eed-497c-9129-e80afb3f2232",
+    "name": "Avon - Renew",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "4ffc0791-df18-4bd8-a353-5af245118291",
+    "name": "Avon - Renew",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "9f61507f-712d-4468-95fe-2d759fe565ea",
+    "name": "Avon - Renew",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "4a713e9e-dc99-40bc-877e-6de7a99614ee",
+    "name": "Avon - Renew",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "1d435f9d-e3a0-4e0e-85b3-e0bde4cf033d",
+    "name": "Avon - Renew",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "d1ca34dd-bdee-477b-af49-8601d8199351",
+    "name": "Avon - Care Face",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f6df5066-a0cd-4cf6-9b0a-f4476fb7d792",
+    "name": "Avon - Care Face",
+    "stock": 4,
+    "costPrice": 24.44
+  },
+  {
+    "id": "6916d4d2-5f71-4420-aeee-c94bd909f0cb",
+    "name": "Avon - Care Face",
+    "stock": 2,
+    "costPrice": 24.44
+  },
+  {
+    "id": "1b61544c-30ad-4735-809c-869362e51186",
+    "name": "Avon - Care Face",
+    "stock": 2,
+    "costPrice": 24.44
+  },
+  {
+    "id": "c07a281b-eb24-47d5-a17c-1a9b4b6e89b9",
+    "name": "Avon - Care Face",
+    "stock": 4,
+    "costPrice": 17.77
+  },
+  {
+    "id": "2fb8d039-53b9-40ae-a193-3af528374733",
+    "name": "Avon - Care Face",
+    "stock": 2,
+    "costPrice": 18.51
+  },
+  {
+    "id": "51c11cbc-79a6-4068-9531-b0507252985d",
+    "name": "Avon - Care Face",
+    "stock": 2,
+    "costPrice": 17.77
+  },
+  {
+    "id": "bc5940bf-09fc-4ca2-8c78-c1819a3def1f",
+    "name": "Avon - Care Face",
+    "stock": 2,
+    "costPrice": 31.84
+  },
+  {
+    "id": "417abb04-9fff-47db-b4ec-7190c8a82b7e",
+    "name": "Avon - Clear Skin",
+    "stock": 6,
+    "costPrice": 13.33
+  },
+  {
+    "id": "367b53ff-a217-4104-9930-a738c7c2656b",
+    "name": "Avon - Clear Skin",
+    "stock": 2,
+    "costPrice": 13.33
+  },
+  {
+    "id": "1aaad612-1943-4451-9286-288f5ac6d6fe",
+    "name": "Avon - Clear Skin",
+    "stock": 8,
+    "costPrice": 22.21
+  },
+  {
+    "id": "4956d6be-8b85-404d-a08b-7eef0bf43697",
+    "name": "Avon - Renew - Extrato de Carvão",
+    "stock": 2,
+    "costPrice": 31.78
+  },
+  {
+    "id": "416b2a54-c151-42fd-aba9-ac77e422372a",
+    "name": "Eudora - Siàge - Nutri Rosé",
+    "stock": 2,
+    "costPrice": 40.73
+  },
+  {
+    "id": "9ecb5577-4619-41cf-9886-13a364d3ff2d",
+    "name": "Eudora - Siàge - Cauterização dos Lisos",
+    "stock": 2,
+    "costPrice": 51.84
+  },
+  {
+    "id": "15e1204c-794d-461a-8c50-435ea1b2cdfc",
+    "name": "Eudora - Siàge - Cauterização dos Lisos",
+    "stock": 2,
+    "costPrice": 35.55
+  },
+  {
+    "id": "0589d976-fce7-4d0f-8020-1e6ae9626b94",
+    "name": "Eudora - Siàge - Cauterização dos Lisos",
+    "stock": 2,
+    "costPrice": 37.03
+  },
+  {
+    "id": "1244280f-adbc-4560-bf86-dd6826162ab5",
+    "name": "Eudora - Siàge - Nutri Ácido Complex",
+    "stock": 4,
+    "costPrice": 51.84
+  },
+  {
+    "id": "99ef9e00-0c43-4898-803d-a3053bef68b6",
+    "name": "Eudora - Siàge - Nutri Ácido Complex",
+    "stock": 2,
+    "costPrice": 35.55
+  },
+  {
+    "id": "0cd41d78-24c1-400a-8c6a-e59252d87577",
+    "name": "Eudora - Siàge - Nutri Ácido Complex",
+    "stock": 4,
+    "costPrice": 37.03
+  },
+  {
+    "id": "3ae1128a-293d-4fb4-be33-c1b80efc21b1",
+    "name": "Eudora - Siàge - Nutri Óleos Poderosos",
+    "stock": 1,
+    "costPrice": 51.84
+  },
+  {
+    "id": "957edbfa-a08f-470e-ad63-9691f74b33ed",
+    "name": "Eudora - Siàge - Nutri Óleos Poderosos",
+    "stock": 1,
+    "costPrice": 35.55
+  },
+  {
+    "id": "8cd65419-6f4f-481d-95ae-7ba5ec94771c",
+    "name": "Eudora - Siàge - Nutri Óleos Poderosos",
+    "stock": 1,
+    "costPrice": 37.03
+  },
+  {
+    "id": "6fd3bee2-d542-4c0c-8a5f-eb5bbf207b53",
+    "name": "Natura - Chronos",
+    "stock": 2,
+    "costPrice": 60.74
+  },
+  {
+    "id": "16d54724-bb55-4777-adde-db5abd42c548",
+    "name": "Natura - Chronos",
+    "stock": 2,
+    "costPrice": 60.74
+  },
+  {
+    "id": "066b280b-69b5-48c7-82b9-59bfe5627d11",
+    "name": "Natura - Chronos",
+    "stock": 2,
+    "costPrice": 80.74
+  },
+  {
+    "id": "59fa02ab-b7e3-4753-8c18-6893fb96e09f",
+    "name": "Eudora - Siàge - Alta Fixação Men",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "767dbfb2-62a4-4b61-80b4-8cd68519c96c",
+    "name": "Eudora - Siàge - Cachos e Crespos Men",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "93b3d878-d8ad-4ce8-8ca0-8b3812c1b5e1",
+    "name": "Eudora - Siàge - Antioleosidade Micelar",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "a9fe2ee4-95fb-4f9a-88df-9a91ec652957",
+    "name": "Eudora - Siàge - Hair Plastia",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "0a92d29e-6eaf-49dd-af73-23039056c500",
+    "name": "Eudora - Siàge - Hair Plastia",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "adae5571-2ebd-41f6-8e67-11f9faa25836",
+    "name": "Eudora - Siàge - Hair Plastia",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "02afb5f0-bfb7-47f8-9b5f-dfd77b501fc1",
+    "name": "Eudora - Siàge - Reconstrói os Fios",
+    "stock": 4,
+    "costPrice": 37.03
+  },
+  {
+    "id": "13d1b059-8277-4d09-81e1-5aef3b770ba3",
+    "name": "Eudora - Siàge - Reconstrói os Fios",
+    "stock": 4,
+    "costPrice": 44.37
+  },
+  {
+    "id": "49559088-f9c8-44f7-9360-9a113c143b98",
+    "name": "Eudora - Siàge - Cicatherapy",
+    "stock": 2,
+    "costPrice": 51.84
+  },
+  {
+    "id": "5337d90e-dce9-41fa-bc4d-65857078e7ee",
+    "name": "Eudora - Siàge - Cicatherapy",
+    "stock": 2,
+    "costPrice": 41.47
+  },
+  {
+    "id": "3018dfb0-936d-473d-8afb-3f155f054504",
+    "name": "Eudora - Siàge - Regeneração Pós-Química",
+    "stock": 2,
+    "costPrice": 51.84
+  },
+  {
+    "id": "b81c33d1-f01f-42b5-909d-a11a482f0382",
+    "name": "Eudora - Siàge - Regeneração Pós-Química",
+    "stock": 2,
+    "costPrice": 35.55
+  },
+  {
+    "id": "ff276670-c2da-461f-9931-5869928f59a1",
+    "name": "Eudora - Siàge - Regeneração Pós-Química",
+    "stock": 2,
+    "costPrice": 37.03
+  },
+  {
+    "id": "2d4bee17-80b9-4467-b7a4-99c9950dca37",
+    "name": "Eudora - Siàge - Miracle Booster",
+    "stock": 2,
+    "costPrice": 39.25
+  },
+  {
+    "id": "ea966bf2-8973-4743-aa53-0003ec4d4c0c",
+    "name": "Eudora - Siàge - Limpeza Purificante",
+    "stock": 2,
+    "costPrice": 33.33
+  },
+  {
+    "id": "c2880767-69b5-404e-8743-7ba00d8af249",
+    "name": "Eudora - Siàge - Combate a Caspa",
+    "stock": 4,
+    "costPrice": 51.1
+  },
+  {
+    "id": "cb570d64-349b-4158-9dfb-b7f00ce022b1",
+    "name": "Eudora - Siàge - Estimula o Crescimento Men",
+    "stock": 2,
+    "costPrice": 31.1
+  },
+  {
+    "id": "4d6b7dd9-0ee5-4575-949c-30702b91ac8e",
+    "name": "Eudora - Siàge - Estimula o Crescimento Men",
+    "stock": 2,
+    "costPrice": 51.84
+  },
+  {
+    "id": "2673aea4-580e-4ccc-ac87-31dd0d2942d6",
+    "name": "Eudora - Siàge - Dermo Hair antiqueda",
+    "stock": 2,
+    "costPrice": 48.14
+  },
+  {
+    "id": "c619faa3-b32b-4b29-9627-63e173149b5d",
+    "name": "Eudora - Siàge - Dermo Hair antiqueda",
+    "stock": 2,
+    "costPrice": 48.14
+  },
+  {
+    "id": "95c38a42-1359-4c0c-ac36-fb60d2059b00",
+    "name": "Avon - On Duty - Women Max Protection",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "48194a55-8f12-4913-9bbf-cbe2b6bbd65a",
+    "name": "Avon - On Duty - Classic",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "d049498c-23e1-4e97-bbb4-068127f59ae7",
+    "name": "Avon - Care - Hidratação Suave",
+    "stock": 2,
+    "costPrice": 8.88
+  },
+  {
+    "id": "22bc205e-5c0f-46ab-b7e3-448826db42d1",
+    "name": "Avon - Care - Neutro sem Perfume",
+    "stock": 2,
+    "costPrice": 8.88
+  },
+  {
+    "id": "a422a255-f62b-49d1-9b83-c52d5b007dfc",
+    "name": "Avon - Far Away - Glamour",
+    "stock": 6,
+    "costPrice": 8.88
+  },
+  {
+    "id": "83e04dcc-dff0-42df-b83e-efffc9b89853",
+    "name": "O Boticário - Cuide-se Bem - Zero Alumínio",
+    "stock": 4,
+    "costPrice": 20.67
+  },
+  {
+    "id": "a5bd7569-c058-4d6f-9f1b-af5ce08aab37",
+    "name": "O Boticário - Cuide-se Bem - Invisible Protect",
+    "stock": 4,
+    "costPrice": 20.67
+  },
+  {
+    "id": "2fb8a6e4-1fda-4a96-a751-feebb047fc19",
+    "name": "Eudora - La Victorie - Intense",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "f80be127-87d2-44d2-8a8b-6b0bc2d9b57f",
+    "name": "O Boticário - Hadiya",
+    "stock": 1,
+    "costPrice": 288.15
+  },
+  {
+    "id": "59bb1728-0fe1-4c71-98aa-183f609822df",
+    "name": "Avon - Far Away - Glamour",
+    "stock": 2,
+    "costPrice": 74.07
+  },
+  {
+    "id": "f4c61271-2ce0-40a0-b265-98691e3d0d18",
+    "name": "Avon - Far Away - Splendoria",
+    "stock": 2,
+    "costPrice": 74.07
+  },
+  {
+    "id": "f288c98b-d1e4-43ba-8df3-1a76cb3e8494",
+    "name": "O Boticário - Acordes - Tradicional",
+    "stock": 1,
+    "costPrice": 181.41
+  },
+  {
+    "id": "bce40852-1eea-4d28-a4bc-4608ad584837",
+    "name": "O Boticário - Acordes - Harmonia",
+    "stock": 1,
+    "costPrice": 181.41
+  },
+  {
+    "id": "675e5117-d4dd-4532-9a41-b759ac4d4831",
+    "name": "O Boticário - Cuide-se Bem - Sem Perfume",
+    "stock": 4,
+    "costPrice": 25.85
+  },
+  {
+    "id": "5e9d6ca4-718b-4155-a6a9-cd838b0adf18",
+    "name": "O Boticário - Egeo - Choc",
+    "stock": 2,
+    "costPrice": 118.44
+  },
+  {
+    "id": "6bbee01c-4f2e-4851-bc59-e87b3a6f166d",
+    "name": "O Boticário - Egeo - Dolce",
+    "stock": 2,
+    "costPrice": 118.44
+  },
+  {
+    "id": "b280351d-1b11-47bb-9c55-7c57fec604bd",
+    "name": "O Boticário - Egeo - Choc High",
+    "stock": 2,
+    "costPrice": 114.74
+  },
+  {
+    "id": "945bba9c-7ebe-4055-9e80-d9d11989bcc8",
+    "name": "O Boticário - Egeo - Red",
+    "stock": 2,
+    "costPrice": 118.44
+  },
+  {
+    "id": "6c3a70cb-0fdc-42ad-bbc4-93aa25960176",
+    "name": "O Boticário - Egeo - Choc",
+    "stock": 2,
+    "costPrice": 114.74
+  },
+  {
+    "id": "ab3419c7-20a5-4dd0-868a-a4bfd4a27d11",
+    "name": "O Boticário - Floratta - Blue",
+    "stock": 2,
+    "costPrice": 28.07
+  },
+  {
+    "id": "2bc679d1-6112-4e7b-92dd-de4817c0e128",
+    "name": "Eudora - Instance - Frutas Vermelhas",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "badd2206-4908-4425-9517-fce70b7c5b6d",
+    "name": "Natura - Águas - Flor de Laranjeira",
+    "stock": 2,
+    "costPrice": 22.15
+  },
+  {
+    "id": "b13b5704-c1b8-4e74-acac-3f97a87bea19",
+    "name": "Natura - Ekos - Castanha",
+    "stock": 2,
+    "costPrice": 51.78
+  },
+  {
+    "id": "4c930d22-16a8-4210-9a84-6c561955cb93",
+    "name": "Natura - Ekos - Tukumã",
+    "stock": 2,
+    "costPrice": 51.78
+  },
+  {
+    "id": "83266c7e-89f4-4b67-b82b-6a7e7dced85a",
+    "name": "Natura - Ilía - Completo",
+    "stock": 2,
+    "costPrice": 148.07
+  },
+  {
+    "id": "8753ee48-1bb4-4f3b-aee2-9690e7b2851f",
+    "name": "Natura - Ilía - Florescer",
+    "stock": 2,
+    "costPrice": 148.07
+  },
+  {
+    "id": "f53c2763-e3d1-480e-bca1-2441d32f3a2b",
+    "name": "Natura - Ilía - Secreto",
+    "stock": 1,
+    "costPrice": 148.07
+  },
+  {
+    "id": "6e97b62f-de58-447e-9b19-70f12c7d7142",
+    "name": "Natura - Kaiak - Extremo",
+    "stock": 2,
+    "costPrice": 42.15
+  },
+  {
+    "id": "8094290f-e3c4-474a-a4a9-51e2a39b0e9a",
+    "name": "Natura - Luna - Radiante",
+    "stock": 2,
+    "costPrice": 71.04
+  },
+  {
+    "id": "a53c5eb8-099e-4807-a999-cb2c74f2f341",
+    "name": "Natura - UNA - Artisan",
+    "stock": 4,
+    "costPrice": 236.96
+  },
+  {
+    "id": "034affdf-a05b-4075-b48d-b460e086218e",
+    "name": "Natura - UNA - Artisan",
+    "stock": 2,
+    "costPrice": 59.19
+  },
+  {
+    "id": "2efff598-ea6f-431c-921e-4c14f2bd5cc9",
+    "name": "O Boticário - Casa 214 - Brisa de Cedros",
+    "stock": 2,
+    "costPrice": 88.81
+  },
+  {
+    "id": "35fe80fc-bcef-423a-b503-6b995b49e1ef",
+    "name": "Eudora - Volpe - Body Spray",
+    "stock": 2,
+    "costPrice": 33.26
+  },
+  {
+    "id": "1f4b33ff-8793-4f26-a749-2c7bea3d7179",
+    "name": "Natura - Homem - Tato Roll-on",
+    "stock": 2,
+    "costPrice": 22.15
+  },
+  {
+    "id": "8401a75f-d179-4ddf-a35b-c019e2cefba5",
+    "name": "Natura - Humor - Humor a2",
+    "stock": 8,
+    "costPrice": 140.67
+  },
+  {
+    "id": "4a8d40c5-7949-46ac-a8e2-f2fa35011dc2",
+    "name": "Natura - Kaiak - Urbe",
+    "stock": 2,
+    "costPrice": 42.15
+  },
+  {
+    "id": "4749dac2-3f4e-4096-9203-9a051396f57d",
+    "name": "Natura - Kaiak - Urbe",
+    "stock": 2,
+    "costPrice": 36.96
+  },
+  {
+    "id": "4d49d144-6ee2-4ce8-bd2c-40522aee842e",
+    "name": "Natura - Kaiak - Urbe",
+    "stock": 8,
+    "costPrice": 155.48
+  },
+  {
+    "id": "cb04b84e-ece6-41cb-8c22-c6f9f17580b6",
+    "name": "Natura - Kaiak - Pulso",
+    "stock": 4,
+    "costPrice": 21.41
+  },
+  {
+    "id": "678d7688-21a2-4a13-8932-2d3b39a82a5a",
+    "name": "Eudora - Siàge - Reconstrói os Fios Condicionador",
+    "stock": 2,
+    "costPrice": 37.03
+  }
+]
