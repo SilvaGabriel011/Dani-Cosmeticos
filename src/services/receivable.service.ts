@@ -540,6 +540,72 @@ export const receivableService = {
     }
   },
 
+  async recalculateAfterPaymentChange(saleId: string, tx?: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) {
+    const db = tx || prisma
+
+    // Sum all remaining payments for this sale
+    const allPayments = await db.payment.findMany({ where: { saleId } })
+    const totalPaidFromPayments = allPayments.reduce((sum, p) => sum + Number(p.amount), 0)
+
+    // Recalculate totalFees from all payments where feeAbsorber === SELLER
+    const totalFees = allPayments.reduce((sum, p) => {
+      if (p.feeAbsorber === 'SELLER') return sum + Number(p.feeAmount)
+      return sum
+    }, 0)
+
+    // Get all non-cancelled receivables ordered by installment
+    const receivables = await db.receivable.findMany({
+      where: { saleId, status: { not: 'CANCELLED' } },
+      orderBy: { installment: 'asc' },
+    })
+
+    // Redistribute totalPaidFromPayments across receivables sequentially
+    let remaining = totalPaidFromPayments
+    for (const receivable of receivables) {
+      const receivableAmount = Number(receivable.amount)
+      const allocate = Math.min(remaining, receivableAmount)
+
+      let newStatus: ReceivableStatus = 'PENDING'
+      if (allocate >= receivableAmount - PAYMENT_TOLERANCE) {
+        newStatus = 'PAID'
+      } else if (allocate > PAYMENT_TOLERANCE) {
+        newStatus = 'PARTIAL'
+      }
+
+      await db.receivable.update({
+        where: { id: receivable.id },
+        data: {
+          paidAmount: Math.max(0, allocate),
+          status: newStatus,
+          paidAt: newStatus === 'PAID' ? (receivable.paidAt || new Date()) : null,
+        },
+      })
+
+      remaining -= allocate
+    }
+
+    // Update sale
+    const sale = await db.sale.findUnique({ where: { id: saleId } })
+    if (!sale) return
+
+    const allReceivables = await db.receivable.findMany({
+      where: { saleId, status: { not: 'CANCELLED' } },
+    })
+    const allPaid = allReceivables.length > 0 && allReceivables.every((r) => r.status === 'PAID')
+
+    const newNetTotal = Number(sale.total) - totalFees
+
+    await db.sale.update({
+      where: { id: saleId },
+      data: {
+        paidAmount: totalPaidFromPayments,
+        totalFees,
+        netTotal: newNetTotal,
+        status: allPaid ? 'COMPLETED' : 'PENDING',
+      },
+    })
+  },
+
   async listSalesWithPendingReceivables(limit?: number) {
     const where = {
       status: 'PENDING' as const,

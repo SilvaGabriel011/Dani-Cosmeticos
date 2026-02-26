@@ -308,3 +308,242 @@ export async function printSaleReceipt(sale: Sale) {
     printWindow.document.close()
   }
 }
+
+interface PaymentPrintData {
+  id: string
+  method: string
+  amount: string | number
+  feeAmount: string | number
+  paidAt: string
+  sale: {
+    id: string
+    total: string | number
+    status: string
+    installmentPlan: number
+    createdAt: string
+    client: { id: string; name: string; phone: string | null } | null
+    items: Array<{
+      id: string
+      quantity: number
+      unitPrice: string | number
+      total: string | number
+      product: { id: string; name: string }
+    }>
+    receivables: Array<{
+      id: string
+      installment: number
+      amount: string | number
+      paidAmount: string | number
+      status: string
+      dueDate: string
+    }>
+  }
+}
+
+export function printPaymentInstallments(payment: PaymentPrintData) {
+  const { sale } = payment
+  const clientName = sale.client?.name || 'Não informado'
+  const receivables = [...sale.receivables].sort((a, b) => a.installment - b.installment)
+
+  const totalPaid = receivables.reduce((sum, r) => sum + Number(r.paidAmount), 0)
+  const totalAmount = receivables.reduce((sum, r) => sum + Number(r.amount), 0)
+  const totalRemaining = totalAmount - totalPaid
+
+  const itemsHtml = sale.items
+    .map(
+      (item) => `
+        <tr>
+          <td style="padding:4px 0;border-bottom:1px dashed #eee;">${item.product.name}</td>
+          <td style="padding:4px 0;border-bottom:1px dashed #eee;text-align:center;">${item.quantity}</td>
+          <td style="padding:4px 0;border-bottom:1px dashed #eee;text-align:right;">${formatCurrency(Number(item.unitPrice))}</td>
+          <td style="padding:4px 0;border-bottom:1px dashed #eee;text-align:right;font-weight:600;">${formatCurrency(Number(item.total))}</td>
+        </tr>`
+    )
+    .join('')
+
+  const installmentsHtml = receivables
+    .map((r) => {
+      const isPaid = r.status === 'PAID'
+      const isOverdue = !isPaid && new Date(r.dueDate) < new Date()
+      const remaining = Number(r.amount) - Number(r.paidAmount)
+      const statusText = isPaid ? 'Pago' : isOverdue ? 'Atrasado' : 'Pendente'
+      const statusColor = isPaid ? '#16a34a' : isOverdue ? '#dc2626' : '#888'
+      return `
+        <tr>
+          <td style="padding:4px 0;border-bottom:1px dashed #eee;">${r.installment}ª</td>
+          <td style="padding:4px 0;border-bottom:1px dashed #eee;">${formatDate(new Date(r.dueDate))}</td>
+          <td style="padding:4px 0;border-bottom:1px dashed #eee;text-align:right;">${formatCurrency(Number(r.amount))}</td>
+          <td style="padding:4px 0;border-bottom:1px dashed #eee;text-align:right;">${formatCurrency(Number(r.paidAmount))}</td>
+          <td style="padding:4px 0;border-bottom:1px dashed #eee;text-align:right;">${formatCurrency(remaining)}</td>
+          <td style="padding:4px 0;border-bottom:1px dashed #eee;text-align:right;color:${statusColor};font-weight:600;">${statusText}</td>
+        </tr>`
+    })
+    .join('')
+
+  const html = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Parcelas - ${clientName}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 24px;
+      max-width: 480px;
+      margin: 0 auto;
+      color: #222;
+      font-size: 13px;
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #222;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .header p {
+      font-size: 12px;
+      color: #555;
+      margin-top: 4px;
+    }
+    .info {
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #ccc;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+    }
+    .info-row .label { color: #666; }
+    .info-row .value { font-weight: 600; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 12px;
+    }
+    th {
+      padding: 4px 0;
+      border-bottom: 2px solid #222;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .section-title {
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 6px;
+    }
+    .summary {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 2px solid #222;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+    }
+    .summary-row.grand {
+      font-size: 15px;
+      font-weight: 700;
+      padding-top: 6px;
+      border-top: 1px dashed #ccc;
+      margin-top: 4px;
+    }
+    .footer {
+      text-align: center;
+      color: #888;
+      font-size: 11px;
+      padding-top: 12px;
+      margin-top: 8px;
+      border-top: 1px dashed #ccc;
+    }
+    @media print {
+      body { padding: 0; }
+      @page { margin: 10mm; size: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Controle de Parcelas</h1>
+    <p>Venda de ${formatDate(new Date(sale.createdAt))}</p>
+  </div>
+
+  <div class="info">
+    <div class="info-row"><span class="label">Cliente:</span><span class="value">${clientName}</span></div>
+    <div class="info-row"><span class="label">Total da Venda:</span><span class="value">${formatCurrency(Number(sale.total))}</span></div>
+    ${sale.installmentPlan > 1 ? `<div class="info-row"><span class="label">Plano:</span><span class="value">${sale.installmentPlan}x</span></div>` : ''}
+  </div>
+
+  <div class="section-title">Itens</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Produto</th>
+        <th style="text-align:center;">Qtd</th>
+        <th style="text-align:right;">Unit.</th>
+        <th style="text-align:right;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${itemsHtml}
+    </tbody>
+  </table>
+
+  <div class="section-title">Parcelas (${receivables.length}x)</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Nº</th>
+        <th>Vencimento</th>
+        <th style="text-align:right;">Valor</th>
+        <th style="text-align:right;">Pago</th>
+        <th style="text-align:right;">Resta</th>
+        <th style="text-align:right;">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${installmentsHtml}
+    </tbody>
+  </table>
+
+  <div class="summary">
+    <div class="summary-row" style="color:#16a34a;">
+      <span>Total Pago:</span>
+      <span>${formatCurrency(totalPaid)}</span>
+    </div>
+    <div class="summary-row grand">
+      <span>Restante:</span>
+      <span>${formatCurrency(totalRemaining)}</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Impresso em ${formatDateTime(new Date())}</p>
+  </div>
+
+  <script>
+    window.onload = function() { window.print(); };
+  </script>
+</body>
+</html>`
+
+  const printWindow = window.open('', '_blank', 'width=520,height=600')
+  if (printWindow) {
+    printWindow.document.write(html)
+    printWindow.document.close()
+  }
+}

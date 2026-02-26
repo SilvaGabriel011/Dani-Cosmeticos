@@ -1,6 +1,6 @@
 'use client'
 
-import { Banknote, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp } from 'lucide-react'
+import { Banknote, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, Printer } from 'lucide-react'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 
 import { PageHeader } from '@/components/layout/page-header'
@@ -21,6 +21,7 @@ import { useClients } from '@/hooks/use-clients'
 import { useFilters } from '@/hooks/use-filters'
 import { usePayments } from '@/hooks/use-payments'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
+import { printPaymentInstallments } from '@/lib/print-sale'
 import { formatCurrency, formatDate, getDateRange } from '@/lib/utils'
 
 const periodOptions = [
@@ -261,6 +262,18 @@ export default function PagamentosPage() {
                         <TableRow key={`${payment.id}-detail`} className="bg-muted/30 hover:bg-muted/30">
                           <TableCell colSpan={6} className="p-0">
                             <div className="px-6 py-4 space-y-3">
+                              <div className="flex justify-end">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="gap-1.5"
+                                  onClick={(e) => { e.stopPropagation(); printPaymentInstallments(payment); }}
+                                  title="Imprimir parcelas"
+                                >
+                                  <Printer className="h-4 w-4" />
+                                  Imprimir
+                                </Button>
+                              </div>
                               <div className="flex flex-wrap gap-4 text-sm">
                                 <div>
                                   <span className="text-muted-foreground">Total da venda: </span>
