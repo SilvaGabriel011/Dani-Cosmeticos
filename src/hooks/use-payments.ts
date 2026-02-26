@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export interface ClientPayment {
   id: string
@@ -103,6 +103,60 @@ export function usePayments(filters: PaymentFilters = {}) {
       return res.json()
     },
     staleTime: 30 * 1000, // 30s
+  })
+}
+
+async function deletePayment(id: string): Promise<{ success: boolean; message: string }> {
+  const res = await fetch(`/api/payments/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error?.message || 'Erro ao excluir pagamento')
+  }
+  return res.json()
+}
+
+async function editPayment({ id, data }: { id: string; data: { amount?: number; method?: string; paidAt?: string } }) {
+  const res = await fetch(`/api/payments/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error?.message || 'Erro ao editar pagamento')
+  }
+  return res.json()
+}
+
+export function useDeletePayment() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: deletePayment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: ['client-payments'] })
+      queryClient.invalidateQueries({ queryKey: ['sales'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['receivables'] })
+      queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
+      queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
+    },
+  })
+}
+
+export function useEditPayment() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: editPayment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: ['client-payments'] })
+      queryClient.invalidateQueries({ queryKey: ['sales'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['receivables'] })
+      queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
+      queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
+    },
   })
 }
 

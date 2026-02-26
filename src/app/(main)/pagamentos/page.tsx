@@ -1,7 +1,34 @@
 'use client'
 
-import { Banknote, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, Copy, Printer } from 'lucide-react'
+import { Banknote, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, Copy, Pencil, Printer, Trash2 } from 'lucide-react'
 import { useState, useMemo, useCallback, useEffect } from 'react'
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 import { PageHeader } from '@/components/layout/page-header'
 import { Badge } from '@/components/ui/badge'
@@ -19,7 +46,7 @@ import {
 } from '@/components/ui/table'
 import { useClients } from '@/hooks/use-clients'
 import { useFilters } from '@/hooks/use-filters'
-import { usePayments } from '@/hooks/use-payments'
+import { usePayments, useDeletePayment, useEditPayment, type PaymentData } from '@/hooks/use-payments'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import { useToast } from '@/components/ui/use-toast'
 import { printPaymentInstallments } from '@/lib/print-sale'
@@ -75,7 +102,14 @@ export default function PagamentosPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const [copiedPaymentId, setCopiedPaymentId] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<PaymentData | null>(null)
+  const [editTarget, setEditTarget] = useState<PaymentData | null>(null)
+  const [editAmount, setEditAmount] = useState(0)
+  const [editMethod, setEditMethod] = useState<string>('PIX')
+  const [editPaidAt, setEditPaidAt] = useState('')
   const { toast } = useToast()
+  const deletePayment = useDeletePayment()
+  const editPayment = useEditPayment()
 
   const toggleExpanded = useCallback((id: string) => {
     setExpandedIds((prev) => {
@@ -327,6 +361,32 @@ export default function PagamentosPage() {
                                 >
                                   <Printer className="h-4 w-4" />
                                   Imprimir
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="gap-1.5"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setEditTarget(payment)
+                                    setEditAmount(Number(payment.amount))
+                                    setEditMethod(payment.method)
+                                    setEditPaidAt(new Date(payment.paidAt).toISOString().split('T')[0])
+                                  }}
+                                  title="Editar pagamento"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                  Editar
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="gap-1.5 text-destructive hover:text-destructive"
+                                  onClick={(e) => { e.stopPropagation(); setDeleteTarget(payment); }}
+                                  title="Excluir pagamento"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                  Excluir
                                 </Button>
                               </div>
                               <div className="flex flex-wrap gap-4 text-sm">
