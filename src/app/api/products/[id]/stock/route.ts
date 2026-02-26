@@ -43,6 +43,138 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     const previousStock = product.stock
+    const entryQty = type === 'ENTRY' ? Math.abs(quantity) : quantity
+
+    // For ENTRY type, auto-fulfill pending backorders before adding to stock
+    if (type === 'ENTRY') {
+      const pendingBackorders = await prisma.saleItem.findMany({
+        where: {
+          productId: params.id,
+          isBackorder: true,
+          backorderFulfilledAt: null,
+        },
+        include: {
+          sale: { select: { id: true } },
+        },
+        orderBy: { addedAt: 'asc' }, // FIFO: oldest backorders first
+      })
+
+      // Calculate how many pending units need fulfilling
+      // (only units that were NOT already deducted from stock at sale time)
+      let totalPending = 0
+      const backorderDetails: { item: typeof pendingBackorders[0]; pendingQty: number }[] = []
+
+      if (pendingBackorders.length > 0) {
+        const saleIds = Array.from(new Set(pendingBackorders.map((i) => i.saleId)))
+        const backorderMovements = await prisma.stockMovement.findMany({
+          where: { saleId: { in: saleIds }, productId: params.id, type: 'BACKORDER' },
+        })
+
+        for (const item of pendingBackorders) {
+          const movement = backorderMovements.find(
+            (m) => m.saleId === item.saleId && m.productId === item.productId
+          )
+          const alreadyDeducted = movement
+            ? Math.min(item.quantity, Math.max(0, movement.previousStock))
+            : 0
+          const pendingQty = item.quantity - alreadyDeducted
+          if (pendingQty > 0) {
+            totalPending += pendingQty
+            backorderDetails.push({ item, pendingQty })
+          } else {
+            // Fully deducted at sale time, just mark as fulfilled
+            backorderDetails.push({ item, pendingQty: 0 })
+          }
+        }
+      }
+
+      if (totalPending > 0) {
+        // Deduct backorder quantities from the incoming entry
+        const fulfilledFromEntry = Math.min(entryQty, totalPending)
+        const excessForStock = entryQty - fulfilledFromEntry
+        const newStock = previousStock + excessForStock
+
+        const result = await prisma.$transaction(async (tx) => {
+          // Fulfill backorders FIFO
+          let remaining = fulfilledFromEntry
+          for (const { item, pendingQty } of backorderDetails) {
+            if (remaining <= 0) break
+            if (pendingQty === 0) {
+              // Item was fully deducted at sale time, just mark fulfilled
+              await tx.saleItem.update({
+                where: { id: item.id },
+                data: { backorderFulfilledAt: new Date() },
+              })
+              continue
+            }
+
+            const toFulfill = Math.min(remaining, pendingQty)
+            remaining -= toFulfill
+
+            // Mark as fulfilled if fully covered
+            if (toFulfill >= pendingQty) {
+              await tx.saleItem.update({
+                where: { id: item.id },
+                data: { backorderFulfilledAt: new Date() },
+              })
+            }
+
+            await tx.stockMovement.create({
+              data: {
+                productId: params.id,
+                type: 'SALE',
+                quantity: 0,
+                previousStock,
+                newStock: previousStock,
+                saleId: item.saleId,
+                notes: `Encomenda cumprida via entrada de estoque: ${toFulfill} un. entregue(s) direto ao cliente`,
+              },
+            })
+          }
+
+          // Also fulfill zero-pending items that weren't covered above
+          for (const { item, pendingQty } of backorderDetails) {
+            if (pendingQty === 0 && !item.backorderFulfilledAt) {
+              await tx.saleItem.update({
+                where: { id: item.id },
+                data: { backorderFulfilledAt: new Date() },
+              })
+            }
+          }
+
+          // Update stock with only the excess
+          const updatedProduct = await tx.product.update({
+            where: { id: params.id },
+            data: { stock: newStock },
+            include: { category: true, brand: true },
+          })
+
+          // Record entry movement (only the net effect on stock)
+          const movement = await tx.stockMovement.create({
+            data: {
+              productId: params.id,
+              type: 'ENTRY',
+              quantity: entryQty,
+              previousStock,
+              newStock,
+              notes: notes
+                ? `${notes} (${fulfilledFromEntry} un. destinada(s) a encomendas)`
+                : `${fulfilledFromEntry} un. destinada(s) a encomendas, ${excessForStock} un. adicionada(s) ao estoque`,
+            },
+          })
+
+          return { product: updatedProduct, movement }
+        })
+
+        return NextResponse.json({
+          product: result.product,
+          movement: result.movement,
+          backordersFulfilled: fulfilledFromEntry,
+        })
+      }
+    }
+
+    // Regular flow (no pending backorders, or ADJUSTMENT type)
     const newStock =
       type === 'ENTRY' ? previousStock + Math.abs(quantity) : previousStock + quantity
 

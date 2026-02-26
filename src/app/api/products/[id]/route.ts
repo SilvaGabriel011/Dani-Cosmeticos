@@ -69,7 +69,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       : calculatedSalePrice
 
     const sanitizedCode = code === '' ? null : code
-    const newStock = rest.stock ?? existing.stock
 
     const product = await prisma.$transaction(async (tx) => {
       const updated = await tx.product.update({
@@ -84,17 +83,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         },
         include: { category: true, brand: true },
       })
-
-      if (newStock > 0) {
-        await tx.saleItem.updateMany({
-          where: {
-            productId: params.id,
-            isBackorder: true,
-            backorderFulfilledAt: null,
-          },
-          data: { backorderFulfilledAt: new Date() },
-        })
-      }
 
       return updated
     })

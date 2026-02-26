@@ -39,22 +39,8 @@ export async function POST(
       )
     }
 
-    // Calculate pending backorder quantity from original stock movement
-    const backorderMovement = await prisma.stockMovement.findFirst({
-      where: {
-        saleId: saleItem.saleId,
-        productId: saleItem.productId,
-        type: 'BACKORDER',
-      },
-    })
-
-    // pendingQty = total ordered - what was already taken from stock at sale time
-    const alreadyDeducted = backorderMovement
-      ? Math.min(saleItem.quantity, Math.max(0, backorderMovement.previousStock))
-      : 0
-    const pendingQty = saleItem.quantity - alreadyDeducted
-
-    // Use transaction: mark fulfilled + decrement stock + create movement
+    // Just mark as fulfilled — items go directly from supplier to customer,
+    // no stock change needed (they were never on the shelf)
     const updated = await prisma.$transaction(async (tx) => {
       const updatedItem = await tx.saleItem.update({
         where: { id },
@@ -72,32 +58,18 @@ export async function POST(
         },
       })
 
-      // Decrement stock for the pending backorder quantity
-      if (pendingQty > 0) {
-        const product = await tx.product.update({
-          where: { id: saleItem.productId },
-          data: { stock: { decrement: pendingQty } },
-        })
-
-        // Safety: check stock didn't go negative
-        if (product.stock < 0) {
-          throw new Error(
-            `Estoque insuficiente para cumprir encomenda. Estoque atual: ${product.stock + pendingQty}, necessário: ${pendingQty}`
-          )
-        }
-
-        await tx.stockMovement.create({
-          data: {
-            productId: saleItem.productId,
-            type: 'SALE',
-            quantity: -pendingQty,
-            previousStock: product.stock + pendingQty,
-            newStock: product.stock,
-            saleId: saleItem.saleId,
-            notes: `Encomenda cumprida: ${pendingQty} un. entregue(s)`,
-          },
-        })
-      }
+      // Record a traceability movement (no stock change)
+      await tx.stockMovement.create({
+        data: {
+          productId: saleItem.productId,
+          type: 'SALE',
+          quantity: 0,
+          previousStock: updatedItem.product.stock,
+          newStock: updatedItem.product.stock,
+          saleId: saleItem.saleId,
+          notes: `Encomenda cumprida manualmente: ${saleItem.quantity} un. entregue(s) direto ao cliente`,
+        },
+      })
 
       return updatedItem
     })

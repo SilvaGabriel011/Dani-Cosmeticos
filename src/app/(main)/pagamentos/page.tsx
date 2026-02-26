@@ -1,6 +1,6 @@
 'use client'
 
-import { Banknote, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, Printer } from 'lucide-react'
+import { Banknote, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, Copy, Printer } from 'lucide-react'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 
 import { PageHeader } from '@/components/layout/page-header'
@@ -21,6 +21,7 @@ import { useClients } from '@/hooks/use-clients'
 import { useFilters } from '@/hooks/use-filters'
 import { usePayments } from '@/hooks/use-payments'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
+import { useToast } from '@/components/ui/use-toast'
 import { printPaymentInstallments } from '@/lib/print-sale'
 import { formatCurrency, formatDate, getDateRange } from '@/lib/utils'
 
@@ -38,9 +39,43 @@ const paymentMethodOptions = [
   { value: 'DEBIT', label: 'Cartao Debito' },
 ]
 
+function buildPaymentText(payment: { sale: { total: string | number; installmentPlan: number; createdAt: string; client: { name: string; phone: string | null } | null; items: Array<{ quantity: number; unitPrice: string | number; total: string | number; product: { name: string } }>; receivables: Array<{ installment: number; amount: string | number; paidAmount: string | number; status: string; dueDate: string }> } }): string {
+  const { sale } = payment
+  const lines: string[] = []
+  lines.push('DANI COSMÉTICOS')
+  lines.push('Controle de Parcelas')
+  lines.push(`Cliente: ${sale.client?.name || 'Não informado'}`)
+  lines.push(`Data da venda: ${formatDate(new Date(sale.createdAt))}`)
+  lines.push(`Total da venda: ${formatCurrency(Number(sale.total))}`)
+  if (sale.installmentPlan > 1) lines.push(`Plano: ${sale.installmentPlan}x`)
+  lines.push('')
+  lines.push('Itens:')
+  for (const item of sale.items) {
+    lines.push(`  ${item.product.name} x${item.quantity} — ${formatCurrency(Number(item.total))}`)
+  }
+  lines.push('')
+  const sorted = [...sale.receivables].sort((a, b) => a.installment - b.installment)
+  lines.push(`Parcelas (${sorted.length}x):`)
+  for (const r of sorted) {
+    const isPaid = r.status === 'PAID'
+    const isOverdue = !isPaid && new Date(r.dueDate) < new Date()
+    const remaining = Number(r.amount) - Number(r.paidAmount)
+    const statusText = isPaid ? 'Pago' : isOverdue ? 'ATRASADO' : 'Pendente'
+    lines.push(`  ${r.installment}ª - ${formatDate(new Date(r.dueDate))} — ${formatCurrency(Number(r.amount))} | Pago: ${formatCurrency(Number(r.paidAmount))} | Resta: ${formatCurrency(remaining)} | ${statusText}`)
+  }
+  const totalPaid = sorted.reduce((sum, r) => sum + Number(r.paidAmount), 0)
+  const totalRemaining = sorted.reduce((sum, r) => sum + Number(r.amount), 0) - totalPaid
+  lines.push('')
+  lines.push(`Total Pago: ${formatCurrency(totalPaid)}`)
+  lines.push(`Restante: ${formatCurrency(totalRemaining)}`)
+  return lines.join('\n')
+}
+
 export default function PagamentosPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const [copiedPaymentId, setCopiedPaymentId] = useState<string | null>(null)
+  const { toast } = useToast()
 
   const toggleExpanded = useCallback((id: string) => {
     setExpandedIds((prev) => {
@@ -262,7 +297,27 @@ export default function PagamentosPage() {
                         <TableRow key={`${payment.id}-detail`} className="bg-muted/30 hover:bg-muted/30">
                           <TableCell colSpan={6} className="p-0">
                             <div className="px-6 py-4 space-y-3">
-                              <div className="flex justify-end">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="gap-1.5"
+                                  onClick={async (e) => {
+                                    e.stopPropagation()
+                                    try {
+                                      await navigator.clipboard.writeText(buildPaymentText(payment))
+                                      setCopiedPaymentId(payment.id)
+                                      toast({ title: 'Copiado!', description: 'Dados das parcelas copiados.' })
+                                      setTimeout(() => setCopiedPaymentId(null), 2000)
+                                    } catch {
+                                      toast({ title: 'Erro', description: 'Não foi possível copiar.', variant: 'destructive' })
+                                    }
+                                  }}
+                                  title="Copiar parcelas"
+                                >
+                                  {copiedPaymentId === payment.id ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                                  {copiedPaymentId === payment.id ? 'Copiado!' : 'Copiar'}
+                                </Button>
                                 <Button
                                   variant="outline"
                                   size="sm"
