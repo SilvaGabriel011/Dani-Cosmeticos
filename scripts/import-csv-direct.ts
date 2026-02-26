@@ -177,7 +177,7 @@ async function importProducts() {
           await prisma.product.update({
             where: { id: existing.id },
             data: {
-              stock: { increment: stock },
+              stock: stock,
               salePrice: new Prisma.Decimal(newSalePrice),
               costPrice: new Prisma.Decimal(newCostPrice),
               deletedAt: null,

@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
           await prisma.product.update({
             where: { id: existing.id },
             data: {
-              stock: { increment: stock },
+              stock: stock,
               salePrice: new Decimal(newSalePrice),
               costPrice: new Decimal(newCostPrice),
               deletedAt: null,
