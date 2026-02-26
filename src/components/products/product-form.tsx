@@ -1,7 +1,9 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, X, Loader2, Package } from 'lucide-react'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import { Plus, X, Loader2, Package, History, Trash2 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -23,9 +25,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useToast } from '@/components/ui/use-toast'
+import { Badge } from '@/components/ui/badge'
 import { useBrands, useCreateBrand } from '@/hooks/use-brands'
 import { useCategories, useCreateCategory } from '@/hooks/use-categories'
-import { useCreateProduct, useUpdateProduct, useProducts } from '@/hooks/use-products'
+import { useCreateProduct, useUpdateProduct, useProducts, useCostEntries, useAddCostEntry, useDeleteCostEntry } from '@/hooks/use-products'
 import { generateProductCode } from '@/lib/code-generator'
 import { formatCurrency, calculateProfitMargin, calculateProfit } from '@/lib/utils'
 import { useMemo } from 'react'
@@ -54,6 +57,13 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
   const [newBrandName, setNewBrandName] = useState('')
   const [pricingMode, setPricingMode] = useState<'margin' | 'salePrice'>('salePrice')
   const [inputSalePrice, setInputSalePrice] = useState(0)
+  const [showCostForm, setShowCostForm] = useState(false)
+  const [newCostPrice, setNewCostPrice] = useState('')
+  const [newCostQty, setNewCostQty] = useState('1')
+  const [newCostNotes, setNewCostNotes] = useState('')
+  const { data: costEntries, isLoading: loadingEntries } = useCostEntries(product?.id || '')
+  const addCostEntry = useAddCostEntry()
+  const deleteCostEntry = useDeleteCostEntry()
 
   const {
     register,
@@ -219,14 +229,37 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="costPrice">Valor Produto (Custo)</Label>
-            <Input
-              id="costPrice"
-              type="number"
-              step="0.01"
-              min="0"
-              {...register('costPrice', { valueAsNumber: true })}
-            />
+            <Label htmlFor="costPrice">Valor Produto (Custo){isEditing && costEntries && costEntries.length > 0 ? ' — Média' : ''}</Label>
+            {isEditing && costEntries && costEntries.length > 0 ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  id="costPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  {...register('costPrice', { valueAsNumber: true })}
+                  readOnly
+                  className="bg-muted cursor-default"
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  onClick={() => setShowCostForm(!showCostForm)}
+                  title="Histórico de custos"
+                >
+                  <History className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Input
+                id="costPrice"
+                type="number"
+                step="0.01"
+                min="0"
+                {...register('costPrice', { valueAsNumber: true })}
+              />
+            )}
             {errors.costPrice && (
               <p className="text-sm text-destructive">{errors.costPrice.message}</p>
             )}
@@ -381,6 +414,138 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
               </div>
             )}
           </div>
+
+          {isEditing && showCostForm && (
+            <div className="md:col-span-2 space-y-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 p-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold flex items-center gap-2">
+                  <History className="h-4 w-4" />
+                  Histórico de Preços de Custo
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setShowCostForm(false)
+                    setNewCostPrice('')
+                    setNewCostQty('1')
+                    setNewCostNotes('')
+                  }}
+                >
+                  <X className="h-3 w-3 mr-1" /> Fechar
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap gap-2 items-end">
+                <div className="flex-1 min-w-[100px]">
+                  <Label className="text-xs">Preço *</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0,00"
+                    value={newCostPrice}
+                    onChange={(e) => setNewCostPrice(e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+                <div className="w-20">
+                  <Label className="text-xs">Qtd</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={newCostQty}
+                    onChange={(e) => setNewCostQty(e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+                <div className="flex-1 min-w-[120px]">
+                  <Label className="text-xs">Obs</Label>
+                  <Input
+                    placeholder="Ex: Promoção"
+                    value={newCostNotes}
+                    onChange={(e) => setNewCostNotes(e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-9"
+                  disabled={!newCostPrice || Number(newCostPrice) <= 0 || addCostEntry.isPending}
+                  onClick={async () => {
+                    if (!product) return
+                    try {
+                      const result = await addCostEntry.mutateAsync({
+                        productId: product.id,
+                        price: Number(newCostPrice),
+                        quantity: Math.max(1, Math.round(Number(newCostQty) || 1)),
+                        notes: newCostNotes || undefined,
+                      })
+                      setValue('costPrice', Number(result.product.costPrice))
+                      setValue('profitMargin', Number(result.product.profitMargin))
+                      setNewCostPrice('')
+                      setNewCostQty('1')
+                      setNewCostNotes('')
+                      toast({ title: 'Preço de custo adicionado!' })
+                    } catch (error: any) {
+                      toast({ title: 'Erro', description: error.message, variant: 'destructive' })
+                    }
+                  }}
+                >
+                  {addCostEntry.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4 mr-1" />}
+                  Adicionar
+                </Button>
+              </div>
+
+              {loadingEntries ? (
+                <p className="text-xs text-muted-foreground">Carregando...</p>
+              ) : costEntries && costEntries.length > 0 ? (
+                <div className="max-h-[200px] overflow-y-auto space-y-1.5">
+                  {costEntries.map((entry) => (
+                    <div key={entry.id} className="flex items-center justify-between text-sm bg-background rounded-lg px-3 py-2 border">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="font-medium">{formatCurrency(Number(entry.price))}</span>
+                        <Badge variant="secondary" className="text-[10px] px-1.5">{entry.quantity}x</Badge>
+                        {entry.notes && <span className="text-xs text-muted-foreground truncate">{entry.notes}</span>}
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-[10px] text-muted-foreground">
+                          {format(new Date(entry.createdAt), "dd/MM/yy", { locale: ptBR })}
+                        </span>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6"
+                          disabled={deleteCostEntry.isPending}
+                          onClick={async () => {
+                            if (!product) return
+                            try {
+                              const updated = await deleteCostEntry.mutateAsync({
+                                productId: product.id,
+                                entryId: entry.id,
+                              })
+                              setValue('costPrice', Number(updated.costPrice))
+                              setValue('profitMargin', Number(updated.profitMargin))
+                              toast({ title: 'Entrada removida' })
+                            } catch (error: any) {
+                              toast({ title: 'Erro', description: error.message, variant: 'destructive' })
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">Nenhuma entrada de custo registrada.</p>
+              )}
+            </div>
+          )}
 
           <div className="space-y-3 md:col-span-2">
             <Label>Modo de Precificacao</Label>

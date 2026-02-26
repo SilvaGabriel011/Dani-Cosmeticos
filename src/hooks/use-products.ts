@@ -154,3 +154,93 @@ export function useProductStats() {
     refetchOnWindowFocus: false,
   })
 }
+
+// --- Cost Entries ---
+
+export interface CostEntry {
+  id: string
+  productId: string
+  price: number | string
+  quantity: number
+  notes: string | null
+  createdAt: string
+}
+
+async function fetchCostEntries(productId: string): Promise<CostEntry[]> {
+  const res = await fetch(`/api/products/${productId}/cost-entries`)
+  if (!res.ok) throw new Error('Erro ao buscar entradas de custo')
+  return res.json()
+}
+
+async function addCostEntry({
+  productId,
+  price,
+  quantity,
+  notes,
+}: {
+  productId: string
+  price: number
+  quantity?: number
+  notes?: string
+}): Promise<{ product: Product; entry: CostEntry }> {
+  const res = await fetch(`/api/products/${productId}/cost-entries`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ price, quantity, notes }),
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error?.message || 'Erro ao adicionar preço de custo')
+  }
+  return res.json()
+}
+
+async function deleteCostEntry({
+  productId,
+  entryId,
+}: {
+  productId: string
+  entryId: string
+}): Promise<Product> {
+  const res = await fetch(`/api/products/${productId}/cost-entries?entryId=${entryId}`, {
+    method: 'DELETE',
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error?.message || 'Erro ao remover entrada de custo')
+  }
+  return res.json()
+}
+
+export function useCostEntries(productId: string) {
+  return useQuery({
+    queryKey: ['cost-entries', productId],
+    queryFn: () => fetchCostEntries(productId),
+    enabled: !!productId,
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useAddCostEntry() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: addCostEntry,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['cost-entries', variables.productId] })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['product', variables.productId] })
+    },
+  })
+}
+
+export function useDeleteCostEntry() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: deleteCostEntry,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['cost-entries', variables.productId] })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['product', variables.productId] })
+    },
+  })
+}

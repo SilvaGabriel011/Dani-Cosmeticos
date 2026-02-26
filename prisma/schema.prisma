@@ -45,6 +45,7 @@ model Product {
   category       Category?       @relation(fields: [categoryId], references: [id])
   saleItems      SaleItem[]
   stockMovements StockMovement[]
+  costEntries    ProductCostEntry[]
 
   @@unique([brandId, linha, fragrancia, categoryId, packagingType])
   @@index([categoryId])
@@ -199,6 +200,19 @@ model CancelledSaleLog {
   notes          String?
 
   @@index([cancelledAt])
+}
+
+model ProductCostEntry {
+  id        String   @id @default(uuid())
+  productId String
+  price     Decimal  @db.Decimal(10, 2)
+  quantity  Int      @default(1)
+  notes     String?
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([createdAt])
 }
 
 enum PaymentMethod {

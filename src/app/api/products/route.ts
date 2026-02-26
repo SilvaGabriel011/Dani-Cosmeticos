@@ -137,15 +137,30 @@ export async function POST(request: NextRequest) {
       : calculatedSalePrice
     const sanitizedCode = code === '' ? null : code
 
-    const product = await prisma.product.create({
-      data: {
-        ...rest,
-        code: sanitizedCode,
-        costPrice,
-        profitMargin,
-        salePrice,
-      },
-      include: { category: true, brand: true },
+    const product = await prisma.$transaction(async (tx) => {
+      const created = await tx.product.create({
+        data: {
+          ...rest,
+          code: sanitizedCode,
+          costPrice,
+          profitMargin,
+          salePrice,
+        },
+        include: { category: true, brand: true },
+      })
+
+      // Create initial cost entry if costPrice > 0
+      if (costPrice > 0) {
+        await tx.productCostEntry.create({
+          data: {
+            productId: created.id,
+            price: costPrice,
+            quantity: rest.stock || 1,
+          },
+        })
+      }
+
+      return created
     })
 
     return NextResponse.json(product, { status: 201 })
