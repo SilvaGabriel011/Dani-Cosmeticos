@@ -512,6 +512,113 @@ export default function PagamentosPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir pagamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget && (
+                <>
+                  Tem certeza que deseja excluir o pagamento de{' '}
+                  <strong>{formatCurrency(Number(deleteTarget.amount))}</strong>
+                  {deleteTarget.sale?.client?.name && (
+                    <> do cliente <strong>{deleteTarget.sale.client.name}</strong></>
+                  )}
+                  ? As parcelas serão recalculadas automaticamente.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deletePayment.isPending}
+              onClick={async () => {
+                if (!deleteTarget) return
+                try {
+                  await deletePayment.mutateAsync(deleteTarget.id)
+                  toast({ title: 'Pagamento excluído', description: 'As parcelas foram recalculadas.' })
+                  setDeleteTarget(null)
+                } catch (error: unknown) {
+                  const msg = error instanceof Error ? error.message : 'Erro desconhecido'
+                  toast({ title: 'Erro ao excluir', description: msg, variant: 'destructive' })
+                }
+              }}
+            >
+              {deletePayment.isPending ? 'Excluindo...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit payment dialog */}
+      <Dialog open={!!editTarget} onOpenChange={(open) => { if (!open) setEditTarget(null) }}>
+        <DialogContent className="max-w-[95vw] md:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Pagamento</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Valor</Label>
+              <Input
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={editAmount}
+                onChange={(e) => setEditAmount(Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Forma de Pagamento</Label>
+              <Select value={editMethod} onValueChange={setEditMethod}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(PAYMENT_METHOD_LABELS).map(([key, label]) => (
+                    <SelectItem key={key} value={key}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Data do Pagamento</Label>
+              <Input type="date" value={editPaidAt} onChange={(e) => setEditPaidAt(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditTarget(null)}>Cancelar</Button>
+            <Button
+              disabled={editPayment.isPending || editAmount <= 0}
+              onClick={async () => {
+                if (!editTarget) return
+                try {
+                  await editPayment.mutateAsync({
+                    id: editTarget.id,
+                    data: {
+                      amount: editAmount,
+                      method: editMethod,
+                      paidAt: editPaidAt ? new Date(editPaidAt + 'T12:00:00').toISOString() : undefined,
+                    },
+                  })
+                  toast({ title: 'Pagamento atualizado', description: 'As parcelas foram recalculadas.' })
+                  setEditTarget(null)
+                } catch (error: unknown) {
+                  const msg = error instanceof Error ? error.message : 'Erro desconhecido'
+                  toast({ title: 'Erro ao editar', description: msg, variant: 'destructive' })
+                }
+              }}
+            >
+              {editPayment.isPending ? 'Salvando...' : 'Salvar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
