@@ -276,6 +276,12 @@
     "costPrice": 0
   },
   {
+    "id": "ea6ff055-7b37-40a5-a376-0804fd09db47",
+    "name": "Avon",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
     "id": "aa5a1124-eb05-48dc-9db5-91b6b60666ed",
     "name": "teste 444",
     "stock": 0,
@@ -500,6 +506,12 @@
   {
     "id": "d1675add-b285-49d0-9869-88ca19d96e35",
     "name": "O Boticário - Sophie - Spider Man",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
+    "id": "da4aa1d2-b32e-4fe4-8fd8-6bedd155f2b8",
+    "name": "Avon",
     "stock": 1,
     "costPrice": 0
   },
@@ -984,6 +996,12 @@
     "costPrice": 0
   },
   {
+    "id": "f7af2ac7-68a1-42d6-a33b-f54f6f1929c2",
+    "name": "Kaiak aero masculino",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
     "id": "07c7d231-b8a4-4954-92e7-86ef58199418",
     "name": "Avon pura blanc",
     "stock": 2,
@@ -1050,12 +1068,6 @@
     "costPrice": 0
   },
   {
-    "id": "f7af2ac7-68a1-42d6-a33b-f54f6f1929c2",
-    "name": "Kaiak aero masculino",
-    "stock": 1,
-    "costPrice": 0
-  },
-  {
     "id": "cae4f2a5-4b99-448a-812b-868c33ed3070",
     "name": "Natura - Todo Dia - Noz Pecan & Cacau",
     "stock": 2,
@@ -1101,18 +1113,6 @@
     "id": "2572c095-306c-48da-815e-76416db599cc",
     "name": "O Boticário - Sophie - Cachos",
     "stock": 2,
-    "costPrice": 0
-  },
-  {
-    "id": "ea6ff055-7b37-40a5-a376-0804fd09db47",
-    "name": "Avon",
-    "stock": 1,
-    "costPrice": 0
-  },
-  {
-    "id": "da4aa1d2-b32e-4fe4-8fd8-6bedd155f2b8",
-    "name": "Avon",
-    "stock": 1,
     "costPrice": 0
   },
   {
@@ -2196,6 +2196,12 @@
     "costPrice": 0
   },
   {
+    "id": "2b8f155b-182d-4487-b686-e8b3387fca76",
+    "name": "Natura - Kaiak - Pulso",
+    "stock": 2,
+    "costPrice": 0
+  },
+  {
     "id": "11df0004-41c9-4db7-8566-cc5ff5e98324",
     "name": "Natura - Humor - Meu primeiro humor",
     "stock": 2,
@@ -2247,6 +2253,12 @@
     "id": "7a12d6c4-79b2-451e-8239-cf779729b9ac",
     "name": "Natura - Kaiak - Tradicional",
     "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "ed5dfb2f-edcb-4bcf-b6f0-88fbce327330",
+    "name": "Corrente romm",
+    "stock": 0,
     "costPrice": 0
   },
   {
@@ -2343,12 +2355,6 @@
     "id": "817db7f2-4fe8-40f4-b357-3f889130cad7",
     "name": "Natura - Kaiak - Pulso",
     "stock": 5,
-    "costPrice": 0
-  },
-  {
-    "id": "2b8f155b-182d-4487-b686-e8b3387fca76",
-    "name": "Natura - Kaiak - Pulso",
-    "stock": 2,
     "costPrice": 0
   },
   {
@@ -2706,6 +2712,12 @@
     "costPrice": 0
   },
   {
+    "id": "9cfc21ab-295f-46ce-8573-b59bd36b0dc4",
+    "name": "Natura - Todo Dia - Algodão",
+    "stock": 1,
+    "costPrice": 0
+  },
+  {
     "id": "00225dc0-0b78-49ee-ade9-209ffa9bf150",
     "name": "Natura - Naturé - Cabelinhos no Sol (Verde Água)",
     "stock": 1,
@@ -2892,12 +2904,6 @@
     "costPrice": 0
   },
   {
-    "id": "9cfc21ab-295f-46ce-8573-b59bd36b0dc4",
-    "name": "Natura - Todo Dia - Algodão",
-    "stock": 1,
-    "costPrice": 0
-  },
-  {
     "id": "79b44773-0996-4062-a6c0-135c515b633a",
     "name": "Natura - Todo Dia - Cereja e Avelã",
     "stock": 1,
@@ -3075,6 +3081,12 @@
     "id": "7f384892-4863-4768-8823-96ebf9ffa966",
     "name": "Natura - Tododia - Ameixa",
     "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "19ce488c-817d-4e2a-9fa8-247960311c33",
+    "name": "O Boticário - Boti Sun",
+    "stock": 1,
     "costPrice": 0
   },
   {
@@ -3259,12 +3271,6 @@
   },
   {
     "id": "c21327c8-165a-4ede-89a4-276bf343ec64",
-    "name": "O Boticário - Boti Sun",
-    "stock": 1,
-    "costPrice": 0
-  },
-  {
-    "id": "19ce488c-817d-4e2a-9fa8-247960311c33",
     "name": "O Boticário - Boti Sun",
     "stock": 1,
     "costPrice": 0
@@ -4569,6 +4575,12 @@
     "id": "1d1f5eab-7f9f-4c37-97d8-b3524c3dd09f",
     "name": "Cortina Oxford 3 por 3",
     "stock": 2,
+    "costPrice": 0
+  },
+  {
+    "id": "6eaf5b42-9d95-4096-9622-0a29cb4a07a5",
+    "name": "base",
+    "stock": 0,
     "costPrice": 0
   },
   {

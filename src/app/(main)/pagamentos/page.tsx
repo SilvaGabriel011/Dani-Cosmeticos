@@ -69,32 +69,43 @@ const paymentMethodOptions = [
 function buildPaymentText(payment: { sale: { total: string | number; installmentPlan: number; createdAt: string; client: { name: string; phone: string | null } | null; items: Array<{ quantity: number; unitPrice: string | number; total: string | number; product: { name: string } }>; receivables: Array<{ installment: number; amount: string | number; paidAmount: string | number; status: string; dueDate: string }> } }): string {
   const { sale } = payment
   const lines: string[] = []
-  lines.push('DANI COSMÉTICOS')
-  lines.push('Controle de Parcelas')
+  lines.push('*DANI COSMÉTICOS*')
+  lines.push('_Controle de Parcelas_')
   lines.push(`Cliente: ${sale.client?.name || 'Não informado'}`)
   lines.push(`Data da venda: ${formatDate(new Date(sale.createdAt))}`)
-  lines.push(`Total da venda: ${formatCurrency(Number(sale.total))}`)
+  lines.push(`*Total: ${formatCurrency(Number(sale.total))}*`)
   if (sale.installmentPlan > 1) lines.push(`Plano: ${sale.installmentPlan}x`)
   lines.push('')
-  lines.push('Itens:')
+  lines.push('*Itens:*')
   for (const item of sale.items) {
-    lines.push(`  ${item.product.name} x${item.quantity} — ${formatCurrency(Number(item.total))}`)
+    lines.push(`• ${item.product.name} x${item.quantity} — ${formatCurrency(Number(item.total))}`)
   }
   lines.push('')
   const sorted = [...sale.receivables].sort((a, b) => a.installment - b.installment)
-  lines.push(`Parcelas (${sorted.length}x):`)
+  lines.push(`*Parcelas (${sorted.length}x):*`)
   for (const r of sorted) {
     const isPaid = r.status === 'PAID'
     const isOverdue = !isPaid && new Date(r.dueDate) < new Date()
     const remaining = Number(r.amount) - Number(r.paidAmount)
-    const statusText = isPaid ? 'Pago' : isOverdue ? 'ATRASADO' : 'Pendente'
-    lines.push(`  ${r.installment}ª - ${formatDate(new Date(r.dueDate))} — ${formatCurrency(Number(r.amount))} | Pago: ${formatCurrency(Number(r.paidAmount))} | Resta: ${formatCurrency(remaining)} | ${statusText}`)
+    let emoji: string
+    let detail: string
+    if (isPaid) {
+      emoji = '✅'
+      detail = '(Pago)'
+    } else if (isOverdue) {
+      emoji = '🔴'
+      detail = `(vencida, resta ${formatCurrency(remaining)})`
+    } else {
+      emoji = '⏳'
+      detail = `(resta ${formatCurrency(remaining)})`
+    }
+    lines.push(`${emoji} ${r.installment}ª - ${formatDate(new Date(r.dueDate))} — ${formatCurrency(Number(r.amount))} ${detail}`)
   }
   const totalPaid = sorted.reduce((sum, r) => sum + Number(r.paidAmount), 0)
   const totalRemaining = sorted.reduce((sum, r) => sum + Number(r.amount), 0) - totalPaid
   lines.push('')
-  lines.push(`Total Pago: ${formatCurrency(totalPaid)}`)
-  lines.push(`Restante: ${formatCurrency(totalRemaining)}`)
+  lines.push(`*Total Pago:* ${formatCurrency(totalPaid)}`)
+  lines.push(`*Restante:* ${formatCurrency(totalRemaining)}`)
   return lines.join('\n')
 }
 

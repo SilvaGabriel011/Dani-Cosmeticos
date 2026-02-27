@@ -2,6 +2,8 @@ import { type ClassValue, clsx } from 'clsx'
 import { format, subDays, startOfMonth } from 'date-fns'
 import { twMerge } from 'tailwind-merge'
 
+import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -156,14 +158,10 @@ export function buildSaleWhatsAppMessage(sale: {
   if (!isFiado && sale.payments.length > 0) {
     lines.push('*Pagamento:*')
     for (const p of sale.payments) {
-      const label =
-        p.method === 'CASH' ? 'Dinheiro' :
-        p.method === 'PIX' ? 'PIX' :
-        p.method === 'DEBIT' ? 'Débito' :
-        p.method === 'CREDIT' ? 'Crédito' : p.method
+      const label = PAYMENT_METHOD_LABELS[p.method as keyof typeof PAYMENT_METHOD_LABELS] || p.method
       lines.push(`• ${label}: ${formatCurrency(Number(p.amount))}`)
     }
-    lines.push('\u2705 *PAGO*')
+    lines.push('✅ *PAGO*')
   }
 
   if (isFiado) {
@@ -171,14 +169,29 @@ export function buildSaleWhatsAppMessage(sale: {
     if (paid > 0) {
       lines.push(`Entrada: ${formatCurrency(paid)}`)
     }
-    const remaining = Number(sale.total) - paid
-    lines.push(`*Saldo a pagar: ${formatCurrency(remaining)}*`)
+    const remainingTotal = Number(sale.total) - paid
+    lines.push(`*Saldo a pagar: ${formatCurrency(remainingTotal)}*`)
     if (sale.receivables && sale.receivables.length > 0) {
       lines.push('')
       lines.push(`*Parcelas (${sale.receivables.length}x):*`)
       for (const rec of sale.receivables) {
-        const status = rec.status === 'PAID' ? ' \u2705' : rec.status === 'PARTIAL' ? ' (parcial)' : ''
-        lines.push(`${rec.installment}\u00AA - ${formatDate(rec.dueDate)} \u2014 ${formatCurrency(Number(rec.amount))}${status}`)
+        const isPaid = rec.status === 'PAID'
+        const recPaid = Number(rec.paidAmount || 0)
+        const recRemaining = Number(rec.amount) - recPaid
+        const isOverdue = !isPaid && new Date(rec.dueDate) < new Date()
+        let emoji: string
+        let detail: string
+        if (isPaid) {
+          emoji = '✅'
+          detail = '(Pago)'
+        } else if (isOverdue) {
+          emoji = '🔴'
+          detail = `(vencida, resta ${formatCurrency(recRemaining)})`
+        } else {
+          emoji = '⏳'
+          detail = `(resta ${formatCurrency(recRemaining)})`
+        }
+        lines.push(`${emoji} ${rec.installment}ª - ${formatDate(rec.dueDate)} — ${formatCurrency(Number(rec.amount))} ${detail}`)
       }
     } else if (sale.installmentPlan && sale.installmentPlan > 1) {
       lines.push(`Parcelamento: ${sale.installmentPlan}x`)

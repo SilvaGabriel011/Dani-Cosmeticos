@@ -23,25 +23,25 @@ interface DebtorCardProps {
 
 function buildSaleText(debtor: Debtor, sale: Debtor['sales'][number]): string {
   const lines: string[] = []
-  lines.push('DANI COSMÉTICOS')
-  lines.push('Comprovante de Compra')
+  lines.push('*DANI COSMÉTICOS*')
+  lines.push('_Comprovante de Compra_')
   lines.push(`Cliente: ${debtor.client.name}`)
   if (debtor.client.phone) lines.push(`Telefone: ${debtor.client.phone}`)
   lines.push(`Data da compra: ${formatDate(sale.createdAt)}`)
   lines.push('')
-  lines.push('Itens:')
+  lines.push('*Itens:*')
   for (const item of sale.items) {
-    lines.push(`  ${item.product.name} x${item.quantity} — ${formatCurrency(Number(item.total))}`)
+    lines.push(`• ${item.product.name} x${item.quantity} — ${formatCurrency(Number(item.total))}`)
   }
   lines.push('')
-  lines.push(`TOTAL: ${formatCurrency(Number(sale.total))}`)
+  lines.push(`*TOTAL: ${formatCurrency(Number(sale.total))}*`)
 
   const totalRemaining = sale.receivables.reduce((sum, r) => sum + (Number(r.amount) - Number(r.paidAmount)), 0)
   const totalPaid = Number(sale.total) - totalRemaining
   const paidInstallments = (sale.installmentPlan || sale.receivables.length) - sale.receivables.length
 
-  lines.push(`Pago: ${formatCurrency(totalPaid)}`)
-  lines.push(`Restante: ${formatCurrency(totalRemaining)}`)
+  lines.push(`*Pago:* ${formatCurrency(totalPaid)}`)
+  lines.push(`*Restante:* ${formatCurrency(totalRemaining)}`)
   lines.push('')
 
   if (sale.receivables.length > 0) {
@@ -52,14 +52,20 @@ function buildSaleText(debtor: Debtor, sale: Debtor['sales'][number]): string {
     const pending = sale.receivables.filter((r) => r.status !== 'PAID')
     if (pending.length > 0) {
       lines.push('')
-      lines.push('Parcelas pendentes:')
+      lines.push('*Parcelas pendentes:*')
       for (const r of pending) {
         const remaining = Number(r.amount) - Number(r.paidAmount)
         const isOverdue = new Date(r.dueDate) < new Date()
-        lines.push(`  ${r.installment}ª - ${formatDate(r.dueDate)} — ${formatCurrency(remaining)}${isOverdue ? ' - VENCIDO' : ''}`)
+        const emoji = isOverdue ? '🔴' : '⏳'
+        const detail = isOverdue
+          ? `(vencida, resta ${formatCurrency(remaining)})`
+          : `(resta ${formatCurrency(remaining)})`
+        lines.push(`${emoji} ${r.installment}ª - ${formatDate(r.dueDate)} — ${formatCurrency(Number(r.amount))} ${detail}`)
       }
     }
   }
+  lines.push('')
+  lines.push('_Obrigada pela preferência!_')
 
   return lines.join('\n')
 }

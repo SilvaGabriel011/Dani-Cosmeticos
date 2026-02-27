@@ -122,7 +122,7 @@ export function SaleReceipt({ data, onClose, onNewSale }: SaleReceiptProps) {
         lines.push('')
         lines.push(`*Parcelas (${data.installments.length}x):*`)
         data.installments.forEach((inst) => {
-          lines.push(`${inst.number}ª - ${formatDateBR(inst.dueDate)} — ${formatCurrency(inst.amount)}`)
+          lines.push(`⏳ ${inst.number}ª - ${formatDateBR(inst.dueDate)} — ${formatCurrency(inst.amount)}`)
         })
       }
       if (data.paymentDay) {
