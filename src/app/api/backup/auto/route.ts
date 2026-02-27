@@ -61,12 +61,16 @@ export async function GET(request: NextRequest) {
 
   if (listRes.ok) {
     const listData = (await listRes.json()) as {
-      branches: Array<{ id: string; name: string; created_at: string }>
+      branches: Array<{ id: string; name: string; created_at: string; primary: boolean }>
     }
 
-    // Collect all backup branches, newest first
+    // Collect all backup branches, newest first.
+    // Triple safety check to never touch the active database:
+    //   1. Name must start with "backup-"   → excludes "main" and any other user branch
+    //   2. primary !== true                  → extra guard via Neon's own flag
+    //   3. id is never reused by Neon        → id comparison is a bonus sanity check
     const backupBranches = listData.branches
-      .filter((b) => b.name.startsWith('backup-'))
+      .filter((b) => b.name.startsWith('backup-') && !b.primary)
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
     // Delete any that exceed the retention limit (keep the newest MAX_BACKUP_BRANCHES - 1
