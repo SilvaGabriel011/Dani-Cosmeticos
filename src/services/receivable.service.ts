@@ -263,6 +263,14 @@ export const receivableService = {
         throw new Error('Nenhuma parcela pendente encontrada para esta venda')
       }
 
+      // Find the highest existing installment number to avoid duplicates
+      const lastExisting = await prisma.receivable.findFirst({
+        where: { saleId },
+        orderBy: { installment: 'desc' },
+        select: { installment: true },
+      })
+      const nextInstallment = (lastExisting?.installment ?? 0) + 1
+
       const now = new Date()
       const salePaymentDay = (sale as { paymentDay?: number | null })?.paymentDay
       const fallbackDueDate = salePaymentDay
@@ -272,7 +280,7 @@ export const receivableService = {
       const created = await prisma.receivable.create({
         data: {
           saleId,
-          installment: 1,
+          installment: nextInstallment,
           amount: saleRemaining,
           paidAmount: 0,
           dueDate: sale.dueDate || fallbackDueDate,
