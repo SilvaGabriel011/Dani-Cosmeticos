@@ -18,7 +18,27 @@ interface PaymentAuditOptions {
   installments?: number
 }
 
-function buildDueDateFromMonth(baseDate: Date, monthOffset: number, dayOfMonth: number) {
+/**
+ * Validates that the sum of receivable amounts matches the expected total.
+ * Logs a warning if divergence exceeds PAYMENT_TOLERANCE.
+ */
+export function assertReceivablesMatchTotal(
+  receivableAmounts: number[],
+  expectedTotal: number,
+  context: string
+) {
+  const sum = receivableAmounts.reduce((acc, a) => acc + a, 0)
+  const diff = Math.abs(sum - expectedTotal)
+  if (diff > PAYMENT_TOLERANCE) {
+    console.warn(
+      `[assertReceivablesMatchTotal] Divergência em ${context}: ` +
+      `soma parcelas = R$ ${sum.toFixed(2)}, esperado = R$ ${expectedTotal.toFixed(2)}, ` +
+      `diff = R$ ${diff.toFixed(2)}`
+    )
+  }
+}
+
+export function buildDueDateFromMonth(baseDate: Date, monthOffset: number, dayOfMonth: number) {
   const target = new Date(baseDate.getFullYear(), baseDate.getMonth() + monthOffset, 1)
   const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate()
   return new Date(target.getFullYear(), target.getMonth(), Math.min(dayOfMonth, lastDay))
@@ -215,10 +235,11 @@ export const receivableService = {
         r.id === id ? newStatus === 'PAID' : r.status === 'PAID'
       )
 
-      let newTotalFees = Number(receivable.sale.totalFees)
-      if (feeAbsorber === 'SELLER') {
-        newTotalFees += feeAmount
-      }
+      // Recalculate totalFees absolutely from all payments (safer than incremental)
+      const newTotalFees = allPayments.reduce((sum, p) => {
+        if (p.feeAbsorber === 'SELLER') return sum + Number(p.feeAmount)
+        return sum
+      }, 0)
       const newNetTotal = Number(receivable.sale.total) - newTotalFees
 
       await tx.sale.update({
@@ -396,12 +417,12 @@ export const receivableService = {
         }
       }
 
-      // Recalculate totalFees and netTotal absolutely (safer than increment/decrement)
+      // Recalculate totalFees absolutely from all payments (safer than incremental)
       const currentSale = await tx.sale.findUnique({ where: { id: saleId } })
-      let newTotalFees = Number(currentSale!.totalFees)
-      if (feeAbsorber === 'SELLER') {
-        newTotalFees += feeAmount
-      }
+      const newTotalFees = allPayments.reduce((sum, p) => {
+        if (p.feeAbsorber === 'SELLER') return sum + Number(p.feeAmount)
+        return sum
+      }, 0)
       const newNetTotal = Number(currentSale!.total) - newTotalFees
 
       await tx.sale.update({
@@ -453,6 +474,12 @@ export const receivableService = {
         dueDate: installmentDueDate,
       }
     })
+
+    assertReceivablesMatchTotal(
+      receivables.map((r) => r.amount),
+      total,
+      `createForSale(saleId=${saleId})`
+    )
 
     return prisma.receivable.createMany({ data: receivables })
   },
@@ -599,9 +626,21 @@ export const receivableService = {
     const allReceivables = await db.receivable.findMany({
       where: { saleId, status: { not: 'CANCELLED' } },
     })
-    const allPaid = allReceivables.length > 0 && allReceivables.every((r) => r.status === 'PAID')
 
     const newNetTotal = Number(sale.total) - totalFees
+
+    // Determine new status:
+    // - If receivables exist, check if all are PAID
+    // - If no receivables (venda à vista), check if totalPaid covers sale total
+    let newStatus: 'COMPLETED' | 'PENDING'
+    if (allReceivables.length > 0) {
+      const allPaid = allReceivables.every((r) => r.status === 'PAID')
+      newStatus = allPaid ? 'COMPLETED' : 'PENDING'
+    } else {
+      newStatus = totalPaidFromPayments >= Number(sale.total) - PAYMENT_TOLERANCE
+        ? 'COMPLETED'
+        : 'PENDING'
+    }
 
     await db.sale.update({
       where: { id: saleId },
@@ -609,7 +648,7 @@ export const receivableService = {
         paidAmount: totalPaidFromPayments,
         totalFees,
         netTotal: newNetTotal,
-        status: allPaid ? 'COMPLETED' : 'PENDING',
+        status: newStatus,
       },
     })
   },

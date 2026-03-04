@@ -1,7 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
+import { cache, CACHE_KEYS } from '@/lib/cache'
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { rescheduleSaleSchema } from '@/schemas/sale'
+import { buildDueDateFromMonth } from '@/services/receivable.service'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,18 +63,16 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     // Calculate new due dates
     const paymentDay = newPaymentDay || sale.paymentDay || 10
-    let baseDate: Date
 
+    // Determine base date for first installment
+    let baseDate: Date
     if (newStartDate) {
       baseDate = new Date(newStartDate)
     } else {
-      // Use current month as base
-      baseDate = new Date()
-      baseDate.setDate(paymentDay)
-      // If the day has passed this month, start next month
-      if (baseDate < new Date()) {
-        baseDate.setMonth(baseDate.getMonth() + 1)
-      }
+      // Use buildDueDateFromMonth to avoid setDate overflow (e.g., day=31 in 30-day month)
+      const now = new Date()
+      const monthOffset = now.getDate() >= paymentDay ? 1 : 0
+      baseDate = buildDueDateFromMonth(now, monthOffset, paymentDay)
     }
 
     // Update receivables in transaction
@@ -79,11 +80,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       // Update each pending receivable
       for (let i = 0; i < sale.receivables.length; i++) {
         const receivable = sale.receivables[i]
-        const newDueDate = new Date(baseDate)
-        newDueDate.setMonth(newDueDate.getMonth() + i)
-        // Handle months with fewer days (e.g., day=31 in Feb → Feb 28)
-        const lastDayOfMonth = new Date(newDueDate.getFullYear(), newDueDate.getMonth() + 1, 0).getDate()
-        newDueDate.setDate(Math.min(paymentDay, lastDayOfMonth))
+        const newDueDate = buildDueDateFromMonth(baseDate, i, paymentDay)
 
         await tx.receivable.update({
           where: { id: receivable.id },
@@ -106,15 +103,15 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return updated
     })
 
+    cache.invalidate(CACHE_KEYS.DASHBOARD)
+    cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+
     return NextResponse.json({
       sale: updatedSale,
       rescheduledCount: sale.receivables.length,
     })
   } catch (error) {
-    console.error('Error rescheduling sale:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao reagendar parcelas' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

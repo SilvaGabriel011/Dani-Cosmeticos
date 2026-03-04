@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { cache, CACHE_KEYS } from '@/lib/cache'
+import { PAYMENT_TOLERANCE } from '@/lib/constants'
 import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { addPaymentSchema } from '@/schemas/sale'
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const { method, amount, feePercent, feeAbsorber, installments } = validation.data
 
     const remainingAmount = Number(sale.total) - Number(sale.paidAmount)
-    if (amount > remainingAmount + 0.01) {
+    if (amount > remainingAmount + PAYMENT_TOLERANCE) {
       return NextResponse.json(
         {
           error: {
@@ -110,10 +111,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json(payments)
   } catch (error) {
-    console.error('Error fetching payments:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar pagamentos' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

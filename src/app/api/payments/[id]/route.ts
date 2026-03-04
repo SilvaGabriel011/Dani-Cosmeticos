@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { cache, CACHE_KEYS } from '@/lib/cache'
+import { PAYMENT_TOLERANCE } from '@/lib/constants'
 import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { receivableService } from '@/services/receivable.service'
@@ -34,7 +35,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     if (data.amount) {
       const otherPayments = await prisma.payment.findMany({ where: { saleId: payment.saleId, id: { not: id } } })
       const otherTotal = otherPayments.reduce((s, p) => s + Number(p.amount), 0)
-      if (otherTotal + data.amount > Number(payment.sale.total) + 0.01) {
+      if (otherTotal + data.amount > Number(payment.sale.total) + PAYMENT_TOLERANCE) {
         return NextResponse.json({ error: { code: 'AMOUNT_EXCEEDS', message: `Valor excede o total da venda` } }, { status: 400 })
       }
     }
