@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core'
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem'
 import { useMutation } from '@tanstack/react-query'
 
 async function downloadBackup(): Promise<void> {
@@ -8,17 +10,28 @@ async function downloadBackup(): Promise<void> {
     throw new Error(body.error?.message ?? 'Erro ao gerar backup')
   }
 
-  const blob = await response.blob()
-  const url = URL.createObjectURL(blob)
-
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `backup-${timestamp}.json`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  setTimeout(() => URL.revokeObjectURL(url), 100)
+  const filename = `backup-${timestamp}.json`
+
+  if (Capacitor.isNativePlatform()) {
+    const text = await response.text()
+    await Filesystem.writeFile({
+      path: filename,
+      data: text,
+      directory: Directory.Downloads,
+      encoding: Encoding.UTF8,
+    })
+  } else {
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 100)
+  }
 }
 
 async function restoreBackup(file: File): Promise<{ restoredAt: string }> {

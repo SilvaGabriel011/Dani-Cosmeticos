@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/use-toast'
+import { Capacitor } from '@capacitor/core'
 import { useDownloadBackup, useRestoreBackup } from '@/hooks/use-backup'
 import { useSettings, useUpdateSettings } from '@/hooks/use-settings'
 import { FEE_ABSORBER_LABELS } from '@/lib/constants'
@@ -69,7 +70,12 @@ export default function ConfiguracoesPage() {
   const handleDownloadBackup = async () => {
     try {
       await downloadBackup.mutateAsync()
-      toast({ title: 'Backup baixado com sucesso!' })
+      toast({
+        title: 'Backup salvo com sucesso!',
+        description: Capacitor.isNativePlatform()
+          ? 'Arquivo salvo na pasta Downloads do dispositivo.'
+          : undefined,
+      })
     } catch (error: unknown) {
       toast({
         title: 'Erro ao gerar backup',
