@@ -125,6 +125,14 @@ export async function printSaleReceipt(sale: Sale) {
   const statusLabel = SALE_STATUS_LABELS[sale.status as keyof typeof SALE_STATUS_LABELS] || sale.status
   const discount = Number(sale.discountAmount || 0)
 
+  // Calculate original subtotal and promo savings from items
+  const subtotalOriginal = items.reduce((sum, item) => {
+    const originalPrice = item.originalPrice ? Number(item.originalPrice) : Number(item.unitPrice)
+    return sum + originalPrice * item.quantity
+  }, 0)
+  const saleTotal = Number(sale.total)
+  const promoSavings = subtotalOriginal - saleTotal - discount
+
   const html = `
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -269,11 +277,19 @@ export async function printSaleReceipt(sale: Sale) {
   </table>
 
   <div class="totals">
-    ${discount > 0 ? `
+    ${subtotalOriginal > saleTotal ? `
       <div class="total-row">
-        <span>Subtotal:</span>
-        <span>${formatCurrency(Number(sale.total) + discount)}</span>
+        <span>Subtotal (preço cheio):</span>
+        <span>${formatCurrency(subtotalOriginal)}</span>
       </div>
+    ` : ''}
+    ${promoSavings > 0.01 ? `
+      <div class="total-row" style="color:#7e22ce;">
+        <span>Promoção nos itens:</span>
+        <span>-${formatCurrency(promoSavings)}</span>
+      </div>
+    ` : ''}
+    ${discount > 0 ? `
       <div class="total-row" style="color:#c00;">
         <span>Desconto:</span>
         <span>-${formatCurrency(discount)}</span>
@@ -281,7 +297,7 @@ export async function printSaleReceipt(sale: Sale) {
     ` : ''}
     <div class="total-row grand">
       <span>Total:</span>
-      <span>${formatCurrency(Number(sale.total))}</span>
+      <span>${formatCurrency(saleTotal)}</span>
     </div>
   </div>
 
