@@ -106,6 +106,7 @@ export function FiadoTable() {
   const { data: salesData, isLoading } = useSalesWithPendingReceivables(500)
 
   const [selectedReceivable, setSelectedReceivable] = useState<ReceivableWithSale | null>(null)
+  const [selectedSummary, setSelectedSummary] = useState<SaleReceivableSummary | null>(null)
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
   const [expandedSaleId, setExpandedSaleId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -228,6 +229,7 @@ export function FiadoTable() {
   const handleAddPayment = (summary: SaleReceivableSummary) => {
     if (summary.nextReceivable) {
       setSelectedReceivable(summary.nextReceivable)
+      setSelectedSummary(summary)
       setPaymentModalOpen(true)
     }
   }
@@ -544,6 +546,7 @@ export function FiadoTable() {
         open={paymentModalOpen}
         onOpenChange={setPaymentModalOpen}
         receivable={selectedReceivable}
+        saleSummary={selectedSummary}
       />
 
     </>
