@@ -1,0 +1,670 @@
+════════════════════════════════════════════════════════════════════════════════
+DRY-RUN: CORREÇÃO DE DADOS INCONSISTENTES EM VENDAS FIADO
+════════════════════════════════════════════════════════════════════════════════
+
+Data: 04/03/2026, 20:41:59
+Total de vendas fiado: 175
+Vendas COM inconsistências: 31
+Vendas SEM inconsistências: 144
+
+⚠️  VENDAS QUE SERÃO ALTERADAS:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Cliente: Vitoria Soraya
+   Venda ID: 436c853b-2a33-4c54-8b12-86c36a91ac7d
+
+   ANTES:
+     • Total: R$ 935.00
+     • Pago: R$ 622.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 935.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 935.00 (sem mudança)
+     • Pago: R$ 787.50
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 935.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 622.00 → 787.50 (+165.50)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. Cliente: Vitoria Castro
+   Venda ID: 78c49ca2-bb0e-40ba-84f5-711d2a6e5fae
+
+   ANTES:
+     • Total: R$ 2707.00
+     • Pago: R$ 1250.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 2707.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 2707.00 (sem mudança)
+     • Pago: R$ 1470.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 2707.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 1250.00 → 1470.00 (+220.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. Cliente: Vania Gouveia
+   Venda ID: 9bc5d724-93ce-4600-b134-262c35c2cc3f
+
+   ANTES:
+     • Total: R$ 754.90
+     • Pago: R$ 109.80
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 754.90
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 754.90 (sem mudança)
+     • Pago: R$ 754.90
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 754.90
+     • Status: COMPLETED
+
+   MUDANÇAS:
+     ✓ paidAmount: 109.80 → 754.90 (+645.10)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. Cliente: Vitoria kezia
+   Venda ID: a97ff44e-4c36-43ce-bc7c-56d6c0493a22
+
+   ANTES:
+     • Total: R$ 469.00
+     • Pago: R$ 352.50
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 469.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 469.00 (sem mudança)
+     • Pago: R$ 352.50
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 469.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ status: COMPLETED → PENDING
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. Cliente: Sandra 2 Padaria
+   Venda ID: 6e71305a-e586-449f-ac28-6e902248f9c8
+
+   ANTES:
+     • Total: R$ 1120.00
+     • Pago: R$ 580.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1120.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 1120.00 (sem mudança)
+     • Pago: R$ 800.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1120.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 580.00 → 800.00 (+220.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. Cliente: Sandra Bianca
+   Venda ID: b1c0647b-4d91-4874-ad4a-3e9fcbd2b774
+
+   ANTES:
+     • Total: R$ 128.00
+     • Pago: R$ 58.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 128.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 128.00 (sem mudança)
+     • Pago: R$ 128.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 128.00
+     • Status: COMPLETED
+
+   MUDANÇAS:
+     ✓ paidAmount: 58.00 → 128.00 (+70.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. Cliente: Patricia Sandra
+   Venda ID: a41ee66a-4920-46dd-800d-30e52f2b5499
+
+   ANTES:
+     • Total: R$ 1360.00
+     • Pago: R$ 400.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1360.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 1360.00 (sem mudança)
+     • Pago: R$ 1150.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1360.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 400.00 → 1150.00 (+750.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. Cliente: Simone
+   Venda ID: 172b654e-d092-4b17-a2bc-515bed8d264f
+
+   ANTES:
+     • Total: R$ 1546.00
+     • Pago: R$ 462.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1546.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 1546.00 (sem mudança)
+     • Pago: R$ 1386.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1546.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 462.00 → 1386.00 (+924.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. Cliente: Simone
+   Venda ID: cac6c0cb-ff34-49f3-81f3-1d6afd908d30
+
+   ANTES:
+     • Total: R$ 1338.00
+     • Pago: R$ 234.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1338.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 1338.00 (sem mudança)
+     • Pago: R$ 1338.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1338.00
+     • Status: COMPLETED
+
+   MUDANÇAS:
+     ✓ paidAmount: 234.00 → 1338.00 (+1104.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. Cliente: Rhayane do Pedro
+   Venda ID: c1fb4aaf-dc59-4e28-a01b-40d3a7c77db4
+
+   ANTES:
+     • Total: R$ 3881.00
+     • Pago: R$ 2100.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 3881.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 3881.00 (sem mudança)
+     • Pago: R$ 2100.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 3881.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ status: COMPLETED → PENDING
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. Cliente: Rosana Bruno
+   Venda ID: 6740267c-5f7b-4d4d-9501-58e7c6127fbb
+
+   ANTES:
+     • Total: R$ 265.00
+     • Pago: R$ 264.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 265.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 265.00 (sem mudança)
+     • Pago: R$ 264.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 265.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ status: COMPLETED → PENDING
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12. Cliente: Pedro Julia
+   Venda ID: 83a388f5-62e9-428b-a387-f4e7021813da
+
+   ANTES:
+     • Total: R$ 597.30
+     • Pago: R$ 344.60
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 597.30
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 597.30 (sem mudança)
+     • Pago: R$ 597.30
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 597.30
+     • Status: COMPLETED
+
+   MUDANÇAS:
+     ✓ paidAmount: 344.60 → 597.30 (+252.70)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+13. Cliente: Olivia
+   Venda ID: 9ba4e405-9667-44f4-8cfa-d280faf6eed1
+
+   ANTES:
+     • Total: R$ 1269.00
+     • Pago: R$ 525.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1269.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 1269.00 (sem mudança)
+     • Pago: R$ 840.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1269.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 525.00 → 840.00 (+315.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+14. Cliente: Marcia Caetano
+   Venda ID: c6b1d79e-3436-44f5-88a7-0722e55bca2b
+
+   ANTES:
+     • Total: R$ 440.00
+     • Pago: R$ 395.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 440.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 440.00 (sem mudança)
+     • Pago: R$ 395.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 440.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ status: COMPLETED → PENDING
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+15. Cliente: Marcilene
+   Venda ID: 4023806b-5afc-46cf-9888-723ef39e9d44
+
+   ANTES:
+     • Total: R$ 500.00
+     • Pago: R$ 250.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 500.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 500.00 (sem mudança)
+     • Pago: R$ 430.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 500.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 250.00 → 430.00 (+180.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+16. Cliente: Luis Fabiano
+   Venda ID: a5de273b-d8f4-4290-ae8d-2aac62f90fd8
+
+   ANTES:
+     • Total: R$ 1019.00
+     • Pago: R$ 339.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1019.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 1019.00 (sem mudança)
+     • Pago: R$ 904.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1019.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 339.00 → 904.00 (+565.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+17. Cliente: Luciene Padaria
+   Venda ID: de9e2243-0238-4865-8eeb-39a9f4413349
+
+   ANTES:
+     • Total: R$ 660.00
+     • Pago: R$ 220.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 660.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 660.00 (sem mudança)
+     • Pago: R$ 660.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 660.00
+     • Status: COMPLETED
+
+   MUDANÇAS:
+     ✓ paidAmount: 220.00 → 660.00 (+440.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+18. Cliente: Kelly Cristina
+   Venda ID: d58659bc-ca5f-4a0e-b0cd-3d7d92efcf74
+
+   ANTES:
+     • Total: R$ 1764.00
+     • Pago: R$ 1050.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1764.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 1764.00 (sem mudança)
+     • Pago: R$ 1056.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1764.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 1050.00 → 1056.00 (+6.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+19. Cliente: Kenia da Angela
+   Venda ID: af23b341-a2b0-4ab4-b2cf-66f29cff2382
+
+   ANTES:
+     • Total: R$ 580.00
+     • Pago: R$ 380.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 580.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 580.00 (sem mudança)
+     • Pago: R$ 380.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 580.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ status: COMPLETED → PENDING
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+20. Cliente: Kelly Steffane
+   Venda ID: 993e65e1-6c4d-4033-9027-85c928e82673
+
+   ANTES:
+     • Total: R$ 1753.00
+     • Pago: R$ 400.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1753.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 1753.00 (sem mudança)
+     • Pago: R$ 1600.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1753.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 400.00 → 1600.00 (+1200.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+21. Cliente: Kayo Kellen
+   Venda ID: ceb9396e-3b44-4880-b0d6-9a3d5998b7d9
+
+   ANTES:
+     • Total: R$ 459.80
+     • Pago: R$ 276.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 459.80
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 459.80 (sem mudança)
+     • Pago: R$ 276.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 459.80
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ status: COMPLETED → PENDING
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+22. Cliente: Fran Mourão
+   Venda ID: 2a0bb221-25e0-429d-a9dc-100a1d8ad950
+
+   ANTES:
+     • Total: R$ 1289.00
+     • Pago: R$ 700.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1289.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 1289.00 (sem mudança)
+     • Pago: R$ 700.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1289.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ status: COMPLETED → PENDING
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+23. Cliente: Erica Avelar
+   Venda ID: 0cf69a26-8494-469a-90b4-64c6cd5138ce
+
+   ANTES:
+     • Total: R$ 735.80
+     • Pago: R$ 118.50
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 735.80
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 735.80 (sem mudança)
+     • Pago: R$ 297.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 735.80
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 118.50 → 297.00 (+178.50)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+24. Cliente: Elisangela
+   Venda ID: b98bcced-0570-45ab-a579-e8fd448cd132
+
+   ANTES:
+     • Total: R$ 1407.00
+     • Pago: R$ 700.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1407.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 1407.00 (sem mudança)
+     • Pago: R$ 980.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1407.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 700.00 → 980.00 (+280.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+25. Cliente: Erica Padaria
+   Venda ID: 7a8c0750-9efb-427a-a09e-5a493bb76d4c
+
+   ANTES:
+     • Total: R$ 560.00
+     • Pago: R$ 224.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 560.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 560.00 (sem mudança)
+     • Pago: R$ 560.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 560.00
+     • Status: COMPLETED
+
+   MUDANÇAS:
+     ✓ paidAmount: 224.00 → 560.00 (+336.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+26. Cliente: Beth Uniforte
+   Venda ID: 523fd939-bfd1-4be6-8a2a-f81d694a98f6
+
+   ANTES:
+     • Total: R$ 315.80
+     • Pago: R$ 229.90
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 315.80
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 315.80 (sem mudança)
+     • Pago: R$ 229.90
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 315.80
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ status: COMPLETED → PENDING
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+27. Cliente: Michele Brendha
+   Venda ID: ac455ad0-6c0b-41ec-a90a-19984fb617bf
+
+   ANTES:
+     • Total: R$ 1117.00
+     • Pago: R$ 188.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1117.00
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 1117.00 (sem mudança)
+     • Pago: R$ 188.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1117.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ status: COMPLETED → PENDING
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+28. Cliente: Wallison Henrique
+   Venda ID: 4f633b91-ba0c-4833-839b-cfb4b028df1c
+
+   ANTES:
+     • Total: R$ 280.00
+     • Pago: R$ 139.50
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 280.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 280.00 (sem mudança)
+     • Pago: R$ 279.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 280.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 139.50 → 279.00 (+139.50)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+29. Cliente: Ana Paula Padaria
+   Venda ID: c87eed3a-9141-420a-8173-7fbc9357bb1a
+
+   ANTES:
+     • Total: R$ 1447.00
+     • Pago: R$ 527.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1447.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 1447.00 (sem mudança)
+     • Pago: R$ 1120.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 1447.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 527.00 → 1120.00 (+593.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+30. Cliente: Ana Paula Souza
+   Venda ID: 0a24bb60-2c8c-439c-a7ec-d1c0bfe036b4
+
+   ANTES:
+     • Total: R$ 6007.00
+     • Pago: R$ 1207.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 6007.00
+     • Status: PENDING
+
+   DEPOIS:
+     • Total: R$ 6007.00 (sem mudança)
+     • Pago: R$ 5500.00
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 6007.00
+     • Status: PENDING
+
+   MUDANÇAS:
+     ✓ paidAmount: 1207.00 → 5500.00 (+4293.00)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+31. Cliente: Aline Uniforte
+   Venda ID: 3c689875-aee2-492a-b9fe-3ece215bca26
+
+   ANTES:
+     • Total: R$ 385.90
+     • Pago: R$ 371.80
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 385.90
+     • Status: COMPLETED
+
+   DEPOIS:
+     • Total: R$ 385.90 (sem mudança)
+     • Pago: R$ 385.90
+     • Taxas: R$ 0.00
+     • Total Líquido: R$ 385.90
+     • Status: COMPLETED
+
+   MUDANÇAS:
+     ✓ paidAmount: 371.80 → 385.90 (+14.10)
+
+════════════════════════════════════════════════════════════════════════════════
+
+⚠️  IMPORTANTE:
+• Este é um DRY-RUN - NENHUM DADO FOI ALTERADO
+• Para executar a correção real, use o script fix-fiado-inconsistencies.ts
+• Certifique-se de ter um backup antes de executar a correção real
+
+📊 RESUMO: 31 vendas serão corrigidas

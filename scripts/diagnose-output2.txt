@@ -1,0 +1,466 @@
+﻿Total de vendas com receivables: 175
+
+================================================================================
+PROBLEMAS CR├ìTICOS (datas corrompidas)
+================================================================================
+
+  Wallison Henrique (4f633b91-ba0c-4833-839b-cfb4b028df1c):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+
+  Celina (b6a4c221-3a78-4987-86e7-6319b3e389a7):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+
+  Cris da Padaria (234389ac-ef17-4b2b-8f7e-d44ff46584a3):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+
+  Elisangela (b98bcced-0570-45ab-a579-e8fd448cd132):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-15 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-15 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-15) n├úo ├® posterior ├á parcela 1 (2026-03-15)
+
+  Erica Avelar (0cf69a26-8494-469a-90b4-64c6cd5138ce):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+
+  Ellen Thayna (7df8eeb8-ea10-40d6-b348-409944c70d4f):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-08 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-08 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-08) n├úo ├® posterior ├á parcela 1 (2026-03-08)
+
+  Gil (2d74bb3d-7e03-4ddc-a69e-8b6f36af1273):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-08 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-08 com outra parcela
+
+  Jo├úo Paulo (48644f14-249e-4571-ba0f-13f1fadfb52c):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-10) n├úo ├® posterior ├á parcela 1 (2026-03-10)
+
+  Karen Ribas (5d7b2531-b119-46db-b35b-baf81fc1d93a):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-08 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-08 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-08) n├úo ├® posterior ├á parcela 1 (2026-03-08)
+
+  Kelly Steffane (993e65e1-6c4d-4033-9027-85c928e82673):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-10) n├úo ├® posterior ├á parcela 1 (2026-03-10)
+
+  Karen Matos Kamila (efab905b-4c9c-42c8-bfe1-128355f1593d):
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-10) n├úo ├® posterior ├á parcela 1 (2026-04-10)
+
+  Kelly Cristina (d58659bc-ca5f-4a0e-b0cd-3d7d92efcf74):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-08 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-08 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-08) n├úo ├® posterior ├á parcela 1 (2026-03-08)
+
+  Lu Claudio (ed9edcfc-df58-480e-8de9-cdc2efcf11c1):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-08 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-08 com outra parcela
+
+  Luis Fabiano (a5de273b-d8f4-4290-ae8d-2aac62f90fd8):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-08 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-08 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-08) n├úo ├® posterior ├á parcela 1 (2026-03-08)
+
+  Marcilene (4023806b-5afc-46cf-9888-723ef39e9d44):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+
+  Marcio (3693063a-816f-494f-997e-63c99739bd11):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+
+  Marcia Caetano (0acbfd5c-84f2-40a7-b913-06b7b6dc03db):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-25 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-25 com outra parcela
+
+  Olivia (9ba4e405-9667-44f4-8cfa-d280faf6eed1):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-08 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-08 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-08) n├úo ├® posterior ├á parcela 1 (2026-03-08)
+
+  Rhayane do Pedro (02bf69af-83bd-4c54-88b7-1a32baf70d32):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+
+  Simone (172b654e-d092-4b17-a2bc-515bed8d264f):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-10) n├úo ├® posterior ├á parcela 1 (2026-03-10)
+
+  Patricia Sandra (a41ee66a-4920-46dd-800d-30e52f2b5499):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-08 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-08 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-08) n├úo ├® posterior ├á parcela 1 (2026-03-08)
+
+  Sandra Timoteo (e98f03a2-1b23-434a-9fc5-da2af26f012c):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-04-22 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 3 compartilha dueDate 2026-04-22 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-22) n├úo ├® posterior ├á parcela 1 (2026-04-22)
+
+  Sandra 2 Padaria (6e71305a-e586-449f-ac28-6e902248f9c8):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-10) n├úo ├® posterior ├á parcela 1 (2026-03-10)
+
+  Tania Cristina Lima Orsine (68e120b7-b792-444b-9c9b-2b71ed300ff0):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+
+  Vitoria Castro (78c49ca2-bb0e-40ba-84f5-711d2a6e5fae):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-10) n├úo ├® posterior ├á parcela 1 (2026-03-10)
+
+  Vitoria Soraya (436c853b-2a33-4c54-8b12-86c36a91ac7d):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-20 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-20 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-20) n├úo ├® posterior ├á parcela 1 (2026-03-20)
+
+  Yandra Matheus (ef9de7b5-4600-4ddb-bcdc-40cf15c792b2):
+    [DUPLICATE_DUEDATE] Parcela 1 compartilha dueDate 2026-03-10 com outra parcela
+    [DUPLICATE_DUEDATE] Parcela 2 compartilha dueDate 2026-03-10 com outra parcela
+    [NON_MONOTONIC_DATES] Parcela 2 (2026-03-10) n├úo ├® posterior ├á parcela 1 (2026-03-10)
+
+================================================================================
+PARCELAS PAGAS COM DATA FUTURA (pode ser pagamento antecipado leg├¡timo)
+================================================================================
+
+  Wallison Henrique (4f633b91...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+
+  Celina (b6a4c221...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-10 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-10 (futuro)
+
+  Cris da Padaria (234389ac...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+
+  Erica Padaria (dc02ca6b...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+
+  Elisangela (b98bcced...):
+    Parcela 2 marcada PAID mas vence em 2026-03-15 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-15 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-15 (futuro)
+
+  Edilene (61249b3f...):
+    Parcela 2 marcada PAID mas vence em 2026-03-20 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-20 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-20 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-20 (futuro)
+    Parcela 6 marcada PAID mas vence em 2026-07-20 (futuro)
+    Parcela 7 marcada PAID mas vence em 2026-08-20 (futuro)
+    Parcela 8 marcada PAID mas vence em 2026-09-20 (futuro)
+    Parcela 9 marcada PAID mas vence em 2026-10-20 (futuro)
+    Parcela 10 marcada PAID mas vence em 2026-11-20 (futuro)
+    Parcela 11 marcada PAID mas vence em 2026-12-20 (futuro)
+    Parcela 12 marcada PAID mas vence em 2027-01-20 (futuro)
+    Parcela 13 marcada PAID mas vence em 2027-02-20 (futuro)
+
+  Erica Avelar (0cf69a26...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-10 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-10 (futuro)
+    Parcela 6 marcada PAID mas vence em 2026-07-10 (futuro)
+    Parcela 7 marcada PAID mas vence em 2026-08-10 (futuro)
+    Parcela 8 marcada PAID mas vence em 2026-09-10 (futuro)
+    Parcela 9 marcada PAID mas vence em 2026-10-10 (futuro)
+
+  Ednaldo (030b4669...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Eliadna Eduarda (414fef3d...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+
+  Edvania Eduarda (9c8c8fbe...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-08 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-08 (futuro)
+    Parcela 6 marcada PAID mas vence em 2026-07-08 (futuro)
+    Parcela 7 marcada PAID mas vence em 2026-08-08 (futuro)
+
+  Edinha (68c1609b...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-08 (futuro)
+
+  Manu Edinha (c1ad9d35...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Ellen Thayna (7df8eeb8...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-08 (futuro)
+
+  Ellen Thayna (040dd1ca...):
+    Parcela 2 marcada PAID mas vence em 2026-03-24 (futuro)
+
+  Flavia Millenium (676e1ff3...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Fran Mour├úo (2a0bb221...):
+    Parcela 2 marcada PAID mas vence em 2026-03-15 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-15 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-15 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-15 (futuro)
+    Parcela 6 marcada PAID mas vence em 2026-07-15 (futuro)
+    Parcela 7 marcada PAID mas vence em 2026-08-15 (futuro)
+
+  Gil (2d74bb3d...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-08 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-08 (futuro)
+    Parcela 6 marcada PAID mas vence em 2026-07-08 (futuro)
+    Parcela 7 marcada PAID mas vence em 2026-08-08 (futuro)
+    Parcela 8 marcada PAID mas vence em 2026-09-08 (futuro)
+    Parcela 9 marcada PAID mas vence em 2026-10-08 (futuro)
+    Parcela 10 marcada PAID mas vence em 2026-11-08 (futuro)
+    Parcela 11 marcada PAID mas vence em 2026-12-08 (futuro)
+
+  Grazi Alves (f6bc84d9...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Ingred (937a2ead...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-10 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-10 (futuro)
+
+  Jo├úo Paulo (48644f14...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+
+  Jessica Araujo (2f7fcf9c...):
+    Parcela 2 marcada PAID mas vence em 2026-03-20 (futuro)
+
+  Kayo Kellen (ceb9396e...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+
+  Karen Ribas (5d7b2531...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Kelly Steffane (993e65e1...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+
+  Karen Matos Kamila (efab905b...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+
+  Karen Porto (1b3b4e79...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+
+  Karen Porto Jo├úo (6b452410...):
+    Parcela 2 marcada PAID mas vence em 2026-03-20 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-20 (futuro)
+
+  Kelly Cristina (d58659bc...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-08 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-08 (futuro)
+    Parcela 6 marcada PAID mas vence em 2026-07-08 (futuro)
+
+  Jessica Filha Luciene (5417bbab...):
+    Parcela 2 marcada PAID mas vence em 2026-03-20 (futuro)
+
+  Leonardo (4215f02e...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Lucimara Fran├ºa (8769abe6...):
+    Parcela 2 marcada PAID mas vence em 2026-03-15 (futuro)
+
+  Lu Claudio (ed9edcfc...):
+    Parcela 1 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Wagner Fagundes (e83a6769...):
+    Parcela 1 marcada PAID mas vence em 2026-03-05 (futuro)
+    Parcela 2 marcada PAID mas vence em 2026-04-05 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-05-05 (futuro)
+
+  Luis Fabiano (a5de273b...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Lidiane (332f4abc...):
+    Parcela 2 marcada PAID mas vence em 2026-03-25 (futuro)
+
+  Marlene (39949466...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+
+  Marcilene (4023806b...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-10 (futuro)
+
+  Marcio (3693063a...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-10 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-10 (futuro)
+
+  Marcela Fran├ºa (cde325b4...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-10 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-10 (futuro)
+    Parcela 6 marcada PAID mas vence em 2026-07-10 (futuro)
+    Parcela 7 marcada PAID mas vence em 2026-08-10 (futuro)
+    Parcela 8 marcada PAID mas vence em 2026-09-10 (futuro)
+    Parcela 9 marcada PAID mas vence em 2026-10-10 (futuro)
+    Parcela 10 marcada PAID mas vence em 2026-11-10 (futuro)
+    Parcela 11 marcada PAID mas vence em 2026-12-10 (futuro)
+    Parcela 12 marcada PAID mas vence em 2027-01-10 (futuro)
+
+  Mary Cardoso (81f4234f...):
+    Parcela 2 marcada PAID mas vence em 2026-03-15 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-15 (futuro)
+
+  Marcia Caetano (0acbfd5c...):
+    Parcela 1 marcada PAID mas vence em 2026-03-25 (futuro)
+    Parcela 2 marcada PAID mas vence em 2026-03-25 (futuro)
+
+  Olivia (9ba4e405...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-08 (futuro)
+
+  Patricia da Camila (29ba42a5...):
+    Parcela 2 marcada PAID mas vence em 2026-03-25 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-25 (futuro)
+
+  Pedro Julia (83a388f5...):
+    Parcela 1 marcada PAID mas vence em 2026-03-07 (futuro)
+
+  Rosana Bruno (6740267c...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-10 (futuro)
+
+  Rhayane do Pedro (c1fb4aaf...):
+    Parcela 2 marcada PAID mas vence em 2026-03-15 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-15 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-15 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-15 (futuro)
+    Parcela 6 marcada PAID mas vence em 2026-07-15 (futuro)
+    Parcela 7 marcada PAID mas vence em 2026-08-15 (futuro)
+    Parcela 8 marcada PAID mas vence em 2026-09-15 (futuro)
+    Parcela 9 marcada PAID mas vence em 2026-10-15 (futuro)
+    Parcela 10 marcada PAID mas vence em 2026-11-15 (futuro)
+    Parcela 11 marcada PAID mas vence em 2026-12-15 (futuro)
+    Parcela 12 marcada PAID mas vence em 2027-01-15 (futuro)
+    Parcela 13 marcada PAID mas vence em 2027-02-15 (futuro)
+    Parcela 14 marcada PAID mas vence em 2027-03-15 (futuro)
+
+  Rhayane do Pedro (02bf69af...):
+    Parcela 1 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+
+  Roberta (1ddc6c52...):
+    Parcela 2 marcada PAID mas vence em 2026-03-15 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-15 (futuro)
+
+  Samira (d4cf2c31...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Simone (172b654e...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+
+  Suzana (20a790bf...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-08 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-08 (futuro)
+
+  Patricia Sandra (a41ee66a...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+
+  Sandra Timoteo (e98f03a2...):
+    Parcela 2 marcada PAID mas vence em 2026-03-22 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-22 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-22 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-22 (futuro)
+
+  Sandra 2 Padaria (6e71305a...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-10 (futuro)
+
+  Sandra 2 Padaria (4691f32c...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Stephanie (e723cc24...):
+    Parcela 2 marcada PAID mas vence em 2026-03-15 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-15 (futuro)
+
+  Tania Cristina Lima Orsine (68e120b7...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-10 (futuro)
+
+  Thayna Israel (258fbe0c...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+
+  Thayna Thais (6370cf23...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+
+  Vitoria kezia (a97ff44e...):
+    Parcela 2 marcada PAID mas vence em 2026-03-15 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-15 (futuro)
+
+  Eder Gouveia (f4cc8581...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+
+  Vitoria Castro (78c49ca2...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-10 (futuro)
+    Parcela 5 marcada PAID mas vence em 2026-06-10 (futuro)
+    Parcela 6 marcada PAID mas vence em 2026-07-10 (futuro)
+    Parcela 7 marcada PAID mas vence em 2026-08-10 (futuro)
+
+  Vitoria Soraya (436c853b...):
+    Parcela 2 marcada PAID mas vence em 2026-03-20 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-20 (futuro)
+
+  Vitoria Brendha (0fa21e10...):
+    Parcela 2 marcada PAID mas vence em 2026-03-08 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-08 (futuro)
+    Parcela 4 marcada PAID mas vence em 2026-05-08 (futuro)
+
+  Vania Avelar (60610721...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+
+  Yandra Matheus (ef9de7b5...):
+    Parcela 2 marcada PAID mas vence em 2026-03-10 (futuro)
+    Parcela 3 marcada PAID mas vence em 2026-04-10 (futuro)
+
+  Luiza Brendha (32454f2d...):
+    Parcela 1 marcada PAID mas vence em 2026-03-10 (futuro)
+
+  Kenia Stephanie (d64c2ab0...):
+    Parcela 1 marcada PAID mas vence em 2026-03-10 (futuro)
+
+  Milena Brendha (4718d9ff...):
+    Parcela 1 marcada PAID mas vence em 2026-03-20 (futuro)
+
+  Camila maforte (6931edaf...):
+    Parcela 1 marcada PAID mas vence em 2026-03-23 (futuro)
+
+
+RESUMO: 68 problemas cr├¡ticos, 192 parcelas pagas com data futura

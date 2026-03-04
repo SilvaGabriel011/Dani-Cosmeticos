@@ -152,7 +152,7 @@ export function usePaySaleReceivables() {
       })
       if (!res.ok) {
         const error = await res.json()
-        throw new Error(error.error || 'Erro ao registrar pagamento')
+        throw new Error(error.error?.message || error.message || 'Erro ao registrar pagamento')
       }
       return res.json()
     },

@@ -311,15 +311,35 @@ export const receivableService = {
       receivables.push(created)
     }
 
-    // Calculate total remaining for the sale
-    const totalRemaining = receivables.reduce(
-      (sum, r) => sum + (Number(r.amount) - Number(r.paidAmount)),
-      0
-    )
+    // Calculate total remaining for the sale based on total - payments
+    const sale = await prisma.sale.findUnique({
+      where: { id: saleId },
+      include: {
+        payments: true,
+      },
+    })
+    if (!sale) throw new Error('Venda não encontrada')
+
+    const totalPayments = sale.payments.reduce((sum, p) => sum + Number(p.amount), 0)
+    const totalRemaining = Number(sale.total) - totalPayments
+
+    if (totalRemaining < -PAYMENT_TOLERANCE) {
+      throw new Error('Esta venda já foi paga completamente')
+    }
 
     if (amount > totalRemaining + PAYMENT_TOLERANCE) {
       throw new Error(`Valor excede o saldo devedor total. Maximo: R$ ${totalRemaining.toFixed(2)}`)
     }
+
+    // Check if this payment fully pays off the sale (quitação)
+    const willFullyPay = (totalPayments + amount) >= Number(sale.total) - PAYMENT_TOLERANCE
+
+    // Only distribute to receivables whose dueDate <= now (already due/overdue)
+    // Exception: if fully paying off, distribute to ALL receivables
+    const now = new Date()
+    const eligibleReceivables = willFullyPay
+      ? receivables
+      : receivables.filter((r) => r.dueDate <= now)
 
     let remainingPayment = amount
 
@@ -330,7 +350,8 @@ export const receivableService = {
       const installments = paymentAudit?.installments || 1
       const feeAmount = amount * (feePercent / 100)
 
-      for (const receivable of receivables) {
+      // Distribute only to eligible (due) receivables
+      for (const receivable of eligibleReceivables) {
         if (remainingPayment <= PAYMENT_TOLERANCE) break
 
         const receivableRemaining = Number(receivable.amount) - Number(receivable.paidAmount)
@@ -371,7 +392,7 @@ export const receivableService = {
         },
       })
 
-      // Update sale paidAmount using sum of all Payment records (includes initial payments)
+      // Update sale paidAmount using sum of all Payment records
       const allPayments = await tx.payment.findMany({
         where: { saleId },
       })
@@ -380,44 +401,7 @@ export const receivableService = {
         0
       )
 
-      // Check if all receivables are paid
-      const allReceivables = await tx.receivable.findMany({
-        where: { saleId, status: { not: 'CANCELLED' } },
-      })
-      const allReceivablesPaid = allReceivables.every((r) => r.status === 'PAID')
-
-      // Update dueDate of remaining pending receivables to push client to end of queue
-      // Only update if there are still pending receivables (not fully paid)
-      if (!allReceivablesPaid) {
-        const pendingReceivables = allReceivables.filter(
-          (r) => r.status === 'PENDING' || r.status === 'PARTIAL'
-        )
-
-        if (pendingReceivables.length > 0) {
-          // Get the sale to check for paymentDay configuration
-          const sale = (await tx.sale.findUnique({ where: { id: saleId } })) as {
-            paymentDay?: number | null
-          } | null
-
-          // Calculate new due date: 30 days from now, or use paymentDay if configured
-          const now = new Date()
-          let newDueDate = buildDueDateFromMonth(now, 1, now.getDate())
-
-          // If sale has a specific payment day configured, use it
-          if (sale?.paymentDay) {
-            newDueDate = buildDueDateFromMonth(now, 1, sale.paymentDay)
-          }
-
-          // Update the next pending receivable's due date
-          const nextPending = pendingReceivables.sort((a, b) => a.installment - b.installment)[0]
-          await tx.receivable.update({
-            where: { id: nextPending.id },
-            data: { dueDate: newDueDate },
-          })
-        }
-      }
-
-      // Recalculate totalFees absolutely from all payments (safer than incremental)
+      // Recalculate totalFees absolutely from all payments
       const currentSale = await tx.sale.findUnique({ where: { id: saleId } })
       const newTotalFees = allPayments.reduce((sum, p) => {
         if (p.feeAbsorber === 'SELLER') return sum + Number(p.feeAmount)
@@ -425,15 +409,26 @@ export const receivableService = {
       }, 0)
       const newNetTotal = Number(currentSale!.total) - newTotalFees
 
+      // Sale is COMPLETED only if fully paid (quitação)
+      const isFullyPaid = totalPaidFromPayments >= Number(currentSale!.total) - PAYMENT_TOLERANCE
+
       await tx.sale.update({
         where: { id: saleId },
         data: {
           paidAmount: totalPaidFromPayments,
           totalFees: newTotalFees,
           netTotal: newNetTotal,
-          ...(allReceivablesPaid && { status: 'COMPLETED' }),
+          ...(isFullyPaid && { status: 'COMPLETED' }),
         },
       })
+
+      // If fully paid, mark ALL remaining receivables as PAID
+      if (isFullyPaid) {
+        await tx.receivable.updateMany({
+          where: { saleId, status: { in: ['PENDING', 'PARTIAL'] } },
+          data: { status: 'PAID', paidAt: paidAt || new Date() },
+        })
+      }
 
       return updatedReceivables
     })
@@ -594,11 +589,24 @@ export const receivableService = {
       orderBy: { installment: 'asc' },
     })
 
+    // Determine if fully paid (quitação)
+    const sale = await db.sale.findUnique({ where: { id: saleId } })
+    if (!sale) return
+
+    const isFullyPaid = totalPaidFromPayments >= Number(sale.total) - PAYMENT_TOLERANCE
+    const now = new Date()
+
     // Redistribute totalPaidFromPayments across receivables sequentially
+    // Only allocate to receivables with dueDate <= now, UNLESS fully paid (quitação)
     let remaining = totalPaidFromPayments
     for (const receivable of receivables) {
       const receivableAmount = Number(receivable.amount)
-      const allocate = Math.min(remaining, receivableAmount)
+      const isDue = receivable.dueDate <= now
+
+      // Only allocate to due receivables, or all if fully paid
+      const allocate = (isDue || isFullyPaid)
+        ? Math.min(remaining, receivableAmount)
+        : 0
 
       let newStatus: ReceivableStatus = 'PENDING'
       if (allocate >= receivableAmount - PAYMENT_TOLERANCE) {
@@ -616,30 +624,20 @@ export const receivableService = {
         },
       })
 
-      remaining -= allocate
+      if (isDue || isFullyPaid) {
+        remaining -= allocate
+      }
     }
-
-    // Update sale
-    const sale = await db.sale.findUnique({ where: { id: saleId } })
-    if (!sale) return
-
-    const allReceivables = await db.receivable.findMany({
-      where: { saleId, status: { not: 'CANCELLED' } },
-    })
 
     const newNetTotal = Number(sale.total) - totalFees
 
-    // Determine new status:
-    // - If receivables exist, check if all are PAID
-    // - If no receivables (venda à vista), check if totalPaid covers sale total
+    // Sale is COMPLETED only if fully paid
+    // If not fully paid → PENDING (customer appears in dashboard)
     let newStatus: 'COMPLETED' | 'PENDING'
-    if (allReceivables.length > 0) {
-      const allPaid = allReceivables.every((r) => r.status === 'PAID')
-      newStatus = allPaid ? 'COMPLETED' : 'PENDING'
+    if (isFullyPaid) {
+      newStatus = 'COMPLETED'
     } else {
-      newStatus = totalPaidFromPayments >= Number(sale.total) - PAYMENT_TOLERANCE
-        ? 'COMPLETED'
-        : 'PENDING'
+      newStatus = 'PENDING'
     }
 
     await db.sale.update({
