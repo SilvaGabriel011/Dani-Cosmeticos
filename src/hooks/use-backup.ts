@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
+import { Capacitor } from '@capacitor/core'
 
 async function downloadBackup(): Promise<void> {
   const response = await fetch('/api/backup')
@@ -9,12 +10,31 @@ async function downloadBackup(): Promise<void> {
   }
 
   const blob = await response.blob()
-  const url = URL.createObjectURL(blob)
-
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const filename = `backup-${timestamp}.json`
+
+  // On native platform (Capacitor WebView), the anchor download approach does
+  // not work because Android WebView ignores the "download" attribute on <a>.
+  // Use the Web Share API instead, which is supported on Android 10+.
+  if (Capacitor.isNativePlatform()) {
+    const file = new File([blob], filename, { type: 'application/json' })
+    if (typeof navigator.share === 'function' && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({
+        title: 'Backup Dani Cosméticos',
+        files: [file],
+      })
+      return
+    }
+    // Fallback: open the raw endpoint so the system handles the download
+    window.open('/api/backup', '_blank')
+    return
+  }
+
+  // Standard browser: programmatic anchor download
+  const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `backup-${timestamp}.json`
+  a.download = filename
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
