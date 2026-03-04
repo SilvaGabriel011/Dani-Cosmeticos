@@ -324,10 +324,12 @@ export function SaleReceipt({ data, onClose, onNewSale }: SaleReceiptProps) {
           <div className="border-t border-dashed border-gray-400 my-2" />
 
           <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span>Subtotal (preço cheio)</span>
-              <span>{formatCurrency(data.subtotalOriginal)}</span>
-            </div>
+            {data.subtotalOriginal > data.total && (
+              <div className="flex justify-between text-xs">
+                <span>Subtotal (preço cheio)</span>
+                <span>{formatCurrency(data.subtotalOriginal)}</span>
+              </div>
+            )}
 
             {data.promoSavings > 0 && (
               <div className="flex justify-between text-xs text-purple-700 font-medium">
