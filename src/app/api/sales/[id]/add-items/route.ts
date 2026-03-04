@@ -3,7 +3,9 @@ import { Decimal } from '@prisma/client/runtime/library'
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { cache, CACHE_KEYS } from '@/lib/cache'
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
+import { assertReceivablesMatchTotal } from '@/services/receivable.service'
 import { addItemsToSaleSchema } from '@/schemas/sale'
 
 
@@ -104,7 +106,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const pendingReceivables = sale.receivables.filter(
       (r) => r.status === 'PENDING' || r.status === 'PARTIAL'
     )
-    const lastReceivable = sale.receivables[sale.receivables.length - 1]
+    const activeReceivables = sale.receivables.filter((r) => r.status !== 'CANCELLED')
+    const lastReceivable = activeReceivables[activeReceivables.length - 1]
     const lastInstallmentNumber = lastReceivable?.installment || 0
     const paymentDay = sale.paymentDay || (lastReceivable?.dueDate ? new Date(lastReceivable.dueDate).getDate() : new Date().getDate())
 
@@ -400,10 +403,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 newAmount = newAmountPerInstallment
               }
 
+              // Ensure amount never drops below what's already been paid
+              const minAmount = Math.max(0.01, Number(receivable.paidAmount))
               await tx.receivable.update({
                 where: { id: receivable.id },
                 data: {
-                  amount: new Decimal(Number(Math.max(0.01, newAmount).toFixed(2))),
+                  amount: new Decimal(Number(Math.max(minAmount, newAmount).toFixed(2))),
                 },
               })
             }
@@ -452,6 +457,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           payments: true,
         },
       })
+
+      // Validate: sum of all non-cancelled receivable amounts should cover what's owed
+      const nonCancelledReceivables = updated.receivables.filter((r) => r.status !== 'CANCELLED')
+      const expectedReceivablesTotal = newTotal - alreadyPaid
+        + nonCancelledReceivables.filter((r) => r.status === 'PAID').reduce((sum, r) => sum + Number(r.amount), 0)
+      assertReceivablesMatchTotal(
+        nonCancelledReceivables.map((r) => Number(r.amount)),
+        expectedReceivablesTotal,
+        `addItems(saleId=${id}, mode=${mode})`
+      )
 
       // Decrement stock and create stock movements
       for (const item of items) {
@@ -517,10 +532,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       newInstallmentPlan: updatedInstallmentPlan,
     })
   } catch (error) {
-    console.error('Error adding items to sale:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao adicionar itens à venda' } },
-      { status: 500 }
-    )
+    const { message, code, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, message } }, { status })
   }
 }

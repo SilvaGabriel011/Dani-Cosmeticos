@@ -7,6 +7,7 @@ import { PAYMENT_TOLERANCE, DEFAULT_PAYMENT_DAY } from '@/lib/constants'
 import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { createSaleSchema } from '@/schemas/sale'
+import { assertReceivablesMatchTotal } from '@/services/receivable.service'
 
 export const dynamic = 'force-dynamic'
 
@@ -348,6 +349,12 @@ export async function POST(request: NextRequest) {
             dueDate,
           }
         })
+
+        assertReceivablesMatchTotal(
+          receivables.map((r) => Number(r.amount)),
+          remainingAmount,
+          `createSale(saleId=${newSale.id})`
+        )
 
         await tx.receivable.createMany({ data: receivables })
       }
