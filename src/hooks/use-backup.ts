@@ -18,7 +18,7 @@ async function downloadBackup(): Promise<void> {
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  setTimeout(() => URL.revokeObjectURL(url), 100)
 }
 
 async function restoreBackup(file: File): Promise<{ restoredAt: string }> {
