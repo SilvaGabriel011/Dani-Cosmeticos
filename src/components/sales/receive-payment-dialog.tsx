@@ -324,7 +324,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
             Cancelar
           </Button>
           <Button 
-            onClick={handleSubmit} 
+            onClick={() => handleSubmit()} 
             disabled={addPayment.isPending}
             className="min-w-[160px] transition-all duration-200 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
           >
