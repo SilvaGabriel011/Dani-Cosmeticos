@@ -1,8 +1,18 @@
 'use client'
 
-import { Loader2, Receipt } from 'lucide-react'
+import { AlertTriangle, Loader2, Receipt } from 'lucide-react'
 import { useState } from 'react'
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -43,6 +53,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
   const [feePercent, setFeePercent] = useState(0)
   const [feeAbsorber, setFeeAbsorber] = useState<'SELLER' | 'CLIENT'>('SELLER')
   const [installments, setInstallments] = useState(1)
+  const [showOverpaymentConfirm, setShowOverpaymentConfirm] = useState(false)
 
   if (!sale) return null
 
@@ -79,18 +90,16 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
     }
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (confirmOverpayment = false) => {
     if (amount <= 0) {
       toast({ title: 'Informe um valor válido', variant: 'destructive' })
       return
     }
 
-    if (amount > remaining + 0.01) {
-      toast({
-        title: 'Valor excede o saldo devedor',
-        description: `Máximo: ${formatCurrency(remaining)}`,
-        variant: 'destructive',
-      })
+    const isOverpayment = amount > remaining + 0.01
+    
+    if (isOverpayment && !confirmOverpayment) {
+      setShowOverpaymentConfirm(true)
       return
     }
 
@@ -103,6 +112,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
           feePercent,
           feeAbsorber,
           installments,
+          confirmOverpayment,
         },
       })
 
@@ -119,14 +129,25 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
       setMethod('PIX')
       setFeePercent(0)
       setInstallments(1)
+      setShowOverpaymentConfirm(false)
       onOpenChange(false)
     } catch (error: any) {
-      toast({
-        title: 'Erro ao registrar pagamento',
-        description: error.message,
-        variant: 'destructive',
-      })
+      const errorData = error?.response?.data?.error
+      if (errorData?.code === 'OVERPAYMENT_CONFIRMATION_REQUIRED') {
+        setShowOverpaymentConfirm(true)
+      } else {
+        toast({
+          title: 'Erro ao registrar pagamento',
+          description: error.message,
+          variant: 'destructive',
+        })
+      }
     }
+  }
+
+  const handleConfirmOverpayment = async () => {
+    setShowOverpaymentConfirm(false)
+    await handleSubmit(true)
   }
 
   const handleOpenChange = (isOpen: boolean) => {
@@ -140,8 +161,41 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
     onOpenChange(isOpen)
   }
 
+  const excess = amount - remaining
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <>
+      <AlertDialog open={showOverpaymentConfirm} onOpenChange={setShowOverpaymentConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Pagamento acima do saldo devedor
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                O valor <strong className="text-foreground">{formatCurrency(amount)}</strong> excede o
+                saldo devedor de <strong className="text-foreground">{formatCurrency(remaining)}</strong>.
+              </p>
+              <p className="text-amber-600 dark:text-amber-400 font-semibold">
+                Excesso: {formatCurrency(excess)}
+              </p>
+              <p>Deseja confirmar o pagamento mesmo assim?</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmOverpayment}
+              className="bg-amber-600 hover:bg-amber-700"
+            >
+              Confirmar Pagamento
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-[95vw] md:max-w-lg max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -270,7 +324,7 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
             Cancelar
           </Button>
           <Button 
-            onClick={handleSubmit} 
+            onClick={() => handleSubmit()} 
             disabled={addPayment.isPending}
             className="min-w-[160px] transition-all duration-200 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
           >
@@ -284,5 +338,6 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </>
   )
 }

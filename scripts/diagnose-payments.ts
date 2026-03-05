@@ -64,7 +64,7 @@ async function diagnose() {
           if (!paymentsByAmount.has(key)) paymentsByAmount.set(key, [])
           paymentsByAmount.get(key)!.push(p)
         }
-        for (const [key, payments] of paymentsByAmount) {
+        for (const [key, payments] of Array.from(paymentsByAmount.entries())) {
           if (payments.length > 1) {
             console.log(`\n    ⚠️  POSSÍVEL DUPLICATA: ${payments.length}x pagamento ${key}`)
             for (const p of payments) {

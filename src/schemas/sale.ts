@@ -35,6 +35,7 @@ export const addPaymentSchema = z.object({
   feePercent: z.number().min(0).default(0),
   feeAbsorber: z.enum(['SELLER', 'CLIENT']).default('SELLER'),
   installments: z.number().int().min(1).max(12).default(1),
+  confirmOverpayment: z.boolean().default(false),
 })
 
 // Schema for adding items to an existing sale (multiple purchases feature)

@@ -51,7 +51,7 @@ async function diagnoseAll() {
       dueDateMap.get(key)!.push(r)
     }
 
-    for (const [date, receivables] of dueDateMap.entries()) {
+    for (const [date, receivables] of Array.from(dueDateMap.entries())) {
       if (receivables.length > 1) {
         // Check if they have different installment numbers (which means a date was corrupted)
         const installments = receivables.map(r => r.installment)
@@ -162,7 +162,7 @@ async function diagnoseAll() {
       grouped.get(key)!.push(issue)
     }
 
-    for (const [key, issues] of grouped.entries()) {
+    for (const [key, issues] of Array.from(grouped.entries())) {
       console.log(`\n  ${key}:`)
       for (const issue of issues) {
         console.log(`    [${issue.type}] ${issue.detail}`)
@@ -187,7 +187,7 @@ async function diagnoseAll() {
       grouped.get(key)!.push(issue)
     }
 
-    for (const [key, issues] of grouped.entries()) {
+    for (const [key, issues] of Array.from(grouped.entries())) {
       console.log(`\n  ${key}:`)
       for (const issue of issues) {
         console.log(`    ${issue.detail}`)

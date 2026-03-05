@@ -86,6 +86,8 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
     initialValues: {
       search: '',
       period: 'month',
+      customPeriod: null,
+      monthPeriod: '',
       status: '',
       categoryId: '',
       productId: '',
@@ -93,7 +95,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
     },
   })
 
-  const dateRange = getDateRange(filters.period)
+  const dateRange = getDateRange(filters.customPeriod || filters.monthPeriod || filters.period)
 
   const { data: categoriesData } = useCategories()
   const { data: productsData } = useProducts({ limit: 20 })
@@ -111,6 +113,8 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
   const filterConfigs: FilterConfig[] = [
     { type: 'search', name: 'search', placeholder: 'Buscar por cliente...' },
     { type: 'toggle', name: 'period', toggleOptions: periodOptions },
+    { type: 'dateRange', name: 'customPeriod', placeholder: 'Período...' },
+    { type: 'monthSelect', name: 'monthPeriod', label: 'Mês' },
     ...(tab === 'todas' ? [{ type: 'select' as const, name: 'status', label: 'Status', options: statusOptions }] : []),
     { type: 'select', name: 'categoryId', label: 'Categoria', options: categoryOptions },
     { type: 'select', name: 'productId', label: 'Produto', options: productOptions },
@@ -137,7 +141,7 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [filters.search, filters.period, filters.status, filters.categoryId, filters.productId, filters.paymentMethod, tab])
+  }, [filters.search, filters.period, filters.customPeriod, filters.monthPeriod, filters.status, filters.categoryId, filters.productId, filters.paymentMethod, tab])
 
   const cancelSale = useCancelSale()
 

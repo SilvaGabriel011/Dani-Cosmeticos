@@ -34,14 +34,19 @@ const periodOptions = [
   { value: 'today', label: 'Hoje' },
   { value: 'week', label: '7 dias' },
   { value: 'month', label: 'Mês' },
+  { value: 'all', label: 'Todas' },
 ]
 
 export default function RelatoriosPage() {
   const { filters: filterState, setFilter } = useFilters({
-    initialValues: { period: 'month' },
+    initialValues: {
+      period: 'month',
+      customPeriod: null,
+      monthPeriod: '',
+    },
   })
 
-  const dateFilters = getDateRange(filterState.period)
+  const dateFilters = getDateRange(filterState.customPeriod || filterState.monthPeriod || filterState.period)
 
   const { data: summary, isLoading: loadingSummary } = useReportSummary(dateFilters)
   const { data: productReport, isLoading: loadingProducts } = useReportByProduct({
@@ -53,7 +58,7 @@ export default function RelatoriosPage() {
     limit: 10,
   })
   const { data: collection, isLoading: loadingCollection } = useCollection({
-    period: filterState.period as 'today' | 'week' | 'month',
+    period: (filterState.customPeriod || filterState.monthPeriod ? 'month' : filterState.period) as 'today' | 'week' | 'month',
   })
 
   const topProductsData = useMemo(
@@ -78,7 +83,11 @@ export default function RelatoriosPage() {
     <div className="space-y-6">
       <PageHeader title="Relatórios" description="Análise de vendas e desempenho">
         <FilterBar
-          filters={[{ type: 'toggle', name: 'period', toggleOptions: periodOptions }]}
+          filters={[
+            { type: 'toggle', name: 'period', toggleOptions: periodOptions },
+            { type: 'dateRange', name: 'customPeriod', placeholder: 'Período...' },
+            { type: 'monthSelect', name: 'monthPeriod', label: 'Mês' },
+          ]}
           values={filterState}
           onChange={(name, value) => setFilter(name as keyof typeof filterState, value)}
         />

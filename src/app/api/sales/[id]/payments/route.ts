@@ -58,15 +58,22 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     }
 
-    const { method, amount, feePercent, feeAbsorber, installments } = validation.data
+    const { method, amount, feePercent, feeAbsorber, installments, confirmOverpayment } = validation.data
 
     const remainingAmount = Number(sale.total) - Number(sale.paidAmount)
-    if (amount > remainingAmount + PAYMENT_TOLERANCE) {
+    const isOverpayment = amount > remainingAmount + PAYMENT_TOLERANCE
+    
+    if (isOverpayment && !confirmOverpayment) {
       return NextResponse.json(
         {
           error: {
-            code: 'AMOUNT_EXCEEDS',
-            message: `Valor máximo permitido: R$ ${remainingAmount.toFixed(2)}`,
+            code: 'OVERPAYMENT_CONFIRMATION_REQUIRED',
+            message: `O valor R$ ${amount.toFixed(2)} excede o saldo devedor de R$ ${remainingAmount.toFixed(2)}. Confirme para pagar a mais.`,
+            data: {
+              amount,
+              remainingAmount,
+              excess: amount - remainingAmount,
+            },
           },
         },
         { status: 400 }

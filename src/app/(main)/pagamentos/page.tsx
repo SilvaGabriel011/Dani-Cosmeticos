@@ -137,12 +137,14 @@ export default function PagamentosPage() {
   const { filters, setFilter, resetFilters } = useFilters({
     initialValues: {
       period: 'month',
+      customPeriod: null,
+      monthPeriod: '',
       clientId: '',
       method: '',
     },
   })
 
-  const dateRange = getDateRange(filters.period)
+  const dateRange = getDateRange(filters.customPeriod || filters.monthPeriod || filters.period)
 
   const { data: clientsData } = useClients({ limit: 200 })
   const clientOptions = useMemo(
@@ -165,16 +167,18 @@ export default function PagamentosPage() {
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [filters.period, filters.clientId, filters.method])
+  }, [filters.period, filters.customPeriod, filters.monthPeriod, filters.clientId, filters.method])
 
   const filterConfigs: FilterConfig[] = [
     { type: 'toggle', name: 'period', toggleOptions: periodOptions },
+    { type: 'dateRange', name: 'customPeriod', placeholder: 'Período...' },
+    { type: 'monthSelect', name: 'monthPeriod', label: 'Mês' },
     { type: 'select', name: 'clientId', label: 'Cliente', options: clientOptions },
     { type: 'select', name: 'method', label: 'Pagamento', options: paymentMethodOptions },
   ]
 
   const handleFilterChange = useCallback(
-    (name: string, value: string) => {
+    (name: string, value: any) => {
       setFilter(name as keyof typeof filters, value)
     },
     [setFilter]
