@@ -1,5 +1,5 @@
 import { type ClassValue, clsx } from 'clsx'
-import { format, subDays, startOfMonth } from 'date-fns'
+import { format, subDays, startOfMonth, endOfMonth } from 'date-fns'
 import { twMerge } from 'tailwind-merge'
 
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
@@ -59,8 +59,27 @@ export function calculateFeeAmount(amount: number, feePercent: number): number {
   return amount * (feePercent / 100)
 }
 
-export function getDateRange(period: string): { startDate: string; endDate: string } {
+export function getDateRange(period: string | { startDate: string; endDate: string } | any): { startDate: string; endDate: string } {
+  if (typeof period === 'object' && period !== null) {
+    if (period.startDate && period.endDate) {
+      return {
+        startDate: period.startDate,
+        endDate: period.endDate,
+      }
+    }
+    return { startDate: '', endDate: '' }
+  }
+
   const today = new Date()
+
+  if (typeof period === 'string' && period.match(/^\d{4}-\d{2}$/)) {
+    const [year, month] = period.split('-').map(Number)
+    const date = new Date(year, month - 1)
+    return {
+      startDate: format(startOfMonth(date), 'yyyy-MM-dd'),
+      endDate: format(endOfMonth(date), 'yyyy-MM-dd'),
+    }
+  }
 
   switch (period) {
     case 'today':
