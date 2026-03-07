@@ -22,6 +22,7 @@ import { useCategories } from '@/hooks/use-categories'
 import { useFilters } from '@/hooks/use-filters'
 import { useBackorders } from '@/hooks/use-backorders'
 import { useProducts, useDeleteProduct } from '@/hooks/use-products'
+import { getErrorNumericCode } from '@/lib/errors'
 import { formatCurrency, getStockStatus } from '@/lib/utils'
 import { type Product } from '@/types'
 
@@ -183,10 +184,13 @@ export const ProductList = memo(function ProductList({ tab = 'todos' }: ProductL
     try {
       await deleteProduct.mutateAsync(deletingProduct.id)
       toast({ title: 'Produto excluído com sucesso!' })
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error('[ProductList]', error)
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      const numCode = getErrorNumericCode(error)
       toast({
         title: 'Erro ao excluir',
-        description: error.message,
+        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
         variant: 'destructive',
       })
     } finally {

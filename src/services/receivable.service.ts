@@ -1,6 +1,7 @@
 import { Prisma, type FeeAbsorber, type ReceivableStatus } from '@prisma/client'
 
 import { PAYMENT_TOLERANCE } from '@/lib/constants'
+import { AppError, ErrorCodes } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 
 interface ListFilters {
@@ -163,9 +164,9 @@ export const receivableService = {
       where: { id },
       include: { sale: true },
     })
-    if (!receivable) throw new Error('Parcela não encontrada')
-    if (receivable.status === 'CANCELLED') throw new Error('Não é possível registrar pagamento em parcela cancelada')
-    if (receivable.status === 'PAID') throw new Error('Parcela já foi paga')
+    if (!receivable) throw new AppError(ErrorCodes.RECEIVABLE_NOT_FOUND, 404)
+    if (receivable.status === 'CANCELLED') throw new AppError(ErrorCodes.RECEIVABLE_CANCELLED)
+    if (receivable.status === 'PAID') throw new AppError(ErrorCodes.RECEIVABLE_ALREADY_PAID)
 
     const newPaidAmount = Number(receivable.paidAmount) + amount
     const expectedAmount = Number(receivable.amount)
@@ -173,7 +174,7 @@ export const receivableService = {
     // Validate payment doesn't exceed remaining balance
     const remainingOnReceivable = expectedAmount - Number(receivable.paidAmount)
     if (amount > remainingOnReceivable + PAYMENT_TOLERANCE) {
-      throw new Error(`Valor excede o saldo da parcela. Máximo: R$ ${remainingOnReceivable.toFixed(2)}`)
+      throw new AppError(ErrorCodes.PAYMENT_EXCEEDS_BALANCE, 400, { max: remainingOnReceivable })
     }
 
     let newStatus: ReceivableStatus = 'PENDING'
@@ -277,11 +278,11 @@ export const receivableService = {
     if (receivables.length === 0) {
       // Auto-create a receivable for sales with remaining balance but no pending receivables
       const sale = await prisma.sale.findUnique({ where: { id: saleId } })
-      if (!sale) throw new Error('Venda não encontrada')
+      if (!sale) throw new AppError(ErrorCodes.SALE_NOT_FOUND, 404)
 
       const saleRemaining = Number(sale.total) - Number(sale.paidAmount)
       if (saleRemaining <= PAYMENT_TOLERANCE) {
-        throw new Error('Nenhuma parcela pendente encontrada para esta venda')
+        throw new AppError(ErrorCodes.RECEIVABLE_NO_PENDING)
       }
 
       // Find the highest existing installment number to avoid duplicates
@@ -318,17 +319,17 @@ export const receivableService = {
         payments: true,
       },
     })
-    if (!sale) throw new Error('Venda não encontrada')
+    if (!sale) throw new AppError(ErrorCodes.SALE_NOT_FOUND, 404)
 
     const totalPayments = sale.payments.reduce((sum, p) => sum + Number(p.amount), 0)
     const totalRemaining = Number(sale.total) - totalPayments
 
     if (totalRemaining < -PAYMENT_TOLERANCE) {
-      throw new Error('Esta venda já foi paga completamente')
+      throw new AppError(ErrorCodes.PAYMENT_SALE_FULLY_PAID)
     }
 
     if (amount > totalRemaining + PAYMENT_TOLERANCE) {
-      throw new Error(`Valor excede o saldo devedor total. Maximo: R$ ${totalRemaining.toFixed(2)}`)
+      throw new AppError(ErrorCodes.PAYMENT_EXCEEDS_BALANCE, 400, { max: totalRemaining })
     }
 
     // Check if this payment fully pays off the sale (quitação)

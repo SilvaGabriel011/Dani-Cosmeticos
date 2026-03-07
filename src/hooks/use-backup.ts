@@ -1,12 +1,14 @@
 import { useMutation } from '@tanstack/react-query'
 import { Capacitor } from '@capacitor/core'
 
+import { throwApiError } from '@/lib/errors'
+
 async function downloadBackup(): Promise<void> {
   const response = await fetch('/api/backup')
 
   if (!response.ok) {
-    const body = (await response.json()) as { error?: { message?: string } }
-    throw new Error(body.error?.message ?? 'Erro ao gerar backup')
+    const body = await response.json()
+    throwApiError(body, 'Erro ao gerar backup')
   }
 
   const blob = await response.blob()
@@ -60,8 +62,8 @@ async function restoreBackup(file: File): Promise<{ restoredAt: string }> {
   })
 
   if (!response.ok) {
-    const body = (await response.json()) as { error?: { message?: string } }
-    throw new Error(body.error?.message ?? 'Erro ao restaurar backup')
+    const body = await response.json()
+    throwApiError(body, 'Erro ao restaurar backup')
   }
 
   return (response.json()) as Promise<{ restoredAt: string }>

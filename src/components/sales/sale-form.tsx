@@ -19,8 +19,8 @@ import { useProducts, useProductsOnDemand, useCreateProduct } from '@/hooks/use-
 import { useRecentSelections } from '@/hooks/use-recent-selections'
 import { useCreateSale, useClientPendingSales, useAddItemsToSale } from '@/hooks/use-sales'
 import { useSettings } from '@/hooks/use-settings'
-import { DEFAULT_PAYMENT_DAY } from '@/lib/constants'
 import Fuse from 'fuse.js'
+import { getErrorNumericCode } from '@/lib/errors'
 import { cn, formatCurrency } from '@/lib/utils'
 import { type Product } from '@/types'
 import { SaleReceipt, type SaleReceiptData } from './sale-receipt'
@@ -706,10 +706,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         })
         return
       } catch (error: unknown) {
+        console.error('[SaleForm]', error)
         const errorMessage = error instanceof Error ? error.message : 'Erro ao adicionar itens'
+        const numCode = getErrorNumericCode(error)
         toast({
           title: 'Erro ao adicionar itens',
-          description: errorMessage,
+          description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
           variant: 'destructive',
         })
         return
@@ -757,7 +759,7 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       // In fiado mode, we may have no payments at all
       const validPayments = isFiadoMode ? [] : payments.filter((p) => p.amount > 0)
 
-      await createSale.mutateAsync({
+      const result = await createSale.mutateAsync({
         clientId: clientId || null,
         items: items.map((i) => ({
           productId: i.product.id,
@@ -780,48 +782,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         startYear: isInstallment && startYear ? startYear : null,
       })
 
-      const receiptInstallments: SaleReceiptData['installments'] = []
-      if (isFiado) {
-        const remainingAmount = remaining
-        const numInstallments = isInstallment && installmentPlan ? installmentPlan : 1
-        const installmentAmount = Math.floor((remainingAmount / numInstallments) * 100) / 100
-        const day = isInstallment ? paymentDay : DEFAULT_PAYMENT_DAY
-        const now = new Date()
-        const hasCustomStart = isInstallment && startMonth && startYear
-
-        const skipCurrentMonth = !hasCustomStart && now.getDate() >= day
-        for (let i = 0; i < numInstallments; i++) {
-          let targetMonth: number
-          let targetYear: number
-
-          if (hasCustomStart) {
-            targetMonth = (startMonth - 1) + i
-            targetYear = startYear
-          } else {
-            targetMonth = now.getMonth() + i + (skipCurrentMonth ? 1 : 0)
-            targetYear = now.getFullYear()
-          }
-
-          while (targetMonth > 11) {
-            targetMonth -= 12
-            targetYear += 1
-          }
-
-          const lastDayOfMonth = new Date(targetYear, targetMonth + 1, 0).getDate()
-          const dueDate = new Date(targetYear, targetMonth, Math.min(day, lastDayOfMonth))
-
-          const isLast = i === numInstallments - 1
-          const thisAmount = isLast
-            ? Math.max(0.01, remainingAmount - installmentAmount * (numInstallments - 1))
-            : installmentAmount
-
-          receiptInstallments.push({
-            number: i + 1,
-            amount: Number(thisAmount.toFixed(2)),
-            dueDate,
-          })
-        }
-      }
+      // Use receivables from backend response (single source of truth)
+      const receiptInstallments: SaleReceiptData['installments'] = (result.receivables || []).map((r) => ({
+        number: r.installment,
+        amount: Number(r.amount),
+        dueDate: new Date(r.dueDate),
+      }))
 
       setReceiptData({
         type: isFiado ? 'new_fiado' : 'paid',
@@ -853,11 +819,12 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
         installments: receiptInstallments,
       })
     } catch (error: unknown) {
-      console.error('[SaleForm] Erro ao criar venda:', error)
+      console.error('[SaleForm]', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro ao realizar venda'
+      const numCode = getErrorNumericCode(error)
       toast({
         title: 'Erro ao realizar venda',
-        description: errorMessage,
+        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
         variant: 'destructive',
       })
     }
@@ -928,8 +895,10 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setQuickClientPhone('')
       setQuickClientAddress('')
     } catch (error: unknown) {
+      console.error('[SaleForm]', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro ao cadastrar cliente'
-      toast({ title: 'Erro', description: errorMessage, variant: 'destructive' })
+      const numCode = getErrorNumericCode(error)
+      toast({ title: 'Erro', description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage, variant: 'destructive' })
     }
   }
 
@@ -967,8 +936,10 @@ export function SaleForm({ open, onOpenChange, defaultClientId }: SaleFormProps)
       setQuickCost(0)
       setQuickProductType('encomenda')
     } catch (error: unknown) {
+      console.error('[SaleForm]', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro ao criar produto'
-      toast({ title: 'Erro', description: errorMessage, variant: 'destructive' })
+      const numCode = getErrorNumericCode(error)
+      toast({ title: 'Erro', description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage, variant: 'destructive' })
     }
   }
 

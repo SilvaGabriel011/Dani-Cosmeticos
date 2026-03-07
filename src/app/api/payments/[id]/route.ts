@@ -60,8 +60,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const updated = await prisma.payment.findUnique({ where: { id }, include: { sale: { include: { client: true } } } })
     return NextResponse.json(updated)
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }
 
@@ -90,7 +90,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
 
     return NextResponse.json({ success: true, message: 'Pagamento excluído com sucesso' })
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }

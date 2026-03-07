@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 import { cache, CACHE_KEYS } from '@/lib/cache'
 import { PAYMENT_TOLERANCE, DEFAULT_PAYMENT_DAY } from '@/lib/constants'
-import { handleApiError } from '@/lib/errors'
+import { AppError, ErrorCodes, handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { createSaleSchema } from '@/schemas/sale'
 import { assertReceivablesMatchTotal } from '@/services/receivable.service'
@@ -91,8 +91,8 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }
 
@@ -102,16 +102,7 @@ export async function POST(request: NextRequest) {
     const validation = createSaleSchema.safeParse(body)
 
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: 'Dados inválidos',
-            details: validation.error.flatten().fieldErrors,
-          },
-        },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.VALIDATION, 400, validation.error.flatten().fieldErrors as Record<string, unknown>)
     }
 
     const {
@@ -135,10 +126,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (products.length !== productIds.length) {
-      return NextResponse.json(
-        { error: { code: 'INVALID_PRODUCT', message: 'Produto inválido ou inativo' } },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.SALE_INVALID_PRODUCT, 400)
     }
 
     // Get client discount if any
@@ -204,15 +192,7 @@ export async function POST(request: NextRequest) {
 
     // Fiado sales require a client
     if (!isPaid && !clientId) {
-      return NextResponse.json(
-        {
-          error: {
-            code: 'CLIENT_REQUIRED',
-            message: 'Vendas fiado precisam de um cliente vinculado',
-          },
-        },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.SALE_CLIENT_REQUIRED, 400)
     }
 
     // Create sale in transaction
@@ -359,7 +339,13 @@ export async function POST(request: NextRequest) {
         await tx.receivable.createMany({ data: receivables })
       }
 
-      return newSale
+      // Fetch receivables to include in response (for receipt generation)
+      const createdReceivables = await tx.receivable.findMany({
+        where: { saleId: newSale.id },
+        orderBy: { installment: 'asc' },
+      })
+
+      return { ...newSale, receivables: createdReceivables }
     })
 
     // Invalidate dashboard cache after sale creation
@@ -368,7 +354,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(sale, { status: 201 })
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }

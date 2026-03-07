@@ -30,6 +30,7 @@ import { useBrands, useCreateBrand } from '@/hooks/use-brands'
 import { useCategories, useCreateCategory } from '@/hooks/use-categories'
 import { useCreateProduct, useUpdateProduct, useProducts, useCostEntries, useAddCostEntry, useDeleteCostEntry } from '@/hooks/use-products'
 import { generateProductCode } from '@/lib/code-generator'
+import { getErrorNumericCode } from '@/lib/errors'
 import { formatCurrency, calculateProfitMargin, calculateProfit } from '@/lib/utils'
 import { useMemo } from 'react'
 import { createProductSchema, type CreateProductInput } from '@/schemas/product'
@@ -198,10 +199,12 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
       reset()
       onOpenChange(false)
     } catch (error: unknown) {
+      console.error('[ProductForm]', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      const numCode = getErrorNumericCode(error)
       toast({
         title: 'Erro',
-        description: errorMessage,
+        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
         variant: 'destructive',
       })
     }
@@ -288,10 +291,13 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       setNewCategoryName('')
                       setIsCreatingCategory(false)
                       toast({ title: 'Categoria criada!' })
-                    } catch (error: any) {
+                    } catch (error: unknown) {
+                      console.error('[ProductForm]', error)
+                      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+                      const numCode = getErrorNumericCode(error)
                       toast({
                         title: 'Erro ao criar categoria',
-                        description: error.message,
+                        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
                         variant: 'destructive',
                       })
                     }
@@ -362,10 +368,13 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       setNewBrandName('')
                       setIsCreatingBrand(false)
                       toast({ title: 'Marca criada!' })
-                    } catch (error: any) {
+                    } catch (error: unknown) {
+                      console.error('[ProductForm]', error)
+                      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+                      const numCode = getErrorNumericCode(error)
                       toast({
                         title: 'Erro ao criar marca',
-                        description: error.message,
+                        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
                         variant: 'destructive',
                       })
                     }
@@ -489,8 +498,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                       setNewCostQty('1')
                       setNewCostNotes('')
                       toast({ title: 'Preço de custo adicionado!' })
-                    } catch (error: any) {
-                      toast({ title: 'Erro', description: error.message, variant: 'destructive' })
+                    } catch (error: unknown) {
+                      console.error('[ProductForm]', error)
+                      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+                      const numCode = getErrorNumericCode(error)
+                      toast({ title: 'Erro', description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage, variant: 'destructive' })
                     }
                   }}
                 >
@@ -530,8 +542,11 @@ export function ProductForm({ open, onOpenChange, product }: ProductFormProps) {
                               setValue('costPrice', Number(updated.costPrice))
                               setValue('profitMargin', Number(updated.profitMargin))
                               toast({ title: 'Entrada removida' })
-                            } catch (error: any) {
-                              toast({ title: 'Erro', description: error.message, variant: 'destructive' })
+                            } catch (error: unknown) {
+                              console.error('[ProductForm]', error)
+                              const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+                              const numCode = getErrorNumericCode(error)
+                              toast({ title: 'Erro', description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage, variant: 'destructive' })
                             }
                           }}
                         >

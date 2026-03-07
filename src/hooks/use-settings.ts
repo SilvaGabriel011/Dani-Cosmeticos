@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { throwApiError } from '@/lib/errors'
 import { type UpdateSettingsInput } from '@/schemas/settings'
 import { type Settings } from '@/types'
 
@@ -19,7 +20,7 @@ async function updateSettings(data: UpdateSettingsInput): Promise<Settings> {
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao atualizar configurações')
+    throwApiError(error, 'Erro ao atualizar configurações')
   }
   return res.json()
 }

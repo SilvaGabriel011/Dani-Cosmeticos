@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { throwApiError } from '@/lib/errors'
 import { type CreateProductInput, type UpdateProductInput } from '@/schemas/product'
 import { type Product, type PaginatedResult } from '@/types'
 
@@ -44,7 +45,7 @@ async function createProduct(data: CreateProductInput): Promise<Product> {
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao criar produto')
+    throwApiError(error, 'Erro ao criar produto')
   }
   return res.json()
 }
@@ -63,7 +64,7 @@ async function updateProduct({
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao atualizar produto')
+    throwApiError(error, 'Erro ao atualizar produto')
   }
   return res.json()
 }
@@ -190,7 +191,7 @@ async function addCostEntry({
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao adicionar preço de custo')
+    throwApiError(error, 'Erro ao adicionar preço de custo')
   }
   return res.json()
 }
@@ -207,7 +208,7 @@ async function deleteCostEntry({
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao remover entrada de custo')
+    throwApiError(error, 'Erro ao remover entrada de custo')
   }
   return res.json()
 }

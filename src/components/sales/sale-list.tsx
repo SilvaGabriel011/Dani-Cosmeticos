@@ -31,6 +31,7 @@ import { useFilters } from '@/hooks/use-filters'
 import { useProducts } from '@/hooks/use-products'
 import { useSales, useCancelSale } from '@/hooks/use-sales'
 import { SALE_STATUS_LABELS, PAYMENT_METHOD_LABELS } from '@/lib/constants'
+import { getErrorNumericCode } from '@/lib/errors'
 import { printSaleReceipt } from '@/lib/print-sale'
 import { formatCurrency, formatDate, getDateRange, buildSaleWhatsAppUrl, buildSaleWhatsAppMessage } from '@/lib/utils'
 import { type Sale } from '@/types'
@@ -157,10 +158,13 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
     try {
       await cancelSale.mutateAsync(cancelSaleId)
       toast({ title: 'Venda cancelada com sucesso!' })
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error('[SaleList]', error)
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      const numCode = getErrorNumericCode(error)
       toast({
         title: 'Erro ao cancelar',
-        description: error.message,
+        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
         variant: 'destructive',
       })
     } finally {

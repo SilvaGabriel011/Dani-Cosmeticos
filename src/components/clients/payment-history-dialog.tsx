@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
 import { useClientPaymentHistory, useDeletePayment, useEditPayment, type ClientPayment } from '@/hooks/use-payments'
+import { getErrorNumericCode } from '@/lib/errors'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import { formatCurrency, formatDate } from '@/lib/utils'
 
@@ -181,8 +182,10 @@ export function PaymentHistoryDialog({
                 toast({ title: 'Pagamento excluído', description: 'Parcelas recalculadas.' })
                 setDeleteTarget(null)
               } catch (error: unknown) {
+                console.error('[PaymentHistoryDialog]', error)
                 const msg = error instanceof Error ? error.message : 'Erro desconhecido'
-                toast({ title: 'Erro ao excluir', description: msg, variant: 'destructive' })
+                const numCode = getErrorNumericCode(error)
+                toast({ title: 'Erro ao excluir', description: numCode ? `[Erro ${numCode}] ${msg}` : msg, variant: 'destructive' })
               }
             }}
           >
@@ -237,8 +240,10 @@ export function PaymentHistoryDialog({
                 toast({ title: 'Pagamento atualizado', description: 'Parcelas recalculadas.' })
                 setEditTarget(null)
               } catch (error: unknown) {
+                console.error('[PaymentHistoryDialog]', error)
                 const msg = error instanceof Error ? error.message : 'Erro desconhecido'
-                toast({ title: 'Erro ao editar', description: msg, variant: 'destructive' })
+                const numCode = getErrorNumericCode(error)
+                toast({ title: 'Erro ao editar', description: numCode ? `[Erro ${numCode}] ${msg}` : msg, variant: 'destructive' })
               }
             }}
           >

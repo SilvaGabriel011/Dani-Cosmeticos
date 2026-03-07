@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { throwApiError } from '@/lib/errors'
 import {
   type CreateSaleInput,
   type AddPaymentInput,
@@ -79,7 +80,7 @@ async function createSale(data: CreateSaleInput): Promise<Sale> {
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao criar venda')
+    throwApiError(error, 'Erro ao criar venda')
   }
   return res.json()
 }
@@ -88,7 +89,7 @@ async function cancelSale(id: string): Promise<{ success: boolean; message: stri
   const res = await fetch(`/api/sales/${id}/cancel`, { method: 'POST' })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao cancelar venda')
+    throwApiError(error, 'Erro ao cancelar venda')
   }
   return res.json()
 }
@@ -107,7 +108,7 @@ async function addPayment({
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao adicionar pagamento')
+    throwApiError(error, 'Erro ao adicionar pagamento')
   }
   return res.json()
 }
@@ -218,7 +219,7 @@ async function addItemsToSale({
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao adicionar itens à venda')
+    throwApiError(error, 'Erro ao adicionar itens à venda')
   }
   const result = await res.json()
   return { sale: result.sale, addedItemsTotal: Number(result.addedItemsTotal || 0) }
@@ -252,7 +253,7 @@ async function rescheduleSale({
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao reagendar parcelas')
+    throwApiError(error, 'Erro ao reagendar parcelas')
   }
   const result = await res.json()
   return result.sale
@@ -285,7 +286,7 @@ async function updateReceivable({
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao atualizar parcela')
+    throwApiError(error, 'Erro ao atualizar parcela')
   }
   return res.json()
 }

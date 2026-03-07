@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
 import { useClients, useDeleteClient } from '@/hooks/use-clients'
+import { getErrorNumericCode } from '@/lib/errors'
 import { useFilters } from '@/hooks/use-filters'
 import { formatPercent, formatWhatsAppUrl } from '@/lib/utils'
 import { type Client } from '@/types'
@@ -98,10 +99,13 @@ export const ClientList = memo(function ClientList({ onNewSale, tab = 'todos' }:
     try {
       await deleteClient.mutateAsync(deletingClient.id)
       toast({ title: 'Cliente excluído com sucesso!' })
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error('[ClientList]', error)
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      const numCode = getErrorNumericCode(error)
       toast({
         title: 'Erro ao excluir',
-        description: error.message,
+        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
         variant: 'destructive',
       })
     } finally {
