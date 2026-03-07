@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { throwApiError } from '@/lib/errors'
 import { type ClientImportRow, type ProductImportRow } from '@/schemas/import'
 
 interface ClientImportResult {
@@ -24,7 +25,7 @@ async function importClients(clients: ClientImportRow[]): Promise<ClientImportRe
 
   if (!response.ok) {
     const error = await response.json()
-    throw new Error(error.error?.message || 'Erro ao importar clientes')
+    throwApiError(error, 'Erro ao importar clientes')
   }
 
   return response.json()
@@ -42,7 +43,7 @@ async function importProducts(
 
   if (!response.ok) {
     const error = await response.json()
-    throw new Error(error.error?.message || 'Erro ao importar produtos')
+    throwApiError(error, 'Erro ao importar produtos')
   }
 
   return response.json()

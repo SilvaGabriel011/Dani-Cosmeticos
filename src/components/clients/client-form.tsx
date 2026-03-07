@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
 import { useCreateClient, useUpdateClient } from '@/hooks/use-clients'
+import { getErrorNumericCode } from '@/lib/errors'
 import { createClientSchema, type CreateClientInput } from '@/schemas/client'
 import { type Client } from '@/types'
 
@@ -83,10 +84,13 @@ export function ClientForm({ open, onOpenChange, client }: ClientFormProps) {
       }
       reset()
       onOpenChange(false)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error('[ClientForm]', error)
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      const numCode = getErrorNumericCode(error)
       toast({
         title: 'Erro',
-        description: error.message,
+        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
         variant: 'destructive',
       })
     }

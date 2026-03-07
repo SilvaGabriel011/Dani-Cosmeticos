@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { throwApiError } from '@/lib/errors'
 import { type CreateClientInput, type UpdateClientInput } from '@/schemas/client'
 import { type Client, type PaginatedResult } from '@/types'
 
@@ -40,7 +41,7 @@ async function createClient(data: CreateClientInput): Promise<Client> {
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao criar cliente')
+    throwApiError(error, 'Erro ao criar cliente')
   }
   return res.json()
 }
@@ -59,7 +60,7 @@ async function updateClient({
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao atualizar cliente')
+    throwApiError(error, 'Erro ao atualizar cliente')
   }
   return res.json()
 }

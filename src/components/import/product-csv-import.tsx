@@ -24,6 +24,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
+import { getErrorNumericCode } from '@/lib/errors'
 import { useImportProducts } from '@/hooks/use-import'
 import { formatCurrency } from '@/lib/utils'
 import { type ProductImportRow } from '@/schemas/import'

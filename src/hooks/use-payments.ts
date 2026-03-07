@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { throwApiError } from '@/lib/errors'
+
 export interface ClientPayment {
   id: string
   saleId: string
@@ -110,7 +112,7 @@ async function deletePayment(id: string): Promise<{ success: boolean; message: s
   const res = await fetch(`/api/payments/${id}`, { method: 'DELETE' })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao excluir pagamento')
+    throwApiError(error, 'Erro ao excluir pagamento')
   }
   return res.json()
 }
@@ -123,7 +125,7 @@ async function editPayment({ id, data }: { id: string; data: { amount?: number; 
   })
   if (!res.ok) {
     const error = await res.json()
-    throw new Error(error.error?.message || 'Erro ao editar pagamento')
+    throwApiError(error, 'Erro ao editar pagamento')
   }
   return res.json()
 }

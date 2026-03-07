@@ -24,6 +24,7 @@ import {
 import { useToast } from '@/components/ui/use-toast'
 import { usePaySaleReceivables } from '@/hooks/use-receivables'
 import { useUpdateReceivable } from '@/hooks/use-sales'
+import { getErrorNumericCode } from '@/lib/errors'
 import { useSettings } from '@/hooks/use-settings'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import { formatCurrency, formatDate, formatWhatsAppUrl } from '@/lib/utils'
@@ -197,10 +198,12 @@ export function ReceivablePaymentModal({
         description: `${formatCurrency(amount)} pago via ${PAYMENT_METHOD_LABELS[paymentMethod]}.`,
       })
     } catch (error: unknown) {
+      console.error('[ReceivablePaymentModal]', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      const numCode = getErrorNumericCode(error)
       toast({
         title: 'Erro ao registrar pagamento',
-        description: errorMessage,
+        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
         variant: 'destructive',
       })
     }
@@ -225,10 +228,12 @@ export function ReceivablePaymentModal({
 
       onOpenChange(false)
     } catch (error: unknown) {
+      console.error('[ReceivablePaymentModal]', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      const numCode = getErrorNumericCode(error)
       toast({
         title: 'Erro ao reagendar',
-        description: errorMessage,
+        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
         variant: 'destructive',
       })
     }

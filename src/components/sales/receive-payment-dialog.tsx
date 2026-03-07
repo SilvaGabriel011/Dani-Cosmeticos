@@ -3,6 +3,8 @@
 import { AlertTriangle, Loader2, Receipt } from 'lucide-react'
 import { useState } from 'react'
 
+import { getErrorNumericCode } from '@/lib/errors'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -131,17 +133,15 @@ export function ReceivePaymentDialog({ open, onOpenChange, sale }: ReceivePaymen
       setInstallments(1)
       setShowOverpaymentConfirm(false)
       onOpenChange(false)
-    } catch (error: any) {
-      const errorData = error?.response?.data?.error
-      if (errorData?.code === 'OVERPAYMENT_CONFIRMATION_REQUIRED') {
-        setShowOverpaymentConfirm(true)
-      } else {
-        toast({
-          title: 'Erro ao registrar pagamento',
-          description: error.message,
-          variant: 'destructive',
-        })
-      }
+    } catch (error: unknown) {
+      console.error('[ReceivePaymentDialog]', error)
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      const numCode = getErrorNumericCode(error)
+      toast({
+        title: 'Erro ao registrar pagamento',
+        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
+        variant: 'destructive',
+      })
     }
   }
 

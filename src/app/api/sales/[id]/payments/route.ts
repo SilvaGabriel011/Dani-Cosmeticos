@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 import { cache, CACHE_KEYS } from '@/lib/cache'
 import { PAYMENT_TOLERANCE } from '@/lib/constants'
-import { handleApiError } from '@/lib/errors'
+import { AppError, ErrorCodes, handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { addPaymentSchema } from '@/schemas/sale'
 import { receivableService } from '@/services/receivable.service'
@@ -16,16 +16,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const validation = addPaymentSchema.safeParse(body)
 
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: 'Dados inválidos',
-            details: validation.error.flatten().fieldErrors,
-          },
-        },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.VALIDATION, 400, validation.error.flatten().fieldErrors as Record<string, unknown>)
     }
 
     const sale = await prisma.sale.findUnique({
@@ -33,29 +24,15 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     })
 
     if (!sale) {
-      return NextResponse.json(
-        { error: { code: 'NOT_FOUND', message: 'Venda não encontrada' } },
-        { status: 404 }
-      )
+      throw new AppError(ErrorCodes.SALE_NOT_FOUND, 404)
     }
 
     if (sale.status === 'CANCELLED') {
-      return NextResponse.json(
-        {
-          error: {
-            code: 'SALE_CANCELLED',
-            message: 'Não é possível adicionar pagamento a uma venda cancelada',
-          },
-        },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.SALE_CANCELLED, 400)
     }
 
     if (sale.status === 'COMPLETED') {
-      return NextResponse.json(
-        { error: { code: 'SALE_COMPLETED', message: 'Esta venda já está totalmente paga' } },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.SALE_COMPLETED, 400)
     }
 
     const { method, amount, feePercent, feeAbsorber, installments, confirmOverpayment } = validation.data
@@ -64,20 +41,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const isOverpayment = amount > remainingAmount + PAYMENT_TOLERANCE
     
     if (isOverpayment && !confirmOverpayment) {
-      return NextResponse.json(
-        {
-          error: {
-            code: 'OVERPAYMENT_CONFIRMATION_REQUIRED',
-            message: `O valor R$ ${amount.toFixed(2)} excede o saldo devedor de R$ ${remainingAmount.toFixed(2)}. Confirme para pagar a mais.`,
-            data: {
-              amount,
-              remainingAmount,
-              excess: amount - remainingAmount,
-            },
-          },
-        },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.PAYMENT_OVERPAYMENT_UNCONFIRMED, 400, {
+        amount,
+        remainingAmount,
+        excess: amount - remainingAmount,
+      })
     }
 
     await receivableService.registerPaymentWithDistribution(
@@ -102,8 +70,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     return NextResponse.json(updatedSale)
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }
 
@@ -118,7 +86,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json(payments)
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }

@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { cache, CACHE_KEYS } from '@/lib/cache'
-import { handleApiError } from '@/lib/errors'
+import { AppError, ErrorCodes, handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { updateReceivableSchema } from '@/schemas/sale'
 import { receivableService } from '@/services/receivable.service'
@@ -14,16 +14,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const data = await receivableService.getById(id)
 
     if (!data) {
-      return NextResponse.json(
-        { error: { code: 'NOT_FOUND', message: 'Parcela não encontrada' } },
-        { status: 404 }
-      )
+      throw new AppError(ErrorCodes.RECEIVABLE_NOT_FOUND, 404)
     }
 
     return NextResponse.json(data)
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }
 
@@ -34,16 +31,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const validation = updateReceivableSchema.safeParse(body)
 
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: 'Dados inválidos',
-            details: validation.error.flatten().fieldErrors,
-          },
-        },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.VALIDATION, 400, validation.error.flatten().fieldErrors as Record<string, unknown>)
     }
 
     const { dueDate } = validation.data
@@ -57,36 +45,19 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     })
 
     if (!receivable) {
-      return NextResponse.json(
-        { error: { code: 'NOT_FOUND', message: 'Parcela não encontrada' } },
-        { status: 404 }
-      )
+      throw new AppError(ErrorCodes.RECEIVABLE_NOT_FOUND, 404)
     }
 
     if (receivable.status === 'CANCELLED') {
-      return NextResponse.json(
-        { error: { code: 'RECEIVABLE_CANCELLED', message: 'Não é possível alterar parcela cancelada' } },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.RECEIVABLE_CANCELLED, 400)
     }
 
     if (receivable.status === 'PAID') {
-      return NextResponse.json(
-        { error: { code: 'ALREADY_PAID', message: 'Não é possível alterar parcela já paga' } },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.RECEIVABLE_ALREADY_PAID, 400)
     }
 
     if (receivable.sale.status === 'CANCELLED') {
-      return NextResponse.json(
-        {
-          error: {
-            code: 'SALE_CANCELLED',
-            message: 'Não é possível alterar parcela de venda cancelada',
-          },
-        },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.RECEIVABLE_SALE_CANCELLED, 400)
     }
 
     const newDueDate = new Date(dueDate)
@@ -95,10 +66,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     if (newDueDate < today) {
-      return NextResponse.json(
-        { error: { code: 'INVALID_DATE', message: 'Data de vencimento não pode ser no passado' } },
-        { status: 400 }
-      )
+      throw new AppError(ErrorCodes.RECEIVABLE_INVALID_DATE, 400)
     }
 
     // Update the receivable
@@ -119,7 +87,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     return NextResponse.json(updatedReceivable)
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }

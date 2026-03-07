@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
 import { useReceivablesByClient, usePayReceivable } from '@/hooks/use-receivables'
+import { getErrorNumericCode } from '@/lib/errors'
 import { useSettings } from '@/hooks/use-settings'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import { formatCurrency, formatDate } from '@/lib/utils'
@@ -107,11 +108,13 @@ export function ClientReceivables({ clientId }: ClientReceivablesProps) {
       setPaymentDialog({ open: false, receivable: null })
       setPaymentAmount('')
       setPaymentMethod('CASH')
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('[ClientReceivables]', error)
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      const numCode = getErrorNumericCode(error)
       toast({
         title: 'Erro ao registrar pagamento',
-        description: errorMessage,
+        description: numCode ? `[Erro ${numCode}] ${errorMessage}` : errorMessage,
         variant: 'destructive',
       })
     }

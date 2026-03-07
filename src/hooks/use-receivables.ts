@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { throwApiError } from '@/lib/errors'
+
 interface ReceivableFilters {
   clientId?: string
   saleId?: string
@@ -111,7 +113,7 @@ export function usePayReceivable() {
       })
       if (!res.ok) {
         const error = await res.json()
-        throw new Error(error.error || 'Erro ao registrar pagamento')
+        throwApiError(error, 'Erro ao registrar pagamento')
       }
       return res.json()
     },
@@ -152,7 +154,7 @@ export function usePaySaleReceivables() {
       })
       if (!res.ok) {
         const error = await res.json()
-        throw new Error(error.error?.message || error.message || 'Erro ao registrar pagamento')
+        throwApiError(error, 'Erro ao registrar pagamento')
       }
       return res.json()
     },

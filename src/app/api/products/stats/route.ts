@@ -38,7 +38,7 @@ export async function GET() {
       zeradosCount,
     })
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }

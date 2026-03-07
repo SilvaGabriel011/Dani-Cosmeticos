@@ -22,6 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
+import { getErrorNumericCode } from '@/lib/errors'
 import { useImportClients } from '@/hooks/use-import'
 import { formatCurrency } from '@/lib/utils'
 import { type ClientImportRow } from '@/schemas/import'

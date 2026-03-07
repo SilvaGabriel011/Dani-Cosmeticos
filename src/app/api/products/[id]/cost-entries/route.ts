@@ -19,8 +19,8 @@ export async function GET(
 
     return NextResponse.json(entries)
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }
 
@@ -94,8 +94,8 @@ export async function POST(
 
     return NextResponse.json(result, { status: 201 })
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }
 
@@ -160,7 +160,7 @@ export async function DELETE(
 
     return NextResponse.json(result)
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }

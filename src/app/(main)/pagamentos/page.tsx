@@ -49,6 +49,7 @@ import { useFilters } from '@/hooks/use-filters'
 import { usePayments, useDeletePayment, useEditPayment, type PaymentData } from '@/hooks/use-payments'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import { useToast } from '@/components/ui/use-toast'
+import { getErrorNumericCode } from '@/lib/errors'
 import { printPaymentInstallments } from '@/lib/print-sale'
 import { formatCurrency, formatDate, getDateRange } from '@/lib/utils'
 

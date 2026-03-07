@@ -89,8 +89,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     return NextResponse.json(product)
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }
 
@@ -129,7 +129,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     return new NextResponse(null, { status: 204 })
   } catch (error) {
-    const { message, code, status } = handleApiError(error)
-    return NextResponse.json({ error: { code, message } }, { status })
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }

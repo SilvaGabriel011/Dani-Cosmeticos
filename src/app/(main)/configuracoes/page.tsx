@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/use-toast'
+import { getErrorNumericCode } from '@/lib/errors'
 import { useDownloadBackup, useRestoreBackup } from '@/hooks/use-backup'
 import { useSettings, useUpdateSettings } from '@/hooks/use-settings'
 import { FEE_ABSORBER_LABELS } from '@/lib/constants'
