@@ -67,7 +67,10 @@ async function updateClient({
 
 async function deleteClient(id: string): Promise<void> {
   const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' })
-  if (!res.ok) throw new Error('Erro ao excluir cliente')
+  if (!res.ok) {
+    const error = await res.json()
+    throwApiError(error, 'Erro ao excluir cliente')
+  }
 }
 
 export function useClients(filters: ClientFilters = {}) {

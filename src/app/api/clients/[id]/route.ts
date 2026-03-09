@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
+import { handleApiError } from '@/lib/errors'
 import { prisma } from '@/lib/prisma'
 import { updateClientSchema } from '@/schemas/client'
 
@@ -31,11 +32,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json(client)
   } catch (error) {
-    console.error('Error fetching client:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao buscar cliente' } },
-      { status: 500 }
-    )
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }
 
@@ -75,11 +73,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     return NextResponse.json(client)
   } catch (error) {
-    console.error('Error updating client:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao atualizar cliente' } },
-      { status: 500 }
-    )
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }
 
@@ -103,10 +98,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error('Error deleting client:', error)
-    return NextResponse.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Erro ao excluir cliente' } },
-      { status: 500 }
-    )
+    const { message, code, numericCode, status } = handleApiError(error)
+    return NextResponse.json({ error: { code, numericCode, message } }, { status })
   }
 }
