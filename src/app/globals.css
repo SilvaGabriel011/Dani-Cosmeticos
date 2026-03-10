@@ -79,10 +79,25 @@
   }
   html {
     font-size: 17px;
+    height: 100%;
   }
   body {
     @apply bg-background text-foreground;
     font-size: 16px;
     transition: background-color 0.2s ease, color 0.2s ease;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+}
+
+@layer utilities {
+  .h-screen-safe {
+    height: 100vh;
+    height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+  
+  .min-h-screen-safe {
+    min-height: 100vh;
+    min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   }
 }
