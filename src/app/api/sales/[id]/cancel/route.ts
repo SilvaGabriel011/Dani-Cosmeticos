@@ -108,9 +108,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       })
     })
 
-    // Invalidate caches
+    // Invalidate all caches — including debtors list
     cache.invalidate(CACHE_KEYS.DASHBOARD)
     cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+    cache.invalidatePrefix(CACHE_KEYS.DEBTORS)
 
     return NextResponse.json({ success: true, message: 'Venda cancelada e removida' })
   } catch (error) {

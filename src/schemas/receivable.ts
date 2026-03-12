@@ -21,10 +21,10 @@ export const listReceivablesSchema = z.object({
   saleId: z.string().uuid().optional(),
   status: z
     .union([
-      z.enum(['PENDING', 'PARTIAL', 'PAID', 'OVERDUE']),
+      z.enum(['PENDING', 'PARTIAL', 'PAID', 'OVERDUE', 'CANCELLED']),
       z
         .string()
-        .transform((val) => val.split(',') as ('PENDING' | 'PARTIAL' | 'PAID' | 'OVERDUE')[]),
+        .transform((val) => val.split(',') as ('PENDING' | 'PARTIAL' | 'PAID' | 'OVERDUE' | 'CANCELLED')[]),
     ])
     .optional(),
   startDate: z.string().optional(),
@@ -32,6 +32,15 @@ export const listReceivablesSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(50),
 })
 
+export const overrideReceivableSchema = z.object({
+  amount: z.number().positive().optional(),
+  paidAmount: z.number().min(0).optional(),
+  status: z.enum(['PENDING', 'PARTIAL', 'PAID', 'OVERDUE', 'CANCELLED']).optional(),
+  dueDate: z.string().datetime().optional(),
+  reason: z.string().min(1, 'Motivo é obrigatório'),
+})
+
 export type CreateReceivableInput = z.infer<typeof createReceivableSchema>
 export type PayReceivableInput = z.infer<typeof payReceivableSchema>
 export type ListReceivablesInput = z.infer<typeof listReceivablesSchema>
+export type OverrideReceivableInput = z.infer<typeof overrideReceivableSchema>

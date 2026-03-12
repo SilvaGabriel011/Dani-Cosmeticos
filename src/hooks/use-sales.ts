@@ -301,3 +301,46 @@ export function useUpdateReceivable() {
     },
   })
 }
+
+// Override (super-edit) a sale
+async function overrideSale({
+  saleId,
+  data,
+}: {
+  saleId: string
+  data: Record<string, unknown>
+}): Promise<{ success: boolean; data: Sale }> {
+  const res = await fetch(`/api/sales/${saleId}/override`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) {
+    const error = await res.json()
+    throwApiError(error, 'Erro ao editar venda')
+  }
+  return res.json()
+}
+
+export function useOverrideSale() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: overrideSale,
+    onSuccess: (_data, variables) => {
+      // Super Edição DEVE invalidar TUDO — dashboard, devedores, parcelas, vendas
+      queryClient.invalidateQueries({ queryKey: ['sales'] })
+      queryClient.invalidateQueries({ queryKey: ['sale'] })
+      queryClient.invalidateQueries({ queryKey: ['sale', variables.saleId] })
+      queryClient.invalidateQueries({ queryKey: ['sale-diagnostic', variables.saleId] })
+      queryClient.invalidateQueries({ queryKey: ['override-history', variables.saleId] })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['receivables'] })
+      queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
+      queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
+      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: ['client-payments'] })
+      queryClient.invalidateQueries({ queryKey: ['debtors'] })
+    },
+  })
+}

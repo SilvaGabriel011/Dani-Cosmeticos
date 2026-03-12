@@ -67,6 +67,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     cache.invalidate(CACHE_KEYS.DASHBOARD)
     cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+    cache.invalidatePrefix(CACHE_KEYS.DEBTORS)
 
     return NextResponse.json(updatedSale)
   } catch (error) {

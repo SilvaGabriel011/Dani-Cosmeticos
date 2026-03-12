@@ -72,25 +72,27 @@ model Client {
 }
 
 model Sale {
-  id                     String          @id @default(uuid())
+  id                     String              @id @default(uuid())
   clientId               String?
-  subtotal               Decimal         @db.Decimal(10, 2)
-  discountPercent        Decimal         @default(0) @db.Decimal(5, 2)
-  discountAmount         Decimal         @default(0) @db.Decimal(10, 2)
-  totalFees              Decimal         @default(0) @db.Decimal(10, 2)
-  total                  Decimal         @db.Decimal(10, 2)
-  netTotal               Decimal         @db.Decimal(10, 2)
-  status                 SaleStatus      @default(COMPLETED)
+  subtotal               Decimal             @db.Decimal(10, 2)
+  discountPercent        Decimal             @default(0) @db.Decimal(5, 2)
+  discountAmount         Decimal             @default(0) @db.Decimal(10, 2)
+  totalFees              Decimal             @default(0) @db.Decimal(10, 2)
+  total                  Decimal             @db.Decimal(10, 2)
+  netTotal               Decimal             @db.Decimal(10, 2)
+  status                 SaleStatus          @default(COMPLETED)
   notes                  String?
-  createdAt              DateTime        @default(now())
-  paidAmount             Decimal         @default(0) @db.Decimal(10, 2)
+  createdAt              DateTime            @default(now())
+  paidAmount             Decimal             @default(0) @db.Decimal(10, 2)
   dueDate                DateTime?
-  installmentPlan        Int             @default(1)
-  fixedInstallmentAmount Decimal?        @db.Decimal(10, 2)
+  installmentPlan        Int                 @default(1)
+  fixedInstallmentAmount Decimal?            @db.Decimal(10, 2)
   paymentDay             Int?
   payments               Payment[]
   receivables            Receivable[]
-  client                 Client?         @relation(fields: [clientId], references: [id])
+  acknowledgedIssues     AcknowledgedIssue[]
+  overrideLogs           SaleOverrideLog[]
+  client                 Client?             @relation(fields: [clientId], references: [id])
   items                  SaleItem[]
   stockMovements         StockMovement[]
 
@@ -131,12 +133,14 @@ model Payment {
   feeAmount    Decimal       @default(0) @db.Decimal(10, 2)
   feeAbsorber  FeeAbsorber   @default(SELLER)
   installments Int           @default(1)
+  isAdjustment Boolean       @default(false)
   paidAt       DateTime      @default(now())
   sale         Sale          @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@index([saleId])
   @@index([method])
   @@index([paidAt])
+  @@index([isAdjustment])
 }
 
 model Settings {
@@ -212,6 +216,31 @@ model ProductCostEntry {
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
+  @@index([createdAt])
+}
+
+model AcknowledgedIssue {
+  id             String   @id @default(uuid())
+  saleId         String
+  issueCode      String
+  notes          String?
+  acknowledgedAt DateTime @default(now())
+  sale           Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@unique([saleId, issueCode])
+  @@index([saleId])
+}
+
+model SaleOverrideLog {
+  id            String   @id @default(uuid())
+  saleId        String
+  reason        String
+  changes       Json
+  previousState Json
+  createdAt     DateTime @default(now())
+  sale          Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@index([saleId])
   @@index([createdAt])
 }
 

@@ -96,4 +96,5 @@ export const CACHE_TTL = {
 export const CACHE_KEYS = {
   DASHBOARD: 'dashboard',
   RECEIVABLES_SUMMARY: 'receivables_summary',
+  DEBTORS: 'debtors',
 } as const

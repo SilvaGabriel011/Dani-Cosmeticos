@@ -34,9 +34,10 @@ export async function POST(request: NextRequest) {
       paymentAudit
     )
 
-    // Invalidate dashboard cache after payment
+    // Invalidate all caches after payment — including debtors list
     cache.invalidate(CACHE_KEYS.DASHBOARD)
     cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+    cache.invalidatePrefix(CACHE_KEYS.DEBTORS)
 
     return NextResponse.json(data)
   } catch (error) {

@@ -16,9 +16,12 @@ export async function GET(request: NextRequest) {
       : startOfDay(new Date(new Date().setDate(1)))
     const endDate = endDateParam ? endOfDay(parseISO(endDateParam)) : endOfDay(new Date())
 
-    const payments = await prisma.payment.findMany({
+    // isAdjustment filter: requires `prisma generate` after migration
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payments = await (prisma.payment.findMany as any)({
       where: {
         sale: { status: { not: 'CANCELLED' } },
+        isAdjustment: false,
         paidAt: {
           gte: startDate,
           lte: endDate,

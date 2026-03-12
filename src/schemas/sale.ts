@@ -63,6 +63,23 @@ export const updateReceivableSchema = z.object({
   dueDate: z.string().datetime(),
 })
 
+export const overrideSaleSchema = z.object({
+  status: z.enum(['COMPLETED', 'PENDING']).optional(),
+  paidAmount: z.number().min(0).optional(),
+  notes: z.string().optional(),
+  discountPercent: z.number().min(0).max(100).optional(),
+  reason: z.string().min(1, 'Motivo é obrigatório'),
+  receivables: z.array(z.object({
+    id: z.string().uuid().optional(),
+    installment: z.number().int().min(1),
+    amount: z.number().positive(),
+    paidAmount: z.number().min(0),
+    status: z.enum(['PENDING', 'PARTIAL', 'PAID', 'OVERDUE', 'CANCELLED']),
+    dueDate: z.string().datetime(),
+  })).optional(),
+  deleteReceivableIds: z.array(z.string().uuid()).optional(),
+})
+
 export type SaleItemInput = z.infer<typeof saleItemSchema>
 export type PaymentInput = z.infer<typeof paymentSchema>
 export type CreateSaleInput = z.infer<typeof createSaleSchema>
@@ -70,3 +87,4 @@ export type AddPaymentInput = z.infer<typeof addPaymentSchema>
 export type AddItemsToSaleInput = z.input<typeof addItemsToSaleSchema>
 export type RescheduleSaleInput = z.infer<typeof rescheduleSaleSchema>
 export type UpdateReceivableInput = z.infer<typeof updateReceivableSchema>
+export type OverrideSaleInput = z.infer<typeof overrideSaleSchema>

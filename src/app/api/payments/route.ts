@@ -14,10 +14,15 @@ export async function GET(request: NextRequest) {
     const method = searchParams.get('method') || undefined
     const startDate = searchParams.get('startDate') || undefined
     const endDate = searchParams.get('endDate') || undefined
+    const excludeAdjustments = searchParams.get('excludeAdjustments') === 'true'
     const page = Math.max(1, Number(searchParams.get('page') || 1))
     const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit') || 50)))
 
     const where: Record<string, unknown> = {}
+
+    if (excludeAdjustments) {
+      where.isAdjustment = false
+    }
 
     if (clientId) {
       where.sale = { clientId }

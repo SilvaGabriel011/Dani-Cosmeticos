@@ -348,9 +348,10 @@ export async function POST(request: NextRequest) {
       return { ...newSale, receivables: createdReceivables }
     })
 
-    // Invalidate dashboard cache after sale creation
+    // Invalidate all caches after sale creation — including debtors list
     cache.invalidate(CACHE_KEYS.DASHBOARD)
     cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+    cache.invalidatePrefix(CACHE_KEYS.DEBTORS)
 
     return NextResponse.json(sale, { status: 201 })
   } catch (error) {

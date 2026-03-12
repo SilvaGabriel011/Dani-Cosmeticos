@@ -20,9 +20,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       { feePercent, feeAbsorber, installments }
     )
 
-    // Invalidate caches after payment
+    // Invalidate caches after payment — including debtors list
     cache.invalidate(CACHE_KEYS.DASHBOARD)
     cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+    cache.invalidatePrefix(CACHE_KEYS.DEBTORS)
 
     return NextResponse.json(data)
   } catch (error) {

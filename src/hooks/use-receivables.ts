@@ -118,10 +118,13 @@ export function usePayReceivable() {
       return res.json()
     },
     onSuccess: () => {
-      // Invalida apenas receivables e sales - outros serão atualizados no ciclo
+      // Pagamento deve invalidar tudo que mostra dívida/saldo
       queryClient.invalidateQueries({ queryKey: ['receivables'] })
       queryClient.invalidateQueries({ queryKey: ['sales'] })
       queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
+      queryClient.invalidateQueries({ queryKey: ['debtors'] })
     },
   })
 }
@@ -159,10 +162,13 @@ export function usePaySaleReceivables() {
       return res.json()
     },
     onSuccess: () => {
-      // Invalida apenas o necessário
+      // Pagamento deve invalidar tudo que mostra dívida/saldo
       queryClient.invalidateQueries({ queryKey: ['receivables'] })
       queryClient.invalidateQueries({ queryKey: ['sales'] })
       queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
+      queryClient.invalidateQueries({ queryKey: ['debtors'] })
     },
   })
 }
@@ -186,5 +192,43 @@ export function useSalesWithPendingReceivables(limit?: number) {
     },
     staleTime: 30 * 1000, // 30 segundos
     refetchOnWindowFocus: true,
+  })
+}
+
+// Override (super-edit) a single receivable
+export function useOverrideReceivable() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string
+      data: Record<string, unknown>
+    }) => {
+      const res = await fetch(`/api/receivables/${id}/override`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) {
+        const error = await res.json()
+        throwApiError(error, 'Erro ao editar parcela')
+      }
+      return res.json()
+    },
+    onSuccess: () => {
+      // Super Edição DEVE invalidar TUDO — dashboard, devedores, parcelas, vendas
+      queryClient.invalidateQueries({ queryKey: ['receivables'] })
+      queryClient.invalidateQueries({ queryKey: ['sales'] })
+      queryClient.invalidateQueries({ queryKey: ['sale'] })
+      queryClient.invalidateQueries({ queryKey: ['salesWithReceivables'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['client-pending-sales'] })
+      queryClient.invalidateQueries({ queryKey: ['payments'] })
+      queryClient.invalidateQueries({ queryKey: ['client-payments'] })
+      queryClient.invalidateQueries({ queryKey: ['debtors'] })
+    },
   })
 }

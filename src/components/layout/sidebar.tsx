@@ -14,6 +14,8 @@ import {
   PanelLeftOpen,
   MoreHorizontal,
   X,
+  HeartPulse,
+  ClipboardCheck,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -30,6 +32,7 @@ const navItems = [
   { href: '/clientes/devedores', label: 'Devedores', icon: UserX },
   { href: '/pagamentos', label: 'Pagamentos', icon: Banknote },
   { href: '/relatorios', label: 'Relatorios', icon: BarChart3 },
+  { href: '/auditoria', label: 'Auditoria', icon: ClipboardCheck },
   { href: '/configuracoes', label: 'Configuracoes', icon: Settings },
 ]
 

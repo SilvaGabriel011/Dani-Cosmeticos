@@ -56,6 +56,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     cache.invalidate(CACHE_KEYS.DASHBOARD)
     cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+    cache.invalidatePrefix(CACHE_KEYS.DEBTORS)
 
     const updated = await prisma.payment.findUnique({ where: { id }, include: { sale: { include: { client: true } } } })
     return NextResponse.json(updated)
@@ -87,6 +88,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
 
     cache.invalidate(CACHE_KEYS.DASHBOARD)
     cache.invalidatePrefix(CACHE_KEYS.RECEIVABLES_SUMMARY)
+    cache.invalidatePrefix(CACHE_KEYS.DEBTORS)
 
     return NextResponse.json({ success: true, message: 'Pagamento excluído com sucesso' })
   } catch (error) {

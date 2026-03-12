@@ -1,9 +1,11 @@
 'use client'
 
-import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Printer, Copy, Check } from 'lucide-react'
+import { XCircle, Banknote, ShoppingBag, AlertTriangle, MessageCircle, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Printer, Copy, Check, Pencil, Search } from 'lucide-react'
 import { useMemo, useState, useCallback, useEffect, memo } from 'react'
 
 import { ReceivePaymentDialog } from '@/components/sales/receive-payment-dialog'
+import { SaleDiagnosticDialog } from '@/components/sales/sale-diagnostic-dialog'
+import { SaleOverrideDialog } from '@/components/sales/sale-override-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -70,6 +72,8 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
   const [expandedSaleIds, setExpandedSaleIds] = useState<Set<string>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
   const [copiedSaleId, setCopiedSaleId] = useState<string | null>(null)
+  const [overrideSale, setOverrideSale] = useState<Sale | null>(null)
+  const [diagnosticSaleId, setDiagnosticSaleId] = useState<string | null>(null)
 
   const toggleExpanded = useCallback((saleId: string) => {
     setExpandedSaleIds((prev) => {
@@ -408,6 +412,30 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
                     <Button
                       variant="ghost"
                       size="icon"
+                      onClick={() => setDiagnosticSaleId(sale.id)}
+                      title="Raio-X"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-cyan-50 dark:hover:bg-cyan-950/30 hover:text-cyan-700"
+                      aria-label="Raio-X da venda"
+                    >
+                      <Search className="h-6 w-6 text-cyan-600" />
+                    </Button>
+                  )}
+                  {(sale.status === 'COMPLETED' || sale.status === 'PENDING') && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setOverrideSale(sale)}
+                      title="Super Edição"
+                      className="h-10 w-10 transition-all duration-150 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-700"
+                      aria-label="Super Edição"
+                    >
+                      <Pencil className="h-6 w-6 text-amber-600" />
+                    </Button>
+                  )}
+                  {(sale.status === 'COMPLETED' || sale.status === 'PENDING') && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => setCancelSaleId(sale.id)}
                       disabled={cancelSale.isPending}
                       title="Cancelar venda"
@@ -522,6 +550,22 @@ export const SaleList = memo(function SaleList({ tab = 'todas' }: SaleListProps)
         onOpenChange={(open) => !open && setPaymentSale(null)}
         sale={paymentSale}
       />
+
+      {overrideSale && (
+        <SaleOverrideDialog
+          sale={overrideSale}
+          open={!!overrideSale}
+          onOpenChange={(open) => !open && setOverrideSale(null)}
+        />
+      )}
+
+      {diagnosticSaleId && (
+        <SaleDiagnosticDialog
+          saleId={diagnosticSaleId}
+          open={!!diagnosticSaleId}
+          onOpenChange={(open) => !open && setDiagnosticSaleId(null)}
+        />
+      )}
 
       <Dialog open={!!cancelSaleId} onOpenChange={(open) => !open && setCancelSaleId(null)}>
         <DialogContent className="max-w-md">
