@@ -40,7 +40,7 @@ export async function POST(
       throw new AppError(ErrorCodes.NOT_FOUND, 404, { message: 'Log de override não encontrado' })
     }
 
-    const previousState = log.previousState as PreviousState
+    const previousState = log.previousState as unknown as PreviousState
 
     // Find the current sale
     const sale = await prisma.sale.findUnique({
